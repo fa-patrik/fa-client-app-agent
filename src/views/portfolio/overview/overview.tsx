@@ -117,17 +117,17 @@ const Overview = ({ data }: OverviewProps) => {
         />
       </div>
       <div>
-        <Card header="Security type allocation">
+        <Card header={t("overviewPage.pieChartLabel")}>
           <div className="pt-4 grow min-h-[300px]">
             <PieChart {...chartData} />
           </div>
         </Card>
       </div>
       <div>
-        <Card header="Performance chart">
+        <Card header={t("overviewPage.lineChartLabel")}>
           <div className="pt-4 grow min-h-[300px]">
             {error ? (
-              <Center>Something went wrong. please try again.</Center>
+              <Center>{t("messages.error")}</Center>
             ) : loading ? (
               <Center>
                 <Spinner
@@ -140,7 +140,7 @@ const Overview = ({ data }: OverviewProps) => {
               <LineChart
                 series={[
                   {
-                    name: "Return",
+                    name: t("overviewPage.lineChartTooltipLabel"),
                     data:
                       performanceChartData &&
                       Array.isArray(performanceChartData?.dailyValue)

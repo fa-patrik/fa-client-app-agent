@@ -1,3 +1,8 @@
+import { Portfolio } from "api/initial/useGetContactInfo";
+import { ORDER_STATUS } from "../orders/enums";
+type Values<T> = T[keyof T];
+export type OrderStatus = Values<typeof ORDER_STATUS>;
+
 export interface Transaction {
   id: number;
   amount: number;
@@ -10,13 +15,10 @@ export interface Transaction {
   };
   tradeAmountInPortfolioCurrency: number;
   securityName: string;
-  parentPortfolio: {
-    name: string;
-    currency: {
-      securityCode: string;
-    };
-  };
+  parentPortfolio: Portfolio;
   reference: string;
+  orderStatus: OrderStatus;
+  extId?: string;
 }
 
 export interface PortfolioTransactionsQuery {
@@ -59,11 +61,13 @@ export interface TransactionDetails extends Transaction {
       accountCurrencyCode: string;
     };
   };
+  orderStatus: OrderStatus;
   securityCurrencyCode: string;
   tradeAmountInAccountCurrency: number;
   tradeAmountInSecurityCurrency: number;
   grossPriceInSecurityCurrency: number;
   grossPriceInAccountCurrency: number;
+  reference: string;
 }
 
 export interface TransactionDetailsQuery {

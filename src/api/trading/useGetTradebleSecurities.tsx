@@ -1,10 +1,12 @@
 import { useReducer } from "react";
 import { gql, useQuery } from "@apollo/client";
+import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { Option } from "components/Select/Select";
+import {useModifiedTranslation} from "hooks/useModifiedTranslation"
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { tradableTag } from "services/permissions/trade";
+import { getBackendTranslation } from "utils/backTranslations"
 import { SecurityTypeCode } from "../holdings/types";
-import { useGetContactInfo } from "../initial/useGetContactInfo";
 import { getFetchPolicyOptions } from "../utils";
 
 const TRADABLE_SECURITIES_QUERY = gql`
@@ -23,6 +25,7 @@ const TRADABLE_SECURITIES_QUERY = gql`
     ) {
       id
       name
+      namesAsMap
       isinCode
       securityCode
       url
@@ -31,6 +34,7 @@ const TRADABLE_SECURITIES_QUERY = gql`
         id
         name
         code
+        namesAsMap
       }
       latestMarketData {
         id
@@ -41,6 +45,7 @@ const TRADABLE_SECURITIES_QUERY = gql`
         id
         name
         code
+        namesAsMap
       }
       currency {
         id
@@ -54,6 +59,7 @@ const TRADABLE_SECURITIES_QUERY = gql`
 export interface TradableSecurity {
   id: number;
   name: string;
+  namesAsMap: Record<string, string>;
   securityCode: string;
   isinCode: string;
   url: string;
@@ -68,16 +74,23 @@ export interface TradableSecurity {
   country?: {
     code: string;
     name: string;
+    namesAsMap: Record<string, string>;
   };
   type?: {
     code: SecurityTypeCode;
     name: string;
+    namesAsMap: Record<string, string>;
   };
   fxRate: number;
 }
 
 export interface TradableSecuritiesQuery {
   securities: TradableSecurity[];
+}
+
+interface SecurityFilterOption{
+  id: string | null,
+  label: string
 }
 
 interface TradableSecuritiesFilters {
@@ -91,67 +104,32 @@ const filtersReducer = (
   newFilters: Partial<TradableSecuritiesFilters>
 ) => ({ ...filters, ...newFilters });
 
-const noFilterOption = {
+const emptyOption: SecurityFilterOption = {
   id: null,
   label: "-",
-};
+}
 
+//initial values for filtering select & input components (empty)
 const initialFilters = {
-  country: noFilterOption,
-  type: noFilterOption,
+  country: emptyOption,
+  type: emptyOption,
   name: "",
 };
 
-// filters are temporary hardcoded, in future will be provided by API
-const filtersOptions = {
-  country: [
-    noFilterOption,
-    {
-      id: "US",
-      label: "USA",
-    },
-    {
-      id: "SE",
-      label: "Sweden",
-    },
-    {
-      id: "FI",
-      label: "Finland",
-    },
-  ],
-  type: [
-    noFilterOption,
-    {
-      label: "Collective investment vehicles",
-      id: "C",
-    },
-    {
-      label: "Fund",
-      id: "FUND",
-    },
-    {
-      label: "Stock",
-      id: "STOCK",
-    },
-    {
-      label: "Private Equity",
-      id: "PE",
-    },
-    {
-      label: "ETF",
-      id: "ETFs",
-    },
-    {
-      label: "Bond",
-      id: "BOND",
-    },
-  ],
+//initial selectable options for filtering select components (empty)
+const filterOptionsInitial = {
+  country: [emptyOption],
+  type: [emptyOption],
 };
+
+
 
 export const useGetTradebleSecurities = () => {
   const { selectedContactId } = useGetContractIdData();
   const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
     useGetContactInfo(false, selectedContactId);
+  const { i18n } = useModifiedTranslation();
+  const locale = i18n.language
   const [filters, setFilters] = useReducer(filtersReducer, initialFilters);
 
   const { loading, error, data } = useQuery<TradableSecuritiesQuery>(
@@ -170,12 +148,35 @@ export const useGetTradebleSecurities = () => {
     }
   );
 
+  //derive the selectable options from the received security data, if any
+  const filterOptions = data?.securities?.reduce((prev, curr) => {
+
+    const securityCountry = curr.country
+    if(securityCountry && !prev.country.some(country => country.id === securityCountry.code)){
+      prev.country.push({
+        id: securityCountry.code,
+        label: getBackendTranslation(securityCountry.name ?? "", securityCountry.namesAsMap, locale),
+      })
+    }
+
+    const securityType = curr.type
+    if(securityType && !prev.type.some(type => type.id === securityType.code)){
+      prev.type.push({
+        id: securityType.code,
+        label: getBackendTranslation(securityType.name ?? "",securityType.namesAsMap, locale) 
+      })
+    }
+
+    return prev
+    
+  },filterOptionsInitial) ?? filterOptionsInitial
+
   return {
     loading,
     error,
     data: data?.securities,
     filters,
     setFilters,
-    filtersOptions,
+    filterOptions,
   };
 };

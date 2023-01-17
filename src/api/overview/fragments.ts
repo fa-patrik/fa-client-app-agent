@@ -26,6 +26,7 @@ export const PORTFOLIO_FIELDS = gql`
   fragment PortfolioFields on Portfolio {
     id
     name
+    status
     currency {
       securityCode
     }

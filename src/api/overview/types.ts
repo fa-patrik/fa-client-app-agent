@@ -32,6 +32,7 @@ interface DetailedReport extends BaseReport {
 type DetailedSummary = Summary<DetailedReport>;
 
 interface Portfolio extends Summary {
+  status: string;
   currency: {
     securityCode: string;
   };

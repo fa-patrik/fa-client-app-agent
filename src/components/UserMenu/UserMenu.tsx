@@ -15,7 +15,10 @@ import { ReactComponent as WithdrawalIcon } from "assets/withdrawal.svg";
 import classNames from "classnames";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import i18n from "i18next";
-import { useGetContractIdData, SelectedContact } from "providers/ContractIdProvider";
+import {
+  useGetContractIdData,
+  SelectedContact,
+} from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate, To, NavigateOptions } from "react-router";
 import { keycloakService } from "services/keycloakService";
@@ -40,7 +43,7 @@ const getMenuItems = (
   processes: Process[],
   representees: Representee[],
   contactData: SelectedContact,
-  selectedContactId: string | number,
+  selectedContactId: string | number
 ) => {
   if (!hasLinkedContact) {
     return [
@@ -55,7 +58,9 @@ const getMenuItems = (
   return [
     {
       label: contactData?.userName,
-      action: () => {menuActions.setSelectedContact(contactData)},
+      action: () => {
+        menuActions.setSelectedContact(contactData);
+      },
       Icon: UserIcon,
       selected: contactData?.id === selectedContactId,
     },
@@ -63,9 +68,14 @@ const getMenuItems = (
     ...(Array.isArray(representees)
       ? representees.map((representee, index) => ({
           label: representee?.name,
-          action: () => {menuActions.setSelectedContact({
-            id: representee.id, contactId: representee.contactId, userName: representee.name, initials: initials(representee.name),
-          })}, 
+          action: () => {
+            menuActions.setSelectedContact({
+              id: representee.id,
+              contactId: representee.contactId,
+              userName: representee.name,
+              initials: initials(representee.name),
+            });
+          },
           Icon: UserIcon,
           selected: representee?.id === selectedContactId,
         }))
@@ -109,7 +119,8 @@ const getMenuItems = (
 };
 
 export const UserMenu = () => {
-  const { selectedContactId, setSelectedContactId, setSelectedContact } = useGetContractIdData();
+  const { selectedContactId, setSelectedContactId, setSelectedContact } =
+    useGetContractIdData();
   const { t } = useModifiedTranslation();
   const { linkedContact } = useKeycloak();
   const navigate = useNavigate();
@@ -138,7 +149,7 @@ export const UserMenu = () => {
     setSelectedContact: (contact: SelectedContact) => {
       setSelectedContact(contact);
       setSelectedContactId(contact.id);
-      navigate("/overview", {replace: true});
+      navigate("/overview", { replace: true });
     },
   };
 
@@ -167,12 +178,20 @@ export const UserMenu = () => {
               canWithdraw,
               processes,
               contactData?.representees || [],
-              { id: contactData?.contactId || "", contactId: contactData?.contactId || "", userName: contactData?.name || "-", initials: initials(contactData?.name) },
-              selectedContactId,
-            ).map((item, index) => (
-              (typeof item === "string") ? <Separator key={index}/> :
-              (<MenuItem key={index} {...item} />)
-            ))}
+              {
+                id: contactData?.contactId || "",
+                contactId: contactData?.contactId || "",
+                userName: contactData?.name || "-",
+                initials: initials(contactData?.name),
+              },
+              selectedContactId
+            ).map((item, index) =>
+              typeof item === "string" ? (
+                <Separator key={index} />
+              ) : (
+                <MenuItem key={index} {...item} />
+              )
+            )}
           </Menu.Items>
         </Transition>
       </Menu>
@@ -198,7 +217,9 @@ interface MenuItemProps {
 
 const Separator = () => {
   return (
-    <Menu.Item><hr /></Menu.Item>
+    <Menu.Item>
+      <hr />
+    </Menu.Item>
   );
 };
 
@@ -216,7 +237,7 @@ const MenuItem = ({ action, label, Icon, selected = false }: MenuItemProps) => {
           onClick={action}
         >
           <Icon className="w-6 h-6" aria-hidden />
-          <div className="items-center pr-2 w-full text-left whitespace-nowrap grow">
+          <div className="items-center pr-2 w-full text-left grow">
             <span>{label}</span>
           </div>
           <span className="">{selected && <CheckIcon />}</span>

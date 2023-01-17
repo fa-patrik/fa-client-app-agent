@@ -1,9 +1,8 @@
 import { useContext } from "react";
-import { createContext, ReactNode, useReducer, useEffect } from "react";
+import { createContext, ReactNode, useState, useEffect } from "react";
 import { ErrorMessage, LoadingIndicator } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { AuthUserRoutes } from "pages/authUser/routes";
-import { ServiceWorkerRegistrationProvider } from "providers/ServiceWorkerRegistrationProvider";
 import {
   keycloakService,
   keycloakServiceInitialState,
@@ -17,18 +16,21 @@ const KeycloakContext = createContext<KeycloakServiceStateType>(
 
 type KeycloakProviderProps = {
   children: ReactNode;
-  keycloak: typeof keycloakService;
 };
 
-export const KeycloakProvider = (props: KeycloakProviderProps) => {
-  const { keycloak, children } = props;
-  const { error, initialized, linkedContact } = keycloak.state;
-  const [, forceRender] = useReducer((previous) => previous + 1, 0);
+export const KeycloakProvider = ({ children }: KeycloakProviderProps) => {
+  const [keycloakState, setState] = useState<KeycloakServiceStateType>(
+    keycloakServiceInitialState
+  );
+
+  const { error, initialized, linkedContact } = keycloakState;
 
   useEffect(() => {
-    keycloak.subscribe(forceRender);
-    return () => keycloak.unsubscribe();
-  }, [forceRender, keycloak]);
+    keycloakService.subscribe((newState) => {
+      setState(newState);
+    });
+    return () => keycloakService.unsubscribe();
+  }, []);
 
   if (error) {
     return <KeycloakError />;
@@ -42,18 +44,20 @@ export const KeycloakProvider = (props: KeycloakProviderProps) => {
     );
   }
 
+  //keycloak user has no linked Contact in FA
   if (!linkedContact) {
     return (
-      <PersistedApolloProvider>
-        <ServiceWorkerRegistrationProvider>
+      <KeycloakContext.Provider value={keycloakState}>
+        <PersistedApolloProvider>
           <AuthUserRoutes />
-        </ServiceWorkerRegistrationProvider>
-      </PersistedApolloProvider>
+        </PersistedApolloProvider>
+      </KeycloakContext.Provider>
     );
   }
 
+  //keycloak user a linked Contact in FA
   return (
-    <KeycloakContext.Provider value={keycloak.state}>
+    <KeycloakContext.Provider value={keycloakState}>
       {children}
     </KeycloakContext.Provider>
   );
@@ -76,7 +80,7 @@ const KeycloakError = () => {
         <div className="mb-4">{t("messages.problemResolveInstructions")}</div>
         <div
           onClick={() => window.location.reload()}
-          className="font-semibold text-primary-500 cursor-pointer"
+          className="font-semibold cursor-pointer text-primary-500"
         >
           {t("messages.refreshPage")}
         </div>

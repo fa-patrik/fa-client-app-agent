@@ -1,12 +1,14 @@
 import { Form } from "@formio/react";
 import { LoadingIndicator, Logo, UserMenu } from "components";
 import "./styles.css";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useLocation } from "react-router-dom";
 import { ApiError } from "./components/ApiError";
 import { Attachments } from "./components/Attachments";
 import { FormNotFound } from "./components/FormNotFound";
 import { ProcessNotFound } from "./components/ProcessNotFound";
 import { useProcessExecutor } from "./useProcessExecutor";
+
 
 interface FormViewProps {
   header?: string;
@@ -26,6 +28,7 @@ export const FormView = ({
   const processState = useProcessExecutor();
 
   const { state: locationState } = useLocation() as unknown as LocationProps;
+  const { linkedContact } = useKeycloak();
 
   return (
     <>
@@ -38,7 +41,7 @@ export const FormView = ({
               </div>
               <div className="grow">{header || locationState?.header}</div>
               <div className="px-2">
-                <UserMenu />
+                {linkedContact && <UserMenu />}
               </div>
             </div>
           </div>

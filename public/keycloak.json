@@ -1,6 +1,6 @@
 {
   "realm": "fa",
-  "auth-server-url": "https://fadev.fasolutions.com/auth/",
+  "auth-server-url": "https://fatemplatedev.fasolutions.com/auth",
   "ssl-required": "external",
   "resource": "external-api",
   "public-client": true,

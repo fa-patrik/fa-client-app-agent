@@ -8,6 +8,8 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { initials } from "utils/initials";
 import { useKeycloak } from "./KeycloakProvider";
 
 export type SelectedContact = {
@@ -27,19 +29,21 @@ type ContextProps = {
 const ContractIdContext = createContext<ContextProps | undefined>(undefined);
 
 export const DetailProvider = ({ children }: { children: ReactNode }) => {
+  const {data: contactData } = useGetContactInfo()
   const [selectedContactId, setSelectedContactId] = useState<string | number>("");
   const [selectedContact, setSelectedContact] = useState<SelectedContact>({} as SelectedContact);
   const { linkedContact, userProfile } = useKeycloak();
 
 useEffect(() => {
+  //set initial selected contact upon load or refresh
   linkedContact && setSelectedContactId(linkedContact);
-  linkedContact && userProfile && setSelectedContact({
+  linkedContact && userProfile && setSelectedContact({ 
     id: linkedContact, 
-    contactId: "", // TODO: keycloak should provide contactId
-    userName: "", 
-    initials: "",
+    contactId: contactData?._contactId ?? "",
+    userName: contactData?.name ?? "", 
+    initials: initials(contactData?.name)
   });
-}, [linkedContact, userProfile]);
+}, [linkedContact, userProfile, contactData?._contactId, contactData?.name]);
 
   return (
     <ContractIdContext.Provider

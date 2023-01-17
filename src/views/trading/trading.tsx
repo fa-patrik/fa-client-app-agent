@@ -7,7 +7,7 @@ import { TradableSecuritiesList } from "./components/TradableSecuritiesList";
 
 export const TradingView = () => {
   const { t } = useModifiedTranslation();
-  const { filters, setFilters, filtersOptions, ...queryData } =
+  const { filters, setFilters, filterOptions, ...queryData } =
     useGetTradebleSecurities();
 
   const { value, setValue } = useStateWithDebounceCallback(
@@ -32,7 +32,7 @@ export const TradingView = () => {
             <Select
               value={filters.country}
               onChange={(newValue) => setFilters({ country: newValue })}
-              options={filtersOptions.country}
+              options={filterOptions.country}
               label={t("tradingList.filters.country")}
             />
           </div>
@@ -40,7 +40,7 @@ export const TradingView = () => {
             <Select
               value={filters.type}
               onChange={(newValue) => setFilters({ type: newValue })}
-              options={filtersOptions.type}
+              options={filterOptions.type}
               label={t("tradingList.filters.type")}
             />
           </div>

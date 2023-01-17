@@ -1,3 +1,4 @@
+import { SecurityTypeCode } from "api/holdings/types";
 import classNames from "classnames";
 import { Button, GainLoseColoring, Grid } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
@@ -23,7 +24,7 @@ export const HoldingsListWithOneLineRow = ({
 
   const headersList = [
     t("holdingsPage.name"),
-    groupCode === "CURRENCY"
+    groupCode === SecurityTypeCode.CURRENCY
       ? t("holdingsPage.accountNumber")
       : t("holdingsPage.isinCode"),
     ...(isLgVersion ? [t("holdingsPage.units")] : []),
@@ -46,19 +47,23 @@ export const HoldingsListWithOneLineRow = ({
           </div>
         ))}
       </Grid.Header>
-      {securities.map((security) => (
-        <HoldingLg
-          {...security}
-          key={security.security.id}
-          onClick={() =>
-            groupCode !== "CURRENCY" &&
-            navigate(`holdings/${security.security.id}`)
-          }
-          currency={currency}
-          showFlag={groupCode !== "CURRENCY"}
-          tradeProps={tradeProps}
-        />
-      ))}
+      {securities.map((security) => {
+        const onClick =
+          groupCode !== SecurityTypeCode.CURRENCY
+            ? () => navigate(`holdings/${security.security.id}`)
+            : undefined;
+        const showFlag = groupCode !== SecurityTypeCode.CURRENCY;
+        return (
+          <HoldingLg
+            {...security}
+            key={security.security.id}
+            onClick={onClick}
+            currency={currency}
+            showFlag={showFlag}
+            tradeProps={tradeProps}
+          />
+        );
+      })}
     </div>
   );
 };
@@ -77,7 +82,8 @@ const HoldingLg = ({
   const { canTrade, onBuyModalOpen, onSellModalOpen } = tradeProps;
   const isTradable = tagsAsList.includes(tradableTag);
   const { t } = useModifiedTranslation();
-
+  //no isin comes back as " "
+  const codeToDisplay = isinCode && isinCode !== " " ? isinCode : code ?? "-";
   const isLgVersion = useMatchesBreakpoint("lg");
   const isXlVersion = useMatchesBreakpoint("xl");
 
@@ -120,9 +126,7 @@ const HoldingLg = ({
             showFlag={showFlag}
           />
         </div>
-        <div className="text-xs md:text-base font-light">
-          {isinCode || code || "-"}
-        </div>
+        <div className="text-xs md:text-base font-light">{codeToDisplay}</div>
         {isLgVersion && (
           <div className="text-base font-medium">
             {t("number", { value: amount })}

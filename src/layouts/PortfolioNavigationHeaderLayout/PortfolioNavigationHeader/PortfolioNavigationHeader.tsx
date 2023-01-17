@@ -1,13 +1,12 @@
 import { UserMenu, Logo, PortfolioSelect } from "components";
+import { SelectedContactAvatar } from "components/Avatar/Avatar";
 import {
   TOTAL_INVESTMENTS_OPTION_ID,
   useGetPortfolioOptions,
 } from "hooks/useGetPortfolioOptions";
-import { useGetContractIdData } from "providers/ContractIdProvider";
 import { Navigate, useParams } from "react-router-dom";
 import { useNavigateToPortfolioTab } from "./useNavigateToPortfolioTab";
 import { useRedirectIfOnlyOnePortfolio } from "./useRedirectIfOnlyOnePortfolio";
-
 export interface PortfolioOption {
   id: number;
   urlPrefix: string;
@@ -22,8 +21,6 @@ export const PortfolioNavigationHeader = () => {
   const onPortfolioChange = (selectedOption: PortfolioOption) => {
     navigateToPortfolioTab(selectedOption.urlPrefix);
   };
-  const { selectedContact } = useGetContractIdData();
- 
   const currentPortfolio = portfolioId
     ? parseInt(portfolioId, 10)
     : TOTAL_INVESTMENTS_OPTION_ID;
@@ -53,11 +50,9 @@ export const PortfolioNavigationHeader = () => {
             <div />
           )}
         </div>
-        <div className="flex justify-end">
-          <span className="self-center pr-1 pl-2 text-xl font-bold text-gray-400">{selectedContact.initials}</span>
-          <div className="">
-            <UserMenu />
-          </div>
+        <div className="flex gap-x-2 items-center">
+          <UserMenu />
+          <SelectedContactAvatar />
         </div>
       </div>
     </div>

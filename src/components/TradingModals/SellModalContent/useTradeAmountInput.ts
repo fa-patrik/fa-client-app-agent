@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { round } from "utils/number";
 
 const INPUT_MODE = {
@@ -12,7 +12,7 @@ interface InputModeOption {
   label: string;
 }
 
-export const useTradeAmountInput = (marketValue: number, currency: string) => {
+export const useTradeAmountInput = (marketValue: number, currency: string, isTradeInUnits: boolean) => {
   const inputModesOptions = useMemo(
     () => [
       {
@@ -24,7 +24,7 @@ export const useTradeAmountInput = (marketValue: number, currency: string) => {
         label: currency,
       },
     ],
-    [currency]
+    [currency,]
   );
 
   const [{ inputValue, inputMode }, setInputState] = useState<{
@@ -32,7 +32,9 @@ export const useTradeAmountInput = (marketValue: number, currency: string) => {
     inputValue: number;
   }>({ inputMode: inputModesOptions[1], inputValue: 0 });
 
+
   const onInputModeChange = (newValue: InputModeOption) => {
+
     if (isNaN(marketValue)) {
       setInputState((previousState) => ({
         ...previousState,
@@ -88,7 +90,26 @@ export const useTradeAmountInput = (marketValue: number, currency: string) => {
   const isTradeAmountCorrect =
     !isNaN(marketValue) && amount >= 0 && amount <= marketValue;
 
+  //force input mode to currency and input as 0
+  //whenever isTradeInUnits is changed
+  useEffect(() => {
+    const forcedInputMode = {
+      id: INPUT_MODE.CURRENCY,
+      label: currency,
+    }
+
+    setInputState((previousState) => (
+      {
+        ...previousState,
+        inputMode: forcedInputMode,
+        inputValue: 0
+      }
+    ))
+  }, [isTradeInUnits, currency])
+
+
   return {
+    INPUT_MODE,
     inputValue,
     setInputState,
     inputModesOptions,

@@ -35,6 +35,9 @@
     "top3Holdings": "Top performing holdings",
     "worst3Holdings": "Bottom performing holdings",
     "unrealizedProfits": "Unrealised profits",
+    "pieChartLabel": "Security type allocation",
+    "lineChartLabel": "Performance",
+    "lineChartTooltipLabel": "Return",
     "name": "Name"
   },
   "holdingsPage": {
@@ -105,7 +108,8 @@
     "total": "Total",
     "noTransactions": "No transactions are available\n for this period",
     "noTransactionsInfo": "Try filtering with other dates",
-    "downloadFileButtonLabel": "Download transaction confirmation"
+    "downloadFileButtonLabel": "Download transaction confirmation",
+    "cancelOrderButtonLabel": "Cancel order"
   },
   "documentsPage": {
     "title": "Documents",
@@ -173,7 +177,20 @@
     "sellHalf": "Sell half",
     "sellAll": "Sell all",
     "buyDisclaimer": "Past performance is not a guide to future performance. When investing in financial instruments, the investor may lose all or part of the investments.",
-    "queryErrorWarning": "Server error occurred"
+    "queryErrorWarning": "Server error occurred",
+    "tradeAmountButtonLabel": "Trade amount",
+    "unitsButtonLabel": "Units"
+  },
+  "cancelOrderModal": {
+    "header": "Cancelling order",
+    "question": "Are you sure that you want to cancel this order?",
+    "portfolio": "Portfolio",
+    "security": "Security",
+    "date": "Date",
+    "type": "Type",
+    "backButtonLabel": "Back",
+    "confirmButtonLabel": "Yes, cancel",
+    "cancelDisclaimer": "Cancelling an order cannot be undone."
   },
   "contactPage": {
     "cardHeader": "Contact us"
@@ -213,6 +230,9 @@
     "noCachedData": "No cached data",
     "authorisationError": "Authorisation server error",
     "refreshPage": "Refresh page",
-    "noCachedDataInfo": "Right now we can't get data from server.\n Come back here later."
+    "noCachedDataInfo": "Right now we can't get data from server.\n Come back here later.",
+    "orderCancelFailed": "Order could not be cancelled.",
+    "orderCancelSuccess": "Order cancelled.",
+    "orderAlreadyCancelled": "Order has already been cancelled."
   }
 }

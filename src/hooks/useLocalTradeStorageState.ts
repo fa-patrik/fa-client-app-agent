@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo } from "react";
 import { TradeOrder } from "api/orders/types";
-import { Transaction } from "api/transactions/types";
 import { dateFromYYYYMMDD, isDateInRange } from "utils/date";
 import { useGetAllTradeOrders } from "../api/orders/useGetAllTradeOrders";
 import { useGetPortfolioTradeOrders } from "../api/orders/useGetPortfolioTradeOrders";
@@ -13,9 +12,9 @@ import { useLocalStorageStore } from "./useLocalStorageStore";
 export type LocalOrder = TradeOrder;
 
 export const isLocalOrder = (
-  order: LocalOrder | TradeOrder | Transaction
-): order is LocalOrder => {
-  return (order as LocalOrder).id === LocalTradeOrderId;
+  order: TradeOrder
+) => {
+  return order.id === LocalTradeOrderId;
 };
 
 export const LocalTradeOrderId = -1;

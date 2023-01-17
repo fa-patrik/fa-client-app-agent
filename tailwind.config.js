@@ -1,6 +1,5 @@
 const colors = require("tailwindcss/colors");
 const plugin = require("tailwindcss/plugin");
-const theme = require("./theme.config.js");
 
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}", "./public/contact.html"],
@@ -8,7 +7,23 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: theme.primaryColor || colors.blue,
+        primary: colors.blue,
+
+        /**
+         * Colors applied to selected contact avatars.
+         * You can define however many you need,
+         * but always have at least avatar_0 defined.
+         */
+        avatar_0: "#0A680F",
+        avatar_1: "#3130ff",
+        avatar_2: "#9F059F",
+        avatar_3: "#003000",
+        avatar_4: "#B60203",
+        avatar_5: "#934100",
+        avatar_6: "#5D5C00",
+        avatar_7: "#00636B",
+        avatar_8: "#660033",
+        avatar_9: "#000066",
       },
       fontSize: {
         xs: ["0.75rem", "150%"],

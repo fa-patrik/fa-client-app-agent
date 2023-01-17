@@ -28,7 +28,7 @@ export const Button = ({
     disabled={disabled || isLoading}
     type="button"
     className={classNames(
-      "box-border rounded-lg inline-flex items-center justify-center relative whitespace-nowrap align-middle cursor-pointer",
+      "select-none box-border rounded-lg inline-flex items-center justify-center whitespace-nowrap align-middle cursor-pointer",
       {
         "bg-primary-600 hover:bg-primary-800 text-white fill-white":
           variant === "Primary",
@@ -40,7 +40,9 @@ export const Button = ({
         "w-full": isFullWidth,
         "text-sm font-medium py-2.5 px-5": size === "md",
         "text-xs font-medium py-1 px-2": size === "xs",
-        "opacity-50 cursor-not-allowed": disabled,
+        "bg-primary-600/50 hover:bg-primary-600/50 cursor-not-allowed": variant === "Primary" && disabled,
+        "bg-red-600/50 hover:bg-red-600/50 cursor-not-allowed": variant === "Red" && disabled,
+        "bg-gray-700/50 hover:bg-gray-700/50 cursor-not-allowed": variant === "Dark" && disabled
       }
     )}
   >

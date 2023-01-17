@@ -1,3 +1,4 @@
+import { Portfolio } from "api/initial/useGetContactInfo";
 import { depositType } from "api/money/useDeposit";
 import { withdrawalType } from "api/money/useWithdrawal";
 import { TradeOrder } from "api/orders/types";
@@ -65,11 +66,7 @@ const getOrderType = (type: TradeType) => {
 };
 
 export interface LocalTradeOrderDetails {
-  portfolio: {
-    id: number;
-    name: string;
-    shortName: string;
-  };
+  portfolio: Portfolio;
   securityName: string;
   currency: string;
   tradeType: TradeType;
@@ -95,7 +92,6 @@ export const useLocalTradeStorageMutation = () => {
       tradeType,
       reference,
     } = tradeDetails;
-
     await placeOrder({
       id: LocalTradeOrderId,
       orderStatus: LocalTradeOrderStatus,
@@ -106,8 +102,11 @@ export const useLocalTradeStorageMutation = () => {
       amount: units,
       parentPortfolio: {
         id: portfolio.id,
+        status: portfolio.status,
+        shortName: portfolio.shortName,
         name: portfolio.name,
         currency: { securityCode: currency },
+        portfolioGroups: portfolio.portfolioGroups,
       },
       reference,
     });

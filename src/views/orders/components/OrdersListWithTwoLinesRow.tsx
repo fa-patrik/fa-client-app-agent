@@ -1,4 +1,5 @@
 import { Badge, Grid } from "components";
+import { isLocalOrder } from "hooks/useLocalTradeStorageState"
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import { dateFromYYYYMMDD } from "utils/date";
@@ -6,35 +7,42 @@ import {
   getNameFromBackendTranslations,
   getTransactionColor,
 } from "utils/transactions";
-import { useNavigateToDetails } from "../useNavigateToDetails";
-import { TransactionProps, TransactionsListProps } from "./TransactionsGroup";
+import { TransactionType } from "views/transactionDetails/transactionDetailsView";
+import { useNavigateToDetails } from "views/transactions/useNavigateToDetails";
 
-export const TransactionsListWithTwoLinesRow = ({
-  transactions,
-  type,
-}: TransactionsListProps) => {
+
+import { OrderProps, OrdersListProps } from "./OrdersGroup";
+
+const type = "order" as TransactionType
+
+
+export const OrdersListWithTwoLinesRow = ({
+  orders,
+}: OrdersListProps) => {
   const navigate = useNavigateToDetails(type);
   return (
     <div className="grid grid-cols-2 items-center">
-      {transactions.map((transaction) => (
-        <Transaction
-          {...transaction}
-          key={transaction.id}
-          onClick={navigate(transaction.id)}
+      {orders.map((order) => (
+        <Order
+          {...order}
+          key={
+            isLocalOrder(order) ? order.reference : order.id
+          }
+          onClick={navigate(order.id)}
         />
       ))}
     </div>
   );
 };
 
-const Transaction = ({
+const Order = ({
   transactionDate,
   type: { typeName, cashFlowEffect, amountEffect, typeNamesAsMap },
   tradeAmountInPortfolioCurrency,
   securityName,
   parentPortfolio,
   onClick,
-}: TransactionProps) => {
+}: OrderProps) => {
   const { t, i18n } = useModifiedTranslation();
   const { portfolioId } = useParams();
   const showPortfolioLabel = !portfolioId;

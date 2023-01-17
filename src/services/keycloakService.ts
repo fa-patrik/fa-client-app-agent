@@ -1,3 +1,4 @@
+import { API_URL } from "config";
 import Keycloak, {
   KeycloakError,
   KeycloakInstance,
@@ -39,7 +40,7 @@ type FAKeycloakInstance = Omit<
   loadUserProfile(): KeycloakPromise<FAKeycloakProfile, void>;
 };
 
-type SubscribeFunctionType = () => void;
+type SubscribeFunctionType = (state: KeycloakServiceStateType) => void;
 
 export interface KeycloakServiceStateType {
   initialized: boolean;
@@ -54,6 +55,7 @@ export const keycloakServiceInitialState = {
   authenticated: false,
   linkedContact: undefined,
   userProfile: undefined,
+  error: undefined,
 };
 
 class KeycloakService {
@@ -116,7 +118,7 @@ class KeycloakService {
   }
 
   notifyStateChanged() {
-    this.subscribeFunction?.();
+    this.subscribeFunction?.(this.state);
   }
 
   onError = (errorData?: KeycloakError) => {
@@ -131,33 +133,47 @@ class KeycloakService {
     this.updateState();
   };
 
-  onAuthLogout = () => {
+  onAuthLogout = async () => {
     this.state = {
       ...keycloakServiceInitialState,
     };
     this.updateState();
-    this.keycloak.logout();
+    await this.keycloak.logout();
   };
 
   onReady = async (authenticated: boolean) => {
     if (!authenticated) {
+      //redirect to login page
       this.keycloak.login();
-      return;
+    } else {
+      try {
+        const userHasRequiredRole = await this.validateRequiredRole();
+        if (!userHasRequiredRole)
+          throw new Error(
+            "User does not have the required role. Revoking access."
+          );
+
+        this.state = {
+          ...this.state,
+          initialized: true,
+          authenticated: authenticated,
+          error: false,
+        };
+
+        await this.updateLinkedContact();
+
+        this.updateState();
+      } catch (error) {
+        console.error(error);
+        await this.onAuthLogout(); //logout
+      }
     }
-    this.state = {
-      ...this.state,
-      initialized: true,
-      authenticated: authenticated,
-      error: false,
-    };
-    await this.updateLinkedContact();
-    this.updateState();
   };
 
   async updateLinkedContact() {
     if (this.state.authenticated) {
       const profile = await this.keycloak.loadUserProfile();
-      const linkedContact = this.getLinkedContactFromProfile(profile);
+      const linkedContact = await this.getContactIdFromQuery();
       if (linkedContact !== this.state.linkedContact) {
         const lastUsedLinkedContact = getLastUsedLinkedContact();
         if (linkedContact !== lastUsedLinkedContact) {
@@ -188,9 +204,72 @@ class KeycloakService {
     this.notifyStateChanged();
   }
 
+  /**
+   * Gets the /keycloak.json.
+   * @returns parsed keycloak.json.
+   */
+  async getConfigFile() {
+    try {
+      const config = await fetch(`${process.env.PUBLIC_URL}/keycloak.json`);
+      const parsedConfig = await config?.json();
+      return parsedConfig;
+    } catch (error) {
+      console.error("Failed to get keycloak.json.");
+    }
+  }
+
   async getToken() {
     await this.keycloak.updateToken(1);
     return this.keycloak.token;
+  }
+
+  async getContactIdFromQuery() {
+    try {
+      const response = await fetch(`${API_URL}/graphql`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${await this.getToken()}`,
+        },
+        mode: "cors",
+        body: JSON.stringify({
+          query: `
+            query GetContactId{
+              contact{
+                id
+              }
+            }
+          `,
+        }),
+      });
+
+      const parsedResponse = await response.json();
+      return parsedResponse?.data?.contact?.id;
+    } catch {
+      console.error(`Error getting contact id.`);
+    }
+  }
+
+  /**
+   * Checks whether the user has a required-role
+   * (if one has been specified).
+   * @returns true if user has the required role
+   * or if a required role was not configured.
+   */
+  async validateRequiredRole() {
+    const keycloakJson = await this.getConfigFile();
+    //optional field
+    const configuredRequiredRole = keycloakJson?.["required-role"];
+    //required field
+    const configuredClient = keycloakJson?.["resource"];
+
+    //no configured required role -> valid
+    if (!configuredRequiredRole) return true;
+
+    return this.keycloak.hasResourceRole(
+      configuredRequiredRole,
+      configuredClient
+    );
   }
 }
 

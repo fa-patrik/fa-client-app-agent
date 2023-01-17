@@ -1,5 +1,5 @@
-import { MutableRefObject, useState } from "react";
-import { SecurityTypeCode } from "api/holdings/types";
+import { MutableRefObject, useState, useEffect } from "react";
+import { SecurityTypeCode, SecurityTradeType } from "api/holdings/types";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { useGetBuyData } from "api/trading/useGetBuyData";
@@ -25,30 +25,27 @@ interface BuyModalProps extends BuyModalInitialData {
 }
 
 // buying non-Collective investment should be defined in units instead of trade amount
-const isTransactionAmountDefinedAsUnits = (
-  securityType: SecurityTypeCode | undefined
-) => securityType !== "C";
+const isSecurityTypeFund = (securityType: SecurityTypeCode | undefined) => {
+  return securityType === SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE;
+};
 
-const getTradeType = (securityType: SecurityTypeCode | undefined) =>
-  isTransactionAmountDefinedAsUnits(securityType) ? "buy" : "subscription";
+const getTradeType = (securityType: SecurityTypeCode | undefined) => {
+  return securityType !== SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE
+    ? "buy"
+    : "subscription";
+};
 
 const getTradeAmount = (
   amount: number,
-  securityType: SecurityTypeCode | undefined,
+  isTradeInUnits: boolean | undefined,
   price = 1,
   fxRate = 1
-) =>
-  isTransactionAmountDefinedAsUnits(securityType)
-    ? amount * price * fxRate
-    : amount;
+) => (isTradeInUnits ? amount * price * fxRate : amount);
 
 const getTradeAmountArgs = (
   amount: number,
-  securityType: SecurityTypeCode | undefined
-) =>
-  isTransactionAmountDefinedAsUnits(securityType)
-    ? { units: amount }
-    : { tradeAmount: amount };
+  isTradeInUnits: boolean | undefined
+) => (isTradeInUnits ? { units: amount } : { tradeAmount: amount });
 
 export const BuyModalContent = ({
   modalInitialFocusRef,
@@ -64,6 +61,7 @@ export const BuyModalContent = ({
       fxRate: 1,
       securityCode: "",
       currency: { securityCode: "" },
+      tagsAsSet: [],
     },
   } = useGetSecurityDetails(securityId.toString());
   const {
@@ -72,11 +70,41 @@ export const BuyModalContent = ({
     type: { code: securityType } = {},
     latestMarketData,
     fxRate,
+    tagsAsSet: securityTags,
   } = security;
+
+  const [isTradeInUnits, setIsTradeInUnits] = useState(true);
+  const [canToggleTradeType, setCanToggleTradeType] = useState(false);
+
+  useEffect(() => {
+    const isTradeTypeSpecified = securityTags?.some(
+      (tag) =>
+        tag === SecurityTradeType.units || tag === SecurityTradeType.tradeAmount
+    );
+    const isUnitsSupported = securityTags?.some(
+      (tag) => tag === SecurityTradeType.units
+    );
+    const isTradeAmountSupported = securityTags?.some(
+      (tag) => tag === SecurityTradeType.tradeAmount
+    );
+    const isUnitsDefaultTradeType = !isSecurityTypeFund(securityType);
+    setCanToggleTradeType(
+      isTradeTypeSpecified && isUnitsSupported && isTradeAmountSupported
+    );
+    setIsTradeInUnits(
+      isTradeTypeSpecified
+        ? isUnitsSupported &&
+            (!isTradeAmountSupported || isUnitsDefaultTradeType)
+        : isUnitsDefaultTradeType
+    );
+  }, [securityTags, securityType]);
 
   const { t } = useModifiedTranslation();
   const { selectedContactId } = useGetContractIdData();
-  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(false, selectedContactId);
+  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
+    false,
+    selectedContactId
+  );
   const { portfolioId, setPortfolioId, portfolioOptions } =
     useTradablePortfolioSelect();
   const {
@@ -92,7 +120,7 @@ export const BuyModalContent = ({
       portfolios.find((portfolio) => portfolio.id === portfolioId) ||
       portfolios[0],
     securityName,
-    ...getTradeAmountArgs(amount, securityType),
+    ...getTradeAmountArgs(amount, isTradeInUnits),
     ...security,
     currency: security.currency.securityCode,
   });
@@ -136,7 +164,7 @@ export const BuyModalContent = ({
           setAmount(Number(event.currentTarget.value));
         }}
         label={
-          isTransactionAmountDefinedAsUnits(securityType)
+          isTradeInUnits
             ? t("tradingModal.unitsInputLabel")
             : t("tradingModal.tradeAmountInputLabel", {
                 currency: portfolioCurrency,
@@ -149,6 +177,31 @@ export const BuyModalContent = ({
             : undefined
         }
       />
+
+      {canToggleTradeType && (
+        <>
+          <div className="flex overflow-hidden font-medium leading-5 bg-gray-50 rounded-md divide-x ring-1 shadow-sm pointer-events-auto select-none divide-slate-400/20 text-[0.8125rem] ring-slate-700/10">
+            <button
+              className={`text-center cursor-pointer py-2 px-4 flex-1 ${
+                isTradeInUnits ? "bg-gray-200" : ""
+              }`}
+              onClick={() => setIsTradeInUnits(true)}
+            >
+              {t("tradingModal.unitsButtonLabel")}
+            </button>
+
+            <button
+              className={`text-center cursor-pointer py-2 px-4 flex-1 ${
+                !isTradeInUnits ? "bg-gray-200" : ""
+              }`}
+              onClick={() => setIsTradeInUnits(false)}
+            >
+              {t("tradingModal.tradeAmountButtonLabel")}
+            </button>
+          </div>
+        </>
+      )}
+
       <hr className="my-2" />
       <div className="flex flex-col gap-4 items-stretch ">
         <div className="text-3xl font-semibold text-center">
@@ -159,7 +212,7 @@ export const BuyModalContent = ({
             value: isTradeAmountCorrect
               ? getTradeAmount(
                   amount,
-                  securityType,
+                  isTradeInUnits,
                   latestMarketData?.price,
                   fxRate
                 )

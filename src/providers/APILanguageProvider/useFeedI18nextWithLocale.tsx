@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
-import { initI18n } from "i18n";
+import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 export const useFeedI18nextWithLocale = (locale: string | undefined) => {
   const [isReady, setIsReady] = useState(false);
+  const { i18n } = useModifiedTranslation();
 
   useEffect(() => {
     if (locale) {
-      initI18n(locale.replace("_", "-"), () => {
+      i18n.changeLanguage(locale.replace("_", "-"), () => {
         setIsReady(true);
       });
     }
-  }, [locale]);
+  }, [locale, i18n]);
 
   return { isReady };
 };

@@ -26,7 +26,9 @@ export const useGetAllPortfolios = () => {
     variables: {
       contactId: selectedContactId || linkedContact,
     },
-    ...getFetchPolicyOptions(`useGetAllPortfolios.${selectedContactId || linkedContact}`),
+    ...getFetchPolicyOptions(
+      `useGetAllPortfolios.${selectedContactId || linkedContact}`
+    ),
   });
 
   return { loading, error, data: data?.contact };

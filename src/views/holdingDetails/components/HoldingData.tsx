@@ -21,8 +21,8 @@ export const HoldingData = ({
 }: HoldingDataProps) => {
   const { t } = useModifiedTranslation();
   const { selectedContactId } = useGetContractIdData();
-  const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } = useGetContactInfo(false, selectedContactId);
-
+  const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
+    useGetContactInfo(false, selectedContactId);
   return (
     <Card
       header={
@@ -44,7 +44,7 @@ export const HoldingData = ({
             currency: portfoliosCurrency,
           })}
         />
-        {typeCode === "BOND" && (
+        {typeCode === SecurityTypeCode.DEBT_INSTRUMENT && (
           <DataRow
             label={t("holdingsPage.accruedInterest")}
             value={t("numberWithCurrency", {

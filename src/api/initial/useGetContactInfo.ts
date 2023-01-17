@@ -1,6 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { fallbackLanguage } from "i18n";
 import { useKeycloak } from "providers/KeycloakProvider";
+import { CancelOrderPermissionGroup } from "services/permissions/cancelOrder";
 import {
   DepositPermissionGroup,
   WithdrawalPermissionGroup,
@@ -46,6 +47,7 @@ const CONTACT_INFO_QUERY = gql`
       portfolios {
         id
         name
+        status
         shortName
         currency {
           securityCode
@@ -59,11 +61,18 @@ const CONTACT_INFO_QUERY = gql`
   }
 `;
 
+export enum PortfolioStatus {
+  Active = "A",
+  Passive = "P",
+  Closed = "C",
+}
+
 interface PortfolioGroup {
   code:
     | typeof TradePermissionGroup
     | typeof DepositPermissionGroup
-    | typeof WithdrawalPermissionGroup;
+    | typeof WithdrawalPermissionGroup
+    | typeof CancelOrderPermissionGroup;
 }
 
 export interface Representee {
@@ -84,6 +93,7 @@ interface AssetManagerPortfolios {
 export interface Portfolio {
   id: number;
   name: string;
+  status: string;
   shortName: string;
   currency: {
     securityCode: string;
@@ -116,7 +126,7 @@ export interface ContactsInfoQuery {
 export const useGetContactInfo = (
   callAPI = false,
   selectedContactId?: string | number,
-  queryWithRepresentees?: boolean,
+  queryWithRepresentees?: boolean
 ) => {
   const { linkedContact } = useKeycloak();
   const { loading, error, data } = useQuery<ContactInfoQuery>(
@@ -135,7 +145,10 @@ export const useGetContactInfo = (
     data: data && {
       contactId: data.contact?.id,
       _contactId: data.contact?.contactId,
-      portfolios: data.contact?.portfolios || [],
+      portfolios:
+        data.contact?.portfolios?.filter(
+          (portfolio) => portfolio.status !== PortfolioStatus.Closed
+        ) || [],
       locale: data.contact?.language?.locale || fallbackLanguage,
       // all contact portfolios have same currency
       portfoliosCurrency:

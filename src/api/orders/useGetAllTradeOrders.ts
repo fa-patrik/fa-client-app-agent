@@ -6,7 +6,7 @@ import { toShortISOString } from "utils/date";
 import { TRADE_ORDERS_DETAILS } from "./fragments";
 import { AllTradeOrdersQuery } from "./types";
 
-const TRADE_ORDERS_QUERY = gql`
+export const TRADE_ORDERS_QUERY = gql`
   ${TRADE_ORDERS_DETAILS}
   query GetAllPortfoliosTradeOrders(
     $contactId: Long
@@ -39,7 +39,8 @@ export const useGetAllTradeOrders = (options?: QueryHookOptions) => {
         endDate: toShortISOString(endDate),
         contactId: selectedContactId || linkedContact,
       },
-      fetchPolicy: "cache-and-network",
+      fetchPolicy: "network-only",
+      nextFetchPolicy: "cache-first",
       ...options,
     }
   );

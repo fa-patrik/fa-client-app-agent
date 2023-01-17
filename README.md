@@ -6,6 +6,23 @@ Modern and responsive open source portal that allows your clients to access thei
 * Responsive - access fluently with mobile and desktop devices
 * Open source - customize freely or use as-is
 
+## Overview
+
+Client Portal is a web application developed with [React](https://reactjs.org/) and [Typescript](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html).
+
+### Core libraries used by the application
+
+- [Keycloak](https://www.keycloak.org/docs/latest/securing_apps/index.html#_javascript_adapter) - Handles authentication against FA.
+- [Apollo](https://www.apollographql.com/docs/react/get-started) - Fetches and mutates data using FA's GraphQL APIs, and caches data in the browser.
+- [Tailwindcss](https://tailwindcss.com/docs/installation) - Styles the app.
+- [Apexcharts](https://apexcharts.com/docs/react-charts/#) - Renders interactable charts in the app.
+- [Formio](https://github.com/formio/react#readme) - Renders the UI of processes defined in FA.
+- [Headlessui](https://headlessui.com/) - Supplies the app with pre-defined UI components.
+
+### Data
+
+The application fetches all its data from FA's GraphQL API. We recommend using [FA's GraphQL playground](https://documentation.fasolutions.com/en/graphql-api-view.html) when implementing new queries and mutations.
+
 ## Getting started
 
 ### Prerequisites
@@ -93,13 +110,19 @@ file would be necessary. More info can be found [here](https://developer.mozilla
 Please be aware that icons can be updated with some delay, more about updates can be
 found [here](https://web.dev/manifest-updates/).
 
-### Primary color palette
+### Colors
 
-You can change primary color in *theme.config.js* file. To do that set *primaryColor* variable to preferred color. You
+Adjustable colors are found in the _tailwind.config.js_ file. Currently, it is possible to change the following:
+
+- Primary color (buttons, charts, etc)
+- User avatar background color palette.
+
+For example, to change the primary color, set the _primary_ variable to your preferred color. You
 can choose from predefined color palettes. List of available palettes can be
 found [here](https://tailwindcss.com/docs/customizing-colors). You can also use custom palette - more information can be
-found [here](https://tailwindcss.com/docs/customizing-colors#generating-colors). To apply changes you must build
-project (yarn build) and upload it.
+found [here](https://tailwindcss.com/docs/customizing-colors#generating-colors).
+
+To apply color changes you must build the project (yarn build) and deploy it.
 
 ### Contact info
 

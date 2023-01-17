@@ -17,16 +17,16 @@ export interface Attachment {
 
 type ProcessStateType =
   | {
-      formDefinition: FormDefinition | undefined;
-      initialData: Record<string, unknown>;
-      attachments: Attachment[];
-      taskId: string;
-      processInstanceId: string;
-      executorState: "READY" | "SUBMITTING" | "SUBMIT_ERROR";
-    }
+    formDefinition: FormDefinition | undefined;
+    initialData: Record<string, unknown>;
+    attachments: Attachment[];
+    taskId: string;
+    processInstanceId: string;
+    executorState: "READY" | "SUBMITTING" | "SUBMIT_ERROR";
+  }
   | {
-      executorState: "LOADING" | "PROCESS_ERROR";
-    };
+    executorState: "LOADING" | "PROCESS_ERROR";
+  };
 
 type StateActionType =
   | { type: "UPDATE_DATA"; payload: Partial<ProcessStateType> }
@@ -111,6 +111,7 @@ export const useProcessExecutor = () => {
 
         if (processFinished) {
           navigate("/");
+          window.location.reload() //reloads keycloak
         }
       } catch (error) {
         dispatchProcessStateAction({

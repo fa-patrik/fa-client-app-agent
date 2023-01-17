@@ -72,9 +72,7 @@ export const useTrade = (
   const [handleAPITrade] = useMutation<
     ImportTradeOrderQueryResponse,
     ImportTradeOrderQueryVariables
-  >(IMPORT_TRADE_ORDER_MUTATION, {
-    refetchQueries: ["GetAllPortfoliosTradeOrders", "GetPortfolioTradeOrders"],
-  });
+  >(IMPORT_TRADE_ORDER_MUTATION);
 
   const saveToLocalTradeOrders = useLocalTradeStorageMutation();
   const getUniqueReference = useUniqueReference();

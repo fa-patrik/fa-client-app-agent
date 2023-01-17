@@ -1,3 +1,4 @@
+import { PortfolioStatus } from "api/initial/useGetContactInfo";
 import { AllPortfolios } from "api/overview/types";
 import { useGetAllPortfolios } from "api/overview/useGetAllPortfolios";
 import { QueryLoadingWrapper } from "components";
@@ -19,8 +20,12 @@ interface OverviewProps {
 const Overview = ({ data }: OverviewProps) => {
   const { t } = useModifiedTranslation();
   const { portfolioReport: allPortfoliosReport, portfolios } = data;
-
   const breakPortfolioInfoCard = useMatchesBreakpoint("sm");
+
+  //ensure active, passive portfolios only
+  const activePortfoliosInData = portfolios.filter(
+    (portfolio) => portfolio.status !== PortfolioStatus.Closed
+  );
 
   return (
     <div className="grid md:grid-cols-2 gap-4 mb-4">
@@ -34,11 +39,11 @@ const Overview = ({ data }: OverviewProps) => {
             colorScheme="black"
             // there is no way to get currency for aggregated portfolioReport (portfolioReport under contact context),
             // but all portfolios have same currency, so we use currency from first one
-            portfolio={portfolios[0]?.portfolioReport.portfolio}
+            portfolio={activePortfoliosInData[0]?.portfolioReport.portfolio}
           />
         )}
       </div>
-      {portfolios.map((portfolio) => {
+      {activePortfoliosInData.map((portfolio) => {
         const { name, portfolioReport, id } = portfolio;
         return (
           <PortfolioInfoCard

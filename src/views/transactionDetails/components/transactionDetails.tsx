@@ -3,10 +3,13 @@ import { useDownloadReport } from "api/report/useDownloadReport";
 import { TransactionDetails as TransactionDetailsType } from "api/transactions/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/document-download.svg";
 import { Button, Card, CountryFlag } from "components";
+import { useModal } from "components/Modal/useModal";
+import { CancelOrderModalInitialData, CancelOrderModalContent } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent"
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
+import { isStatusCancellable, isPortfolioAllowedToCancelOrder } from "services/permissions/cancelOrder";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getTransactionColor,
@@ -16,6 +19,8 @@ import { InfoCard } from "views/transactionDetails/components/InfoCard";
 import { DataRow } from "../../holdingDetails/components/DataRow";
 import { TransactionType } from "../transactionDetailsView";
 import { ValueInCurrencies } from "./ValueInCurrencies";
+
+
 
 interface TransactionDetailsProps {
   data: TransactionDetailsType;
@@ -27,30 +32,42 @@ export const TransactionDetails = ({
     security,
     settlementDate,
     unitPriceInSecurityCurrency,
-    type: { typeName, typeNamesAsMap, cashFlowEffect, amountEffect },
+    type,
     transactionDate,
     securityName,
-    parentPortfolio: { name: portfolioName },
+    parentPortfolio,
     costInSecurityCurrency,
     accountFxRate,
     marketPlace,
     documents,
     extInfo,
     account,
+    reference,
     securityCurrencyCode,
+    orderStatus,
     tradeAmountInAccountCurrency,
     tradeAmountInSecurityCurrency,
     grossPriceInSecurityCurrency,
     grossPriceInAccountCurrency,
   },
+
 }: TransactionDetailsProps) => {
   const { t, i18n } = useModifiedTranslation();
   const { downloadDocument, downloading } = useDownloadDocument();
   const { transactionId } = useParams<{ transactionId: string }>();
+  const { orderId } = useParams<{ orderId: string }>()
   const { downloadReport, downloading: downloadingReport } =
     useDownloadReport();
   const transactionType = useGetTransactionType();
   const navigate = useNavigate();
+
+  const {
+    Modal,
+    onOpen: onCancelOrderModalOpen,
+    modalProps: cancelOrderModalProps,
+    contentProps: cancelOrderModalContentProps,
+  } = useModal<CancelOrderModalInitialData>();
+
   return (
     <PageLayout>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -59,11 +76,11 @@ export const TransactionDetails = ({
             <InfoCard
               label={t("transactionsPage.type")}
               value={getNameFromBackendTranslations(
-                typeName,
+                type.typeName,
                 i18n.language,
-                typeNamesAsMap
+                type.typeNamesAsMap
               )}
-              colorScheme={getTransactionColor(amountEffect, cashFlowEffect)}
+              colorScheme={getTransactionColor(type.amountEffect, type.cashFlowEffect)}
             />
             <InfoCard
               label={t("transactionsPage.total")}
@@ -71,13 +88,13 @@ export const TransactionDetails = ({
                 "numberWithCurrency",
                 account
                   ? {
-                      value: tradeAmountInAccountCurrency,
-                      currency: account.currency.accountCurrencyCode,
-                    }
+                    value: tradeAmountInAccountCurrency,
+                    currency: account.currency.accountCurrencyCode,
+                  }
                   : {
-                      value: tradeAmountInSecurityCurrency,
-                      currency: securityCurrencyCode,
-                    }
+                    value: tradeAmountInSecurityCurrency,
+                    currency: securityCurrencyCode,
+                  }
               )}
             />
             <div className="col-span-2">
@@ -102,7 +119,7 @@ export const TransactionDetails = ({
             <div className="col-span-2">
               <InfoCard
                 label={t("transactionsPage.portfolioName")}
-                value={portfolioName}
+                value={parentPortfolio.name}
               />
             </div>
             <InfoCard
@@ -203,13 +220,15 @@ export const TransactionDetails = ({
         </div>
         {/* on lg screens below row ends at 5th grid line (other lines ends at 4)
         to make up the height difference resulting from gap added we set mb-4 */}
-        <div className="lg:col-start-3 lg:row-start-2 lg:row-end-5 lg:mb-4">
-          <Card header={t("transactionsPage.description")}>
-            <p className="p-2 text-base font-normal">
-              {extInfo || t("messages.notAvailable")}
-            </p>
-          </Card>
-        </div>
+        {extInfo && (
+          <div className="lg:col-start-3 lg:row-start-2 lg:row-end-5 lg:mb-4">
+            <Card header={t("transactionsPage.description")}>
+              <p className="p-2 text-base font-normal">
+                {extInfo}
+              </p>
+            </Card>
+          </div>
+        )}
         {documents.length > 0 && (
           <div className="md:col-start-1 md:row-start-2 lg:row-start-3">
             <Button
@@ -236,8 +255,31 @@ export const TransactionDetails = ({
             </Button>
           </div>
         )}
+        {orderId && isStatusCancellable(orderStatus) && isPortfolioAllowedToCancelOrder(parentPortfolio) && (
+          <div>
+            <Button
+              isFullWidth
+              variant="Red"
+              onClick={() => onCancelOrderModalOpen({
+                orderId: Number(orderId),
+                reference,
+                transactionDate,
+                portfolioName: parentPortfolio.name,
+                portfolioShortName: parentPortfolio.shortName,
+                securityName,
+                type,
+              })}
+            >
+              {t("transactionsPage.cancelOrderButtonLabel")}
+            </Button>
+          </div>
+        )}
       </div>
+      <Modal {...cancelOrderModalProps} header={"Cancelling order"}>
+        <CancelOrderModalContent {...cancelOrderModalContentProps} />
+      </Modal>
     </PageLayout>
+
   );
 };
 

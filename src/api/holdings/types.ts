@@ -18,7 +18,7 @@ export interface AllocationBySecurity {
 }
 
 export interface AllocationByType {
-  code: string;
+  code: SecurityTypeCode;
   name: string;
   figures: {
     marketValue: number;
@@ -58,14 +58,24 @@ export interface MarketHistoryDataPoint {
   date: string;
 }
 
-export type SecurityTypeCode =
-  | "STOCK"
-  | "FUND"
-  | "ETFs"
-  | "PE"
-  | "BOND"
-  | "C" // Collective investment
-  | "CURRENCY";
+/** Standard solution Security type codes.*/
+export enum SecurityTypeCode {
+  EQUITY = "E", //Equity
+  ETF = "CE", //Exchange-traded funds (ETFs)
+  PRIVATE_EQUITY = "PE", //Private Equity
+  DEBT_INSTRUMENT = "D", //Debt instruments
+  COLLECTIVE_INVESTMENT_VEHICLE = "C", //Collective investment vehicles
+  CURRENCY = "TC", //Currencies
+}
+
+/**
+ * Security tags indicating whether a security can be bought or sold
+ * in units and/or trade amount.
+ */
+export enum SecurityTradeType {
+  units = "Trade type:Units",
+  tradeAmount = "Trade type:Trade amount",
+}
 
 export interface SecurityDetailsPosition {
   id: number;

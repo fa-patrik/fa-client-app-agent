@@ -26,7 +26,7 @@ export interface GroupedHoldings {
 }
 
 export interface HoldingProps extends AllocationBySecurity {
-  onClick: () => void;
+  onClick?: () => void;
   showFlag: boolean;
   currency: string;
   tradeProps: TradeProps;

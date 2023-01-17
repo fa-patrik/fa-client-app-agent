@@ -59,7 +59,7 @@ const cache = new InMemoryCache({
     },
     TransactionType: {
       keyFields: ["typeCode"],
-    },
+    }
   },
 });
 
