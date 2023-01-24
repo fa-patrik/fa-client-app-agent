@@ -2,7 +2,7 @@ import { MutableRefObject, useState, useEffect } from "react";
 import { SecurityTypeCode, SecurityTradeType } from "api/holdings/types";
 import { useGetPortfolioHoldingDetails } from "api/holdings/useGetPortfolioHoldingDetails";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
-import { useTrade } from "api/trading/useTrade";
+import { ExecutionMethod, useTrade } from "api/trading/useTrade";
 import {
   PortfolioSelect,
   DownloadableDocument,
@@ -30,7 +30,7 @@ const isSecurityTypeFund = (securityType: SecurityTypeCode | undefined) =>
   securityType === SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE;
 
 const getTradeType = (securityType: SecurityTypeCode | undefined) =>
-  isSecurityTypeFund(securityType) ? "sell" : "redemption";
+  isSecurityTypeFund(securityType) ? "redemption" : "sell";
 
 const getCurrentAmount = (
   isTradeInUnits: boolean | undefined,
@@ -143,6 +143,9 @@ export const SellModalContent = ({
     ...getTradeAmountArgs(amount, isTradeInUnits),
     ...security,
     currency,
+    executionMethod: isTradeInUnits
+      ? ExecutionMethod.UNITS
+      : ExecutionMethod.NET_TRADE_AMOUNT,
   });
 
   return (

@@ -17,6 +17,7 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
     $tradeAmount: String
     $currency: String
     $reference: String
+    $executionMethod: String
   ) {
     importTradeOrder(
       tradeOrder: {
@@ -30,6 +31,7 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
         unitPrice: "AUTO"
         currency: $currency
         reference: $reference
+        executionMethod: $executionMethod
       }
     )
   }
@@ -44,6 +46,7 @@ interface ImportTradeOrderQueryVariables {
   reference: string;
   units?: number;
   tradeAmount?: number;
+  executionMethod: ExecutionMethod;
 }
 
 const errorStatus = "ERROR" as const;
@@ -55,6 +58,16 @@ interface ImportTradeOrderQueryResponse {
 }
 
 export type TradeType = "sell" | "buy" | "redemption" | "subscription";
+
+/**
+ * Trade order's execution method.
+ */
+export enum ExecutionMethod {
+  NOT_DEFINED = "1",
+  UNITS = "2",
+  GROSS_TRADE_AMOUNT = "3",
+  NET_TRADE_AMOUNT = "4",
+}
 
 export const useTrade = (
   newTradeOrder: Omit<

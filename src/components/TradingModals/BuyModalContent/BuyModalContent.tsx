@@ -3,7 +3,7 @@ import { SecurityTypeCode, SecurityTradeType } from "api/holdings/types";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { useGetBuyData } from "api/trading/useGetBuyData";
-import { useTrade } from "api/trading/useTrade";
+import { ExecutionMethod, useTrade } from "api/trading/useTrade";
 import {
   PortfolioSelect,
   DownloadableDocument,
@@ -24,16 +24,11 @@ interface BuyModalProps extends BuyModalInitialData {
   onClose: () => void;
 }
 
-// buying non-Collective investment should be defined in units instead of trade amount
-const isSecurityTypeFund = (securityType: SecurityTypeCode | undefined) => {
-  return securityType === SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE;
-};
+const isSecurityTypeFund = (securityType: SecurityTypeCode | undefined) =>
+  securityType === SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE;
 
-const getTradeType = (securityType: SecurityTypeCode | undefined) => {
-  return securityType !== SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE
-    ? "buy"
-    : "subscription";
-};
+const getTradeType = (securityType: SecurityTypeCode | undefined) =>
+  isSecurityTypeFund(securityType) ? "subscription" : "buy";
 
 const getTradeAmount = (
   amount: number,
@@ -123,6 +118,9 @@ export const BuyModalContent = ({
     ...getTradeAmountArgs(amount, isTradeInUnits),
     ...security,
     currency: security.currency.securityCode,
+    executionMethod: isTradeInUnits
+      ? ExecutionMethod.UNITS
+      : ExecutionMethod.NET_TRADE_AMOUNT,
   });
 
   const isTradeAmountCorrect =
