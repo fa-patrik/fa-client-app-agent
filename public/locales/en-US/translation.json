@@ -112,7 +112,9 @@
     "cancelOrderButtonLabel": "Cancel order"
   },
   "documentsPage": {
-    "title": "Documents",
+    "type": {
+      "documents": "0Documents"
+    },
     "noDocuments": "No documents are available",
     "name": "Name",
     "date": "Date",

@@ -38,14 +38,14 @@ export const DocumentRow = ({
   }
 
   return (
-    <>
-      <div className="pt-2 pb-2.5 ml-2 text-base md:text-lg font-semibold md:leading-8 truncate">
+    <div className="flex">
+      <div className="pt-2 pb-2.5 ml-2 w-2/4 text-base md:text-lg font-semibold md:leading-8 truncate">
         {fileName}
       </div>
-      <div className="pt-2 pb-2.5 text-sm font-semibold md:leading-8 text-right text-gray-500 md:text-gray-800">
+      <div className="pt-2 pb-2.5 w-1/4 text-sm font-semibold md:leading-8 text-right text-gray-500 md:text-gray-800">
         {t("date", { date: dateFromYYYYMMDD(created) })}
       </div>
-      <div className="pt-2 pb-2.5 mr-2 text-right">
+      <div className="pt-2 pb-2.5 mr-2 w-1/4 text-right">
         <Button
           variant="Dark"
           size="xs"
@@ -54,6 +54,6 @@ export const DocumentRow = ({
           onClick={() => downloadDocument(identifier)}
         />
       </div>
-    </>
+    </div>
   );
 };
