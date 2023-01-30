@@ -1,4 +1,3 @@
-import { Portfolio } from "api/initial/useGetContactInfo";
 import { ORDER_STATUS } from "./enums";
 
 type Values<T> = T[keyof T];
@@ -18,7 +17,9 @@ export interface TradeOrder {
   type: TradeOrderType;
   transactionDate: string;
   tradeAmountInPortfolioCurrency?: number;
-  parentPortfolio: Portfolio;
+  parentPortfolio: {
+    id: number;
+  };
   reference: string;
   orderStatus: OrderStatus;
   extId?: string;
@@ -98,6 +99,7 @@ interface OrderFromMutation {
 }
 
 export interface OrderMutationResponse {
-  importTradeOrder: [{ importStatus: "OK" | "ERROR" }, OrderFromMutation] &
-    unknown[];
+  importTradeOrder:
+    | [Record<string, string>, OrderFromMutation] //in case of success
+    | [OrderFromMutation]; //in case of error
 }

@@ -8,7 +8,24 @@ import {
 } from "services/permissions/money";
 import { TradePermissionGroup } from "services/permissions/trade";
 
-const CONTACT_INFO_QUERY = gql`
+export const PORTFOLIO_BASIC_FIELDS = gql`
+  fragment PortfolioBasicFields on Portfolio {
+    id
+    name
+    status
+    shortName
+    currency {
+      securityCode
+    }
+    portfolioGroups {
+      id
+      code
+    }
+  }
+`;
+
+export const CONTACT_INFO_QUERY = gql`
+  ${PORTFOLIO_BASIC_FIELDS}
   query GetContactInfo($contactId: Long) {
     contact(id: $contactId) {
       id
@@ -22,16 +39,7 @@ const CONTACT_INFO_QUERY = gql`
         id
         contactId
         portfolios {
-          id
-          name
-          shortName
-          currency {
-            securityCode
-          }
-          portfolioGroups {
-            id
-            code
-          }
+          ...PortfolioBasicFields
         }
         representees {
           name
@@ -45,17 +53,7 @@ const CONTACT_INFO_QUERY = gql`
         }
       }
       portfolios {
-        id
-        name
-        status
-        shortName
-        currency {
-          securityCode
-        }
-        portfolioGroups {
-          id
-          code
-        }
+        ...PortfolioBasicFields
       }
     }
   }
@@ -101,7 +99,7 @@ export interface Portfolio {
   portfolioGroups: PortfolioGroup[];
 }
 
-export interface ContactInfoQuery {
+interface ContactInfoQuery {
   contact?: {
     id: number;
     contactId: string;
@@ -113,14 +111,6 @@ export interface ContactInfoQuery {
     };
     portfolios?: Portfolio[];
   };
-}
-
-export interface ContactsInfoQuery {
-  contacts?: {
-    name: string;
-    representees: Representee[];
-    assetManagerPortfolios: AssetManagerPortfolios[];
-  }[];
 }
 
 export const useGetContactInfo = (

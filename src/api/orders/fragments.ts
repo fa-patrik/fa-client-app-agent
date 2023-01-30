@@ -17,16 +17,6 @@ export const TRADE_ORDERS_DETAILS = gql`
     tradeAmountInPortfolioCurrency
     parentPortfolio {
       id
-      status
-      name
-      shortName
-      currency {
-        securityCode
-      }
-      portfolioGroups {
-        id
-        code
-      }
     }
     reference
     extId

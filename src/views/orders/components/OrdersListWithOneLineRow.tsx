@@ -1,3 +1,4 @@
+import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import { Badge } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
@@ -91,11 +92,17 @@ const Order = ({
   isAnyOrderCancellable,
   onCancelOrderModalOpen,
 }: OrderProps) => {
+  const isLgVersion = useMatchesBreakpoint("lg");
   const { t, i18n } = useModifiedTranslation();
+
+  const { data: orderParentPortfolio } = useGetPortfolioBasicFieldsById(
+    parentPortfolio.id
+  );
+
   const orderCanBeCancelled = isStatusCancellable(orderStatus);
   const portfolioAllowedToCancel =
-    isPortfolioAllowedToCancelOrder(parentPortfolio);
-  const isLgVersion = useMatchesBreakpoint("lg");
+    orderParentPortfolio &&
+    isPortfolioAllowedToCancelOrder(orderParentPortfolio);
 
   const typeTranslated = getNameFromBackendTranslations(
     type.typeName,
@@ -125,7 +132,7 @@ const Order = ({
         <td className="px-2 font-semibold text-left">{securityName}</td>
         {showPortfolioLabel && (
           <td className="px-1 text-sm md:text-base text-left text-gray-500">
-            {parentPortfolio.name}
+            {orderParentPortfolio?.name}
           </td>
         )}
         <td className="px-1 text-sm md:text-base font-medium text-right text-gray-500">
@@ -144,7 +151,7 @@ const Order = ({
         <td className="px-2 text-base font-medium text-right">
           {t("numberWithCurrency", {
             value: tradeAmountInPortfolioCurrency,
-            currency: parentPortfolio.currency.securityCode,
+            currency: orderParentPortfolio?.currency.securityCode,
           })}
         </td>
         {orderCanBeCancelled && portfolioAllowedToCancel ? (
@@ -158,8 +165,8 @@ const Order = ({
                     onCancelOrderModalOpen({
                       orderId: id,
                       reference: reference,
-                      portfolioName: parentPortfolio.name,
-                      portfolioShortName: parentPortfolio.shortName,
+                      portfolioName: orderParentPortfolio.name,
+                      portfolioId: orderParentPortfolio.id,
                       securityName,
                       transactionDate,
                       type,

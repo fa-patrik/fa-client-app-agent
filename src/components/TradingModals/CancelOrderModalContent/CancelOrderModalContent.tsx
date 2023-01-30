@@ -1,4 +1,4 @@
-import { useState, MutableRefObject } from "react"
+import { useState, MutableRefObject } from "react";
 import { TradeOrderType } from "api/orders/types";
 import { useCancelOrder } from "api/orders/useCancelOrder";
 import { Badge } from "components";
@@ -11,11 +11,11 @@ import {
 
 export interface CancelOrderModalInitialData {
   orderId: number;
-  reference?: string;
+  reference: string;
   portfolioName: string;
   securityName: string;
   transactionDate: string;
-  portfolioShortName: string;
+  portfolioId: number;
   type: TradeOrderType;
 }
 
@@ -32,16 +32,15 @@ export const CancelOrderModalContent = ({
   securityName,
   transactionDate,
   type,
-  portfolioShortName,
-  modalInitialFocusRef
+  portfolioId,
+  modalInitialFocusRef,
 }: CancelOrderModalProps) => {
-
-  const [submitting, setSubmitting] = useState(false)
+  const [submitting, setSubmitting] = useState(false);
 
   const { handleOrderCancel } = useCancelOrder({
     orderId,
     reference,
-    portfolioShortName
+    portfolioId,
   });
 
   const { t, i18n } = useModifiedTranslation();
@@ -103,9 +102,7 @@ export const CancelOrderModalContent = ({
 
       <hr className="my-1" />
 
-      <div className="flex flex-row gap-4"
-        ref={modalInitialFocusRef}
-      >
+      <div className="flex flex-row gap-4" ref={modalInitialFocusRef}>
         <Button
           isFullWidth
           disabled={submitting}
@@ -120,9 +117,9 @@ export const CancelOrderModalContent = ({
           isLoading={submitting}
           isFullWidth
           onClick={async () => {
-            setSubmitting(true)
-            await handleOrderCancel()
-            onClose()
+            setSubmitting(true);
+            await handleOrderCancel();
+            onClose();
           }}
         >
           {t("cancelOrderModal.confirmButtonLabel")}

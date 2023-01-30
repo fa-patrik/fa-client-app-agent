@@ -4,40 +4,32 @@ import { TradeOrderQuery } from "./types";
 
 const TRADE_ORDER_QUERY = gql`
   ${TRADE_ORDERS_DETAILS}
-  query GetTradeOrder(
-    $reference: String,
-    $shortName: String
-  ) {
-    tradeOrders(
-      reference: $reference,
-      shortName: $shortName
-    ) {
+  query GetTradeOrder($reference: String, $shortName: String) {
+    tradeOrders(reference: $reference, shortName: $shortName) {
       ...TradeOrdersDetails
     }
   }
 `;
 
-export const useGetTradeOrder = (
-  reference?: string,
-  portfolioShortName?: string
-) => {
+export const useGetTradeOrder = () => {
+  const [performQuery] = useLazyQuery<TradeOrderQuery>(TRADE_ORDER_QUERY, {
+    fetchPolicy: "no-cache",
+  });
 
-  const [getOrder, { loading, error, data, refetch }] = useLazyQuery<TradeOrderQuery>(
-    TRADE_ORDER_QUERY,
-    {
+  const getTradeOrderByRefAndShortname = async (
+    reference: string,
+    shortName: string
+  ) => {
+    const response = await performQuery({
       variables: {
         reference,
-        shortName: portfolioShortName
+        shortName,
       },
-      fetchPolicy: "no-cache",
-    }
-  );
+    });
+    return response.data?.tradeOrders?.[0];
+  };
 
   return {
-    getOrder,
-    loading,
-    error,
-    data: data?.tradeOrders,
-    refetch
+    getTradeOrderByRefAndShortname,
   };
 };

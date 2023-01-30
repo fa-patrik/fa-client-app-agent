@@ -9,7 +9,7 @@ interface UserSettingsProviderProps {
 export const APILanguageProvider = ({
   children,
 }: UserSettingsProviderProps) => {
-  const { data, error } = useGetContactInfo(true);
+  const { data, error } = useGetContactInfo();
   const { isReady } = useFeedI18nextWithLocale(data?.locale);
 
   if (error && !data) {
