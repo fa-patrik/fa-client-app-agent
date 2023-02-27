@@ -12,6 +12,7 @@ import {
 } from "components/index";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useIsReadOnly } from "services/permissions/readOnly";
 import { round } from "utils/number";
 import { useGetSecurityDetails } from "../../../api/holdings/useGetSecurityDetails";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
@@ -147,6 +148,8 @@ export const SellModalContent = ({
       ? ExecutionMethod.UNITS
       : ExecutionMethod.NET_TRADE_AMOUNT,
   });
+
+  const isReadOnlyMode = useIsReadOnly();
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
@@ -298,7 +301,9 @@ export const SellModalContent = ({
           })}
         </div>
         <Button
-          disabled={amount === 0 || loading || !isTradeAmountCorrect}
+          disabled={
+            isReadOnlyMode || amount === 0 || loading || !isTradeAmountCorrect
+          }
           isLoading={submitting}
           onClick={async () => {
             const response = await handleSell();

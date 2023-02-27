@@ -10,6 +10,7 @@ import {
   isStatusCancellable,
   isPortfolioAllowedToCancelOrder,
 } from "services/permissions/cancelOrder";
+import { useIsReadOnly } from "services/permissions/readOnly";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getNameFromBackendTranslations,
@@ -110,6 +111,8 @@ const Order = ({
     type.typeNamesAsMap
   );
 
+  const isReadOnlyMode = useIsReadOnly();
+
   const TypeBadge = () => {
     return (
       <Badge
@@ -161,7 +164,7 @@ const Order = ({
                 className="w-6 h-6 text-primary-600 transition-transform hover:scale-110 hover:cursor-pointer stroke-primary-600"
                 onClick={(event: React.MouseEvent) => {
                   event.stopPropagation(); //hinders the parent onClick
-                  if (onCancelOrderModalOpen) {
+                  if (!isReadOnlyMode && onCancelOrderModalOpen) {
                     onCancelOrderModalOpen({
                       orderId: id,
                       reference: reference,

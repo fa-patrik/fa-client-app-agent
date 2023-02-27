@@ -48,7 +48,7 @@ const Trading = lazy(() =>
   import("./trading").then((module) => ({ default: module.TradingPage }))
 );
 const ViewAs = lazy(() =>
-  import("./viewAs/[contactId]").then((module) => ({
+  import("./viewAsContact/[contactDbId]").then((module) => ({
     default: module.ViewAsPage,
   }))
 );
@@ -146,7 +146,7 @@ const linkedContactMainRoutes = [
     element: <OrderDetails />,
   },
   {
-    path: "viewAs/:contactId",
+    path: "viewAsContact/:contactDbId",
     element: <ViewAs />,
   },
 ];

@@ -4,6 +4,7 @@ import { useDeposit } from "api/money/useDeposit";
 import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useIsReadOnly } from "services/permissions/readOnly";
 import { CashAccountSelect } from "../components/CashAccountSelect";
 import { usePortfoliosAccountsState } from "../usePortfoliosAccountsState";
 import { useDepositablePortfolioSelect } from "./useDepositablePortfolioSelect";
@@ -19,7 +20,10 @@ export const DepositModalContent = ({
 }: DepositModalProps) => {
   const { t } = useModifiedTranslation();
   const { selectedContactId } = useGetContractIdData();
-  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(false, selectedContactId);
+  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
+    false,
+    selectedContactId
+  );
   const portfolioSelectProps = useDepositablePortfolioSelect();
   const { portfolioId } = portfolioSelectProps;
 
@@ -48,6 +52,7 @@ export const DepositModalContent = ({
     currency,
   });
 
+  const isReadOnlyMode = useIsReadOnly();
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
       <CashAccountSelect
@@ -74,7 +79,12 @@ export const DepositModalContent = ({
           }
         />
         <Button
-          disabled={amount === 0 || accountsLoading || !isAmountCorrect}
+          disabled={
+            isReadOnlyMode ||
+            amount === 0 ||
+            accountsLoading ||
+            !isAmountCorrect
+          }
           isLoading={submitting}
           onClick={async () => {
             const response = await handleDeposit();

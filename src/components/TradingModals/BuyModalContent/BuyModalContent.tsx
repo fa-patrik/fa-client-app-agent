@@ -13,6 +13,7 @@ import {
 } from "components/index";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useIsReadOnly } from "services/permissions/readOnly";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 
 export interface BuyModalInitialData {
@@ -126,6 +127,8 @@ export const BuyModalContent = ({
   const isTradeAmountCorrect =
     !isNaN(availableCash) && amount >= 0 && amount <= availableCash;
 
+  const isReadOnlyMode = useIsReadOnly();
+
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
       <LabeledDiv
@@ -219,7 +222,9 @@ export const BuyModalContent = ({
           })}
         </div>
         <Button
-          disabled={amount === 0 || loading || !isTradeAmountCorrect}
+          disabled={
+            isReadOnlyMode || amount === 0 || loading || !isTradeAmountCorrect
+          }
           isLoading={submitting}
           onClick={async () => {
             const response = await handleBuy();

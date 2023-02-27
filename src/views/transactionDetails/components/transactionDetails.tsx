@@ -17,6 +17,7 @@ import {
   isStatusCancellable,
   isPortfolioAllowedToCancelOrder,
 } from "services/permissions/cancelOrder";
+import { useIsReadOnly } from "services/permissions/readOnly";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getTransactionColor,
@@ -64,6 +65,7 @@ export const TransactionDetails = ({
     useDownloadReport();
   const transactionType = useGetTransactionType();
   const navigate = useNavigate();
+  const isReadOnlyMode = useIsReadOnly();
 
   const {
     Modal,
@@ -272,6 +274,7 @@ export const TransactionDetails = ({
               <Button
                 isFullWidth
                 variant="Red"
+                disabled={isReadOnlyMode}
                 onClick={() =>
                   onCancelOrderModalOpen({
                     orderId: Number(orderId),
