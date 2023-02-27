@@ -179,7 +179,9 @@
     "buyDisclaimer": "Past performance is not a guide to future performance. When investing in financial instruments, the investor may lose all or part of the investments.",
     "queryErrorWarning": "Server error occurred",
     "tradeAmountButtonLabel": "Trade amount",
-    "unitsButtonLabel": "Units"
+    "unitsButtonLabel": "Units",
+    "createTradeSuccess": "Your order was created successfully",
+    "createTradeError": "Something went wrong"
   },
   "cancelOrderModal": {
     "header": "Cancelling order",
