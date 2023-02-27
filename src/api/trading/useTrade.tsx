@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { FetchResult, gql, useMutation } from "@apollo/client";
+import { ApolloError, FetchResult, gql, useMutation } from "@apollo/client";
 import {
   LocalTradeOrderDetails,
   useLocalTradeStorageMutation,
 } from "hooks/useLocalTradeStorageMutation";
 import { toast } from "react-toastify";
-import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 import { useUniqueReference } from "../../hooks/useUniqueReference";
 
 const IMPORT_TRADE_ORDER_MUTATION = gql`
@@ -82,7 +81,6 @@ export const useTrade = (
       tradeType: TradeType;
     }
 ) => {
-  const { t } = useModifiedTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [handleAPITrade] = useMutation<
     ImportTradeOrderQueryResponse,
@@ -118,11 +116,11 @@ export const useTrade = (
         reference: transactionReference,
       });
 
-      toast.success(t("tradingModal.createTradeSuccess"), { autoClose: 3000 });
       setSubmitting(false);
       return apiResponse;
     } catch (e: unknown) {
-      toast.error(t("tradingModal.createTradeError"), {
+      const error = e as Error | ApolloError;
+      toast.error(error.message, {
         style: { whiteSpace: "pre-line" },
       });
       setSubmitting(false);
