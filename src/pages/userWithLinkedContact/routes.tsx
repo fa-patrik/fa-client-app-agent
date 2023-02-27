@@ -47,6 +47,11 @@ const Contact = lazy(() =>
 const Trading = lazy(() =>
   import("./trading").then((module) => ({ default: module.TradingPage }))
 );
+const ViewAs = lazy(() =>
+  import("./viewAs/[contactId]").then((module) => ({
+    default: module.ViewAsPage,
+  }))
+);
 
 export const mainTabRoutes: NavTabPath[] = [
   {
@@ -139,6 +144,10 @@ const linkedContactMainRoutes = [
   {
     path: "orders/:orderId",
     element: <OrderDetails />,
+  },
+  {
+    path: "viewAs/:contactId",
+    element: <ViewAs />,
   },
 ];
 
