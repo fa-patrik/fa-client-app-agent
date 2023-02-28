@@ -80,7 +80,7 @@ const KeycloakError = () => {
         <div className="mb-4">{t("messages.problemResolveInstructions")}</div>
         <div
           onClick={() => window.location.reload()}
-          className="font-semibold cursor-pointer text-primary-500"
+          className="font-semibold text-primary-500 cursor-pointer"
         >
           {t("messages.refreshPage")}
         </div>

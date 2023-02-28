@@ -1,4 +1,3 @@
-
 import {
   createContext,
   Dispatch,
@@ -14,10 +13,10 @@ import { useKeycloak } from "./KeycloakProvider";
 
 export type SelectedContact = {
   id: string | number;
-  contactId: string | number;
-  userName: string;
+  contactId?: string | number;
+  userName?: string;
   initials: string;
-}
+};
 
 type ContextProps = {
   selectedContactId: string | number;
@@ -29,21 +28,27 @@ type ContextProps = {
 const ContractIdContext = createContext<ContextProps | undefined>(undefined);
 
 export const DetailProvider = ({ children }: { children: ReactNode }) => {
-  const {data: contactData } = useGetContactInfo()
-  const [selectedContactId, setSelectedContactId] = useState<string | number>("");
-  const [selectedContact, setSelectedContact] = useState<SelectedContact>({} as SelectedContact);
+  const { data: contactData } = useGetContactInfo();
+  const [selectedContactId, setSelectedContactId] = useState<string | number>(
+    ""
+  );
+  const [selectedContact, setSelectedContact] = useState<SelectedContact>(
+    {} as SelectedContact
+  );
   const { linkedContact, userProfile } = useKeycloak();
 
-useEffect(() => {
-  //set initial selected contact upon load or refresh
-  linkedContact && setSelectedContactId(linkedContact);
-  linkedContact && userProfile && setSelectedContact({ 
-    id: linkedContact, 
-    contactId: contactData?._contactId ?? "",
-    userName: contactData?.name ?? "", 
-    initials: initials(contactData?.name)
-  });
-}, [linkedContact, userProfile, contactData?._contactId, contactData?.name]);
+  useEffect(() => {
+    //set initial selected contact upon load or refresh
+    linkedContact && setSelectedContactId(linkedContact);
+    linkedContact &&
+      userProfile &&
+      setSelectedContact({
+        id: linkedContact,
+        contactId: contactData?._contactId,
+        userName: contactData?.name,
+        initials: initials(contactData?.name),
+      });
+  }, [linkedContact, userProfile, contactData?._contactId, contactData?.name]);
 
   return (
     <ContractIdContext.Provider

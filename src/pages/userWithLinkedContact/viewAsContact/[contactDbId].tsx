@@ -5,9 +5,10 @@ import {
   SelectedContact,
   useGetContractIdData,
 } from "providers/ContractIdProvider";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import { initials } from "utils/initials";
-import { NotFoundView } from "views/notFoundView/notFoundView";
+import { ErrorView } from "views/errorView/errorView";
 
 /**
  * A page that sets the selected contact to
@@ -16,29 +17,40 @@ import { NotFoundView } from "views/notFoundView/notFoundView";
  */
 export const ViewAsPage = () => {
   const navigate = useNavigate();
-  const { contactDbId } = useParams();
-  const { data, loading } = useGetContactInfo(false, contactDbId);
+  const { setLinkedContact } = useKeycloak();
   const { setSelectedContact, setSelectedContactId } = useGetContractIdData();
+  const { contactDbId } = useParams();
 
-  //set the selected contact and navigate to Overview
+  //this data is expected to be null if the
+  //user does not have access rights to the contactDbId
+  const { data: viewAsContactData, loading: loadingViewAsContactData } =
+    useGetContactInfo(false, contactDbId);
+
   useEffect(() => {
-    //data can be null if the user does not have access to the
-    //requested contact (limited visibility)
-    if (data?.contactId) {
-      const selectedContact = {
-        id: data?.contactId,
-        contactId: data?._contactId,
-        userName: data?.name,
-        initials: initials(data?.name),
-      } as SelectedContact;
-
-      setSelectedContact(selectedContact);
-      setSelectedContactId(data?.contactId);
-      navigate("/overview", { replace: true });
+    if (setLinkedContact && contactDbId) {
+      if (viewAsContactData?.contactId) {
+        const selectedContact = {
+          id: viewAsContactData?.contactId,
+          contactId: viewAsContactData?._contactId,
+          userName: viewAsContactData?.name,
+          initials: initials(viewAsContactData?.name),
+        } as SelectedContact;
+        setSelectedContact(() => selectedContact);
+        setSelectedContactId(() => contactDbId);
+        setLinkedContact(contactDbId);
+        navigate("/overview", { replace: true });
+      }
     }
   });
 
-  if (loading) return <LoadingIndicator center />;
+  if (loadingViewAsContactData) return <LoadingIndicator center />;
 
-  return <NotFoundView />;
+  return (
+    <ErrorView
+      title="notAllowedPage.title"
+      info="notAllowedPage.info"
+      navigateText="notAllowedPage.navigateText"
+      navigateTo="/overview"
+    />
+  );
 };

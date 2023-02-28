@@ -49,6 +49,7 @@ export interface KeycloakServiceStateType {
   linkedContact: string | undefined;
   userProfile: KeycloakProfile | undefined;
   readonly: boolean; //whether the user may only read
+  setLinkedContact?: (id: string) => void;
 }
 
 export const keycloakServiceInitialState = {
@@ -58,6 +59,7 @@ export const keycloakServiceInitialState = {
   userProfile: undefined,
   error: undefined,
   readonly: true,
+  setLinkedContact: undefined,
 };
 
 class KeycloakService {
@@ -69,6 +71,16 @@ class KeycloakService {
     this.keycloak = instance;
     this.init();
   }
+
+  setLinkedContact = (id: string) => {
+    if (this.state.authenticated) {
+      this.state = {
+        ...this.state,
+        linkedContact: id,
+      };
+    }
+    this.updateState();
+  };
 
   initOffline() {
     const lastUsedLinkedContact = getLastUsedLinkedContact();
@@ -109,6 +121,7 @@ class KeycloakService {
     this.keycloak.onAuthRefreshError = this.onError;
     this.keycloak.onAuthLogout = this.onAuthLogout;
     this.keycloak.onTokenExpired = this.onTokenExpired;
+    this.state.setLinkedContact = this.setLinkedContact;
   }
 
   subscribe(subscribeFunction: SubscribeFunctionType) {
