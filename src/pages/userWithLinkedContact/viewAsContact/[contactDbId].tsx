@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { LoadingIndicator } from "components";
 import {
   SelectedContact,
   useGetContractIdData,
@@ -37,7 +38,7 @@ export const ViewAsPage = () => {
     }
   });
 
-  if (loading) return null;
+  if (loading) return <LoadingIndicator center />;
 
   return <NotFoundView />;
 };

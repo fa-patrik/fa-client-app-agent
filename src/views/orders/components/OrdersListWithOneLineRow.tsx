@@ -4,7 +4,6 @@ import { Badge } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import {
@@ -111,8 +110,6 @@ const Order = ({
     type.typeNamesAsMap
   );
 
-  const { readonly } = useKeycloak();
-
   const TypeBadge = () => {
     return (
       <Badge
@@ -164,7 +161,7 @@ const Order = ({
                 className="w-6 h-6 text-primary-600 transition-transform hover:scale-110 hover:cursor-pointer stroke-primary-600"
                 onClick={(event: React.MouseEvent) => {
                   event.stopPropagation(); //hinders the parent onClick
-                  if (!readonly && onCancelOrderModalOpen) {
+                  if (onCancelOrderModalOpen) {
                     onCancelOrderModalOpen({
                       orderId: id,
                       reference: reference,
