@@ -13,7 +13,7 @@ import {
 } from "components/index";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useIsReadOnly } from "services/permissions/readOnly";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 
 export interface BuyModalInitialData {
@@ -127,7 +127,7 @@ export const BuyModalContent = ({
   const isTradeAmountCorrect =
     !isNaN(availableCash) && amount >= 0 && amount <= availableCash;
 
-  const isReadOnlyMode = useIsReadOnly();
+  const { readonly } = useKeycloak();
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
@@ -223,7 +223,7 @@ export const BuyModalContent = ({
         </div>
         <Button
           disabled={
-            isReadOnlyMode || amount === 0 || loading || !isTradeAmountCorrect
+            readonly || amount === 0 || loading || !isTradeAmountCorrect
           }
           isLoading={submitting}
           onClick={async () => {

@@ -6,5 +6,6 @@
   "public-client": true,
   "verify-token-audience": true,
   "use-resource-role-mappings": true,
-  "confidential-port": 0
+  "confidential-port": 0,
+  "write-roles": { "fa-back": ["ROLE_CLIENT_PORTAL"] }
 }

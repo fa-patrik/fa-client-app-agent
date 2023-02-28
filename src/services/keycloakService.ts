@@ -48,6 +48,7 @@ export interface KeycloakServiceStateType {
   error?: boolean;
   linkedContact: string | undefined;
   userProfile: KeycloakProfile | undefined;
+  readonly: boolean; //whether the user may only read
 }
 
 export const keycloakServiceInitialState = {
@@ -56,6 +57,7 @@ export const keycloakServiceInitialState = {
   linkedContact: undefined,
   userProfile: undefined,
   error: undefined,
+  readonly: true,
 };
 
 class KeycloakService {
@@ -181,10 +183,12 @@ class KeycloakService {
           await persistor.purge();
         }
         setLastUsedLinkedContact(linkedContact);
+        const userHasWriteAccess = await this.validateWriteAccess();
         this.state = {
           ...this.state,
           linkedContact: linkedContact,
           userProfile: profile,
+          readonly: !userHasWriteAccess,
         };
       }
     }
@@ -270,6 +274,38 @@ class KeycloakService {
       configuredRequiredRole,
       configuredClient
     );
+  }
+
+  /**
+   * Checks whether the logged in user is allowed
+   * to perform write actions by cross-checking
+   * the user token's resource roles with what
+   * is specified in the keycloak.json.
+   * @returns true if user has at least one specified write-role.
+   */
+  async validateWriteAccess() {
+    try {
+      const keycloakJson = await this.getConfigFile();
+      //optional field
+      const configuredWriteRoles = keycloakJson?.["write-roles"] as
+        | Record<string, string[]>
+        | undefined;
+
+      if (configuredWriteRoles) {
+        return Object.entries(configuredWriteRoles)?.some(
+          ([keycloakClient, writeRoles]) => {
+            return writeRoles?.some((role) =>
+              this.keycloak.hasResourceRole(role, keycloakClient)
+            );
+          }
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Unable to determine write access rights. Check if keycloak.json is properly configured. Defaulting to read-only mode."
+      );
+    }
+    return false;
   }
 }
 

@@ -4,7 +4,7 @@ import { useWithdrawal } from "api/money/useWithdrawal";
 import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useIsReadOnly } from "services/permissions/readOnly";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { CashAccountSelect } from "../components/CashAccountSelect";
 import { usePortfoliosAccountsState } from "../usePortfoliosAccountsState";
 import { useWithdrawablePortfolioSelect } from "./useWithdrawablePortfolioSelect";
@@ -53,7 +53,7 @@ export const WithdrawModalContent = ({
     currency,
   });
 
-  const isReadOnlyMode = useIsReadOnly();
+  const { readonly } = useKeycloak();
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
@@ -82,10 +82,7 @@ export const WithdrawModalContent = ({
         />
         <Button
           disabled={
-            isReadOnlyMode ||
-            amount === 0 ||
-            accountsLoading ||
-            !isAmountCorrect
+            readonly || amount === 0 || accountsLoading || !isAmountCorrect
           }
           isLoading={submitting}
           onClick={async () => {

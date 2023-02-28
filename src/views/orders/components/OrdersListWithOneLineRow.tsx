@@ -4,13 +4,13 @@ import { Badge } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import {
   isStatusCancellable,
   isPortfolioAllowedToCancelOrder,
 } from "services/permissions/cancelOrder";
-import { useIsReadOnly } from "services/permissions/readOnly";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getNameFromBackendTranslations,
@@ -111,7 +111,7 @@ const Order = ({
     type.typeNamesAsMap
   );
 
-  const isReadOnlyMode = useIsReadOnly();
+  const { readonly } = useKeycloak();
 
   const TypeBadge = () => {
     return (
@@ -164,7 +164,7 @@ const Order = ({
                 className="w-6 h-6 text-primary-600 transition-transform hover:scale-110 hover:cursor-pointer stroke-primary-600"
                 onClick={(event: React.MouseEvent) => {
                   event.stopPropagation(); //hinders the parent onClick
-                  if (!isReadOnlyMode && onCancelOrderModalOpen) {
+                  if (!readonly && onCancelOrderModalOpen) {
                     onCancelOrderModalOpen({
                       orderId: id,
                       reference: reference,

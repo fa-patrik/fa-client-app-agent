@@ -11,13 +11,13 @@ import {
 } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
 import {
   isStatusCancellable,
   isPortfolioAllowedToCancelOrder,
 } from "services/permissions/cancelOrder";
-import { useIsReadOnly } from "services/permissions/readOnly";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getTransactionColor,
@@ -65,7 +65,7 @@ export const TransactionDetails = ({
     useDownloadReport();
   const transactionType = useGetTransactionType();
   const navigate = useNavigate();
-  const isReadOnlyMode = useIsReadOnly();
+  const { readonly } = useKeycloak();
 
   const {
     Modal,
@@ -274,7 +274,7 @@ export const TransactionDetails = ({
               <Button
                 isFullWidth
                 variant="Red"
-                disabled={isReadOnlyMode}
+                disabled={readonly}
                 onClick={() =>
                   onCancelOrderModalOpen({
                     orderId: Number(orderId),
