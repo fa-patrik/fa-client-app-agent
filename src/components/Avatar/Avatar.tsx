@@ -14,9 +14,10 @@ export const Avatar = ({ backgroundColor, initials, onClick }: AvatarProps) => {
     <div
       onClick={onClick}
       style={{ backgroundColor: backgroundColor }}
-      className={classNames("flex justify-center items-center w-10 h-10 rounded-full",
+      className={classNames(
+        "flex justify-center items-center w-10 h-10 rounded-full",
         {
-            "cursor-pointer": onClick
+          "cursor-pointer": onClick,
         }
       )}
     >
@@ -48,7 +49,7 @@ export const SelectedContactAvatar = () => {
     return (
       <Avatar
         backgroundColor={selectedContactAvatarColor}
-        initials={selectedContact.initials.charAt(0)}
+        initials={selectedContact?.initials?.charAt(0) ?? ""}
       />
     );
   }

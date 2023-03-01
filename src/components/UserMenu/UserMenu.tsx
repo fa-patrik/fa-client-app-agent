@@ -43,7 +43,7 @@ const getMenuItems = (
   processes: Process[],
   representees: Representee[],
   contactData: SelectedContact,
-  selectedContactId: string | number
+  selectedContactId: string | number | undefined
 ) => {
   if (!hasLinkedContact) {
     return [
@@ -179,9 +179,9 @@ export const UserMenu = () => {
               processes,
               contactData?.representees || [],
               {
-                id: contactData?.contactId || "",
-                contactId: contactData?.contactId || "",
-                userName: contactData?.name || "-",
+                id: contactData?.contactId,
+                contactId: contactData?._contactId,
+                userName: contactData?.name,
                 initials: initials(contactData?.name),
               },
               selectedContactId

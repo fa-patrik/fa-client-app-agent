@@ -1,24 +1,25 @@
 import { useEffect } from "react";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { LoadingIndicator } from "components";
-import {
+/*import {
   SelectedContact,
   useGetContractIdData,
 } from "providers/ContractIdProvider";
-import { useKeycloak } from "providers/KeycloakProvider";
+*/
 import { useNavigate, useParams } from "react-router-dom";
-import { initials } from "utils/initials";
+import { keycloakService } from "services/keycloakService";
+//import { initials } from "utils/initials";
 import { ErrorView } from "views/errorView/errorView";
 
 /**
- * A page that sets the selected contact to
- * its route param (contactId) and then navigates
- * the user to Overview.
+ * A page that overrides the keycloak linked contact to
+ * its route param (contactDbId) and then navigates
+ * the browser to Overview. Used to impersonate another
+ * contact.
  */
 export const ViewAsPage = () => {
   const navigate = useNavigate();
-  const { setLinkedContact } = useKeycloak();
-  const { setSelectedContact, setSelectedContactId } = useGetContractIdData();
+  //const { setSelectedContact, setSelectedContactId } = useGetContractIdData();
   const { contactDbId } = useParams();
 
   //this data is expected to be null if the
@@ -27,19 +28,19 @@ export const ViewAsPage = () => {
     useGetContactInfo(false, contactDbId);
 
   useEffect(() => {
-    if (setLinkedContact && contactDbId) {
-      if (viewAsContactData?.contactId) {
-        const selectedContact = {
-          id: viewAsContactData?.contactId,
-          contactId: viewAsContactData?._contactId,
-          userName: viewAsContactData?.name,
-          initials: initials(viewAsContactData?.name),
-        } as SelectedContact;
-        setSelectedContact(() => selectedContact);
-        setSelectedContactId(() => contactDbId);
-        setLinkedContact(contactDbId);
-        navigate("/overview", { replace: true });
-      }
+    if (contactDbId && viewAsContactData) {
+      /*
+      const selectedContact = {
+        id: viewAsContactData?.contactId,
+        contactId: viewAsContactData?._contactId,
+        userName: viewAsContactData?.name,
+        initials: initials(viewAsContactData?.name),
+      } as SelectedContact;
+      setSelectedContact(selectedContact);
+      setSelectedContactId(contactDbId);
+      */
+      keycloakService.setLinkedContact(contactDbId);
+      navigate("/overview", { replace: true });
     }
   });
 
