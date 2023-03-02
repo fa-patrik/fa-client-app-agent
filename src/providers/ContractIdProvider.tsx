@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { useParams } from "react-router-dom";
 import { initials } from "utils/initials";
 import { useKeycloak } from "./KeycloakProvider";
 
@@ -30,7 +31,6 @@ const ContractIdContext = createContext<ContextProps | undefined>(undefined);
 export const DetailProvider = ({ children }: { children: ReactNode }) => {
   const { linkedContact } = useKeycloak();
   const { data: linkedContactData } = useGetContactInfo(false, linkedContact);
-
   const [selectedContactId, setSelectedContactId] = useState<
     string | number | undefined
   >();

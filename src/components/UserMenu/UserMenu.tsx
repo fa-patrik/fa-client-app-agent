@@ -20,7 +20,13 @@ import {
   SelectedContact,
 } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { useNavigate, To, NavigateOptions } from "react-router";
+import {
+  useNavigate,
+  To,
+  NavigateOptions,
+  useParams,
+  useLocation,
+} from "react-router";
 import { keycloakService } from "services/keycloakService";
 import { useCanDeposit, useCanWithdraw } from "services/permissions/money";
 import { initials } from "utils/initials";
@@ -149,7 +155,6 @@ export const UserMenu = () => {
     setSelectedContact: (contact: SelectedContact) => {
       setSelectedContact(contact);
       setSelectedContactId(contact.id);
-      navigate("/overview", { replace: true });
     },
   };
 
@@ -170,7 +175,7 @@ export const UserMenu = () => {
           leaveTo="transform scale-95 opacity-0"
           as={Fragment}
         >
-          <Menu.Items className="absolute top-full right-0 z-10 py-1 bg-white rounded-md ring-1 ring-black ring-opacity-5 shadow-lg origin-top-right focus:outline-none min-w-[120px]">
+          <Menu.Items className="absolute top-full right-0 z-10 py-1 whitespace-nowrap bg-white rounded-md ring-1 ring-black ring-opacity-5 shadow-lg origin-top-right focus:outline-none min-w-[120px]">
             {getMenuItems(
               menuActions,
               !!linkedContact,

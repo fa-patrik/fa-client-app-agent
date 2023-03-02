@@ -48,7 +48,7 @@ const Trading = lazy(() =>
   import("./trading").then((module) => ({ default: module.TradingPage }))
 );
 const ViewAs = lazy(() =>
-  import("./viewAsContact/[contactDbId]").then((module) => ({
+  import("./[contactDbId]").then((module) => ({
     default: module.ViewAsPage,
   }))
 );
@@ -121,15 +121,29 @@ export const mainTabRoutes: NavTabPath[] = [
 const linkedContactMainRoutes = [
   {
     path: "",
-    element: <Navigate to="overview" replace />,
+    element: <PortfolioNavigationHeaderLayout />,
+    children: [
+      {
+        path: "*",
+        element: <NavTabRoutes routes={mainTabRoutes} />,
+      },
+      {
+        path: "",
+        element: <Navigate to="overview" replace />,
+      },
+    ],
   },
   {
     path: "",
     element: <PortfolioNavigationHeaderLayout />,
     children: [
       {
-        path: "*",
+        path: "/viewAsContact/:contactDbId/*",
         element: <NavTabRoutes routes={mainTabRoutes} />,
+      },
+      {
+        path: "/viewAsContact/:contactDbId/",
+        element: <Navigate to="overview" replace />,
       },
     ],
   },
@@ -146,8 +160,16 @@ const linkedContactMainRoutes = [
     element: <OrderDetails />,
   },
   {
-    path: "viewAsContact/:contactDbId",
-    element: <ViewAs />,
+    path: "/viewAsContact/:contactDbId/holdings/:holdingId",
+    element: <Holding />,
+  },
+  {
+    path: "/viewAsContact/:contactDbId/transactions/:transactionId",
+    element: <TransactionDetails />,
+  },
+  {
+    path: "/viewAsContact/:contactDbId/orders/:orderId",
+    element: <OrderDetails />,
   },
 ];
 
@@ -157,6 +179,10 @@ export const userWithLinkedContactRoutes = [
     element: <MainLayout />,
     children: [
       ...linkedContactMainRoutes,
+      {
+        path: "/viewAsContact/:contactDbId/portfolio/:portfolioId/*",
+        element: <PortfolioRoutes />,
+      },
       {
         path: "portfolio/:portfolioId/*",
         element: <PortfolioRoutes />,
