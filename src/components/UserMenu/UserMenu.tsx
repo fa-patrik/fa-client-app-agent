@@ -20,13 +20,7 @@ import {
   SelectedContact,
 } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
-import {
-  useNavigate,
-  To,
-  NavigateOptions,
-  useParams,
-  useLocation,
-} from "react-router";
+import { useNavigate, To, NavigateOptions } from "react-router";
 import { keycloakService } from "services/keycloakService";
 import { useCanDeposit, useCanWithdraw } from "services/permissions/money";
 import { initials } from "utils/initials";
@@ -68,7 +62,7 @@ const getMenuItems = (
         menuActions.setSelectedContact(contactData);
       },
       Icon: UserIcon,
-      selected: contactData?.id === selectedContactId,
+      selected: contactData?.id?.toString() === selectedContactId?.toString(),
     },
     "separator",
     ...(Array.isArray(representees)

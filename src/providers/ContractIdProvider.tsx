@@ -4,13 +4,8 @@ import {
   ReactNode,
   SetStateAction,
   useContext,
-  useEffect,
   useState,
 } from "react";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
-import { useParams } from "react-router-dom";
-import { initials } from "utils/initials";
-import { useKeycloak } from "./KeycloakProvider";
 
 export type SelectedContact = {
   id: string | number | undefined;
@@ -29,8 +24,6 @@ type ContextProps = {
 const ContractIdContext = createContext<ContextProps | undefined>(undefined);
 
 export const DetailProvider = ({ children }: { children: ReactNode }) => {
-  const { linkedContact } = useKeycloak();
-  const { data: linkedContactData } = useGetContactInfo(false, linkedContact);
   const [selectedContactId, setSelectedContactId] = useState<
     string | number | undefined
   >();
@@ -38,22 +31,6 @@ export const DetailProvider = ({ children }: { children: ReactNode }) => {
   const [selectedContact, setSelectedContact] = useState<
     SelectedContact | undefined
   >();
-
-  useEffect(() => {
-    //set initial selected contact (& if linked contact changes)
-    const newSelectedContact = {
-      id: linkedContactData?.contactId,
-      contactId: linkedContactData?._contactId,
-      userName: linkedContactData?.name,
-      initials: initials(linkedContactData?.name),
-    };
-    setSelectedContactId(linkedContactData?.contactId);
-    setSelectedContact(newSelectedContact);
-  }, [
-    linkedContactData?._contactId,
-    linkedContactData?.name,
-    linkedContactData?.contactId,
-  ]);
 
   return (
     <ContractIdContext.Provider
