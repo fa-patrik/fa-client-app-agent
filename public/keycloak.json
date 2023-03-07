@@ -2,10 +2,14 @@
   "realm": "fa",
   "auth-server-url": "https://fatemplatedev.fasolutions.com/auth",
   "ssl-required": "external",
-  "resource": "external-api",
+  "resource": "clientportal",
+  "required-roles": {
+    "clientportal": ["ROLE_LOGIN"],
+    "fa-back": ["ROLE_CLIENT_PORTAL"]
+  },
   "public-client": true,
   "verify-token-audience": true,
   "use-resource-role-mappings": true,
   "confidential-port": 0,
-  "write-roles": { "fa-back": ["ROLE_CLIENT_PORTAL"] }
+  "readonly-roles": { "clientportal": ["ROLE_READONLY"] }
 }

@@ -1,5 +1,6 @@
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import classNames from "classnames";
+import { LoadingIndicator } from "components";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import theme from "tailwindTheme";
 
@@ -7,9 +8,16 @@ interface AvatarProps {
   backgroundColor: string;
   initials: string;
   onClick?: () => void;
+  loading?: boolean;
 }
 
-export const Avatar = ({ backgroundColor, initials, onClick }: AvatarProps) => {
+export const Avatar = ({
+  backgroundColor,
+  initials,
+  onClick,
+  loading,
+}: AvatarProps) => {
+  if (loading) return <LoadingIndicator />;
   return (
     <div
       onClick={onClick}
@@ -30,7 +38,7 @@ export const Avatar = ({ backgroundColor, initials, onClick }: AvatarProps) => {
 
 export const SelectedContactAvatar = () => {
   const { selectedContact } = useGetContractIdData();
-  const { data: contactData } = useGetContactInfo();
+  const { data: contactData, loading } = useGetContactInfo();
 
   if (selectedContact && contactData) {
     const indexOfContact =
@@ -45,9 +53,9 @@ export const SelectedContactAvatar = () => {
         ((colorIndex % avatarColors.length) + avatarColors.length) %
           avatarColors.length
       ];
-
     return (
       <Avatar
+        loading={loading}
         backgroundColor={selectedContactAvatarColor}
         initials={selectedContact?.initials?.charAt(0) ?? ""}
       />

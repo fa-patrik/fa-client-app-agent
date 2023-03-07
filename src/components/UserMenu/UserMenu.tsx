@@ -149,6 +149,7 @@ export const UserMenu = () => {
     setSelectedContact: (contact: SelectedContact) => {
       setSelectedContact(contact);
       setSelectedContactId(contact.id);
+      navigate("/overview", { replace: true });
     },
   };
 

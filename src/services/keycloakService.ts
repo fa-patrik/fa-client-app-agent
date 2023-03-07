@@ -49,6 +49,7 @@ export interface KeycloakServiceStateType {
   linkedContact: string | undefined;
   userProfile: KeycloakProfile | undefined;
   readonly: boolean; //whether the user may only read
+  setLinkedContact?: (id: string) => void;
 }
 
 export const keycloakServiceInitialState = {
@@ -58,6 +59,7 @@ export const keycloakServiceInitialState = {
   userProfile: undefined,
   error: undefined,
   readonly: true,
+  setLinkedContact: undefined,
 };
 
 class KeycloakService {
@@ -109,6 +111,7 @@ class KeycloakService {
     this.keycloak.onAuthRefreshError = this.onError;
     this.keycloak.onAuthLogout = this.onAuthLogout;
     this.keycloak.onTokenExpired = this.onTokenExpired;
+    this.state.setLinkedContact = this.setLinkedContact;
   }
 
   subscribe(subscribeFunction: SubscribeFunctionType) {
@@ -183,12 +186,12 @@ class KeycloakService {
           await persistor.purge();
         }
         setLastUsedLinkedContact(linkedContact);
-        const userHasWriteAccess = await this.validateWriteAccess();
+        const userIsReadonly = await this.validateReadonly();
         this.state = {
           ...this.state,
           linkedContact: linkedContact,
           userProfile: profile,
-          readonly: !userHasWriteAccess,
+          readonly: userIsReadonly,
         };
       }
     }
@@ -255,25 +258,33 @@ class KeycloakService {
   }
 
   /**
-   * Checks whether the user has a required-role
-   * (if one has been specified).
-   * @returns true if user has the required role
+   * Checks whether the user has the required role(s)
+   * @returns true if user has the required role(s)
    * or if a required role was not configured.
    */
   async validateRequiredRole() {
-    const keycloakJson = await this.getConfigFile();
-    //optional field
-    const configuredRequiredRole = keycloakJson?.["required-role"];
-    //required field
-    const configuredClient = keycloakJson?.["resource"];
+    try {
+      const keycloakJson = await this.getConfigFile();
+      const configuredRequiredRoles = keycloakJson?.["required-roles"] as
+        | Record<string, string[]>
+        | undefined;
 
-    //no configured required role -> valid
-    if (!configuredRequiredRole) return true;
+      //no configured required roles -> valid
+      if (!configuredRequiredRoles) return true;
 
-    return this.keycloak.hasResourceRole(
-      configuredRequiredRole,
-      configuredClient
-    );
+      return Object.entries(configuredRequiredRoles)?.every(
+        ([keycloakClient, requiredRoles]) => {
+          return requiredRoles?.every((role) =>
+            this.keycloak.hasResourceRole(role, keycloakClient)
+          );
+        }
+      );
+    } catch (error) {
+      console.error(
+        "Unable to determine required role. Check if keycloak.json is properly configured. Revoking access."
+      );
+    }
+    return false;
   }
 
   /**
@@ -281,18 +292,18 @@ class KeycloakService {
    * to perform write actions by cross-checking
    * the user token's resource roles with what
    * is specified in the keycloak.json.
-   * @returns true if user has at least one specified write-role.
+   * @returns true if user has at least one specified readonly-role.
    */
-  async validateWriteAccess() {
+  async validateReadonly() {
     try {
       const keycloakJson = await this.getConfigFile();
       //optional field
-      const configuredWriteRoles = keycloakJson?.["write-roles"] as
+      const configuredReadonlyRoles = keycloakJson?.["readonly-roles"] as
         | Record<string, string[]>
         | undefined;
 
-      if (configuredWriteRoles) {
-        return Object.entries(configuredWriteRoles)?.some(
+      if (configuredReadonlyRoles) {
+        return Object.entries(configuredReadonlyRoles)?.some(
           ([keycloakClient, writeRoles]) => {
             return writeRoles?.some((role) =>
               this.keycloak.hasResourceRole(role, keycloakClient)

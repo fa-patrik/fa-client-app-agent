@@ -1,5 +1,9 @@
 import { lazy } from "react";
-import { PortfolioGuard, TranslationText } from "components";
+import {
+  PortfolioGuard,
+  TranslationText,
+  ImpersonationGuard,
+} from "components";
 import { MainLayout } from "layouts/MainLayout/MainLayout";
 import { NavTabRoutes } from "layouts/NavTabLayout/NavTab/NavTabRoutes";
 import { NavTabPath } from "layouts/NavTabLayout/NavTab/types";
@@ -129,20 +133,6 @@ const linkedContactMainRoutes = [
     ],
   },
   {
-    path: "",
-    element: <PortfolioNavigationHeaderLayout />,
-    children: [
-      {
-        path: "/impersonate/:contactDbId/*",
-        element: <NavTabRoutes routes={mainTabRoutes} />,
-      },
-      {
-        path: "/impersonate/:contactDbId/",
-        element: <Navigate to="overview" replace />,
-      },
-    ],
-  },
-  {
     path: "holdings/:holdingId",
     element: <Holding />,
   },
@@ -155,32 +145,20 @@ const linkedContactMainRoutes = [
     element: <OrderDetails />,
   },
   {
-    path: "/impersonate/:contactDbId/holdings/:holdingId",
-    element: <Holding />,
-  },
-  {
-    path: "/impersonate/:contactDbId/transactions/:transactionId",
-    element: <TransactionDetails />,
-  },
-  {
-    path: "/impersonate/:contactDbId/orders/:orderId",
-    element: <OrderDetails />,
+    path: "portfolio/:portfolioId/*",
+    element: <PortfolioRoutes />,
   },
 ];
 
 export const userWithLinkedContactRoutes = [
   {
     path: "",
-    element: <MainLayout />,
+    element: (
+      <ImpersonationGuard>
+        <MainLayout />
+      </ImpersonationGuard>
+    ),
     children: [
-      {
-        path: "portfolio/:portfolioId/*",
-        element: <PortfolioRoutes />,
-      },
-      {
-        path: "/impersonate/:contactDbId/portfolio/:portfolioId/*",
-        element: <PortfolioRoutes />,
-      },
       ...linkedContactMainRoutes,
       ...authUserMainRoutes,
       {
@@ -191,5 +169,59 @@ export const userWithLinkedContactRoutes = [
   },
 ];
 
+export const userWithLinkedContactReadonlyRoutes = [
+  {
+    path: "",
+    element: (
+      <ImpersonationGuard impersonate>
+        <MainLayout />
+      </ImpersonationGuard>
+    ),
+    children: [
+      {
+        path: "",
+        element: <NotFoundView />,
+      },
+      {
+        path: "",
+        element: <PortfolioNavigationHeaderLayout displayBanner />,
+        children: [
+          {
+            path: "/impersonate/:contactDbId/*",
+            element: <NavTabRoutes routes={mainTabRoutes} />,
+          },
+          {
+            path: "/impersonate/:contactDbId/",
+            element: <Navigate to="overview" replace />,
+          },
+        ],
+      },
+      {
+        path: "/impersonate/:contactDbId/portfolio/:portfolioId/*",
+        element: <PortfolioRoutes />,
+      },
+      {
+        path: "/impersonate/:contactDbId/holdings/:holdingId",
+        element: <Holding />,
+      },
+      {
+        path: "/impersonate/:contactDbId/transactions/:transactionId",
+        element: <TransactionDetails />,
+      },
+      {
+        path: "/impersonate/:contactDbId/orders/:orderId",
+        element: <OrderDetails />,
+      },
+      {
+        path: "*",
+        element: <NotFoundView />,
+      },
+    ],
+  },
+];
+
 export const UserWithLinkedContactRoutes = () =>
   useRoutes(userWithLinkedContactRoutes);
+
+export const UserWithLinkedContactReadonlyRoutes = () =>
+  useRoutes(userWithLinkedContactReadonlyRoutes);
