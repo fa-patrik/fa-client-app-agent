@@ -1,9 +1,5 @@
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { ReactComponent as Spinner } from "assets/spinner.svg";
 import classNames from "classnames";
-import { LoadingIndicator } from "components";
-import { useGetContractIdData } from "providers/ContractIdProvider";
-import theme from "tailwindTheme";
-
 interface AvatarProps {
   backgroundColor: string;
   initials: string;
@@ -17,7 +13,6 @@ export const Avatar = ({
   onClick,
   loading,
 }: AvatarProps) => {
-  if (loading) return <LoadingIndicator />;
   return (
     <div
       onClick={onClick}
@@ -29,38 +24,13 @@ export const Avatar = ({
         }
       )}
     >
-      <span className="text-xl font-bold text-center text-white">
-        {initials}
-      </span>
+      {loading ? (
+        <Spinner className=" text-gray-200 animate-spin fill-primary-600" />
+      ) : (
+        <span className="text-xl font-bold text-center text-white">
+          {initials}
+        </span>
+      )}
     </div>
   );
-};
-
-export const SelectedContactAvatar = () => {
-  const { selectedContact } = useGetContractIdData();
-  const { data: contactData, loading } = useGetContactInfo();
-
-  if (selectedContact && contactData) {
-    const indexOfContact =
-      contactData?.representees?.findIndex(
-        (representee) => representee.id === selectedContact.id
-      ) ?? 0;
-    //default contact gets 0, and any rep start from 1
-    const colorIndex = indexOfContact !== -1 ? indexOfContact + 1 : 0;
-    const avatarColors = theme.colors.avatarColors;
-    const selectedContactAvatarColor =
-      avatarColors[
-        ((colorIndex % avatarColors.length) + avatarColors.length) %
-          avatarColors.length
-      ];
-    return (
-      <Avatar
-        loading={loading}
-        backgroundColor={selectedContactAvatarColor}
-        initials={selectedContact?.initials?.charAt(0) ?? ""}
-      />
-    );
-  }
-
-  return null;
 };

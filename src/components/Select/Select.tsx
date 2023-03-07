@@ -77,7 +77,7 @@ export const Select = <TOption extends Option>({
                 {({ active, selected }) => (
                   <li
                     className={classNames(
-                      "block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 ",
+                      "block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 cursor-pointer select-none",
                       {
                         "dark:text-white bg-primary-50 dark:bg-gray-600":
                           active,

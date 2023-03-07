@@ -27,6 +27,7 @@ import { initials } from "utils/initials";
 import { useModal } from "../Modal/useModal";
 import { DepositModalContent } from "../MoneyModals/DepositModalContent/DepositModalContent";
 import { WithdrawModalContent } from "../MoneyModals/WithdrawModalContent/WithdrawModalContent";
+
 interface MenuActions {
   logout: () => void;
   deposit: () => void;
@@ -119,6 +120,7 @@ const getMenuItems = (
 };
 
 export const UserMenu = () => {
+  const { readonly } = useKeycloak();
   const { selectedContactId, setSelectedContactId, setSelectedContact } =
     useGetContractIdData();
   const { t } = useModifiedTranslation();
@@ -127,7 +129,7 @@ export const UserMenu = () => {
   const { data: processes = [] } = useGetContactProcesses();
   const canDeposit = useCanDeposit();
   const canWithdraw = useCanWithdraw();
-  const { data: contactData } = useGetContactInfo();
+  const { data: contactData, loading } = useGetContactInfo();
   const {
     Modal,
     onOpen: onDepositModalOpen,
@@ -149,9 +151,10 @@ export const UserMenu = () => {
     setSelectedContact: (contact: SelectedContact) => {
       setSelectedContact(contact);
       setSelectedContactId(contact.id);
-      navigate("/overview", { replace: true });
     },
   };
+
+  if (loading) return null;
 
   return (
     <>
@@ -176,7 +179,7 @@ export const UserMenu = () => {
               !!linkedContact,
               canDeposit,
               canWithdraw,
-              processes,
+              readonly ? [] : processes,
               contactData?.representees || [],
               {
                 id: contactData?.contactId,

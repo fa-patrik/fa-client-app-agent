@@ -184,7 +184,7 @@ export const userWithLinkedContactReadonlyRoutes = [
       },
       {
         path: "",
-        element: <PortfolioNavigationHeaderLayout displayBanner />,
+        element: <PortfolioNavigationHeaderLayout />,
         children: [
           {
             path: "/impersonate/:contactDbId/*",

@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import ReactTooltip from "react-tooltip";
 export const ImpersonationBanner = () => {
@@ -21,26 +22,35 @@ export const ImpersonationBanner = () => {
       </svg>
     );
   };
-
   return (
-    <>
-      <div className="flex gap-x-1 justify-center items-center p-2 select-none bg-slate-200">
-        <span className="text-black">
-          Viewing as: <span className="">{selectedContact?.userName}</span>
-        </span>
-        <div
-          className="transition-transform hover:scale-110 cursor-pointer"
-          data-tip="You are in a view-only mode"
-        >
-          <QuestionmarkIcon />
-        </div>
-      </div>
-      <ReactTooltip
-        border
-        borderColor="gray"
-        backgroundColor="white"
-        textColor="black"
-      />
-    </>
+    <div
+      className={classNames(
+        "flex gap-x-2 justify-center items-center px-2 h-8 bg-gray-300 select-none scroll-auto",
+        {
+          "animate-pulse": !selectedContact,
+        }
+      )}
+    >
+      {selectedContact?.userName && (
+        <>
+          <span className="text-black">
+            Viewing as: <span>{selectedContact?.userName}</span>
+          </span>
+
+          <div
+            className="transition-transform hover:scale-110 cursor-pointer"
+            data-tip="You are in a view-only mode"
+          >
+            <QuestionmarkIcon />
+          </div>
+          <ReactTooltip
+            border
+            borderColor="gray"
+            backgroundColor="white"
+            textColor="black"
+          />
+        </>
+      )}
+    </div>
   );
 };

@@ -202,12 +202,7 @@
   "notFoundPage": {
     "title": "That page doesn't exist!",
     "info": "Sorry, the page you were\n looking for couldn't be found",
-    "navigateText": "Return to previous page"
-  },
-  "notAllowedPage": {
-    "title": "Not allowed",
-    "info": "Sorry, you are not allowed\n to view this page",
-    "navigateText": "Return back home"
+    "return": "Return to previous page"
   },
   "formPage": {
     "attachments": "Attachments",

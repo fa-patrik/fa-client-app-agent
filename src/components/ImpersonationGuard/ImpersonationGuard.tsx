@@ -27,8 +27,6 @@ export const ImpersonationGuard = ({
   children,
   impersonate,
 }: ImpersonationGuardProps) => {
-  const [loadingLanguage, setLoadingLanguage] = useState(true);
-  const { i18n } = useModifiedTranslation();
   const params = useParams();
   const contactId = params?.contactDbId;
   const { linkedContact } = useKeycloak();
@@ -40,18 +38,6 @@ export const ImpersonationGuard = ({
     error,
     loading,
   } = useGetContactInfo(false, impersonate ? contactId : linkedContact);
-
-  //set language to the app
-  useEffect(() => {
-    if (i18n && initialSelectedContact?.locale) {
-      i18n.changeLanguage(
-        initialSelectedContact?.locale?.replace("_", "-"),
-        () => {
-          setLoadingLanguage(false);
-        }
-      );
-    }
-  }, [i18n, initialSelectedContact?.locale]);
 
   //set the user to the app
   useEffect(() => {
@@ -80,10 +66,30 @@ export const ImpersonationGuard = ({
     setSelectedContact,
   ]);
 
+  //set the language
+  const [isLanguageLoading, setIsLanguageLoading] = useState(true);
+  const { i18n } = useModifiedTranslation();
+
+  useEffect(() => {
+    if (initialSelectedContact?.locale) {
+      i18n.changeLanguage(
+        initialSelectedContact?.locale.replace("_", "-"),
+        () => {
+          setIsLanguageLoading(false);
+        }
+      );
+    }
+  }, [i18n, initialSelectedContact?.locale]);
+
   if (error || (!loading && !initialSelectedContact?.contactId))
     return <NotFoundView />;
 
-  if (loading || loadingLanguage) return <LoadingIndicator center />;
+  if (loading || isLanguageLoading)
+    return (
+      <div className="flex justify-center items-center w-screen h-screen">
+        <LoadingIndicator />
+      </div>
+    );
 
   return <>{children}</>;
 };

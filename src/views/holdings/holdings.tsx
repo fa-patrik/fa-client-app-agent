@@ -1,5 +1,4 @@
 import { AllocationByType } from "api/holdings/types";
-import { useParams } from "react-router-dom";
 import { useModal } from "../../components/Modal/useModal";
 import {
   BuyModalContent,

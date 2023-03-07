@@ -1,5 +1,5 @@
 import { UserMenu, Logo, PortfolioSelect } from "components";
-import { SelectedContactAvatar } from "components/Avatar/Avatar";
+import { SelectedContactAvatar } from "components/Avatar/SelectedContactAvatar";
 import {
   TOTAL_INVESTMENTS_OPTION_ID,
   useGetPortfolioOptions,
