@@ -4,7 +4,6 @@
   "ssl-required": "external",
   "resource": "clientportal",
   "required-roles": {
-    "clientportal": ["ROLE_LOGIN"],
     "fa-back": ["ROLE_CLIENT_PORTAL"]
   },
   "public-client": true,

@@ -25,6 +25,12 @@
       "contact": "Contact us"
     }
   },
+  "banners": {
+    "impersonation": {
+      "viewOnly": "You are in a view-only mode",
+      "viewingAs": "Viewing as: "
+    }
+  },
   "portfolioSummary": {
     "currentMarketValue": "Current market value",
     "availableCash": "Available cash",
@@ -82,7 +88,8 @@
     "redemptionStatus": "Redemption",
     "depositStatus": "Deposit",
     "withdrawStatus": "Withdrawal",
-    "downloadFileButtonLabel": "Download order note"
+    "downloadFileButtonLabel": "Download order note",
+    "cancelOrder": "Cancel the order"
   },
   "transactionsPage": {
     "header": "Transaction",

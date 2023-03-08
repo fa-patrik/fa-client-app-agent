@@ -3,7 +3,7 @@ import { BaseReport } from "api/overview/types";
 import classNames from "classnames";
 import { GainLoseColoring } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   ColorScheme,
   CardWithChartBackground,
@@ -28,12 +28,15 @@ export const PortfolioInfoCard = ({
 }: PortfolioInfoCardProps) => {
   const { t } = useModifiedTranslation();
   const navigate = useNavigate();
+  const { contactDbId } = useParams();
 
   const navigateToPortfolioDetails = () => {
     if (!id) {
       return;
     }
-    navigate(`/portfolio/${id}`);
+    let path = `/portfolio/${id}/`;
+    if (contactDbId) path = `/impersonate/${contactDbId}${path}`;
+    navigate(path);
   };
 
   return (

@@ -15,10 +15,11 @@ export const Avatar = ({
 }: AvatarProps) => {
   return (
     <div
+      id="ContactAvatar"
       onClick={onClick}
       style={{ backgroundColor: backgroundColor }}
       className={classNames(
-        "flex justify-center items-center w-10 h-10 rounded-full",
+        "flex justify-center items-center w-10 h-10 rounded-full select-none",
         {
           "cursor-pointer": onClick,
         }

@@ -1,7 +1,7 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect } from "react";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { LoadingIndicator } from "components";
-import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useFeedI18nextWithLocale } from "hooks/useFeedI18nextWithLocale";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
@@ -39,12 +39,12 @@ export const ContactGuard = ({ children, impersonate }: ContactGuardProps) => {
   //set the user to the app
   useEffect(() => {
     if (initialSelectedContact?.contactId) {
-      //override user's linked contact with viewAsContact
+      //override user's linked contact (impersonating)
       if (impersonate && contactId && contactId !== linkedContact) {
         keycloakService.setLinkedContact(contactId);
       }
-      setSelectedContactId(initialSelectedContact?.contactId);
       //set the selected contact
+      setSelectedContactId(initialSelectedContact?.contactId);
       setSelectedContact({
         id: initialSelectedContact?.contactId,
         contactId: initialSelectedContact?._contactId,
@@ -63,25 +63,14 @@ export const ContactGuard = ({ children, impersonate }: ContactGuardProps) => {
     setSelectedContact,
   ]);
 
-  //set the language
-  const [isLanguageLoading, setIsLanguageLoading] = useState(true);
-  const { i18n } = useModifiedTranslation();
-
-  useEffect(() => {
-    if (initialSelectedContact?.locale) {
-      i18n.changeLanguage(
-        initialSelectedContact?.locale.replace("_", "-"),
-        () => {
-          setIsLanguageLoading(false);
-        }
-      );
-    }
-  }, [i18n, initialSelectedContact?.locale]);
+  const { isReady: isLanguageReady } = useFeedI18nextWithLocale(
+    initialSelectedContact?.locale
+  );
 
   if (error || (!loading && !initialSelectedContact?.contactId))
     return <NotFoundView />;
 
-  if (loading || isLanguageLoading)
+  if (loading || !isLanguageReady)
     return (
       <div className="flex justify-center items-center w-screen h-screen">
         <LoadingIndicator />

@@ -5,7 +5,7 @@ import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
-import ReactTooltip from "react-tooltip";
+import { Tooltip } from "react-tooltip";
 import {
   isStatusCancellable,
   isPortfolioAllowedToCancelOrder,
@@ -35,9 +35,9 @@ export const OrdersListWithOneLineRow = ({
 
   return (
     <div>
-      <ReactTooltip backgroundColor="white" textColor="black" />
+      <Tooltip id="cancelOrderTooltip" place="top" />
       <table className="w-full table-fixed">
-        <thead className="text-sm font-semibold text-gray-500 bg-gray-100 border-t">
+        <thead className="text-sm font-semibold text-gray-500 bg-gray-200 border-t">
           <tr>
             <th className="py-1 px-2 text-left">
               {t("transactionsPage.security")}
@@ -156,7 +156,12 @@ const Order = ({
         </td>
         {orderCanBeCancelled && portfolioAllowedToCancel ? (
           <td className="pr-4 h-full">
-            <div className="ml-auto w-fit" data-tip="Cancel the order">
+            <div
+              id={`cancelOrder-${id}`}
+              className="ml-auto w-fit"
+              data-tooltip-content={t("ordersPage.cancelOrder")}
+              data-tooltip-id="cancelOrderTooltip"
+            >
               <CancelIcon
                 className="w-6 h-6 text-primary-600 transition-transform hover:scale-110 hover:cursor-pointer stroke-primary-600"
                 onClick={(event: React.MouseEvent) => {
