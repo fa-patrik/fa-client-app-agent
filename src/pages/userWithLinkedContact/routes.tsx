@@ -1,9 +1,5 @@
 import { lazy } from "react";
-import {
-  PortfolioGuard,
-  TranslationText,
-  ImpersonationGuard,
-} from "components";
+import { PortfolioGuard, TranslationText, ContactGuard } from "components";
 import { MainLayout } from "layouts/MainLayout/MainLayout";
 import { NavTabRoutes } from "layouts/NavTabLayout/NavTab/NavTabRoutes";
 import { NavTabPath } from "layouts/NavTabLayout/NavTab/types";
@@ -154,9 +150,9 @@ export const userWithLinkedContactRoutes = [
   {
     path: "",
     element: (
-      <ImpersonationGuard>
+      <ContactGuard>
         <MainLayout />
-      </ImpersonationGuard>
+      </ContactGuard>
     ),
     children: [
       ...linkedContactMainRoutes,
@@ -173,9 +169,9 @@ export const userWithLinkedContactReadonlyRoutes = [
   {
     path: "",
     element: (
-      <ImpersonationGuard impersonate>
+      <ContactGuard impersonate>
         <MainLayout />
-      </ImpersonationGuard>
+      </ContactGuard>
     ),
     children: [
       {

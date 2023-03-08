@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import theme from "tailwindTheme";

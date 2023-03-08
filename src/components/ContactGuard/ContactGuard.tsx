@@ -9,7 +9,7 @@ import { keycloakService } from "services/keycloakService";
 import { initials } from "utils/initials";
 import { NotFoundView } from "views/notFoundView/notFoundView";
 
-interface ImpersonationGuardProps {
+interface ContactGuardProps {
   children: ReactNode;
   impersonate?: boolean;
 }
@@ -23,10 +23,7 @@ interface ImpersonationGuardProps {
  * @param impersonate set to true to use contactDbId, otherwise defaults to keycloak linked contact.
  * @returns children
  */
-export const ImpersonationGuard = ({
-  children,
-  impersonate,
-}: ImpersonationGuardProps) => {
+export const ContactGuard = ({ children, impersonate }: ContactGuardProps) => {
   const params = useParams();
   const contactId = params?.contactDbId;
   const { linkedContact } = useKeycloak();
