@@ -3,6 +3,11 @@ import classNames from "classnames";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { Tooltip } from "react-tooltip";
+
+/**
+ * A banner that displays "Viewing as:" + linked contact name
+ * and a tooltip that says "You are in view-only mode".
+ */
 export const ImpersonationBanner = () => {
   const { linkedContact } = useKeycloak();
   const { data: linkedContactData } = useGetContactInfo(false, linkedContact);

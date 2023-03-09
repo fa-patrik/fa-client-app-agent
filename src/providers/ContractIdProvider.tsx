@@ -23,6 +23,13 @@ type ContextProps = {
 
 const ContractIdContext = createContext<ContextProps | undefined>(undefined);
 
+/**
+ * Exposes the data of the currently selected contact
+ * and allows its children to update it and subscribe
+ * to changes. Selected contact is by default undefined
+ * and is expected to be set by one of its children
+ * (as is done by the ContactGuard component).
+ */
 export const DetailProvider = ({ children }: { children: ReactNode }) => {
   const [selectedContactId, setSelectedContactId] = useState<
     string | number | undefined
@@ -48,7 +55,7 @@ export const DetailProvider = ({ children }: { children: ReactNode }) => {
 
 export const useGetContractIdData = () => {
   const state = useContext(ContractIdContext);
-  if (!state) throw new Error("detail data not found");
+  if (!state) throw new Error(" data not found");
 
   return state;
 };

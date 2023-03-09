@@ -17,7 +17,7 @@ interface ContactGuardProps {
 /**
  * Before rendering its children, sets the selected contact
  * either based on the keycloak linked contact, or based on
- * a contactDbId route param (if one exists). If using contactDbId
+ * a contactDbId route param. If using contactDbId
  * param, also updates linkedContact in keycloak state (impersonation mode).
  * @param children children elements to render.
  * @param impersonate set to true to use contactDbId, otherwise defaults to keycloak linked contact.

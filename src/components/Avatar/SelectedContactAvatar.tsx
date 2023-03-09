@@ -3,6 +3,10 @@ import { useGetContractIdData } from "providers/ContractIdProvider";
 import theme from "tailwindTheme";
 import { Avatar } from "./Avatar";
 
+/**
+ * @returns Avatar component with the details
+ * of the currently selected contact.
+ */
 export const SelectedContactAvatar = () => {
   const { selectedContact } = useGetContractIdData();
   const { data: contactData } = useGetContactInfo();
