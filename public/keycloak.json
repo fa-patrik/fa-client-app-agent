@@ -3,12 +3,10 @@
   "auth-server-url": "https://fatemplatedev.fasolutions.com/auth",
   "ssl-required": "external",
   "resource": "clientportal",
-  "required-roles": {
-    "fa-back": ["ROLE_CLIENT_PORTAL"]
-  },
+  "write-roles": { "clientportal": ["ROLE_WRITE"] },
+  "impersonate-roles": { "clientportal": ["ROLE_IMPERSONATE"] },
   "public-client": true,
   "verify-token-audience": true,
   "use-resource-role-mappings": true,
-  "confidential-port": 0,
-  "readonly-roles": { "clientportal": ["ROLE_READONLY"] }
+  "confidential-port": 0
 }

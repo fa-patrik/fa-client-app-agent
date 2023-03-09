@@ -1,16 +1,12 @@
 import { AuthUserRoutes } from "pages/authUser/routes";
 import {
-  UserWithLinkedContactReadonlyRoutes,
+  UserWithImpersonationRightsRoutes,
   UserWithLinkedContactRoutes,
 } from "pages/userWithLinkedContact/routes";
 import { DetailProvider } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { PersistedApolloProvider } from "providers/PersistedApolloProvider";
-
-interface LinkedContactStackProps {
-  /**Whether user has readonly rights. */
-  readonly: boolean;
-}
+import { NotFoundView } from "views/notFoundView/notFoundView";
 
 /**
  * Returns the rest of the application stack
@@ -19,7 +15,7 @@ interface LinkedContactStackProps {
  * has a readonly role.
  */
 export const NavigationStack = () => {
-  const { readonly, linkedContact } = useKeycloak();
+  const { linkedContact, impersonating } = useKeycloak();
 
   const NoLinkedContactStack = () => {
     return (
@@ -29,23 +25,32 @@ export const NavigationStack = () => {
     );
   };
 
-  const LinkedContactStack = ({ readonly }: LinkedContactStackProps) => {
+  const DefaultStack = () => {
     return (
       <PersistedApolloProvider>
         <DetailProvider>
-          {readonly ? (
-            <UserWithLinkedContactReadonlyRoutes />
-          ) : (
-            <UserWithLinkedContactRoutes />
-          )}
+          <UserWithLinkedContactRoutes />
         </DetailProvider>
       </PersistedApolloProvider>
     );
   };
 
-  //user does not have linked contact in FA
+  const ImpersonationStack = () => {
+    return (
+      <PersistedApolloProvider>
+        <DetailProvider>
+          <UserWithImpersonationRightsRoutes />
+        </DetailProvider>
+      </PersistedApolloProvider>
+    );
+  };
+
+  if (impersonating) return <ImpersonationStack />;
+
+  if (linkedContact) return <DefaultStack />;
+
   if (!linkedContact) return <NoLinkedContactStack />;
 
-  //user has a linked contact in FA
-  return <LinkedContactStack readonly={readonly} />;
+  //fallback
+  return <NotFoundView />;
 };

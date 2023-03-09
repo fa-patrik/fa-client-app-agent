@@ -12,6 +12,8 @@ import {
   setLastUsedLinkedContact,
 } from "./pwa";
 
+const FA_USER_REALM_ROLE = "FA_ADMIN";
+
 const getSsoRedirectUri = () => {
   const url = new URL(
     `${process.env.PUBLIC_URL}/keycloak-silent-check-sso.html`,
@@ -48,7 +50,10 @@ export interface KeycloakServiceStateType {
   error?: boolean;
   linkedContact: string | undefined;
   userProfile: KeycloakProfile | undefined;
-  readonly: boolean; //whether the user may only read
+  /**Whether the user has rights to impersonate */
+  readonly: boolean;
+  /**Whether the app disables write actions */
+  impersonating: boolean;
 }
 
 export const keycloakServiceInitialState = {
@@ -58,6 +63,7 @@ export const keycloakServiceInitialState = {
   userProfile: undefined,
   error: undefined,
   readonly: true,
+  impersonating: false,
   setLinkedContact: undefined,
 };
 
@@ -150,10 +156,11 @@ class KeycloakService {
       this.keycloak.login();
     } else {
       try {
-        const userHasRequiredRole = await this.validateRequiredRole();
-        if (!userHasRequiredRole)
+        const userHasWriteRole = await this.validateWriteRole();
+        const userHasImpersonationRole = await this.validateImpersonateRole();
+        if (!userHasWriteRole && !userHasImpersonationRole)
           throw new Error(
-            "User does not have the required role. Revoking access."
+            "User does not have a required role. Revoking access."
           );
 
         this.state = {
@@ -161,6 +168,8 @@ class KeycloakService {
           initialized: true,
           authenticated: authenticated,
           error: false,
+          impersonating: userHasImpersonationRole,
+          readonly: userHasImpersonationRole,
         };
 
         await this.updateLinkedContact();
@@ -184,12 +193,10 @@ class KeycloakService {
           await persistor.purge();
         }
         setLastUsedLinkedContact(linkedContact);
-        const userIsReadonly = await this.validateReadonly();
         this.state = {
           ...this.state,
           linkedContact: linkedContact,
           userProfile: profile,
-          readonly: userIsReadonly,
         };
       }
     }
@@ -256,23 +263,25 @@ class KeycloakService {
   }
 
   /**
-   * Checks whether the user has the required role(s)
-   * @returns true if user has the required role(s)
-   * or if a required role was not configured.
+   * Checks whether the user has at least one of the
+   * write role(s).
+   * @returns true if user has at least one specified write role
+   * OR if no write roles were configured.
    */
-  async validateRequiredRole() {
+  async validateWriteRole() {
     try {
       const keycloakJson = await this.getConfigFile();
-      const configuredRequiredRoles = keycloakJson?.["required-roles"] as
+      const configuredRequiredRoles = keycloakJson?.["write-roles"] as
         | Record<string, string[]>
         | undefined;
 
-      //no configured required roles -> valid
+      //No configured roles -> valid
       if (!configuredRequiredRoles) return true;
 
-      return Object.entries(configuredRequiredRoles)?.every(
+      //Check whether user has a write role
+      return Object.entries(configuredRequiredRoles)?.some(
         ([keycloakClient, requiredRoles]) => {
-          return requiredRoles?.every((role) =>
+          return requiredRoles?.some((role) =>
             this.keycloak.hasResourceRole(role, keycloakClient)
           );
         }
@@ -286,22 +295,24 @@ class KeycloakService {
   }
 
   /**
-   * Checks whether the logged in user is allowed
-   * to perform write actions by cross-checking
-   * the user token's resource roles with what
-   * is specified in the keycloak.json.
-   * @returns true if user has at least one specified readonly-role.
+   * Checks whether the user has at least one of the
+   * read role(s).
+   * @returns true if user has at least one specified impersonation-role
+   * OR if no impersonation roles were configured.
    */
-  async validateReadonly() {
+  async validateImpersonateRole() {
     try {
       const keycloakJson = await this.getConfigFile();
       //optional field
-      const configuredReadonlyRoles = keycloakJson?.["readonly-roles"] as
-        | Record<string, string[]>
-        | undefined;
+      const configuredImpersonationRoles = keycloakJson?.[
+        "impersonate-roles"
+      ] as Record<string, string[]> | undefined;
 
-      if (configuredReadonlyRoles) {
-        return Object.entries(configuredReadonlyRoles)?.some(
+      //FA user -> should only be able to impersonate
+      if (this.keycloak.hasRealmRole(FA_USER_REALM_ROLE)) return true;
+
+      if (configuredImpersonationRoles) {
+        return Object.entries(configuredImpersonationRoles)?.some(
           ([keycloakClient, writeRoles]) => {
             return writeRoles?.some((role) =>
               this.keycloak.hasResourceRole(role, keycloakClient)

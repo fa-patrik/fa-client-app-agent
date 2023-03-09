@@ -165,7 +165,7 @@ export const userWithLinkedContactRoutes = [
   },
 ];
 
-export const userWithLinkedContactReadonlyRoutes = [
+export const userWithImpersonationRightsRoutes = [
   {
     path: "",
     element: (
@@ -219,5 +219,5 @@ export const userWithLinkedContactReadonlyRoutes = [
 export const UserWithLinkedContactRoutes = () =>
   useRoutes(userWithLinkedContactRoutes);
 
-export const UserWithLinkedContactReadonlyRoutes = () =>
-  useRoutes(userWithLinkedContactReadonlyRoutes);
+export const UserWithImpersonationRightsRoutes = () =>
+  useRoutes(userWithImpersonationRightsRoutes);
