@@ -4,10 +4,10 @@ import { Outlet } from "react-router-dom";
 import { PortfolioNavigationHeader } from "./PortfolioNavigationHeader/PortfolioNavigationHeader";
 
 export const PortfolioNavigationHeaderLayout = () => {
-  const { readonly } = useKeycloak();
+  const { impersonating } = useKeycloak();
   return (
     <div className="flex flex-col h-full">
-      {readonly && <ImpersonationBanner />}
+      {impersonating && <ImpersonationBanner />}
       <PortfolioNavigationHeader />
       <Outlet />
     </div>

@@ -15,11 +15,11 @@ export const DetailsHeading = ({
   onBackButtonClick,
 }: HeadingProps) => {
   const showLogoAndUserMenu = useMatchesBreakpoint("md");
-  const { readonly } = useKeycloak();
+  const { impersonating } = useKeycloak();
   return (
     <>
       <div className="z-20 bg-white border-b border-gray-200 shadow-md">
-        {readonly && <ImpersonationBanner />}
+        {impersonating && <ImpersonationBanner />}
         <div className="container flex gap-2 justify-between items-center py-2 px-2 mx-auto">
           {showLogoAndUserMenu && <Logo />}
           <div className="flex flex-shrink justify-start items-center w-3/4 sm:w-5/6 text-2xl font-bold">
