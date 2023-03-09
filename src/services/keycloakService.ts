@@ -50,9 +50,9 @@ export interface KeycloakServiceStateType {
   error?: boolean;
   linkedContact: string | undefined;
   userProfile: KeycloakProfile | undefined;
-  /**Whether the user has rights to impersonate */
-  readonly: boolean;
   /**Whether the app disables write actions */
+  readonly: boolean;
+  /**Whether the user has rights to impersonate */
   impersonating: boolean;
 }
 
@@ -298,7 +298,6 @@ class KeycloakService {
    * Checks whether the user has at least one of the
    * read role(s).
    * @returns true if user has at least one specified impersonation-role
-   * OR if no impersonation roles were configured.
    */
   async validateImpersonateRole() {
     try {
