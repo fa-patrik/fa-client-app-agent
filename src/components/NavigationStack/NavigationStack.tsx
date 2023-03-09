@@ -9,10 +9,8 @@ import { PersistedApolloProvider } from "providers/PersistedApolloProvider";
 import { NotFoundView } from "views/notFoundView/notFoundView";
 
 /**
- * Returns the rest of the application stack
- * and routes. Deducts routes based on whether
- * the user has a linked contact and if the user
- * has a readonly role.
+ * Returns the remaining application stack
+ * and deducts which routes to expose to the user.
  */
 export const NavigationStack = () => {
   const { linkedContact, impersonating } = useKeycloak();
