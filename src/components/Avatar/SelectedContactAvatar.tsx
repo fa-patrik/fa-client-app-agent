@@ -27,7 +27,7 @@ export const SelectedContactAvatar = () => {
     return (
       <Avatar
         backgroundColor={selectedContactAvatarColor}
-        initials={selectedContact?.initials?.charAt(0) ?? ""}
+        initials={selectedContact?.userName?.charAt(0) ?? ""}
       />
     );
   } else {

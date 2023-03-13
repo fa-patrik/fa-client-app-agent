@@ -6,7 +6,6 @@ import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
 import { keycloakService } from "services/keycloakService";
-import { initials } from "utils/initials";
 import { NotFoundView } from "views/notFoundView/notFoundView";
 
 interface ContactGuardProps {
@@ -49,7 +48,6 @@ export const ContactGuard = ({ children, impersonate }: ContactGuardProps) => {
         id: initialSelectedContact?.contactId,
         contactId: initialSelectedContact?._contactId,
         userName: initialSelectedContact?.name,
-        initials: initials(initialSelectedContact?.name),
       });
     }
   }, [

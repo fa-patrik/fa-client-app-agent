@@ -23,7 +23,6 @@ import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate, To, NavigateOptions } from "react-router";
 import { keycloakService } from "services/keycloakService";
 import { useCanDeposit, useCanWithdraw } from "services/permissions/money";
-import { initials } from "utils/initials";
 import { useModal } from "../Modal/useModal";
 import { DepositModalContent } from "../MoneyModals/DepositModalContent/DepositModalContent";
 import { WithdrawModalContent } from "../MoneyModals/WithdrawModalContent/WithdrawModalContent";
@@ -74,7 +73,6 @@ const getMenuItems = (
               id: representee.id,
               contactId: representee.contactId,
               userName: representee.name,
-              initials: initials(representee.name),
             });
           },
           Icon: UserIcon,
@@ -184,8 +182,7 @@ export const UserMenu = () => {
               {
                 id: contactData?.contactId,
                 contactId: contactData?._contactId,
-                userName: contactData?.name,
-                initials: initials(contactData?.name),
+                userName: contactData?.name
               },
               selectedContactId
             ).map((item, index) =>

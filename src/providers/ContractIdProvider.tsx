@@ -11,7 +11,6 @@ export type SelectedContact = {
   id: string | number | undefined;
   contactId: string | number | undefined;
   userName: string | undefined;
-  initials: string | undefined;
 };
 
 type ContextProps = {
