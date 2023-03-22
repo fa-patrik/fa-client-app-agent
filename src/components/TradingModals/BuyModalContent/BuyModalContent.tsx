@@ -70,17 +70,20 @@ export const BuyModalContent = ({
 
   const [isTradeInUnits, setIsTradeInUnits] = useState(true);
   const [canToggleTradeType, setCanToggleTradeType] = useState(false);
-
+  //in case it takes some time to loop through tags and deduct trade type
+  const [hasDeductedTradeType, setHasDeductedTradeType] = useState(false);
   useEffect(() => {
+    setHasDeductedTradeType(false);
     const isTradeTypeSpecified = securityTags?.some(
       (tag) =>
-        tag === SecurityTradeType.units || tag === SecurityTradeType.tradeAmount
+        tag === SecurityTradeType.buyUnits ||
+        tag === SecurityTradeType.buyTradeAmount
     );
     const isUnitsSupported = securityTags?.some(
-      (tag) => tag === SecurityTradeType.units
+      (tag) => tag === SecurityTradeType.buyUnits
     );
     const isTradeAmountSupported = securityTags?.some(
-      (tag) => tag === SecurityTradeType.tradeAmount
+      (tag) => tag === SecurityTradeType.buyTradeAmount
     );
     const isUnitsDefaultTradeType = !isSecurityTypeFund(securityType);
     setCanToggleTradeType(
@@ -92,6 +95,7 @@ export const BuyModalContent = ({
             (!isTradeAmountSupported || isUnitsDefaultTradeType)
         : isUnitsDefaultTradeType
     );
+    setHasDeductedTradeType(true);
   }, [securityTags, securityType]);
 
   const { t } = useModifiedTranslation();
@@ -156,6 +160,7 @@ export const BuyModalContent = ({
           })}
       </LabeledDiv>
       <Input
+        disabled={!hasDeductedTradeType}
         ref={modalInitialFocusRef}
         value={amount || ""}
         onChange={(event) => {
