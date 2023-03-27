@@ -13,6 +13,8 @@ import {
 } from "./pwa";
 
 const FA_USER_REALM_ROLE = "FA_ADMIN";
+const KEYCLOAK_WRITE_ROLES = "write-roles";
+const KEYCLOAK_IMPERSONATE_ROLES = "impersonate-roles";
 
 const getSsoRedirectUri = () => {
   const url = new URL(
@@ -271,7 +273,7 @@ class KeycloakService {
   async validateWriteRole() {
     try {
       const keycloakJson = await this.getConfigFile();
-      const configuredRequiredRoles = keycloakJson?.["write-roles"] as
+      const configuredRequiredRoles = keycloakJson?.[KEYCLOAK_WRITE_ROLES] as
         | Record<string, string[]>
         | undefined;
 
@@ -304,7 +306,7 @@ class KeycloakService {
       const keycloakJson = await this.getConfigFile();
       //optional field
       const configuredImpersonationRoles = keycloakJson?.[
-        "impersonate-roles"
+        KEYCLOAK_IMPERSONATE_ROLES
       ] as Record<string, string[]> | undefined;
 
       //FA user -> should only be able to impersonate

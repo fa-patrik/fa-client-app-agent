@@ -63,6 +63,21 @@ Furthermore, make sure the Keycloak client to be used is defined in the file und
 
 This default setting can be directly used, since the fa-clientportal client comes preconfigured with FA with public access type.
 
+#### Roles
+
+To be able to login and use the Client Portal, a user must have one of the roles specified as "write-roles" or "impersonate-roles" in the *keycloak.json* configuration file. By default, the *keycloak.json* specifies the following roles from the FA Client Portal (fa-clientportal) keycloak client:
+
+* "write-roles": { "fa-clientportal": ["ROLE_CLIENT_ACCESS"] }
+* "impersonate-roles": { "fa-clientportal": ["ROLE_IMPERSONATE"] }
+
+Write roles give normal access to Client Portal, while impersonate roles force a readonly mode where the user can impersonate Contacts.
+
+Furthermore, the data your user can view and modify in the Client Portal is limited by FA Back's APIs. Therefore, your user should also have sufficient view and modification rights from the FA Back (fa-back) keycloak client. FA Back comes pre-configured with two roles that may be used out of the box:
+* ROLE_CLIENT_PORTAL (view, modify, limited visibility)
+* ROLE_CLIENT_PORTAL_IMPERSONATE (view, access to FA Back process "Impersonate in Client Portal")
+
+Typically, you would combine ROLE_CLIENT_ACCESS and ROLE_CLIENT_PORTAL for a regular end-client user, and ROLE_IMPERSONATE and ROLE_CLIENT_PORTAL_IMPERSONATE for a supportive user that needs to be able to view the Client Portal from the perspective of an arbitrary end-client.
+
 #### CORS policy
 
 Currently, backend API allows only connection with headers from same origin. To bypass that you should use proxy server.
