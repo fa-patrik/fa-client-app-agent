@@ -2,13 +2,11 @@ import { useContext } from "react";
 import { createContext, ReactNode, useState, useEffect } from "react";
 import { ErrorMessage, LoadingIndicator } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { AuthUserRoutes } from "pages/authUser/routes";
 import {
   keycloakService,
   keycloakServiceInitialState,
   KeycloakServiceStateType,
 } from "services/keycloakService";
-import { PersistedApolloProvider } from "./PersistedApolloProvider";
 
 const KeycloakContext = createContext<KeycloakServiceStateType>(
   keycloakServiceInitialState
@@ -23,7 +21,7 @@ export const KeycloakProvider = ({ children }: KeycloakProviderProps) => {
     keycloakServiceInitialState
   );
 
-  const { error, initialized, linkedContact } = keycloakState;
+  const { error, initialized } = keycloakState;
 
   useEffect(() => {
     keycloakService.subscribe((newState) => {
@@ -44,18 +42,7 @@ export const KeycloakProvider = ({ children }: KeycloakProviderProps) => {
     );
   }
 
-  //keycloak user has no linked Contact in FA
-  if (!linkedContact) {
-    return (
-      <KeycloakContext.Provider value={keycloakState}>
-        <PersistedApolloProvider>
-          <AuthUserRoutes />
-        </PersistedApolloProvider>
-      </KeycloakContext.Provider>
-    );
-  }
-
-  //keycloak user a linked Contact in FA
+  //initialized and no errors => render children safely
   return (
     <KeycloakContext.Provider value={keycloakState}>
       {children}
@@ -80,7 +67,7 @@ const KeycloakError = () => {
         <div className="mb-4">{t("messages.problemResolveInstructions")}</div>
         <div
           onClick={() => window.location.reload()}
-          className="font-semibold cursor-pointer text-primary-500"
+          className="font-semibold text-primary-500 cursor-pointer"
         >
           {t("messages.refreshPage")}
         </div>

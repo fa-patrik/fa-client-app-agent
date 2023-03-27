@@ -1,9 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useKeycloak } from "providers/KeycloakProvider";
 import { useGetContactInfo } from "../initial/useGetContactInfo";
-import { getFetchPolicyOptions } from "../utils";
 import { ALLOCATION_BY_SECURITY_TYPE_FIELDS } from "./fragments";
 import { AllPortfoliosHoldingsQuery } from "./types";
 
@@ -42,7 +40,6 @@ const HOLDINGS_QUERY = gql`
 `;
 
 export const useGetAllPortfoliosHoldings = () => {
-  const { linkedContact } = useKeycloak();
   const { selectedContactId } = useGetContractIdData();
   const { i18n } = useModifiedTranslation();
   const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
@@ -51,10 +48,9 @@ export const useGetAllPortfoliosHoldings = () => {
     HOLDINGS_QUERY,
     {
       variables: {
-        contactId: selectedContactId || linkedContact,
+        contactId: selectedContactId,
         locale: i18n.language,
       },
-      ...getFetchPolicyOptions(`useGetAllPortfoliosHoldings.${selectedContactId || linkedContact}`),
     }
   );
 

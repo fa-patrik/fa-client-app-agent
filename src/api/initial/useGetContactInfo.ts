@@ -115,7 +115,7 @@ interface ContactInfoQuery {
 
 export const useGetContactInfo = (
   callAPI = false,
-  selectedContactId?: string | number,
+  id?: string | number,
   queryWithRepresentees?: boolean
 ) => {
   const { linkedContact } = useKeycloak();
@@ -123,7 +123,7 @@ export const useGetContactInfo = (
     CONTACT_INFO_QUERY,
     {
       variables: {
-        contactId: selectedContactId || linkedContact,
+        contactId: id?.toString() || linkedContact?.toString(),
       },
       fetchPolicy: callAPI ? "cache-and-network" : "cache-first",
     }

@@ -4,6 +4,7 @@ import { useWithdrawal } from "api/money/useWithdrawal";
 import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { CashAccountSelect } from "../components/CashAccountSelect";
 import { usePortfoliosAccountsState } from "../usePortfoliosAccountsState";
 import { useWithdrawablePortfolioSelect } from "./useWithdrawablePortfolioSelect";
@@ -19,7 +20,10 @@ export const WithdrawModalContent = ({
 }: WithdrawModalProps) => {
   const { t } = useModifiedTranslation();
   const { selectedContactId } = useGetContractIdData();
-  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(false, selectedContactId);
+  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
+    false,
+    selectedContactId
+  );
   const portfolioSelectProps = useWithdrawablePortfolioSelect();
   const { portfolioId } = portfolioSelectProps;
 
@@ -49,6 +53,8 @@ export const WithdrawModalContent = ({
     currency,
   });
 
+  const { readonly } = useKeycloak();
+
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
       <CashAccountSelect
@@ -75,7 +81,9 @@ export const WithdrawModalContent = ({
           }
         />
         <Button
-          disabled={amount === 0 || accountsLoading || !isAmountCorrect}
+          disabled={
+            readonly || amount === 0 || accountsLoading || !isAmountCorrect
+          }
           isLoading={submitting}
           onClick={async () => {
             const response = await handleWithdraw();

@@ -23,10 +23,10 @@ import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate, To, NavigateOptions } from "react-router";
 import { keycloakService } from "services/keycloakService";
 import { useCanDeposit, useCanWithdraw } from "services/permissions/money";
-import { initials } from "utils/initials";
 import { useModal } from "../Modal/useModal";
 import { DepositModalContent } from "../MoneyModals/DepositModalContent/DepositModalContent";
 import { WithdrawModalContent } from "../MoneyModals/WithdrawModalContent/WithdrawModalContent";
+
 interface MenuActions {
   logout: () => void;
   deposit: () => void;
@@ -43,7 +43,7 @@ const getMenuItems = (
   processes: Process[],
   representees: Representee[],
   contactData: SelectedContact,
-  selectedContactId: string | number
+  selectedContactId: string | number | undefined
 ) => {
   if (!hasLinkedContact) {
     return [
@@ -62,7 +62,7 @@ const getMenuItems = (
         menuActions.setSelectedContact(contactData);
       },
       Icon: UserIcon,
-      selected: contactData?.id === selectedContactId,
+      selected: contactData?.id?.toString() === selectedContactId?.toString(),
     },
     "separator",
     ...(Array.isArray(representees)
@@ -73,7 +73,6 @@ const getMenuItems = (
               id: representee.id,
               contactId: representee.contactId,
               userName: representee.name,
-              initials: initials(representee.name),
             });
           },
           Icon: UserIcon,
@@ -119,6 +118,7 @@ const getMenuItems = (
 };
 
 export const UserMenu = () => {
+  const { readonly } = useKeycloak();
   const { selectedContactId, setSelectedContactId, setSelectedContact } =
     useGetContractIdData();
   const { t } = useModifiedTranslation();
@@ -127,7 +127,7 @@ export const UserMenu = () => {
   const { data: processes = [] } = useGetContactProcesses();
   const canDeposit = useCanDeposit();
   const canWithdraw = useCanWithdraw();
-  const { data: contactData } = useGetContactInfo();
+  const { data: contactData, loading } = useGetContactInfo();
   const {
     Modal,
     onOpen: onDepositModalOpen,
@@ -149,9 +149,10 @@ export const UserMenu = () => {
     setSelectedContact: (contact: SelectedContact) => {
       setSelectedContact(contact);
       setSelectedContactId(contact.id);
-      navigate("/overview", { replace: true });
     },
   };
+
+  if (loading) return null;
 
   return (
     <>
@@ -170,19 +171,18 @@ export const UserMenu = () => {
           leaveTo="transform scale-95 opacity-0"
           as={Fragment}
         >
-          <Menu.Items className="absolute top-full right-0 z-10 py-1 bg-white rounded-md ring-1 ring-black ring-opacity-5 shadow-lg origin-top-right focus:outline-none min-w-[120px]">
+          <Menu.Items className="absolute top-full right-0 z-10 py-1 whitespace-nowrap bg-white rounded-md ring-1 ring-black ring-opacity-5 shadow-lg origin-top-right focus:outline-none min-w-[120px]">
             {getMenuItems(
               menuActions,
               !!linkedContact,
               canDeposit,
               canWithdraw,
-              processes,
+              readonly ? [] : processes,
               contactData?.representees || [],
               {
-                id: contactData?.contactId || "",
-                contactId: contactData?.contactId || "",
-                userName: contactData?.name || "-",
-                initials: initials(contactData?.name),
+                id: contactData?.contactId,
+                contactId: contactData?._contactId,
+                userName: contactData?.name
               },
               selectedContactId
             ).map((item, index) =>

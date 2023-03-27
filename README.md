@@ -59,9 +59,9 @@ is customized for test environment. Change it to point to your FA Platform test 
 
 Furthermore, make sure the Keycloak client to be used is defined in the file under resource. The default setting is:
     
-    "resource": "external-api",
+    "resource": "fa-clientportal",
 
-This default setting can be directly used, since the external-api client comes preconfigured with FA with public access type.
+This default setting can be directly used, since the fa-clientportal client comes preconfigured with FA with public access type.
 
 #### CORS policy
 

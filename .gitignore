@@ -71,3 +71,6 @@ yarn-debug.log*
 yarn-error.log*
 
 .firebase
+
+# Visual Studio Code settings
+/.vscode

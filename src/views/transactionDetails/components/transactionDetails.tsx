@@ -11,6 +11,7 @@ import {
 } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
 import {
@@ -64,6 +65,7 @@ export const TransactionDetails = ({
     useDownloadReport();
   const transactionType = useGetTransactionType();
   const navigate = useNavigate();
+  const { readonly } = useKeycloak();
 
   const {
     Modal,
@@ -272,6 +274,7 @@ export const TransactionDetails = ({
               <Button
                 isFullWidth
                 variant="Red"
+                disabled={readonly}
                 onClick={() =>
                   onCancelOrderModalOpen({
                     orderId: Number(orderId),

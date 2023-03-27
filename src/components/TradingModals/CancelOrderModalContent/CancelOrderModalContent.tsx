@@ -4,6 +4,7 @@ import { useCancelOrder } from "api/orders/useCancelOrder";
 import { Badge } from "components";
 import { Button, LabeledDiv } from "components/index";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useKeycloak } from "providers/KeycloakProvider";
 import {
   getNameFromBackendTranslations,
   getTransactionColor,
@@ -60,6 +61,8 @@ export const CancelOrderModalContent = ({
     return <Badge colorScheme={typeColor}>{typeTranslated}</Badge>;
   };
 
+  const { readonly } = useKeycloak();
+
   return (
     <div className="flex flex-col gap-2 justify-center min-w-[min(84vw,_450px)]">
       <div className="w-full text-left text-gray-600 text-md">
@@ -113,7 +116,7 @@ export const CancelOrderModalContent = ({
         </Button>
 
         <Button
-          disabled={submitting}
+          disabled={readonly || submitting}
           isLoading={submitting}
           isFullWidth
           onClick={async () => {

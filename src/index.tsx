@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { bootstrapPwa } from "./services/pwa";
+import "react-tooltip/dist/react-tooltip.css"; //needed for react-tooltip
 
 ReactDOM.render(
   <React.StrictMode>
