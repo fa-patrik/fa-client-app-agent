@@ -73,8 +73,10 @@ export enum SecurityTypeCode {
  * in units and/or trade amount.
  */
 export enum SecurityTradeType {
-  units = "Trade type:Units",
-  tradeAmount = "Trade type:Trade amount",
+  buyUnits = "Trade type:Buy units",
+  buyTradeAmount = "Trade type:Buy trade amount",
+  sellUnits = "Trade type:Sell units",
+  sellTradeAmount = "Trade type:Sell trade amount",
 }
 
 export interface SecurityDetailsPosition {

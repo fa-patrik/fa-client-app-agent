@@ -23,7 +23,7 @@ export const TransactionDetailsView = ({
       <DetailsHeading onBackButtonClick={() => navigate(-1)}>
         <HeaderLabel type={type} />
       </DetailsHeading>
-      <div className="overflow-y-scroll h-full grow-1">
+      <div className="overflow-y-auto h-full grow-1">
         <QueryLoadingWrapper
           {...queryData}
           SuccessComponent={TransactionDetails}
