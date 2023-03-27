@@ -17,6 +17,7 @@ const IMPORT_WITHDRAWAL_MUTATION = gql`
     $transactionTypeCode: String
     $portfolioShortName: String
     $account: String
+    $intInfo: String
   ) {
     importTradeOrder(
       tradeOrder: {
@@ -28,6 +29,7 @@ const IMPORT_WITHDRAWAL_MUTATION = gql`
         parentPortfolio: $portfolioShortName
         account: $account
         status: "4"
+        intInfo: $intInfo
       }
     )
   }
@@ -41,6 +43,7 @@ interface ImportTransactionQueryVariables {
   tradeAmount: number;
   transactionDate: Date;
   transactionTypeCode: string;
+  intInfo: string;
 }
 
 const errorStatus = "ERROR" as const;

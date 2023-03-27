@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
+import { formatValidIban } from "../../utils/iban";
 
 const CASH_ACCOUNTS_QUERY = gql`
   query GetCashAccounts($portfolioId: Long) {
@@ -13,6 +14,7 @@ const CASH_ACCOUNTS_QUERY = gql`
             securityCode
           }
           cashAccount
+          category
       }
       portfolioReport {
         portfolioId
@@ -23,6 +25,7 @@ const CASH_ACCOUNTS_QUERY = gql`
           }
           account {
             cashAccount
+            category
           }
           accountId
           amountAfterOpenTradeOrders
@@ -33,6 +36,9 @@ const CASH_ACCOUNTS_QUERY = gql`
     }
   }
 `;
+
+const ACCOUNT_CAT_INTERNAL = "Internal";
+const ACCOUNT_CAT_EXTERNAL = "External";
 
 //An account object from a portfolio report's account item
 //It is possible that the accountId and account are null
@@ -47,6 +53,7 @@ interface PortfolioReportAccount {
   number: string;
   account: {
     cashAccount: boolean;
+    category: string;
   } | null;
 }
 
@@ -61,6 +68,7 @@ interface PortfolioAccount {
   cashAccount: boolean;
   balance: number;
   amountAfterOpenTradeOrders: number;
+  category: string;
 }
 
 interface PortfolioCashAccountsQuery {
@@ -86,7 +94,7 @@ export interface CashAccount {
 
 const mapCashAccount = (account: PortfolioReportAccount | PortfolioAccount): CashAccount => ({
   id: account.accountId ?? -1,
-  label: account.accountName,
+  label: formatValidIban(account.number),
   number: account.number,
   currency: account.currency.securityCode,
   currentBalance: account.balance ?? 0,
@@ -109,35 +117,74 @@ export const useGetPortfoliosAccounts = (portfolioId?: string) => {
     loading,
     error,
     data: useMemo(
-      () =>
-        data && {
-          cashAccounts: filterAccounts(
-            data.portfolio.portfolioReport.accountItems || [],
-            data.portfolio.accounts || []
-          )?.map(mapCashAccount),
-        },
+      () => {
+        if(!data) return undefined;
+
+        const filteredCashAccounts = filterCashAccountsByCategory(
+          data.portfolio.portfolioReport.accountItems || [],
+          data.portfolio.accounts || [] )
+
+        const internalCashAccounts = filteredCashAccounts.internal?.map(mapCashAccount);
+
+        const externalCashAccounts = filteredCashAccounts.external?.map(mapCashAccount);
+
+        const uncategorizedCashAccounts = filteredCashAccounts.uncategorized?.map(mapCashAccount);
+
+        if(internalCashAccounts.length > 0 && externalCashAccounts.length > 0) {
+          return {
+            internalCashAccounts: internalCashAccounts,
+            externalCashAccounts: externalCashAccounts,
+          }
+        } else {
+          return {
+            internalCashAccounts: [...internalCashAccounts, ...externalCashAccounts, ...uncategorizedCashAccounts],
+            externalCashAccounts: [],
+          }
+        }
+
+      },
       [data]
     ),
   };
 };
 
 /**
- * Gets the set of accounts that are categorized as cash accounts. 
+ * Gets the sets of accounts that are cash accounts. Grouped by category (internal, external, others).
  * @param portfolioReportAccounts portfolio accounts with at least one transaction.
  * @param portfolioAccounts all portfolio accounts (incl. those without transactions).
  * @returns the set of accounts that are categorized as cash accounts from portfolioReportAccounts and portfolioAccounts.
  */
-const filterAccounts = (
+const filterCashAccountsByCategory = (
   portfolioReportAccounts: PortfolioReportAccount[],
-  portfolioAccounts: PortfolioAccount[]
+  portfolioAccounts: PortfolioAccount[],
 ) => {
-  const portfolioReportCashAccounts = portfolioReportAccounts.filter(reportAccount => reportAccount.account?.cashAccount);
-  const portfolioCashAccountsNotInReportAccounts = portfolioAccounts.filter(portfolioAccount => {
-    return (
-      !portfolioReportCashAccounts.some(reportAccount => reportAccount?.accountId === portfolioAccount.accountId) &&
-      portfolioAccount.cashAccount
-    )
-  })
-  return [...portfolioReportCashAccounts, ...portfolioCashAccountsNotInReportAccounts]
+  const internalCashAccounts: (PortfolioReportAccount | PortfolioAccount)[] = [];
+  const externalCashAccounts: (PortfolioReportAccount | PortfolioAccount)[] = [];
+  const uncategorizedCashAccounts: (PortfolioReportAccount | PortfolioAccount)[] = [];
+
+  portfolioReportAccounts.forEach(reportAccount => {
+    if(reportAccount.account?.cashAccount) {
+      if(reportAccount.account?.category === ACCOUNT_CAT_INTERNAL) {
+        internalCashAccounts.push(reportAccount);
+      } else if(reportAccount.account?.category === ACCOUNT_CAT_EXTERNAL) {
+        externalCashAccounts.push(reportAccount);
+      } else {
+        uncategorizedCashAccounts.push(reportAccount);
+      }
+    }
+  });
+  portfolioAccounts.forEach(account => {
+    if(account.cashAccount && ![...internalCashAccounts, ...externalCashAccounts, ...uncategorizedCashAccounts].some(reportAccount => reportAccount?.accountId === account.accountId) ) {
+      if(account.category === ACCOUNT_CAT_INTERNAL) {
+        internalCashAccounts.push(account);
+      } else if(account.category === ACCOUNT_CAT_EXTERNAL) {
+        externalCashAccounts.push(account);
+      } else {
+        uncategorizedCashAccounts.push(account);
+      }
+    }
+  });
+
+  return { internal: internalCashAccounts, external: externalCashAccounts, uncategorized: uncategorizedCashAccounts };
 }
 

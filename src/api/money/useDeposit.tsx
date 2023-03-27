@@ -17,6 +17,7 @@ const IMPORT_DEPOSIT_MUTATION = gql`
     $transactionTypeCode: String
     $portfolioShortName: String
     $account: String
+    $intInfo: String
   ) {
     importTransaction(
       transaction: {
@@ -28,6 +29,7 @@ const IMPORT_DEPOSIT_MUTATION = gql`
         parentPortfolio: $portfolioShortName
         account: $account
         status: "NF"
+        intInfo: $intInfo
       }
     )
   }
@@ -41,6 +43,7 @@ interface ImportDepositQueryVariables {
   tradeAmount: number;
   transactionDate: Date;
   transactionTypeCode: string;
+  intInfo: string;
 }
 
 const errorStatus = "ERROR" as const;

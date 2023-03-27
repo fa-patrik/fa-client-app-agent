@@ -30,11 +30,14 @@ export const DepositModalContent = ({
   const { accountsLoading, ...cashAccountSelectProps } =
     usePortfoliosAccountsState(portfolioId);
   const {
-    currentCashAccount: {
+    currentInternalCashAccount: {
       availableBalance = 0,
       currency = "EUR",
       label = "",
       number = "",
+    } = {},
+    currentExternalCashAccount: {
+      number: externalNumber = "",
     } = {},
   } = cashAccountSelectProps;
 
@@ -50,6 +53,7 @@ export const DepositModalContent = ({
     securityName: label,
     account: number,
     currency,
+    intInfo: externalNumber ? `paymentAccount1=${externalNumber}` : "",
   });
 
   const { readonly } = useKeycloak();
@@ -58,7 +62,7 @@ export const DepositModalContent = ({
       <CashAccountSelect
         {...cashAccountSelectProps}
         {...portfolioSelectProps}
-        accountSelectLabel={t("moneyModal.toAccount")}
+        isDeposit={true}
       />
       <hr className="mb-2" />
       <div className="flex flex-col gap-4 items-stretch ">

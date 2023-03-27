@@ -9,27 +9,33 @@ interface CashAccountSelectProps {
   portfolioId: number;
   setPortfolioId: Dispatch<SetStateAction<number>>;
   portfolioOptions: PortfolioOption[];
-  currentCashAccount: CashAccount | undefined;
-  setCurrentCashAccount: Dispatch<SetStateAction<CashAccount | undefined>>;
-  cashAccounts: CashAccount[];
-  accountSelectLabel: string;
+  currentInternalCashAccount: CashAccount | undefined;
+  setCurrentInternalCashAccount: Dispatch<SetStateAction<CashAccount | undefined>>;
+  internalCashAccounts: CashAccount[];
+  currentExternalCashAccount: CashAccount | undefined;
+  setCurrentExternalCashAccount: Dispatch<SetStateAction<CashAccount | undefined>>;
+  externalCashAccounts: CashAccount[];
+  isDeposit: boolean;
 }
 
 export const CashAccountSelect = ({
   portfolioId,
   setPortfolioId,
   portfolioOptions,
-  currentCashAccount,
-  setCurrentCashAccount,
-  cashAccounts,
-  accountSelectLabel,
+  currentInternalCashAccount,
+  setCurrentInternalCashAccount,
+  internalCashAccounts,
+  currentExternalCashAccount,
+  setCurrentExternalCashAccount,
+  externalCashAccounts,
+  isDeposit,
 }: CashAccountSelectProps) => {
   const { t } = useModifiedTranslation();
   const {
-    currentBalance = 0,
-    availableBalance = 0,
-    currency = "EUR",
-  } = currentCashAccount || {};
+    currentBalance: currentInternalBalance = 0,
+    availableBalance: availableInternalBalance = 0,
+    currency: internalCurrency = "EUR",
+  } = currentInternalCashAccount || {};
 
   return (
     <>
@@ -48,20 +54,38 @@ export const CashAccountSelect = ({
         }}
         label={t("moneyModal.portfolio")}
       />
-      <Select
-        value={currentCashAccount}
-        onChange={setCurrentCashAccount}
-        options={cashAccounts}
-        label={accountSelectLabel}
-      />
+
+      {(!isDeposit || externalCashAccounts.length > 1) &&
+          // Selection for the "from" account; that means external account, if it's a deposit, and internal account, if it's a withdrawal.
+          // For withdrawals, the selection is shown always. For deposits, we don't want to show the selection if there
+          // are no selections to be made for external accounts (i.e. there's one or zero of them).
+          <Select
+              value={isDeposit ? currentExternalCashAccount : currentInternalCashAccount}
+              onChange={isDeposit ? setCurrentExternalCashAccount : setCurrentInternalCashAccount}
+              options={isDeposit ? externalCashAccounts : internalCashAccounts}
+              label={t("moneyModal.fromAccount")}
+          />
+      }
+
+      {(isDeposit || externalCashAccounts.length > 1) &&
+          // Selection for the "to" account; that means internal account, if it's a deposit, and external account, if it's a withdrawal.
+          // For deposits, the selection is shown always. For withdrawals, we don't want to show the selection if there
+          // are no selections to be made for internal accounts (i.e. there's one or zero of them).
+          <Select
+              value={isDeposit ? currentInternalCashAccount : currentExternalCashAccount}
+              onChange={isDeposit ? setCurrentInternalCashAccount : setCurrentExternalCashAccount}
+              options={isDeposit ? internalCashAccounts : externalCashAccounts}
+              label={t("moneyModal.toAccount")}
+          />
+      }
       <div className="grid grid-cols-2 divide-x">
         <LabeledDiv
           label={t("moneyModal.currentBalance")}
           className="text-xl font-semibold text-gray-700"
         >
           {t("numberWithCurrency", {
-            value: currentBalance,
-            currency: currency,
+            value: currentInternalBalance,
+            currency: internalCurrency,
           })}
         </LabeledDiv>
         <LabeledDiv
@@ -69,8 +93,8 @@ export const CashAccountSelect = ({
           className="text-xl font-semibold text-right text-gray-700"
         >
           {t("numberWithCurrency", {
-            value: availableBalance,
-            currency: currency,
+            value: availableInternalBalance,
+            currency: internalCurrency,
           })}
         </LabeledDiv>
       </div>

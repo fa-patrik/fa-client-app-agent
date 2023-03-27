@@ -30,11 +30,14 @@ export const WithdrawModalContent = ({
   const { accountsLoading, ...cashAccountSelectProps } =
     usePortfoliosAccountsState(portfolioId);
   const {
-    currentCashAccount: {
+    currentInternalCashAccount: {
       availableBalance = 0,
       currency = "EUR",
       label = "",
       number = "",
+    } = {},
+    currentExternalCashAccount: {
+      number: externalNumber = "",
     } = {},
   } = cashAccountSelectProps;
 
@@ -51,6 +54,7 @@ export const WithdrawModalContent = ({
     securityName: label,
     account: number,
     currency,
+    intInfo: externalNumber ? `paymentAccount1=${externalNumber}` : "",
   });
 
   const { readonly } = useKeycloak();
@@ -60,7 +64,7 @@ export const WithdrawModalContent = ({
       <CashAccountSelect
         {...cashAccountSelectProps}
         {...portfolioSelectProps}
-        accountSelectLabel={t("moneyModal.fromAccount")}
+        isDeposit={false}
       />
       <hr className="mb-2" />
       <div className="flex flex-col gap-4 items-stretch ">
