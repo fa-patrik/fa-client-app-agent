@@ -53,7 +53,7 @@ export const DepositModalContent = ({
     securityName: label,
     account: number,
     currency,
-    intInfo: externalNumber ? `paymentAccount1=${externalNumber}` : "",
+    intInfo: externalNumber ? `paymentAccount1=${externalNumber}` : null,
   });
 
   const { readonly } = useKeycloak();

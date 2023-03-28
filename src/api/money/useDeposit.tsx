@@ -43,7 +43,7 @@ interface ImportDepositQueryVariables {
   tradeAmount: number;
   transactionDate: Date;
   transactionTypeCode: string;
-  intInfo: string;
+  intInfo: string | null;
 }
 
 const errorStatus = "ERROR" as const;
