@@ -70,12 +70,12 @@ To be able to login and use the Client Portal, a user must have one of the roles
 * "write-roles": { "fa-clientportal": ["ROLE_CLIENT_ACCESS"] }
 * "impersonate-roles": { "fa-clientportal": ["ROLE_IMPERSONATE"] }
 
-Write roles give normal access to Client Portal, while impersonate roles force a readonly mode where a user can impersonate Contacts.
+Write roles give normal access to Client Portal, while impersonate roles force a view-only mode where a user can impersonate Contacts/other users.
 
 Furthermore, the data a user can view and modify in the Client Portal is limited by FA Back's APIs. Therefore, a user should also have sufficient view and modification rights from the FA Back (fa-back) keycloak client. FA Back comes pre-configured with two roles that may be used out of the box:
 
 * ROLE_CLIENT_PORTAL (view, modify, limited visibility)
-* ROLE_CLIENT_PORTAL_IMPERSONATE (view, access to FA Back process "Impersonate in Client Portal")
+* ROLE_CLIENT_PORTAL_IMPERSONATE (view)
 
 Typically, you would combine ROLE_CLIENT_ACCESS and ROLE_CLIENT_PORTAL for a regular end-client user, and ROLE_IMPERSONATE and ROLE_CLIENT_PORTAL_IMPERSONATE for a supportive user that needs to be able to view the Client Portal from the perspective of an arbitrary end-client.
 
