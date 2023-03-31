@@ -112,7 +112,7 @@ export const TransactionDetails = ({
             />
             <div className="col-span-2">
               <InfoCard
-                label={t("transactionsPage.securityName")}
+                label={t(security ? "transactionsPage.securityName" : "transactionsPage.accountName")}
                 value={
                   <div>
                     <span>{securityName}</span>
@@ -124,9 +124,7 @@ export const TransactionDetails = ({
                     )}
                   </div>
                 }
-                onClick={() =>
-                  !!security && navigate(`../holdings/${security.id}`)
-                }
+                onClick={ security ? () => navigate(`../holdings/${security.id}`) : undefined }
               />
             </div>
             <div className="col-span-2">

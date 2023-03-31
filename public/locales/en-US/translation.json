@@ -102,6 +102,7 @@
     "marketplace": "Marketplace",
     "isin": "ISIN code",
     "securityName": "Security name",
+    "accountName": "Account name",
     "portfolioName": "Portfolio name",
     "transactionDate": "Transaction date",
     "settlementDate": "Settlement date",
