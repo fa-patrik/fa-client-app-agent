@@ -17,6 +17,7 @@ import { useParams } from "react-router-dom";
 import {
   isStatusCancellable,
   isPortfolioAllowedToCancelOrder,
+  isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
@@ -78,6 +79,13 @@ export const TransactionDetails = ({
     parentPortfolio.id
   );
 
+  const isOrderAndCancellable =
+    orderId &&
+    transactionParentPortfolio &&
+    isStatusCancellable(orderStatus) &&
+    isTransactionTypeCancellable(type.typeCode) &&
+    isPortfolioAllowedToCancelOrder(transactionParentPortfolio);
+
   return (
     <PageLayout>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -112,7 +120,11 @@ export const TransactionDetails = ({
             />
             <div className="col-span-2">
               <InfoCard
-                label={t(security ? "transactionsPage.securityName" : "transactionsPage.accountName")}
+                label={t(
+                  security
+                    ? "transactionsPage.securityName"
+                    : "transactionsPage.accountName"
+                )}
                 value={
                   <div>
                     <span>{securityName}</span>
@@ -124,7 +136,11 @@ export const TransactionDetails = ({
                     )}
                   </div>
                 }
-                onClick={ security ? () => navigate(`../holdings/${security.id}`) : undefined }
+                onClick={
+                  security
+                    ? () => navigate(`../holdings/${security.id}`)
+                    : undefined
+                }
               />
             </div>
             <div className="col-span-2">
@@ -264,31 +280,28 @@ export const TransactionDetails = ({
             </Button>
           </div>
         )}
-        {orderId &&
-          transactionParentPortfolio &&
-          isStatusCancellable(orderStatus) &&
-          isPortfolioAllowedToCancelOrder(transactionParentPortfolio) && (
-            <div>
-              <Button
-                isFullWidth
-                variant="Red"
-                disabled={readonly}
-                onClick={() =>
-                  onCancelOrderModalOpen({
-                    orderId: Number(orderId),
-                    reference,
-                    transactionDate,
-                    portfolioName: transactionParentPortfolio.name,
-                    portfolioId: transactionParentPortfolio.id,
-                    securityName,
-                    type,
-                  })
-                }
-              >
-                {t("transactionsPage.cancelOrderButtonLabel")}
-              </Button>
-            </div>
-          )}
+        {isOrderAndCancellable && (
+          <div>
+            <Button
+              isFullWidth
+              variant="Red"
+              disabled={readonly}
+              onClick={() =>
+                onCancelOrderModalOpen({
+                  orderId: Number(orderId),
+                  reference,
+                  transactionDate,
+                  portfolioName: transactionParentPortfolio.name,
+                  portfolioId: transactionParentPortfolio.id,
+                  securityName,
+                  type,
+                })
+              }
+            >
+              {t("transactionsPage.cancelOrderButtonLabel")}
+            </Button>
+          </div>
+        )}
       </div>
       <Modal {...cancelOrderModalProps} header={"Cancelling order"}>
         <CancelOrderModalContent {...cancelOrderModalContentProps} />

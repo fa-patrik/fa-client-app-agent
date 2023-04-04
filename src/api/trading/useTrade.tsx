@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FetchResult, gql, useMutation } from "@apollo/client";
+import { TransactionType } from "api/transactions/enums";
 import {
   LocalTradeOrderDetails,
   useLocalTradeStorageMutation,
@@ -160,16 +161,16 @@ const handleBadAPIResponse = (
 const getTradeTypeForAPI = (tradeType: TradeType) => {
   switch (tradeType) {
     case "buy": {
-      return "B";
+      return TransactionType.BUY;
     }
     case "sell": {
-      return "S";
+      return TransactionType.SELL;
     }
     case "subscription": {
-      return "SUB";
+      return TransactionType.SUBSCRIPTION;
     }
     case "redemption": {
-      return "RED";
+      return TransactionType.REDEMPTION;
     }
     default: {
       throw new Error("Impossible API trade type");

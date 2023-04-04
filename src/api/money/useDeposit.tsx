@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ApolloError, FetchResult, gql, useMutation } from "@apollo/client";
+import { TransactionType } from "api/transactions/enums";
 import {
   LocalTradeOrderDetails,
   useLocalTradeStorageMutation,
@@ -91,7 +92,7 @@ export const useDeposit = (
         variables: {
           ...newTransaction,
           transactionDate: new Date(),
-          transactionTypeCode: "DEP",
+          transactionTypeCode: TransactionType.DEPOSIT,
           reference: transactionReference,
           portfolioShortName: portfolio.shortName,
         },
