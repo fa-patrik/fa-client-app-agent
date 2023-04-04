@@ -110,7 +110,7 @@ export const BuyModalContent = ({
   const {
     loading,
     data: { availableCash = 0, currency: portfolioCurrency = "EUR" } = {},
-  } = useGetBuyData(portfolioId.toString());
+  } = useGetBuyData(portfolioId?.toString());
 
   const [amount, setAmount] = useState(0);
 

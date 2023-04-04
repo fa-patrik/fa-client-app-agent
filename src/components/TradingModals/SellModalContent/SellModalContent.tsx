@@ -73,9 +73,11 @@ export const SellModalContent = ({
     currency: { securityCode: currency },
     url2,
     type: { code: securityType } = {},
-    latestMarketData: { price } = { price: 0 },
+    latestMarketData,
     tagsAsSet: securityTags,
   } = security;
+
+  const price = ((data) => (data ? data.price : 0))(latestMarketData);
 
   const [isTradeInUnits, setIsTradeInUnits] = useState(true);
   const [canToggleTradeType, setCanToggleTradeType] = useState(false);
@@ -117,7 +119,7 @@ export const SellModalContent = ({
     loading,
     data: { marketValue = 0, marketFxRate = 1, amount: units = 0 } = {},
   } = useGetPortfolioHoldingDetails(
-    portfolioId.toString(),
+    portfolioId?.toString(),
     securityId.toString()
   );
   const currentAmount = getCurrentAmount(

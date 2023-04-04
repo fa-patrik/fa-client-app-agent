@@ -46,9 +46,9 @@ export const useGetBuyData = (portfolioId: string | undefined) => {
     error,
     data: data && {
       availableCash:
-        data.portfolio.portfolioReport
-          .accountBalanceAdjustedWithOpenTradeOrders,
-      currency: data.portfolio.currency.securityCode,
+        data.portfolio?.portfolioReport
+          ?.accountBalanceAdjustedWithOpenTradeOrders,
+      currency: data.portfolio?.currency?.securityCode,
     },
   };
 };

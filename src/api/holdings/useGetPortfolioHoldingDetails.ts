@@ -33,7 +33,7 @@ export const useGetPortfolioHoldingDetails = (
   return {
     loading,
     error,
-    data: data?.portfolio.portfolioReport.holdingPositions?.find(
+    data: data?.portfolio?.portfolioReport?.holdingPositions?.find(
       (holding) => holding.security.id.toString() === securityId
     ),
   };

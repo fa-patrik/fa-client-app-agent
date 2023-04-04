@@ -12,10 +12,8 @@ export const useTradablePortfolioSelect = () => {
   const portfolioIdIsTradeable = tradeableOptions.some(
     (option) => portfolioId === option.id
   );
-  //if it happens to be, use it, otherwise pick the first from tradeable options
-  const tradeablePortfolioId = portfolioIdIsTradeable
-    ? portfolioId
-    : tradeableOptions?.[0]?.id;
+  //if it happens to be, use it
+  const tradeablePortfolioId = portfolioIdIsTradeable ? portfolioId : undefined;
 
   return {
     setPortfolioId,
