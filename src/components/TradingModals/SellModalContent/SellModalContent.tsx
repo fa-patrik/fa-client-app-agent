@@ -309,7 +309,11 @@ export const SellModalContent = ({
         </div>
         <Button
           disabled={
-            readonly || amount === 0 || loading || !isTradeAmountCorrect
+            readonly ||
+            amount === 0 ||
+            loading ||
+            !isTradeAmountCorrect ||
+            !portfolioId
           }
           isLoading={submitting}
           onClick={async () => {
