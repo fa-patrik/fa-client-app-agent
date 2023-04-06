@@ -1,29 +1,39 @@
-import { usePortfolioSelect } from "hooks/usePortfolioSelect";
+import { useState } from "react";
+import { useGetPortfolioOptions } from "hooks/useGetPortfolioOptions";
+import { useParams } from "react-router-dom";
 import { isPortfolioTradable } from "services/permissions/trade";
 
 export const useTradablePortfolioSelect = () => {
-  const { portfolioOptions, setPortfolioId, portfolioId } =
-    usePortfolioSelect();
+  const { portfolioId: urlPortfolioId } = useParams();
+  const portfolioOptions = useGetPortfolioOptions(false);
   const tradeableOptions = portfolioOptions.filter(
     (option) => option.details && isPortfolioTradable(option.details)
   );
 
-  //it might be that the portfolioId from usePortfolioSelect is not tradeable
+  // Check if the portfolioId from useParams is tradeable
   const portfolioIdIsTradeable = tradeableOptions.some(
-    (option) => portfolioId === option.id
+    (option) => urlPortfolioId === option.id.toString()
   );
 
-  //if it happens to be, use it
-  //otherwise check if there is only one option, and use that
-  //else, undefined which equals no portfolio selected
-  const tradeablePortfolioId = portfolioIdIsTradeable
-    ? portfolioId
-    : tradeableOptions.length === 1
-    ? tradeableOptions[0].id
-    : undefined;
+  const [tradeablePortfolioId, setTradeablePortfolioId] = useState(() => {
+    if (urlPortfolioId && portfolioIdIsTradeable) {
+      // If the main portfolio selector has chosen a tradeable portfolio
+      return parseInt(urlPortfolioId, 10);
+    } else if (tradeableOptions.length === 1) {
+      // If there is only one tradeable portfolio
+      return tradeableOptions[0].id;
+    } else {
+      // If there are multiple tradeable portfolios, let the user select a portfolio
+      return undefined;
+    }
+  });
+
+  const handleSetPortfolioId = (id: number) => {
+    setTradeablePortfolioId(id);
+  };
 
   return {
-    setPortfolioId,
+    setPortfolioId: handleSetPortfolioId,
     portfolioId: tradeablePortfolioId,
     portfolioOptions: tradeableOptions,
   };

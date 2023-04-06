@@ -1,6 +1,6 @@
 {
   "realm": "fa",
-  "auth-server-url": "https://fatemplatedev.fasolutions.com/auth",
+  "auth-server-url": "https://staging1.fasolutions.com/auth",
   "ssl-required": "external",
   "resource": "fa-clientportal",
   "write-roles": { "fa-clientportal": ["ROLE_CLIENT_ACCESS"] },
