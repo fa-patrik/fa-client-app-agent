@@ -199,7 +199,7 @@ export const SellModalContent = ({
         </LabeledDiv>
       )}
       <Input
-        disabled={!hasDeductedTradeType}
+        disabled={!hasDeductedTradeType || !portfolioId}
         ref={modalInitialFocusRef}
         value={inputValue || ""}
         onChange={(event) => {

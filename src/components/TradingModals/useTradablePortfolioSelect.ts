@@ -12,8 +12,15 @@ export const useTradablePortfolioSelect = () => {
   const portfolioIdIsTradeable = tradeableOptions.some(
     (option) => portfolioId === option.id
   );
+
   //if it happens to be, use it
-  const tradeablePortfolioId = portfolioIdIsTradeable ? portfolioId : undefined;
+  //otherwise check if there is only one option, and use that
+  //else, undefined which equals no portfolio selected
+  const tradeablePortfolioId = portfolioIdIsTradeable
+    ? portfolioId
+    : tradeableOptions.length === 1
+    ? tradeableOptions[0].id
+    : undefined;
 
   return {
     setPortfolioId,
