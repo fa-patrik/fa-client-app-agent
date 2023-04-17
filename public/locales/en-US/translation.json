@@ -25,6 +25,12 @@
       "contact": "Contact us"
     }
   },
+  "banners": {
+    "impersonation": {
+      "viewOnly": "You are in a view-only mode",
+      "viewingAs": "Viewing as: "
+    }
+  },
   "portfolioSummary": {
     "currentMarketValue": "Current market value",
     "availableCash": "Available cash",
@@ -82,7 +88,8 @@
     "redemptionStatus": "Redemption",
     "depositStatus": "Deposit",
     "withdrawStatus": "Withdrawal",
-    "downloadFileButtonLabel": "Download order note"
+    "downloadFileButtonLabel": "Download order note",
+    "cancelOrder": "Cancel the order"
   },
   "transactionsPage": {
     "header": "Transaction",
@@ -95,6 +102,7 @@
     "marketplace": "Marketplace",
     "isin": "ISIN code",
     "securityName": "Security name",
+    "accountName": "Account name",
     "portfolioName": "Portfolio name",
     "transactionDate": "Transaction date",
     "settlementDate": "Settlement date",
@@ -112,7 +120,9 @@
     "cancelOrderButtonLabel": "Cancel order"
   },
   "documentsPage": {
-    "title": "Documents",
+    "type": {
+      "documents": "0Documents"
+    },
     "noDocuments": "No documents are available",
     "name": "Name",
     "date": "Date",
@@ -179,7 +189,9 @@
     "buyDisclaimer": "Past performance is not a guide to future performance. When investing in financial instruments, the investor may lose all or part of the investments.",
     "queryErrorWarning": "Server error occurred",
     "tradeAmountButtonLabel": "Trade amount",
-    "unitsButtonLabel": "Units"
+    "unitsButtonLabel": "Units",
+    "createTradeSuccess": "Your order was created successfully",
+    "createTradeError": "Something went wrong"
   },
   "cancelOrderModal": {
     "header": "Cancelling order",

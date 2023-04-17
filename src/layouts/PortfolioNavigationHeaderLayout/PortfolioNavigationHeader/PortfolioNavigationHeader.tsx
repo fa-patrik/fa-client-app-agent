@@ -1,5 +1,5 @@
 import { UserMenu, Logo, PortfolioSelect } from "components";
-import { SelectedContactAvatar } from "components/Avatar/Avatar";
+import { SelectedContactAvatar } from "components/Avatar/SelectedContactAvatar";
 import {
   TOTAL_INVESTMENTS_OPTION_ID,
   useGetPortfolioOptions,
@@ -15,7 +15,7 @@ export interface PortfolioOption {
 
 export const PortfolioNavigationHeader = () => {
   const portfolioOptions = useGetPortfolioOptions();
-  const { portfolioId } = useParams();
+  const { portfolioId, contactDbId } = useParams();
   const navigateToPortfolioTab = useNavigateToPortfolioTab();
   useRedirectIfOnlyOnePortfolio();
   const onPortfolioChange = (selectedOption: PortfolioOption) => {
@@ -30,6 +30,8 @@ export const PortfolioNavigationHeader = () => {
     currentPortfolio !== TOTAL_INVESTMENTS_OPTION_ID &&
     !portfolioOptions.some((option) => option.id === currentPortfolio)
   ) {
+    //handle impersonation mode
+    if (contactDbId) return <Navigate to={`/impersonate/${contactDbId}/`} />;
     return <Navigate to="/" replace />;
   }
 

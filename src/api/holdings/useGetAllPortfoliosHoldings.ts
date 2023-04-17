@@ -1,11 +1,9 @@
 import { gql, useQuery } from "@apollo/client";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useKeycloak } from "providers/KeycloakProvider";
 import { useGetContactInfo } from "../initial/useGetContactInfo";
-import { getFetchPolicyOptions } from "../utils";
 import { ALLOCATION_BY_SECURITY_TYPE_FIELDS } from "./fragments";
-import { AllPortfoliosHoldingsQuery } from "./types";
+import { AllPortfoliosHoldingsQuery, AllocationByType } from "./types";
 
 // to distinct Contact analytics from Portfolio analytics in Contact version we set portfolio.id as portfolio.parentPortfolioId (line 32)
 const HOLDINGS_QUERY = gql`
@@ -42,7 +40,6 @@ const HOLDINGS_QUERY = gql`
 `;
 
 export const useGetAllPortfoliosHoldings = () => {
-  const { linkedContact } = useKeycloak();
   const { selectedContactId } = useGetContractIdData();
   const { i18n } = useModifiedTranslation();
   const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
@@ -51,10 +48,9 @@ export const useGetAllPortfoliosHoldings = () => {
     HOLDINGS_QUERY,
     {
       variables: {
-        contactId: selectedContactId || linkedContact,
+        contactId: selectedContactId,
         locale: i18n.language,
       },
-      ...getFetchPolicyOptions(`useGetAllPortfoliosHoldings.${selectedContactId || linkedContact}`),
     }
   );
 
@@ -62,11 +58,37 @@ export const useGetAllPortfoliosHoldings = () => {
     loading,
     error,
     data: data && {
-      allocationByType:
-        data.contact.analytics.allocationTopLevel.allocationByType,
+      allocationByType: filterZeroPositions(
+        data?.contact?.analytics?.allocationTopLevel?.allocationByType
+      ),
       // there is no way to get currency for analytics under contact context,
       // but all portfolios have same currency, so we use currency from first one
       currency: portfoliosCurrency,
     },
   };
+};
+
+/**
+ * Removes positions with amount 0 (are returned by analytics if position was closed/sold today).
+ * @param allocationByType positions grouped by security type.
+ * @returns allocationByType but with positions with amount !== 0.
+ */
+export const filterZeroPositions = (allocationByType: AllocationByType[]) => {
+  return (
+    allocationByType?.reduce((prev, curr) => {
+      const filteredPositions = curr?.allocationsBySecurity?.filter(
+        (securityEntry) => {
+          return securityEntry?.figures?.amount !== 0;
+        }
+      );
+      //do not include type/category if no positions
+      if (filteredPositions?.length > 0) {
+        prev.push({
+          ...curr,
+          allocationsBySecurity: filteredPositions,
+        });
+      }
+      return prev;
+    }, [] as AllocationByType[]) || []
+  );
 };

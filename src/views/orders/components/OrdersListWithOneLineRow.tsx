@@ -1,13 +1,15 @@
+import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import { Badge } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
-import ReactTooltip from "react-tooltip";
+import { Tooltip } from "react-tooltip";
 import {
   isStatusCancellable,
   isPortfolioAllowedToCancelOrder,
+  isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
@@ -34,9 +36,9 @@ export const OrdersListWithOneLineRow = ({
 
   return (
     <div>
-      <ReactTooltip backgroundColor="white" textColor="black" />
+      <Tooltip id="cancelOrderTooltip" place="top" />
       <table className="w-full table-fixed">
-        <thead className="text-sm font-semibold text-gray-500 bg-gray-100 border-t">
+        <thead className="text-sm font-semibold text-gray-500 bg-gray-200 border-t">
           <tr>
             <th className="py-1 px-2 text-left">
               {t("transactionsPage.security")}
@@ -91,11 +93,19 @@ const Order = ({
   isAnyOrderCancellable,
   onCancelOrderModalOpen,
 }: OrderProps) => {
-  const { t, i18n } = useModifiedTranslation();
-  const orderCanBeCancelled = isStatusCancellable(orderStatus);
-  const portfolioAllowedToCancel =
-    isPortfolioAllowedToCancelOrder(parentPortfolio);
   const isLgVersion = useMatchesBreakpoint("lg");
+  const { t, i18n } = useModifiedTranslation();
+
+  const { data: orderParentPortfolio } = useGetPortfolioBasicFieldsById(
+    parentPortfolio.id
+  );
+
+  const orderCanBeCancelled =
+    isStatusCancellable(orderStatus) &&
+    isTransactionTypeCancellable(type.typeCode);
+  const portfolioAllowedToCancel =
+    orderParentPortfolio &&
+    isPortfolioAllowedToCancelOrder(orderParentPortfolio);
 
   const typeTranslated = getNameFromBackendTranslations(
     type.typeName,
@@ -125,7 +135,7 @@ const Order = ({
         <td className="px-2 font-semibold text-left">{securityName}</td>
         {showPortfolioLabel && (
           <td className="px-1 text-sm md:text-base text-left text-gray-500">
-            {parentPortfolio.name}
+            {orderParentPortfolio?.name}
           </td>
         )}
         <td className="px-1 text-sm md:text-base font-medium text-right text-gray-500">
@@ -144,12 +154,17 @@ const Order = ({
         <td className="px-2 text-base font-medium text-right">
           {t("numberWithCurrency", {
             value: tradeAmountInPortfolioCurrency,
-            currency: parentPortfolio.currency.securityCode,
+            currency: orderParentPortfolio?.currency.securityCode,
           })}
         </td>
         {orderCanBeCancelled && portfolioAllowedToCancel ? (
           <td className="pr-4 h-full">
-            <div className="ml-auto w-fit" data-tip="Cancel the order">
+            <div
+              id={`cancelOrder-${id}`}
+              className="ml-auto w-fit"
+              data-tooltip-content={t("ordersPage.cancelOrder")}
+              data-tooltip-id="cancelOrderTooltip"
+            >
               <CancelIcon
                 className="w-6 h-6 text-primary-600 transition-transform hover:scale-110 hover:cursor-pointer stroke-primary-600"
                 onClick={(event: React.MouseEvent) => {
@@ -158,8 +173,8 @@ const Order = ({
                     onCancelOrderModalOpen({
                       orderId: id,
                       reference: reference,
-                      portfolioName: parentPortfolio.name,
-                      portfolioShortName: parentPortfolio.shortName,
+                      portfolioName: orderParentPortfolio.name,
+                      portfolioId: orderParentPortfolio.id,
                       securityName,
                       transactionDate,
                       type,

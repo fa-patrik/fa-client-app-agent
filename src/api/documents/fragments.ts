@@ -5,5 +5,6 @@ export const DOCUMENT_FIELDS = gql`
     identifier
     fileName
     created
+    tags
   }
 `;

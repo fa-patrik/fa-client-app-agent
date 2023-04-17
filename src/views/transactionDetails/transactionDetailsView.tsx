@@ -20,12 +20,10 @@ export const TransactionDetailsView = ({
   const navigate = useNavigate();
   return (
     <div className="flex overflow-hidden flex-col h-full">
-      <DetailsHeading
-        onBackButtonClick={() => navigate(getNavigationPath(type))}
-      >
+      <DetailsHeading onBackButtonClick={() => navigate(-1)}>
         <HeaderLabel type={type} />
       </DetailsHeading>
-      <div className="overflow-y-scroll h-full grow-1">
+      <div className="overflow-y-auto h-full grow-1">
         <QueryLoadingWrapper
           {...queryData}
           SuccessComponent={TransactionDetails}
@@ -35,8 +33,9 @@ export const TransactionDetailsView = ({
   );
 };
 
-export const getNavigationPath = (type: TransactionType) =>
-  type === "transaction" ? "../transactions" : "../orders";
+export const getNavigationPath = (type: TransactionType) => {
+  return type === "transaction" ? "../transactions" : "../orders";
+};
 
 interface HeaderLabelProps {
   type: TransactionType;

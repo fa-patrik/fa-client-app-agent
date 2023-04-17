@@ -25,6 +25,18 @@ const authMiddleware = setContext(async (operation, { headers }) => {
 
 const cache = new InMemoryCache({
   typePolicies: {
+    Query: {
+      fields: {
+        portfolio: {
+          read(_, { args, toReference }) {
+            return toReference({
+              __typename: "Portfolio",
+              id: args?.id,
+            });
+          },
+        },
+      },
+    },
     Portfolio: {
       fields: {
         portfolioReport: {
@@ -59,7 +71,7 @@ const cache = new InMemoryCache({
     },
     TransactionType: {
       keyFields: ["typeCode"],
-    }
+    },
   },
 });
 

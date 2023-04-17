@@ -2,6 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import { getFetchPolicyOptions } from "api/utils";
 import { PORTFOLIO_REPORT_HOLDINGS_DETAILS_FIELDS } from "./fragments";
 import { PortfolioHoldingDetailsQuery } from "./types";
+import { findHolding } from "./useGetAllPortfoliosHoldingDetails";
 
 const HOLDING_DETAILS_QUERY = gql`
   ${PORTFOLIO_REPORT_HOLDINGS_DETAILS_FIELDS}
@@ -33,8 +34,9 @@ export const useGetPortfolioHoldingDetails = (
   return {
     loading,
     error,
-    data: data?.portfolio.portfolioReport.holdingPositions?.find(
-      (holding) => holding.security.id.toString() === securityId
+    data: findHolding(
+      data?.portfolio?.portfolioReport?.holdingPositions,
+      securityId
     ),
   };
 };

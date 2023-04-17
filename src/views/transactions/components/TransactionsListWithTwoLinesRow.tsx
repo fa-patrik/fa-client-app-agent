@@ -1,3 +1,4 @@
+import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { Badge, Grid } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
@@ -39,6 +40,10 @@ const Transaction = ({
   const { portfolioId } = useParams();
   const showPortfolioLabel = !portfolioId;
 
+  const { data: transactionParentPortfolio } = useGetPortfolioBasicFieldsById(
+    parentPortfolio.id
+  );
+
   return (
     <>
       <Grid.Row className="py-2 border-t" onClick={onClick}>
@@ -48,7 +53,7 @@ const Transaction = ({
             <div className="text-base font-medium">
               {t("numberWithCurrency", {
                 value: tradeAmountInPortfolioCurrency,
-                currency: parentPortfolio.currency.securityCode,
+                currency: transactionParentPortfolio?.currency.securityCode,
               })}
             </div>
           </div>
@@ -58,7 +63,7 @@ const Transaction = ({
                 {t("date", { date: dateFromYYYYMMDD(transactionDate) })}
               </span>
               {showPortfolioLabel && (
-                <span>{` - ${parentPortfolio.name}`}</span>
+                <span>{` - ${transactionParentPortfolio?.name}`}</span>
               )}
             </div>
             <div className="float-right w-max text-center">

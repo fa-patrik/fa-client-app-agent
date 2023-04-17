@@ -59,9 +59,25 @@ is customized for test environment. Change it to point to your FA Platform test 
 
 Furthermore, make sure the Keycloak client to be used is defined in the file under resource. The default setting is:
     
-    "resource": "external-api",
+    "resource": "fa-clientportal",
 
-This default setting can be directly used, since the external-api client comes preconfigured with FA with public access type.
+This default setting can be directly used, since the fa-clientportal client comes preconfigured with FA with public access type.
+
+#### Roles
+
+To be able to login and use the Client Portal, a user must have one of the roles specified as "write-roles" or "impersonate-roles" in the *keycloak.json* configuration file. By default, the *keycloak.json* specifies the following roles from the FA Client Portal (fa-clientportal) keycloak client:
+
+* "write-roles": { "fa-clientportal": ["ROLE_CLIENT_ACCESS"] }
+* "impersonate-roles": { "fa-clientportal": ["ROLE_IMPERSONATE"] }
+
+Write roles give normal access to Client Portal, while impersonate roles force a view-only mode where a user can impersonate Contacts/other users.
+
+Furthermore, the data a user can view and modify in the Client Portal is limited by FA Back's APIs. Therefore, a user should also have sufficient view and modification rights from the FA Back (fa-back) keycloak client. FA Back comes pre-configured with two roles that may be used out of the box:
+
+* ROLE_CLIENT_PORTAL (view, modify, limited visibility)
+* ROLE_CLIENT_PORTAL_IMPERSONATE (view)
+
+Typically, you would combine ROLE_CLIENT_ACCESS and ROLE_CLIENT_PORTAL for a regular end-client user, and ROLE_IMPERSONATE and ROLE_CLIENT_PORTAL_IMPERSONATE for a supportive user that needs to be able to view the Client Portal from the perspective of an arbitrary end-client.
 
 #### CORS policy
 

@@ -1,5 +1,5 @@
-import { Portfolio } from "api/initial/useGetContactInfo";
 import { ORDER_STATUS } from "../orders/enums";
+import { TransactionType } from "./enums";
 type Values<T> = T[keyof T];
 export type OrderStatus = Values<typeof ORDER_STATUS>;
 
@@ -8,6 +8,7 @@ export interface Transaction {
   amount: number;
   transactionDate: string;
   type: {
+    typeCode: TransactionType;
     typeName: string;
     typeNamesAsMap: Record<string, string>;
     cashFlowEffect: number;
@@ -15,7 +16,9 @@ export interface Transaction {
   };
   tradeAmountInPortfolioCurrency: number;
   securityName: string;
-  parentPortfolio: Portfolio;
+  parentPortfolio: {
+    id: number;
+  };
   reference: string;
   orderStatus: OrderStatus;
   extId?: string;

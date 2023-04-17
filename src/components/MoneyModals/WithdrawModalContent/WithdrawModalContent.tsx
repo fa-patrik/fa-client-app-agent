@@ -4,6 +4,7 @@ import { useWithdrawal } from "api/money/useWithdrawal";
 import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { CashAccountSelect } from "../components/CashAccountSelect";
 import { usePortfoliosAccountsState } from "../usePortfoliosAccountsState";
 import { useWithdrawablePortfolioSelect } from "./useWithdrawablePortfolioSelect";
@@ -19,18 +20,24 @@ export const WithdrawModalContent = ({
 }: WithdrawModalProps) => {
   const { t } = useModifiedTranslation();
   const { selectedContactId } = useGetContractIdData();
-  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(false, selectedContactId);
+  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
+    false,
+    selectedContactId
+  );
   const portfolioSelectProps = useWithdrawablePortfolioSelect();
   const { portfolioId } = portfolioSelectProps;
 
   const { accountsLoading, ...cashAccountSelectProps } =
     usePortfoliosAccountsState(portfolioId);
   const {
-    currentCashAccount: {
+    currentInternalCashAccount: {
       availableBalance = 0,
       currency = "EUR",
       label = "",
       number = "",
+    } = {},
+    currentExternalCashAccount: {
+      number: externalNumber = "",
     } = {},
   } = cashAccountSelectProps;
 
@@ -47,14 +54,17 @@ export const WithdrawModalContent = ({
     securityName: label,
     account: number,
     currency,
+    intInfo: externalNumber ? `paymentAccount1=${externalNumber}` : null,
   });
+
+  const { readonly } = useKeycloak();
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
       <CashAccountSelect
         {...cashAccountSelectProps}
         {...portfolioSelectProps}
-        accountSelectLabel={t("moneyModal.fromAccount")}
+        isDeposit={false}
       />
       <hr className="mb-2" />
       <div className="flex flex-col gap-4 items-stretch ">
@@ -75,7 +85,9 @@ export const WithdrawModalContent = ({
           }
         />
         <Button
-          disabled={amount === 0 || accountsLoading || !isAmountCorrect}
+          disabled={
+            readonly || amount === 0 || accountsLoading || !isAmountCorrect
+          }
           isLoading={submitting}
           onClick={async () => {
             const response = await handleWithdraw();

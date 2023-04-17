@@ -1,49 +1,42 @@
-
 import {
   createContext,
   Dispatch,
   ReactNode,
   SetStateAction,
   useContext,
-  useEffect,
   useState,
 } from "react";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
-import { initials } from "utils/initials";
-import { useKeycloak } from "./KeycloakProvider";
 
 export type SelectedContact = {
-  id: string | number;
-  contactId: string | number;
-  userName: string;
-  initials: string;
-}
+  id: string | number | undefined;
+  contactId: string | number | undefined;
+  userName: string | undefined;
+};
 
 type ContextProps = {
-  selectedContactId: string | number;
-  selectedContact: SelectedContact;
-  setSelectedContactId: Dispatch<SetStateAction<string | number>>;
-  setSelectedContact: Dispatch<SetStateAction<SelectedContact>>;
+  selectedContactId: string | number | undefined;
+  selectedContact: SelectedContact | undefined;
+  setSelectedContactId: Dispatch<SetStateAction<string | number | undefined>>;
+  setSelectedContact: Dispatch<SetStateAction<SelectedContact | undefined>>;
 };
 
 const ContractIdContext = createContext<ContextProps | undefined>(undefined);
 
+/**
+ * Exposes the data of the currently selected contact
+ * and allows its children to update it and subscribe
+ * to changes. Selected contact is by default undefined
+ * and is expected to be set by one of its children
+ * (as is done by the ContactGuard component).
+ */
 export const DetailProvider = ({ children }: { children: ReactNode }) => {
-  const {data: contactData } = useGetContactInfo()
-  const [selectedContactId, setSelectedContactId] = useState<string | number>("");
-  const [selectedContact, setSelectedContact] = useState<SelectedContact>({} as SelectedContact);
-  const { linkedContact, userProfile } = useKeycloak();
+  const [selectedContactId, setSelectedContactId] = useState<
+    string | number | undefined
+  >();
 
-useEffect(() => {
-  //set initial selected contact upon load or refresh
-  linkedContact && setSelectedContactId(linkedContact);
-  linkedContact && userProfile && setSelectedContact({ 
-    id: linkedContact, 
-    contactId: contactData?._contactId ?? "",
-    userName: contactData?.name ?? "", 
-    initials: initials(contactData?.name)
-  });
-}, [linkedContact, userProfile, contactData?._contactId, contactData?.name]);
+  const [selectedContact, setSelectedContact] = useState<
+    SelectedContact | undefined
+  >();
 
   return (
     <ContractIdContext.Provider
@@ -61,7 +54,7 @@ useEffect(() => {
 
 export const useGetContractIdData = () => {
   const state = useContext(ContractIdContext);
-  if (!state) throw new Error("detail data not found");
+  if (!state) throw new Error(" data not found");
 
   return state;
 };

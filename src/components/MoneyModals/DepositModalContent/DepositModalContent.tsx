@@ -4,6 +4,7 @@ import { useDeposit } from "api/money/useDeposit";
 import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { CashAccountSelect } from "../components/CashAccountSelect";
 import { usePortfoliosAccountsState } from "../usePortfoliosAccountsState";
 import { useDepositablePortfolioSelect } from "./useDepositablePortfolioSelect";
@@ -19,18 +20,24 @@ export const DepositModalContent = ({
 }: DepositModalProps) => {
   const { t } = useModifiedTranslation();
   const { selectedContactId } = useGetContractIdData();
-  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(false, selectedContactId);
+  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
+    false,
+    selectedContactId
+  );
   const portfolioSelectProps = useDepositablePortfolioSelect();
   const { portfolioId } = portfolioSelectProps;
 
   const { accountsLoading, ...cashAccountSelectProps } =
     usePortfoliosAccountsState(portfolioId);
   const {
-    currentCashAccount: {
+    currentInternalCashAccount: {
       availableBalance = 0,
       currency = "EUR",
       label = "",
       number = "",
+    } = {},
+    currentExternalCashAccount: {
+      number: externalNumber = "",
     } = {},
   } = cashAccountSelectProps;
 
@@ -46,14 +53,16 @@ export const DepositModalContent = ({
     securityName: label,
     account: number,
     currency,
+    intInfo: externalNumber ? `paymentAccount1=${externalNumber}` : null,
   });
 
+  const { readonly } = useKeycloak();
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
       <CashAccountSelect
         {...cashAccountSelectProps}
         {...portfolioSelectProps}
-        accountSelectLabel={t("moneyModal.toAccount")}
+        isDeposit={true}
       />
       <hr className="mb-2" />
       <div className="flex flex-col gap-4 items-stretch ">
@@ -74,7 +83,9 @@ export const DepositModalContent = ({
           }
         />
         <Button
-          disabled={amount === 0 || accountsLoading || !isAmountCorrect}
+          disabled={
+            readonly || amount === 0 || accountsLoading || !isAmountCorrect
+          }
           isLoading={submitting}
           onClick={async () => {
             const response = await handleDeposit();

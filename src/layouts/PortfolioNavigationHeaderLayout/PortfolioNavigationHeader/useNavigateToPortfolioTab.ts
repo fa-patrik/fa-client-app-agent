@@ -1,15 +1,20 @@
 import { useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export const useNavigateToPortfolioTab = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const params = useParams();
   return useCallback(
     (urlPrefix: string) => {
-      const currentTab = location.pathname.split("/").slice(-1)[0];
-      navigate(`${urlPrefix}/${currentTab}`);
+      const contactId = params?.contactDbId;
+      const currentTab = location.pathname.split("/").at(-1);
+      //handle impersonation mode
+      const newPath = contactId
+        ? `/impersonate/${contactId}${urlPrefix}/${currentTab}`
+        : `${urlPrefix}/${currentTab}`;
+      navigate(newPath);
     },
-    [navigate, location]
+    [location.pathname, navigate, params?.contactDbId]
   );
 };

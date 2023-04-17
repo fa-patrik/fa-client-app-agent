@@ -45,10 +45,12 @@ export const useGetAllTradeOrders = (options?: QueryHookOptions) => {
     }
   );
 
+  const tradeOrders = data?.contact?.tradeOrders;
+
   return {
     loading,
     error,
-    data: data?.contact.tradeOrders,
+    data: tradeOrders,
     ...dateRangeProps,
   };
 };

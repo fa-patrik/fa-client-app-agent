@@ -12,6 +12,7 @@ import {
 } from "components/index";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { round } from "utils/number";
 import { useGetSecurityDetails } from "../../../api/holdings/useGetSecurityDetails";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
@@ -72,23 +73,28 @@ export const SellModalContent = ({
     currency: { securityCode: currency },
     url2,
     type: { code: securityType } = {},
-    latestMarketData: { price } = { price: 0 },
+    latestMarketData,
     tagsAsSet: securityTags,
   } = security;
 
+  const price = ((data) => (data ? data.price : 0))(latestMarketData);
+
   const [isTradeInUnits, setIsTradeInUnits] = useState(true);
   const [canToggleTradeType, setCanToggleTradeType] = useState(false);
-
+  //in case it takes some time to loop through tags and deduct trade type
+  const [hasDeductedTradeType, setHasDeductedTradeType] = useState(false);
   useEffect(() => {
+    setHasDeductedTradeType(false);
     const isTradeTypeSpecified = securityTags?.some(
       (tag) =>
-        tag === SecurityTradeType.units || tag === SecurityTradeType.tradeAmount
+        tag === SecurityTradeType.sellUnits ||
+        tag === SecurityTradeType.sellTradeAmount
     );
     const isUnitsSupported = securityTags?.some(
-      (tag) => tag === SecurityTradeType.units
+      (tag) => tag === SecurityTradeType.sellUnits
     );
     const isTradeAmountSupported = securityTags?.some(
-      (tag) => tag === SecurityTradeType.tradeAmount
+      (tag) => tag === SecurityTradeType.sellTradeAmount
     );
     const isUnitsDefaultTradeType = true; //always true when selling
     setCanToggleTradeType(
@@ -97,6 +103,7 @@ export const SellModalContent = ({
     setIsTradeInUnits(
       isTradeTypeSpecified ? isUnitsSupported : isUnitsDefaultTradeType
     );
+    setHasDeductedTradeType(true);
   }, [securityTags, securityType]);
 
   const { t } = useModifiedTranslation();
@@ -112,7 +119,7 @@ export const SellModalContent = ({
     loading,
     data: { marketValue = 0, marketFxRate = 1, amount: units = 0 } = {},
   } = useGetPortfolioHoldingDetails(
-    portfolioId.toString(),
+    portfolioId?.toString(),
     securityId.toString()
   );
   const currentAmount = getCurrentAmount(
@@ -147,6 +154,8 @@ export const SellModalContent = ({
       ? ExecutionMethod.UNITS
       : ExecutionMethod.NET_TRADE_AMOUNT,
   });
+
+  const { readonly } = useKeycloak();
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
@@ -190,6 +199,7 @@ export const SellModalContent = ({
         </LabeledDiv>
       )}
       <Input
+        disabled={!hasDeductedTradeType || !portfolioId}
         ref={modalInitialFocusRef}
         value={inputValue || ""}
         onChange={(event) => {
@@ -298,7 +308,13 @@ export const SellModalContent = ({
           })}
         </div>
         <Button
-          disabled={amount === 0 || loading || !isTradeAmountCorrect}
+          disabled={
+            readonly ||
+            amount === 0 ||
+            loading ||
+            !isTradeAmountCorrect ||
+            !portfolioId
+          }
           isLoading={submitting}
           onClick={async () => {
             const response = await handleSell();

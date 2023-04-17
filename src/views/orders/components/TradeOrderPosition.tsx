@@ -1,3 +1,4 @@
+import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { TradeOrder } from "api/orders/types";
 import { Badge } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -18,6 +19,10 @@ export const TradeOrderPosition = ({
 }: TradeOrderPositionProps) => {
   const { i18n, t } = useModifiedTranslation();
 
+  const { data: transactionParentPortfolio } = useGetPortfolioBasicFieldsById(
+    parentPortfolio.id
+  );
+
   return (
     <div className="py-2">
       <div className="flex justify-between">
@@ -25,14 +30,14 @@ export const TradeOrderPosition = ({
         <div className="text-base font-medium">
           {t("numberWithCurrency", {
             value: tradeAmountInPortfolioCurrency,
-            currency: parentPortfolio.currency.securityCode,
+            currency: transactionParentPortfolio?.currency.securityCode,
           })}
         </div>
       </div>
       <div className="flex justify-between text-xs">
         <div className="text-sm font-semibold text-gray-500">{`
         ${t("date", { date: dateFromYYYYMMDD(transactionDate) })} - ${
-          parentPortfolio.name
+          transactionParentPortfolio?.name
         }`}</div>
         <Badge colorScheme={getTransactionColor(amountEffect, cashFlowEffect)}>
           {getNameFromBackendTranslations(

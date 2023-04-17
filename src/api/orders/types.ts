@@ -1,10 +1,11 @@
-import { Portfolio } from "api/initial/useGetContactInfo";
+import { TransactionType } from "api/transactions/enums";
 import { ORDER_STATUS } from "./enums";
 
 type Values<T> = T[keyof T];
 export type OrderStatus = Values<typeof ORDER_STATUS>;
 
 export interface TradeOrderType {
+  typeCode: TransactionType;
   typeName: string;
   typeNamesAsMap?: Record<string, string>;
   cashFlowEffect: number;
@@ -18,7 +19,9 @@ export interface TradeOrder {
   type: TradeOrderType;
   transactionDate: string;
   tradeAmountInPortfolioCurrency?: number;
-  parentPortfolio: Portfolio;
+  parentPortfolio: {
+    id: number;
+  };
   reference: string;
   orderStatus: OrderStatus;
   extId?: string;
@@ -98,6 +101,7 @@ interface OrderFromMutation {
 }
 
 export interface OrderMutationResponse {
-  importTradeOrder: [{ importStatus: "OK" | "ERROR" }, OrderFromMutation] &
-    unknown[];
+  importTradeOrder:
+    | [Record<string, string>, OrderFromMutation] //in case of success
+    | [OrderFromMutation]; //in case of error
 }

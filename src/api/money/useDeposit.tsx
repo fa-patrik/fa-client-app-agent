@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ApolloError, FetchResult, gql, useMutation } from "@apollo/client";
+import { TransactionType } from "api/transactions/enums";
 import {
   LocalTradeOrderDetails,
   useLocalTradeStorageMutation,
@@ -17,6 +18,7 @@ const IMPORT_DEPOSIT_MUTATION = gql`
     $transactionTypeCode: String
     $portfolioShortName: String
     $account: String
+    $intInfo: String
   ) {
     importTransaction(
       transaction: {
@@ -28,6 +30,7 @@ const IMPORT_DEPOSIT_MUTATION = gql`
         parentPortfolio: $portfolioShortName
         account: $account
         status: "NF"
+        intInfo: $intInfo
       }
     )
   }
@@ -41,6 +44,7 @@ interface ImportDepositQueryVariables {
   tradeAmount: number;
   transactionDate: Date;
   transactionTypeCode: string;
+  intInfo: string | null;
 }
 
 const errorStatus = "ERROR" as const;
@@ -88,7 +92,7 @@ export const useDeposit = (
         variables: {
           ...newTransaction,
           transactionDate: new Date(),
-          transactionTypeCode: "DEP",
+          transactionTypeCode: TransactionType.DEPOSIT,
           reference: transactionReference,
           portfolioShortName: portfolio.shortName,
         },

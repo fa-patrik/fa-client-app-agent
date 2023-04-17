@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { ApolloError, FetchResult, gql, useMutation } from "@apollo/client";
+import { FetchResult, gql, useMutation } from "@apollo/client";
+import { TransactionType } from "api/transactions/enums";
 import {
   LocalTradeOrderDetails,
   useLocalTradeStorageMutation,
 } from "hooks/useLocalTradeStorageMutation";
 import { toast } from "react-toastify";
+import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 import { useUniqueReference } from "../../hooks/useUniqueReference";
 
 const IMPORT_TRADE_ORDER_MUTATION = gql`
@@ -81,6 +83,7 @@ export const useTrade = (
       tradeType: TradeType;
     }
 ) => {
+  const { t } = useModifiedTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [handleAPITrade] = useMutation<
     ImportTradeOrderQueryResponse,
@@ -116,11 +119,11 @@ export const useTrade = (
         reference: transactionReference,
       });
 
+      toast.success(t("tradingModal.createTradeSuccess"), { autoClose: 3000 });
       setSubmitting(false);
       return apiResponse;
     } catch (e: unknown) {
-      const error = e as Error | ApolloError;
-      toast.error(error.message, {
+      toast.error(t("tradingModal.createTradeError"), {
         style: { whiteSpace: "pre-line" },
       });
       setSubmitting(false);
@@ -158,16 +161,16 @@ const handleBadAPIResponse = (
 const getTradeTypeForAPI = (tradeType: TradeType) => {
   switch (tradeType) {
     case "buy": {
-      return "B";
+      return TransactionType.BUY;
     }
     case "sell": {
-      return "S";
+      return TransactionType.SELL;
     }
     case "subscription": {
-      return "SUB";
+      return TransactionType.SUBSCRIPTION;
     }
     case "redemption": {
-      return "RED";
+      return TransactionType.REDEMPTION;
     }
     default: {
       throw new Error("Impossible API trade type");

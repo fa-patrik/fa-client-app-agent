@@ -9,7 +9,10 @@ interface PortfolioGuardProps {
 
 export const PortfolioGuard = ({ children }: PortfolioGuardProps) => {
   const { selectedContactId } = useGetContractIdData();
-  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(false, selectedContactId);
+  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
+    false,
+    selectedContactId
+  );
 
   if (portfolios.length === 0) {
     return <NoPortfolios />;

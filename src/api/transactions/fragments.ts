@@ -16,16 +16,6 @@ export const TRANSACTION_FIELDS = gql`
     securityName
     parentPortfolio {
       id
-      name
-      shortName
-      status
-      currency {
-        securityCode
-      }
-      portfolioGroups {
-        id
-        code
-      }
     }
     reference
     extId

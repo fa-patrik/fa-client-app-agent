@@ -1,3 +1,4 @@
+import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { Badge } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -93,13 +94,20 @@ const Transaction = ({
     );
   };
 
+  const { data: transactionParentPortfolio } = useGetPortfolioBasicFieldsById(
+    parentPortfolio.id
+  );
+
   return (
     <>
-      <tr onClick={onClick} className="h-12 hover:bg-primary-50 border-t transition-colors cursor-pointer">
+      <tr
+        onClick={onClick}
+        className="h-12 hover:bg-primary-50 border-t transition-colors cursor-pointer"
+      >
         <td className="px-2 font-semibold text-left">{securityName}</td>
         {showPortfolioLabel && (
           <td className="px-1 text-sm md:text-base text-left text-gray-500">
-            {parentPortfolio.name}
+            {transactionParentPortfolio?.name}
           </td>
         )}
         <td className="px-1 text-sm md:text-base font-medium text-right text-gray-500">
@@ -118,7 +126,7 @@ const Transaction = ({
         <td className="px-2 text-base font-medium text-right">
           {t("numberWithCurrency", {
             value: tradeAmountInPortfolioCurrency,
-            currency: parentPortfolio.currency.securityCode,
+            currency: transactionParentPortfolio?.currency.securityCode,
           })}
         </td>
       </tr>

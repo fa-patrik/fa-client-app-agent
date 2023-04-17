@@ -1,5 +1,6 @@
+import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { Badge, Grid } from "components";
-import { isLocalOrder } from "hooks/useLocalTradeStorageState"
+import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import { dateFromYYYYMMDD } from "utils/date";
@@ -10,24 +11,18 @@ import {
 import { TransactionType } from "views/transactionDetails/transactionDetailsView";
 import { useNavigateToDetails } from "views/transactions/useNavigateToDetails";
 
-
 import { OrderProps, OrdersListProps } from "./OrdersGroup";
 
-const type = "order" as TransactionType
+const type = "order" as TransactionType;
 
-
-export const OrdersListWithTwoLinesRow = ({
-  orders,
-}: OrdersListProps) => {
+export const OrdersListWithTwoLinesRow = ({ orders }: OrdersListProps) => {
   const navigate = useNavigateToDetails(type);
   return (
     <div className="grid grid-cols-2 items-center">
       {orders.map((order) => (
         <Order
           {...order}
-          key={
-            isLocalOrder(order) ? order.reference : order.id
-          }
+          key={isLocalOrder(order) ? order.reference : order.id}
           onClick={navigate(order.id)}
         />
       ))}
@@ -47,6 +42,10 @@ const Order = ({
   const { portfolioId } = useParams();
   const showPortfolioLabel = !portfolioId;
 
+  const { data: orderParentPortfolio } = useGetPortfolioBasicFieldsById(
+    parentPortfolio.id
+  );
+
   return (
     <>
       <Grid.Row className="py-2 border-t" onClick={onClick}>
@@ -56,7 +55,7 @@ const Order = ({
             <div className="text-base font-medium">
               {t("numberWithCurrency", {
                 value: tradeAmountInPortfolioCurrency,
-                currency: parentPortfolio.currency.securityCode,
+                currency: orderParentPortfolio?.currency.securityCode,
               })}
             </div>
           </div>
@@ -66,7 +65,7 @@ const Order = ({
                 {t("date", { date: dateFromYYYYMMDD(transactionDate) })}
               </span>
               {showPortfolioLabel && (
-                <span>{` - ${parentPortfolio.name}`}</span>
+                <span>{` - ${orderParentPortfolio?.name}`}</span>
               )}
             </div>
             <div className="float-right w-max text-center">

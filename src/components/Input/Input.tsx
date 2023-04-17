@@ -24,6 +24,7 @@ const InputPlain = (
         {
           "text-red-900 placeholder-red-700 bg-red-50 focus:border-red-500 border-red-500":
             !!error,
+          "cursor-not-allowed": inputAttributes.disabled,
         }
       )}
       {...inputAttributes}
