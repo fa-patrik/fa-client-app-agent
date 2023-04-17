@@ -9,6 +9,7 @@ import { Tooltip } from "react-tooltip";
 import {
   isStatusCancellable,
   isPortfolioAllowedToCancelOrder,
+  isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
@@ -99,7 +100,9 @@ const Order = ({
     parentPortfolio.id
   );
 
-  const orderCanBeCancelled = isStatusCancellable(orderStatus);
+  const orderCanBeCancelled =
+    isStatusCancellable(orderStatus) &&
+    isTransactionTypeCancellable(type.typeCode);
   const portfolioAllowedToCancel =
     orderParentPortfolio &&
     isPortfolioAllowedToCancelOrder(orderParentPortfolio);

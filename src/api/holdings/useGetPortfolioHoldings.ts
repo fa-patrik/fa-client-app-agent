@@ -3,6 +3,7 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { getFetchPolicyOptions } from "../utils";
 import { ALLOCATION_BY_SECURITY_TYPE_FIELDS } from "./fragments";
 import { PortfolioHoldingsQuery } from "./types";
+import { filterZeroPositions } from "./useGetAllPortfoliosHoldings";
 
 const HOLDINGS_QUERY = gql`
   ${ALLOCATION_BY_SECURITY_TYPE_FIELDS}
@@ -53,10 +54,11 @@ export const useGetPortfolioHoldings = (portfolioId: string | undefined) => {
     loading,
     error,
     data: data && {
-      allocationByType:
-        data.portfolio.analytics.allocationTopLevel.allocationByType,
+      allocationByType: filterZeroPositions(
+        data?.portfolio?.analytics?.allocationTopLevel?.allocationByType
+      ),
       currency:
-        data.portfolio.analytics.allocationTopLevel.portfolio?.currencyCode,
+        data?.portfolio?.analytics?.allocationTopLevel?.portfolio?.currencyCode,
     },
   };
 };

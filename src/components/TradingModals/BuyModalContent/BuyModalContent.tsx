@@ -110,7 +110,7 @@ export const BuyModalContent = ({
   const {
     loading,
     data: { availableCash = 0, currency: portfolioCurrency = "EUR" } = {},
-  } = useGetBuyData(portfolioId.toString());
+  } = useGetBuyData(portfolioId?.toString());
 
   const [amount, setAmount] = useState(0);
 
@@ -163,7 +163,7 @@ export const BuyModalContent = ({
           })}
       </LabeledDiv>
       <Input
-        disabled={!hasDeductedTradeType}
+        disabled={!hasDeductedTradeType || !portfolioId}
         ref={modalInitialFocusRef}
         value={amount || ""}
         onChange={(event) => {
@@ -228,7 +228,11 @@ export const BuyModalContent = ({
         </div>
         <Button
           disabled={
-            readonly || amount === 0 || loading || !isTradeAmountCorrect
+            readonly ||
+            amount === 0 ||
+            loading ||
+            !isTradeAmountCorrect ||
+            !portfolioId
           }
           isLoading={submitting}
           onClick={async () => {

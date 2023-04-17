@@ -3,7 +3,7 @@ import { getFetchPolicyOptions } from "api/utils";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { ALL_PORTFOLIOS_REPORT_HOLDINGS_DETAILS_FIELDS } from "./fragments";
-import { AllPortfoliosHoldingDetailsQuery } from "./types";
+import { AllPortfoliosHoldingDetailsQuery, HoldingPosition } from "./types";
 
 const HOLDING_DETAILS_QUERY = gql`
   ${ALL_PORTFOLIOS_REPORT_HOLDINGS_DETAILS_FIELDS}
@@ -35,7 +35,9 @@ export const useGetAllPortfoliosHoldingDetails = (
         contactId: selectedContactId || linkedContact,
       },
       ...getFetchPolicyOptions(
-        `useGetAllPortfoliosHoldingDetails.${selectedContactId || linkedContact}`
+        `useGetAllPortfoliosHoldingDetails.${
+          selectedContactId || linkedContact
+        }`
       ),
     }
   );
@@ -43,8 +45,22 @@ export const useGetAllPortfoliosHoldingDetails = (
   return {
     loading,
     error,
-    data: data?.contact.portfolioReport.holdingPositions?.find(
-      (holding) => holding.security.id.toString() === securityId
+    data: findHolding(
+      data?.contact?.portfolioReport?.holdingPositions,
+      securityId
     ),
   };
+};
+
+/**
+ * @returns the holding matching the id and amount not 0.
+ */
+export const findHolding = (
+  holdingPositions: HoldingPosition[] | undefined,
+  securityId: string | undefined
+) => {
+  return holdingPositions?.find(
+    (holding) =>
+      holding.security.id.toString() === securityId && holding.amount !== 0
+  );
 };

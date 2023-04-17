@@ -1,4 +1,5 @@
 import { ORDER_STATUS } from "../orders/enums";
+import { TransactionType } from "./enums";
 type Values<T> = T[keyof T];
 export type OrderStatus = Values<typeof ORDER_STATUS>;
 
@@ -7,6 +8,7 @@ export interface Transaction {
   amount: number;
   transactionDate: string;
   type: {
+    typeCode: TransactionType;
     typeName: string;
     typeNamesAsMap: Record<string, string>;
     cashFlowEffect: number;
