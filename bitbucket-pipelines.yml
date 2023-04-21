@@ -1,5 +1,9 @@
 image: node:lts
 
+definitions:
+  caches:
+    node_modules_cache: fa-client-app-private/node_modules
+
 pipelines:
   branches:
     CICD-12:
@@ -8,8 +12,8 @@ pipelines:
           working_directory: fa-client-app-private
           script:
             - yarn install
-          artifacts:
-            - node_modules/**
+          caches:
+            - node_modules_cache
       - step:
           name: Build and test
           working_directory: fa-client-app-private
