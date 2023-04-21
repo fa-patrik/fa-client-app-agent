@@ -2,7 +2,7 @@ image: node:lts
 
 definitions:
   caches:
-    node-modules-cache: fa-client-app-private/node_modules
+    node-modules-cache: node_modules
 
 pipelines:
   branches:
