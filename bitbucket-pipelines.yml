@@ -25,13 +25,13 @@ pipelines:
             - apt-get install -y zip
             - zip -r build.zip build
             - apt-get install -y curl
-            - echo "Deploying to ${TARGET_ENVIRONMENT}"
-            - echo "Using endpoint https://${TARGET_ENVIRONMENT}.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip"
-            - curl -X POST \
-              -H "fa-token-name: ${API_TOKEN_NAME}" \
-              -H "fa-token-value: ${API_TOKEN_VALUE}" \
-              -H "Content-Type: application/zip" \
-              --data-binary "@build.zip" \
+            - echo "Deploying to $TARGET_ENVIRONMENT"
+            - >
+              curl -X POST
+              -H "fa-token-name: $API_TOKEN_NAME"
+              -H "fa-token-value: $API_TOKEN_VALUE"
+              -H "Content-Type: application/zip"
+              --data-binary "@build.zip"
               https://$TARGET_ENVIRONMENT.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip
   custom:
     manual-deploy:
@@ -57,11 +57,11 @@ pipelines:
             - apt-get install -y zip
             - zip -r build.zip build
             - apt-get install -y curl
-            - echo "Deploying to ${TARGET_ENVIRONMENT}"
-            - echo "Using endpoint https://${TARGET_ENVIRONMENT}.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip"
-            - curl -X POST \
-              -H "fa-token-name: ${API_TOKEN_NAME}" \
-              -H "fa-token-value: ${API_TOKEN_VALUE}" \
-              -H "Content-Type: application/zip" \
-              --data-binary "@build.zip" \
+            - echo "Deploying to $TARGET_ENVIRONMENT"
+            - >
+              curl -X POST
+              -H "fa-token-name: $API_TOKEN_NAME"
+              -H "fa-token-value: $API_TOKEN_VALUE"
+              -H "Content-Type: application/zip"
+              --data-binary "@build.zip"
               https://$TARGET_ENVIRONMENT.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip
