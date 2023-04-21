@@ -29,7 +29,7 @@ pipelines:
             - echo "Using endpoint https://${TARGET_ENVIRONMENT}.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip"
             - >
               curl -X POST \
-              --location "https://${TARGET_ENVIRONMENT}.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip" \
+              --location "https://fatemplatedev.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip" \
               -H "fa-token-name: ${API_TOKEN_NAME}" \
               -H "fa-token-value: ${API_TOKEN_VALUE}" \
               -H "Content-Type: application/zip" \
@@ -62,7 +62,7 @@ pipelines:
             - echo "Using endpoint https://${TARGET_ENVIRONMENT}.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip"
             - >
               curl -X POST \
-              --location "https://${TARGET_ENVIRONMENT}.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip" \
+              --location "https://fatemplatedev.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip" \
               -H "fa-token-name: ${API_TOKEN_NAME}" \
               -H "fa-token-value: ${API_TOKEN_VALUE}" \
               -H "Content-Type: application/zip" \
