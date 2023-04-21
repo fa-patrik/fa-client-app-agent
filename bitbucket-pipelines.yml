@@ -27,7 +27,7 @@ pipelines:
             - apt-get install -y curl
             - echo "Deploying to $TARGET_ENVIRONMENT"
             - >
-              curl -X POST
+              curl -f -X POST
               -H "fa-token-name: $API_TOKEN_NAME"
               -H "fa-token-value: $API_TOKEN_VALUE"
               -H "Content-Type: application/zip"
@@ -59,7 +59,7 @@ pipelines:
             - apt-get install -y curl
             - echo "Deploying to $TARGET_ENVIRONMENT"
             - >
-              curl -X POST
+              curl -f -X POST
               -H "fa-token-name: $API_TOKEN_NAME"
               -H "fa-token-value: $API_TOKEN_VALUE"
               -H "Content-Type: application/zip"
