@@ -52,14 +52,17 @@ pipelines:
           name: Deploy
           working_directory: fa-client-app-private
           script:
+            - echo "Starting Deploy step"
             - apt-get update
+            - echo "Installing zip"
             - apt-get install -y zip
+            - echo "Creating build.zip"
             - zip -r build.zip build
+            - echo "Installing curl"
             - apt-get install -y curl
-            - >
-              curl -X POST \
-              -H "fa-token-name: ${API_TOKEN_NAME}" \
-              -H "fa-token-value: ${API_TOKEN_VALUE}" \
-              -H "Content-Type: application/zip" \
-              --data-binary "@build.zip" \
-              "https://${TARGET_ENVIRONMENT}.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip"
+            - echo "Printing variables"
+            - echo "URL: https://$TARGET_ENVIRONMENT.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip"
+            - echo "fa-token-name: $API_TOKEN_NAME"
+            - echo "fa-token-value: $API_TOKEN_VALUE"
+            - echo "Executing curl command"
+            - curl -X POST -H "fa-token-name: $API_TOKEN_NAME" -H "fa-token-value: $API_TOKEN_VALUE" -H "Content-Type: application/zip" --data-binary "@build.zip" "https://$TARGET_ENVIRONMENT.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip"
