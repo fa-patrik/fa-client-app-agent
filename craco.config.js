@@ -36,4 +36,18 @@ module.exports = {
       return webpackConfig;
     },
   },
+  jest: {
+    configure: {
+      reporters: [
+        "default",
+        [
+          "jest-junit",
+          {
+            outputDirectory: "jest-test-reports",
+            outputName: "jest-test-report.xml",
+          },
+        ],
+      ],
+    },
+  },
 };
