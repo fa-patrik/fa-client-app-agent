@@ -2,7 +2,7 @@ image: node:lts
 
 definitions:
   caches:
-    node-modules-cache: node_modules
+    node-modules: node_modules
 
 pipelines:
   branches:
@@ -11,14 +11,14 @@ pipelines:
           name: Install dependencies
           working_directory: fa-client-app-private
           caches:
-            - node-modules-cache
+            - node-modules
           script:
             - yarn install
       - step:
           name: Test and build
           working_directory: fa-client-app-private
           caches:
-            - node-modules-cache
+            - node-modules
           script:
             - yarn build
           artifacts:
