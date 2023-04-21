@@ -10,19 +10,21 @@ pipelines:
       - step:
           name: Install dependencies
           working_directory: fa-client-app-private
-          script:
-            - yarn install
           caches:
             - node-modules-cache
+          script:
+            - yarn install
       - step:
-          name: Build and test
+          name: Test and build
           working_directory: fa-client-app-private
+          caches:
+            - node-modules-cache
           script:
             - yarn build
           artifacts:
             - build/**
       - step:
-          name: Deploy
+          name: Deploy to FA Back
           working_directory: fa-client-app-private
           script:
             - apt-get update
