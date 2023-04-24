@@ -1,5 +1,5 @@
-import { ReactNode, Fragment } from "react";
-import { Listbox, Transition } from "@headlessui/react";
+import { ReactNode, Fragment, useState } from "react";
+import { Combobox, Transition } from "@headlessui/react";
 import { ReactComponent as ChevronDown } from "assets/chevron-down.svg";
 import classNames from "classnames";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -11,19 +11,20 @@ export interface Option {
   OptionComponent?: ReactNode;
 }
 
-interface SelectProps<T> {
+interface ComboBoxProps<T> {
   value: T | undefined;
   onChange: (option: T) => void;
   options: T[];
   label?: string;
 }
 
-export const Select = <TOption extends Option>({
+export const ComboBox = <TOption extends Option>({
   options,
   value,
   onChange,
   label,
-}: SelectProps<TOption>) => {
+}: ComboBoxProps<TOption>) => {
+  const [query, setQuery] = useState("");
   const { t } = useModifiedTranslation();
   const [trigger, container] = usePopper({
     placement: "bottom-start",
@@ -48,20 +49,31 @@ export const Select = <TOption extends Option>({
       },
     ],
   });
+
+  const filteredOptions = options.filter((option) =>
+    option.label.toLowerCase().includes(query.toLowerCase())
+  );
+
   return (
-    <Listbox as="div" value={value} onChange={onChange}>
+    <Combobox as="div" value={value} onChange={onChange}>
       {label && (
-        <Listbox.Label className="text-sm font-normal">{label}</Listbox.Label>
+        <Combobox.Label className="text-sm font-normal">{label}</Combobox.Label>
       )}
-      <Listbox.Button
-        className="flex gap-2 items-center py-2.5 px-4 w-full h-10 text-lg font-bold text-gray-900 bg-gray-50 rounded-lg border border-gray-300"
+      <div
         ref={trigger}
+        className="flex relative gap-2 items-center py-2.5 pr-4 w-full h-10 bg-gray-50 rounded-lg border focus-within:border-2 border-gray-300 focus-within:border-primary-400"
       >
-        <div className="box-border flex-1 content-start leading-none text-left truncate">
-          {value?.label ?? t("component.select.placeholder")}
-        </div>
-        <ChevronDown className="stroke-gray-500 w-[20px] h-[20px]" />
-      </Listbox.Button>
+        <Combobox.Input
+          className="p-2.5 w-full h-10 text-sm text-gray-900 truncate bg-transparent rounded-lg border-0 focus:border-0 focus:ring-0 focus:-m-[1px]"
+          displayValue={(option: TOption) =>
+            option?.label ?? t("component.select.placeholder")
+          }
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <Combobox.Button className="">
+          <ChevronDown className="stroke-gray-500 w-[20px] h-[20px]" />
+        </Combobox.Button>
+      </div>
       <div ref={container}>
         <Transition
           enter="transition duration-100 ease-out"
@@ -71,9 +83,9 @@ export const Select = <TOption extends Option>({
           leaveFrom="transform scale-100 opacity-100"
           leaveTo="transform scale-95 opacity-0"
         >
-          <Listbox.Options className="overflow-y-auto py-1 max-h-96 text-base list-none bg-white rounded divide-y divide-gray-100 shadow">
-            {options.map((option) => (
-              <Listbox.Option key={option.id} value={option} as={Fragment}>
+          <Combobox.Options className="overflow-y-auto py-1 max-h-96 text-base list-none bg-white rounded divide-y divide-gray-100 shadow">
+            {filteredOptions.map((option) => (
+              <Combobox.Option key={option.id} value={option} as={Fragment}>
                 {({ active, selected }) => (
                   <li
                     className={classNames(
@@ -88,11 +100,11 @@ export const Select = <TOption extends Option>({
                     {option.OptionComponent ?? option.label}
                   </li>
                 )}
-              </Listbox.Option>
+              </Combobox.Option>
             ))}
-          </Listbox.Options>
+          </Combobox.Options>
         </Transition>
       </div>
-    </Listbox>
+    </Combobox>
   );
 };
