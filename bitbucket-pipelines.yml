@@ -15,7 +15,14 @@ pipelines:
           script:
             - yarn install
       - step:
-          name: Test and build
+          name: Test
+          working_directory: fa-client-app-private
+          caches:
+            - node-modules
+          script:
+            - yarn test:CI
+      - step:
+          name: Build
           working_directory: fa-client-app-private
           caches:
             - node-modules

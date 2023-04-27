@@ -40,8 +40,9 @@
   "scripts": {
     "start": "cross-env PORT=3000 craco start",
     "withSW": "cross-env WITH_SW=true craco start",
-    "build": "cross-env CI=true craco test && craco build",
+    "build": "craco build",
     "test": "craco test",
+    "test:CI": "cross-env CI=true craco test",
     "lint": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
     "check-types": "tsc",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
