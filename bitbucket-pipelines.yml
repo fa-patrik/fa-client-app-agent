@@ -9,21 +9,21 @@ pipelines:
     CICD-12:
       - step:
           name: Install dependencies
-          working_directory: fa-client-app-private
+          working_directory: $WORKDIR_PRIVATE
           caches:
             - node-modules
           script:
             - yarn install
       - step:
           name: Test
-          working_directory: fa-client-app-private
+          working_directory: $WORKDIR_PRIVATE
           caches:
             - node-modules
           script:
             - yarn test:CI
       - step:
           name: Build
-          working_directory: fa-client-app-private
+          working_directory: $WORKDIR_PRIVATE
           caches:
             - node-modules
           script:
@@ -32,7 +32,7 @@ pipelines:
             - build/**
       - step:
           name: Deploy to FA Back
-          working_directory: fa-client-app-private
+          working_directory: $WORKDIR_PRIVATE
           script:
             - apt-get update
             - apt-get install -y zip
