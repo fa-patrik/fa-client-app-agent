@@ -6,6 +6,7 @@ import classNames from "classnames";
 import { Button, DownloadableDocument, Grid } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate } from "react-router";
+import { addProtocolToUrl } from "utils/url";
 import { dateFromYYYYMMDD } from "../../../utils/date";
 import { NameWithFlag } from "../../holdings/components/NameWithFlag";
 import {
@@ -103,13 +104,16 @@ const TradableSecurityBase = (security: TradableSecuritySized) => {
         <div className="sm:flex col-span-2 justify-around">
           <div className="w-fit">
             {url2 && (
-              <DownloadableDocument url={url2} label={t("tradingList.kiid")} />
+              <DownloadableDocument
+                url={addProtocolToUrl(url2)}
+                label={t("tradingList.kiid")}
+              />
             )}
           </div>
           <div className="w-fit">
             {url && (
               <DownloadableDocument
-                url={url}
+                url={addProtocolToUrl(url)}
                 label={t("tradingList.prospectus")}
               />
             )}

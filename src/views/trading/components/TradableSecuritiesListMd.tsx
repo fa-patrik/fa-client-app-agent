@@ -5,6 +5,7 @@ import { ReactComponent as ChevronUp } from "assets/chevron-up.svg";
 import { Button, DownloadableDocument, Grid } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate } from "react-router";
+import { addProtocolToUrl } from "utils/url";
 import { dateFromYYYYMMDD } from "../../../utils/date";
 import { NameWithFlag } from "../../holdings/components/NameWithFlag";
 import {
@@ -93,13 +94,16 @@ const TradableSecurityMd = (security: TradableSecuritySized) => {
         <div className="text-base font-light">{isinCode}</div>
         <div className="mx-auto ">
           {url2 && (
-            <DownloadableDocument url={url2} label={t("tradingList.kiid")} />
+            <DownloadableDocument
+              url={addProtocolToUrl(url2)}
+              label={t("tradingList.kiid")}
+            />
           )}
         </div>
         <div className="mx-auto">
           {url && (
             <DownloadableDocument
-              url={url}
+              url={addProtocolToUrl(url)}
               label={t("tradingList.prospectus")}
             />
           )}

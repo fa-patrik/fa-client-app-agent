@@ -14,6 +14,7 @@ import {
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
+import { addProtocolToUrl } from "utils/url";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 
 export interface BuyModalInitialData {
@@ -143,7 +144,7 @@ export const BuyModalContent = ({
       </LabeledDiv>
       {url2 && (
         <div className="w-fit">
-          <DownloadableDocument url={url2} label={t("tradingModal.kiid")} />
+          <DownloadableDocument url={addProtocolToUrl(url2)} label={t("tradingModal.kiid")} />
         </div>
       )}
       <PortfolioSelect
