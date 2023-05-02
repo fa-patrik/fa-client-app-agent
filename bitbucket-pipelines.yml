@@ -6,7 +6,7 @@ definitions:
 
 pipelines:
   branches:
-    CICD-12:
+    develop:
       - step:
           name: Install dependencies
           working_directory: $WORKDIR_PRIVATE
