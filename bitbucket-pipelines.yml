@@ -36,7 +36,7 @@ pipelines:
           script:
             - apt-get update
             - apt-get install -y zip
-            - zip -r build.zip build
+            - cd build && zip -r build.zip ./*
             - apt-get install -y curl
             - echo "Deploying to $TARGET_ENVIRONMENT"
             - >
