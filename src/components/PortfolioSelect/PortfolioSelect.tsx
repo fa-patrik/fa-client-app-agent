@@ -1,4 +1,4 @@
-import { Select } from "../Select/Select";
+import { ComboBox } from "../ComboBox/ComboBox";
 
 interface PortfolioOption {
   id: number;
@@ -24,7 +24,7 @@ export const PortfolioSelect = ({
   );
 
   return (
-    <Select
+    <ComboBox
       value={currentPortfolio}
       onChange={onChange}
       options={portfolioOptions}
