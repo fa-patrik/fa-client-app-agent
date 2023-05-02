@@ -1,0 +1,48 @@
+image: node:lts
+
+definitions:
+  caches:
+    node-modules: node_modules
+
+pipelines:
+  branches:
+    develop:
+      - step:
+          name: Install dependencies
+          working_directory: $WORKDIR_PRIVATE
+          caches:
+            - node-modules
+          script:
+            - yarn install
+      - step:
+          name: Test
+          working_directory: $WORKDIR_PRIVATE
+          caches:
+            - node-modules
+          script:
+            - yarn test:CI
+      - step:
+          name: Build
+          working_directory: $WORKDIR_PRIVATE
+          caches:
+            - node-modules
+          script:
+            - yarn build
+          artifacts:
+            - build/**
+      - step:
+          name: Deploy to FA Back
+          working_directory: $WORKDIR_PRIVATE
+          script:
+            - apt-get update
+            - apt-get install -y zip
+            - zip -r build.zip build
+            - apt-get install -y curl
+            - echo "Deploying to $TARGET_ENVIRONMENT"
+            - >
+              curl -f -X POST
+              -H "fa-token-name: $API_TOKEN_NAME"
+              -H "fa-token-value: $API_TOKEN_VALUE"
+              -H "Content-Type: application/zip"
+              --data-binary "@build.zip"
+              https://$TARGET_ENVIRONMENT.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip
