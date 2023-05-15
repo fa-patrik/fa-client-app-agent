@@ -32,3 +32,4 @@ export { Toast } from "./Toast/Toast";
 export { ButtonGroup } from "./ButtonGroup/ButtonGroup";
 export { ContactGuard } from "./ContactGuard/ContactGuard";
 export { SelectedContactAvatar } from "./Avatar/SelectedContactAvatar";
+export { SelectFilter } from "./SelectFilter/SelectFilter";
