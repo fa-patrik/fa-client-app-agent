@@ -1,5 +1,6 @@
 import { ReactNode, Fragment } from "react";
 import { Listbox, Transition } from "@headlessui/react";
+import { ReactComponent as CheckIcon } from "assets/check.svg";
 import { ReactComponent as ChevronDown } from "assets/chevron-down.svg";
 import classNames from "classnames";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -8,12 +9,13 @@ import { usePopper } from "../../hooks/usePopper";
 export interface Option {
   id: number | string | null;
   label: string;
+  count?: number;
   OptionComponent?: ReactNode;
 }
 
 interface SelectProps<T> {
-  value: T | undefined;
-  onChange: (option: T) => void;
+  value: T[] | undefined;
+  onChange: (option: T[]) => void;
   options: T[];
   label?: string;
 }
@@ -49,7 +51,7 @@ export const SelectFilter = <TOption extends Option>({
     ],
   });
   return (
-    <Listbox as="div" value={value} onChange={onChange}>
+    <Listbox as="div" value={value} onChange={onChange} multiple>
       {label && (
         <Listbox.Label className="text-sm font-normal">{label}</Listbox.Label>
       )}
@@ -58,7 +60,16 @@ export const SelectFilter = <TOption extends Option>({
         ref={trigger}
       >
         <div className="box-border flex-1 content-start leading-none text-left truncate">
-          {value?.label ?? t("component.select.placeholder")}
+          {value?.length
+            ? `(${value.length}) ${value
+                .map(({ label }) =>
+                  label.length > 18
+                    ? label.slice(0, 12).trimEnd() + "..."
+                    : label
+                )
+                .join(", ")}`
+            : t("component.select.placeholder")}
+          {}
         </div>
         <ChevronDown className="stroke-gray-500 w-[20px] h-[20px]" />
       </Listbox.Button>
@@ -77,7 +88,7 @@ export const SelectFilter = <TOption extends Option>({
                 {({ active, selected }) => (
                   <li
                     className={classNames(
-                      "block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 cursor-pointer select-none",
+                      "relative block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 cursor-pointer select-none",
                       {
                         "dark:text-white bg-primary-50 dark:bg-gray-600":
                           active,
@@ -86,6 +97,13 @@ export const SelectFilter = <TOption extends Option>({
                     )}
                   >
                     {option.OptionComponent ?? option.label}
+
+                    <div
+                      className={`absolute inset-y-0 right-0 pr-3 flex items-center space-x-2`}
+                    >
+                      {option.count && <span className="">{option.count}</span>}
+                      <span>{selected && <CheckIcon />}</span>
+                    </div>
                   </li>
                 )}
               </Listbox.Option>
