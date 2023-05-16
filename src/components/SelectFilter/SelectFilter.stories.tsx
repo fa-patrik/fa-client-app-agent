@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { faker } from "@faker-js/faker";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { SelectFilter, Option } from "./SelectFilter";
+import { SelectFilter, FilterOption } from "./SelectFilter";
 
 export default {
   title: "UX/SelectFilter",
@@ -9,7 +9,7 @@ export default {
 } as ComponentMeta<typeof SelectFilter>;
 
 const Template: ComponentStory<typeof SelectFilter> = (args) => {
-  const [selected, setSelected] = useState<Option[]>([]);
+  const [selected, setSelected] = useState<FilterOption[]>([]);
 
   return <SelectFilter {...args} value={selected} onChange={setSelected} />;
 };

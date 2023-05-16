@@ -6,7 +6,7 @@ import classNames from "classnames";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { usePopper } from "../../hooks/usePopper";
 
-export interface Option {
+export interface FilterOption {
   id: number | string | null;
   label: string;
   count?: number;
@@ -20,7 +20,7 @@ interface SelectProps<T> {
   label?: string;
 }
 
-export const SelectFilter = <TOption extends Option>({
+export const SelectFilter = <TOption extends FilterOption>({
   options,
   value,
   onChange,
@@ -51,7 +51,7 @@ export const SelectFilter = <TOption extends Option>({
     ],
   });
   return (
-    <Listbox as="div" value={value} onChange={onChange} multiple>
+    <Listbox as="div" value={value} onChange={onChange} by="label" multiple>
       {label && (
         <Listbox.Label className="text-sm font-normal">{label}</Listbox.Label>
       )}
