@@ -3,6 +3,7 @@ import { QueryData } from "api/types";
 import { Card, DatePicker, QueryLoadingWrapper } from "components";
 import { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useTransactionFilter } from "hooks/useTransactionFilter";
 import { OrdersContainer } from "./components/OrdersContainer";
 
 interface OrdersProps extends QueryData<(TradeOrder | LocalOrder)[]> {
@@ -22,6 +23,8 @@ export const Orders = ({
   error,
 }: OrdersProps) => {
   const { t } = useModifiedTranslation();
+  const { TransactionFilter, filteredData } = useTransactionFilter(data);
+
   return (
     <div className="flex flex-col gap-4">
       <Card>
@@ -44,6 +47,7 @@ export const Orders = ({
           </div>
         </div>
       </Card>
+      <TransactionFilter />
       <QueryLoadingWrapper
         loading={loading}
         error={error}
@@ -51,7 +55,7 @@ export const Orders = ({
           loading
             ? undefined
             : {
-                orders: data,
+                orders: filteredData as TradeOrder[],
                 startDate,
                 endDate,
               }
