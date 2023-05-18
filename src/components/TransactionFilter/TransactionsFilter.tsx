@@ -3,33 +3,45 @@ import { TradeOrder } from "api/orders/types";
 import { Transaction } from "api/transactions/types";
 import { Button, SelectFilter } from "components";
 import { FilterOption } from "components/SelectFilter/SelectFilter";
+import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 /**
  * This component is used to filter the transaction data.
  * @example
  * ```tsx
- * <TransactionFilter
- *  transactionData={transactionData}
+ * <TransactionsFilter
+ *  transactionsData={transactionsData}
  * onFilter={(filteredData) => setFilteredData(filteredData)}
  * />
  * ```
  */
-type TransactionFilterProps = {
+type TransactionsFilterProps = {
   /**
    * The transaction data to be filtered
    */
-  transactionData: Transaction[] | TradeOrder[];
+  transactionsData: Transaction[] | TradeOrder[];
   /**
    * This function will be called when the user applies the filters.
    * @param filteredData The filtered data
    */
   onFilter: (filteredData: Transaction[] | TradeOrder[]) => void;
+  /**
+   * The filter header
+   * @example
+   * ```tsx
+   * filterHeader = "Filter transactions by:"
+   * ```
+   */
+  filterHeader?: string;
 };
 
-export const TransactionFilter: FC<TransactionFilterProps> = ({
-  transactionData,
+export const TransactionsFilter: FC<TransactionsFilterProps> = ({
+  transactionsData,
   onFilter,
+  filterHeader,
 }) => {
+  const { t } = useModifiedTranslation();
+
   const [transactionType, setTransactionType] = useState<FilterOption[]>([]);
   const [securityName, setSecurityName] = useState<FilterOption[]>([]);
 
@@ -38,8 +50,8 @@ export const TransactionFilter: FC<TransactionFilterProps> = ({
     filteredDataBySecurityName,
     filteredDataByTransactionType,
   ] = useMemo(() => {
-    if (!transactionData) return [];
-    const filteredDataByBoth = transactionData.filter((transaction) => {
+    if (!transactionsData) return [];
+    const filteredDataByBoth = transactionsData.filter((transaction) => {
       const isTransactionTypeMatch =
         !transactionType.length ||
         transactionType.some(
@@ -52,7 +64,7 @@ export const TransactionFilter: FC<TransactionFilterProps> = ({
       return isTransactionTypeMatch && isSecurityNameMatch;
     });
 
-    const filteredDataBySecurityName = transactionData.filter((transaction) => {
+    const filteredDataBySecurityName = transactionsData.filter((transaction) => {
       const isSecurityNameMatch =
         !securityName.length ||
         securityName.some((name) => name.label === transaction.securityName);
@@ -60,7 +72,7 @@ export const TransactionFilter: FC<TransactionFilterProps> = ({
       return isSecurityNameMatch;
     });
 
-    const filteredDataByTransactionType = transactionData.filter(
+    const filteredDataByTransactionType = transactionsData.filter(
       (transaction) => {
         const isTransactionTypeMatch =
           !transactionType.length ||
@@ -77,7 +89,7 @@ export const TransactionFilter: FC<TransactionFilterProps> = ({
       filteredDataBySecurityName,
       filteredDataByTransactionType,
     ];
-  }, [transactionData, transactionType, securityName]);
+  }, [transactionsData, transactionType, securityName]);
 
   useEffect(() => {
     onFilter(filteredDataByBoth || []);
@@ -111,16 +123,16 @@ export const TransactionFilter: FC<TransactionFilterProps> = ({
 
   return (
     <div className="flex flex-col gap-4 py-4 px-2">
-      <div className="font-bold text-normal">Filter transactions by:</div>
+      {filterHeader && <div className="font-bold text-normal">{filterHeader}</div>}
       <div className="grid flex-wrap grid-cols-1 md:grid-cols-2 gap-2">
         <SelectFilter
-          label={"Transaction type"}
+          label={t('transactionFilter.transactionType')}
           value={transactionType}
           options={transactionTypes}
           onChange={setTransactionType}
         />
         <SelectFilter
-          label={"Security name"}
+          label={t('transactionFilter.securityName')}
           value={securityName}
           options={securityNames}
           onChange={setSecurityName}
@@ -135,7 +147,7 @@ export const TransactionFilter: FC<TransactionFilterProps> = ({
           disabled={!transactionType.length && !securityName.length}
           variant="Secondary"
         >
-          Reset filter
+          {t('transactionFilter.resetFilter')}
         </Button>
       </div>
     </div>

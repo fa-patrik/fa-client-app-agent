@@ -5,7 +5,7 @@ import {
   Card,
   DatePicker,
   QueryLoadingWrapper,
-  TransactionFilter,
+  TransactionsFilter,
 } from "components";
 import { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -23,7 +23,7 @@ export const Orders = ({
   setStartDate,
   endDate,
   setEndDate,
-  data: transactionData,
+  data: transactionsData,
   loading,
   error,
 }: OrdersProps) => {
@@ -54,8 +54,9 @@ export const Orders = ({
           </div>
         </div>
       </Card>
-      <TransactionFilter
-        transactionData={transactionData || []}
+      <TransactionsFilter
+        transactionsData={transactionsData || []}
+        filterHeader={t("ordersPage.transactionsFilterTitle")}
         onFilter={(filteredTransactionData) => {
           setFilteredTransactionData(filteredTransactionData);
         }}

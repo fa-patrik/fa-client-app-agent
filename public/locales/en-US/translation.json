@@ -89,7 +89,8 @@
     "depositStatus": "Deposit",
     "withdrawStatus": "Withdrawal",
     "downloadFileButtonLabel": "Download order note",
-    "cancelOrder": "Cancel the order"
+    "cancelOrder": "Cancel the order",
+    "transactionsFilterTitle": "Filter orders by:"
   },
   "transactionsPage": {
     "header": "Transaction",
@@ -117,7 +118,8 @@
     "noTransactions": "No transactions are available\n for this period",
     "noTransactionsInfo": "Try filtering with other dates",
     "downloadFileButtonLabel": "Download transaction confirmation",
-    "cancelOrderButtonLabel": "Cancel order"
+    "cancelOrderButtonLabel": "Cancel order",
+    "transactionsFilterTitle": "Filter transactions by:"
   },
   "documentsPage": {
     "type": {
@@ -246,5 +248,10 @@
     "orderCancelFailed": "Order could not be cancelled.",
     "orderCancelSuccess": "Order cancelled.",
     "orderAlreadyCancelled": "Order has already been cancelled."
+  },
+  "transactionFilter": {
+    "transactionType": "Transaction type",
+    "securityName": "Security name",
+    "resetFilter": "Reset filter"
   }
 }

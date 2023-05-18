@@ -5,7 +5,7 @@ import {
   Card,
   DatePicker,
   QueryLoadingWrapper,
-  TransactionFilter,
+  TransactionsFilter,
 } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { TransactionsContainer } from "./components/TransactionsContainer";
@@ -22,7 +22,7 @@ export const Transactions = ({
   setStartDate,
   endDate,
   setEndDate,
-  data: transactionData,
+  data: transactionsData,
   loading,
   error,
 }: TransactionsProps) => {
@@ -53,8 +53,9 @@ export const Transactions = ({
           </div>
         </div>
       </Card>
-      <TransactionFilter
-        transactionData={transactionData || []}
+      <TransactionsFilter
+        transactionsData={transactionsData || []}
+        filterHeader={t("transactionsPage.transactionsFilterTitle")}
         onFilter={(filteredTransactionData) =>
           setFilteredTransactionData(filteredTransactionData as Transaction[])
         }
