@@ -1,9 +1,14 @@
+import { useState } from "react";
 import { TradeOrder } from "api/orders/types";
 import { QueryData } from "api/types";
-import { Card, DatePicker, QueryLoadingWrapper } from "components";
+import {
+  Card,
+  DatePicker,
+  QueryLoadingWrapper,
+  TransactionFilter,
+} from "components";
 import { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useTransactionFilter } from "hooks/useTransactionFilter";
 import { OrdersContainer } from "./components/OrdersContainer";
 
 interface OrdersProps extends QueryData<(TradeOrder | LocalOrder)[]> {
@@ -18,12 +23,14 @@ export const Orders = ({
   setStartDate,
   endDate,
   setEndDate,
-  data,
+  data: transactionData,
   loading,
   error,
 }: OrdersProps) => {
   const { t } = useModifiedTranslation();
-  const { TransactionFilter, filteredData } = useTransactionFilter(data);
+  const [filteredTransactionData, setFilteredTransactionData] = useState<
+    TradeOrder[] | undefined
+  >(undefined);
 
   return (
     <div className="flex flex-col gap-4">
@@ -47,7 +54,12 @@ export const Orders = ({
           </div>
         </div>
       </Card>
-      <TransactionFilter />
+      <TransactionFilter
+        transactionData={transactionData || []}
+        onFilter={(filteredTransactionData) => {
+          setFilteredTransactionData(filteredTransactionData);
+        }}
+      />
       <QueryLoadingWrapper
         loading={loading}
         error={error}
@@ -55,7 +67,7 @@ export const Orders = ({
           loading
             ? undefined
             : {
-                orders: filteredData as TradeOrder[],
+                orders: filteredTransactionData as TradeOrder[],
                 startDate,
                 endDate,
               }

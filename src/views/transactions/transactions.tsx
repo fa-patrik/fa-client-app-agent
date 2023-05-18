@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { Transaction as TransactionType } from "api/transactions/types";
+import { Transaction } from "api/transactions/types";
 import { QueryData } from "api/types";
-import { Card, DatePicker, QueryLoadingWrapper } from "components";
-import { TransactionFilter } from "hooks/TransactionFilter";
+import {
+  Card,
+  DatePicker,
+  QueryLoadingWrapper,
+  TransactionFilter,
+} from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { TransactionsContainer } from "./components/TransactionsContainer";
 
-interface TransactionsProps extends QueryData<TransactionType[]> {
+interface TransactionsProps extends QueryData<Transaction[]> {
   startDate: Date;
   setStartDate: (newDate: Date) => void;
   endDate: Date;
@@ -24,7 +28,7 @@ export const Transactions = ({
 }: TransactionsProps) => {
   const { t } = useModifiedTranslation();
   const [filteredTransactionData, setFilteredTransactionData] = useState<
-    TransactionType[] | undefined
+    Transaction[] | undefined
   >(undefined);
 
   return (
@@ -52,7 +56,7 @@ export const Transactions = ({
       <TransactionFilter
         transactionData={transactionData || []}
         onFilter={(filteredTransactionData) =>
-          setFilteredTransactionData(filteredTransactionData)
+          setFilteredTransactionData(filteredTransactionData as Transaction[])
         }
       />
       <QueryLoadingWrapper
@@ -62,7 +66,7 @@ export const Transactions = ({
           loading
             ? undefined
             : {
-                transactions: filteredTransactionData as TransactionType[],
+                transactions: filteredTransactionData as Transaction[],
                 startDate,
                 endDate,
               }

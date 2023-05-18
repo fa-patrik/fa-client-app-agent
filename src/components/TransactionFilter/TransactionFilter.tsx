@@ -1,12 +1,35 @@
-import { useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { TradeOrder } from "api/orders/types";
 import { Transaction } from "api/transactions/types";
 import { Button, SelectFilter } from "components";
 import { FilterOption } from "components/SelectFilter/SelectFilter";
 
-export const useTransactionFilter = (
-  transactionData: Transaction[] | TradeOrder[] | undefined
-) => {
+/**
+ * This component is used to filter the transaction data.
+ * @example
+ * ```tsx
+ * <TransactionFilter
+ *  transactionData={transactionData}
+ * onFilter={(filteredData) => setFilteredData(filteredData)}
+ * />
+ * ```
+ */
+type TransactionFilterProps = {
+  /**
+   * The transaction data to be filtered
+   */
+  transactionData: Transaction[] | TradeOrder[];
+  /**
+   * This function will be called when the user applies the filters.
+   * @param filteredData The filtered data
+   */
+  onFilter: (filteredData: Transaction[] | TradeOrder[]) => void;
+};
+
+export const TransactionFilter: FC<TransactionFilterProps> = ({
+  transactionData,
+  onFilter,
+}) => {
   const [transactionType, setTransactionType] = useState<FilterOption[]>([]);
   const [securityName, setSecurityName] = useState<FilterOption[]>([]);
 
@@ -28,6 +51,7 @@ export const useTransactionFilter = (
 
       return isTransactionTypeMatch && isSecurityNameMatch;
     });
+
     const filteredDataBySecurityName = transactionData.filter((transaction) => {
       const isSecurityNameMatch =
         !securityName.length ||
@@ -55,6 +79,10 @@ export const useTransactionFilter = (
     ];
   }, [transactionData, transactionType, securityName]);
 
+  useEffect(() => {
+    onFilter(filteredDataByBoth || []);
+  }, [filteredDataByBoth, onFilter]);
+
   const { transactionTypes, securityNames } = useMemo(() => {
     const transactionTypes = filteredDataBySecurityName?.map(
       (transaction) => transaction.type.typeName
@@ -81,39 +109,35 @@ export const useTransactionFilter = (
     };
   }, [filteredDataBySecurityName, filteredDataByTransactionType]);
 
-  return {
-    filteredData: !transactionData?.length ? [] : filteredDataByBoth,
-    TransactionFilter: () =>
-      !transactionData?.length ? null : (
-        <div className="flex flex-col gap-4 py-4 px-2">
-          <div className="font-bold text-normal">Filter transactions by:</div>
-          <div className="grid flex-wrap grid-cols-1 md:grid-cols-2 gap-2">
-            <SelectFilter
-              label={"Transaction type"}
-              value={transactionType}
-              options={transactionTypes}
-              onChange={setTransactionType}
-            />
-            <SelectFilter
-              label={"Security name"}
-              value={securityName}
-              options={securityNames}
-              onChange={setSecurityName}
-            />
-          </div>
-          <div className="self-end pb-[1]">
-            <Button
-              onClick={() => {
-                setTransactionType([]);
-                setSecurityName([]);
-              }}
-              disabled={!transactionType.length && !securityName.length}
-              variant="Secondary"
-            >
-              Reset filter
-            </Button>
-          </div>
-        </div>
-      ),
-  };
+  return (
+    <div className="flex flex-col gap-4 py-4 px-2">
+      <div className="font-bold text-normal">Filter transactions by:</div>
+      <div className="grid flex-wrap grid-cols-1 md:grid-cols-2 gap-2">
+        <SelectFilter
+          label={"Transaction type"}
+          value={transactionType}
+          options={transactionTypes}
+          onChange={setTransactionType}
+        />
+        <SelectFilter
+          label={"Security name"}
+          value={securityName}
+          options={securityNames}
+          onChange={setSecurityName}
+        />
+      </div>
+      <div className="self-end pb-[1]">
+        <Button
+          onClick={() => {
+            setTransactionType([]);
+            setSecurityName([]);
+          }}
+          disabled={!transactionType.length && !securityName.length}
+          variant="Secondary"
+        >
+          Reset filter
+        </Button>
+      </div>
+    </div>
+  );
 };
