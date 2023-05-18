@@ -53,13 +53,15 @@ export const Transactions = ({
           </div>
         </div>
       </Card>
-      <TransactionsFilter
-        transactionsData={transactionsData || []}
-        filterHeader={t("transactionsPage.transactionsFilterTitle")}
-        onFilter={(filteredTransactionData) =>
-          setFilteredTransactionData(filteredTransactionData as Transaction[])
-        }
-      />
+      {!!transactionsData?.length && (
+        <TransactionsFilter
+          transactionsData={transactionsData || []}
+          filterHeader={t("transactionsPage.transactionsFilterTitle")}
+          onFilter={(filteredTransactionData) =>
+            setFilteredTransactionData(filteredTransactionData as Transaction[])
+          }
+        />
+      )}
       <QueryLoadingWrapper
         loading={loading}
         error={error}
