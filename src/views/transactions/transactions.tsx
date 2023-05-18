@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Transaction as TransactionType } from "api/transactions/types";
 import { QueryData } from "api/types";
 import { Card, DatePicker, QueryLoadingWrapper } from "components";
+import { TransactionFilter } from "hooks/TransactionFilter";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useTransactionFilter } from "hooks/useTransactionFilter";
 import { TransactionsContainer } from "./components/TransactionsContainer";
 
 interface TransactionsProps extends QueryData<TransactionType[]> {
@@ -17,12 +18,14 @@ export const Transactions = ({
   setStartDate,
   endDate,
   setEndDate,
-  data,
+  data: transactionData,
   loading,
   error,
 }: TransactionsProps) => {
   const { t } = useModifiedTranslation();
-  const { TransactionFilter, filteredData } = useTransactionFilter(data);
+  const [filteredTransactionData, setFilteredTransactionData] = useState<
+    TransactionType[] | undefined
+  >(undefined);
 
   return (
     <div className="flex flex-col gap-4">
@@ -46,7 +49,12 @@ export const Transactions = ({
           </div>
         </div>
       </Card>
-      <TransactionFilter />
+      <TransactionFilter
+        transactionData={transactionData || []}
+        onFilter={(filteredTransactionData) =>
+          setFilteredTransactionData(filteredTransactionData)
+        }
+      />
       <QueryLoadingWrapper
         loading={loading}
         error={error}
@@ -54,7 +62,7 @@ export const Transactions = ({
           loading
             ? undefined
             : {
-                transactions: filteredData as TransactionType[],
+                transactions: filteredTransactionData as TransactionType[],
                 startDate,
                 endDate,
               }
