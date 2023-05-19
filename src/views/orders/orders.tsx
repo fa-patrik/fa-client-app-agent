@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { TradeOrder } from "api/orders/types";
 import { QueryData } from "api/types";
 import {
@@ -10,6 +10,7 @@ import {
 import { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { OrdersContainer } from "./components/OrdersContainer";
+import { isOrderStatusToDisplayType } from "./components/useGroupedTradeOrdersByStatus";
 
 interface OrdersProps extends QueryData<(TradeOrder | LocalOrder)[]> {
   startDate: Date;
@@ -31,6 +32,13 @@ export const Orders = ({
   const [filteredTransactionData, setFilteredTransactionData] = useState<
     TradeOrder[] | undefined
   >(undefined);
+
+  const transactionsDataFilteredBySpecifiedOrderStatuses = useMemo(() => {
+    if (!transactionsData) return [];
+    return transactionsData.filter((transaction) =>
+      isOrderStatusToDisplayType(transaction.orderStatus)
+    );
+  }, [transactionsData]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -56,7 +64,9 @@ export const Orders = ({
       </Card>
       {!!transactionsData?.length && (
         <TransactionsFilter
-          transactionsData={transactionsData || []}
+          transactionsData={
+            transactionsDataFilteredBySpecifiedOrderStatuses || []
+          }
           filterHeader={t("ordersPage.transactionsFilterTitle")}
           onFilter={(filteredTransactionData) => {
             setFilteredTransactionData(filteredTransactionData);

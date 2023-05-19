@@ -64,13 +64,15 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
       return isTransactionTypeMatch && isSecurityNameMatch;
     });
 
-    const filteredDataBySecurityName = transactionsData.filter((transaction) => {
-      const isSecurityNameMatch =
-        !securityName.length ||
-        securityName.some((name) => name.label === transaction.securityName);
+    const filteredDataBySecurityName = transactionsData.filter(
+      (transaction) => {
+        const isSecurityNameMatch =
+          !securityName.length ||
+          securityName.some((name) => name.label === transaction.securityName);
 
-      return isSecurityNameMatch;
-    });
+        return isSecurityNameMatch;
+      }
+    );
 
     const filteredDataByTransactionType = transactionsData.filter(
       (transaction) => {
@@ -123,16 +125,18 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
 
   return (
     <div className="flex flex-col gap-4 py-4 px-2">
-      {filterHeader && <div className="font-bold text-normal">{filterHeader}</div>}
+      {filterHeader && (
+        <div className="font-bold text-normal">{filterHeader}</div>
+      )}
       <div className="grid flex-wrap grid-cols-1 md:grid-cols-2 gap-2">
         <SelectFilter
-          label={t('transactionFilter.transactionType')}
+          label={t("transactionFilter.transactionType")}
           value={transactionType}
           options={transactionTypes}
           onChange={setTransactionType}
         />
         <SelectFilter
-          label={t('transactionFilter.securityName')}
+          label={t("transactionFilter.securityName")}
           value={securityName}
           options={securityNames}
           onChange={setSecurityName}
@@ -147,7 +151,7 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
           disabled={!transactionType.length && !securityName.length}
           variant="Secondary"
         >
-          {t('transactionFilter.resetFilter')}
+          {t("transactionFilter.resetFilter")}
         </Button>
       </div>
     </div>
