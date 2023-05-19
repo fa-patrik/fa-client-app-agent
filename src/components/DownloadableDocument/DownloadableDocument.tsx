@@ -64,18 +64,10 @@ export const DownloadableDocument = ({
   documentIdentifier,
   ...anchorAttributes
 }: DownloadableDocumentProps) => {
-  const [downloadDocument] = useLazyQuery(DOWNLOAD_DOCUMENT, {
-    onCompleted({ document }) {
-      downloadBase64File(
-        document.data,
-        document.mimeType,
-        document.fileName
-      );
-    },
-  });
+  const [downloadDocument] = useLazyQuery(DOWNLOAD_DOCUMENT);
 
   const isValidURL: boolean = useMemo(() => !!url && isValidUrl(url), [url]);
-  const linkAttributes: JSX.IntrinsicElements["a"] = !document
+  const linkAttributes: JSX.IntrinsicElements["a"] = !documentIdentifier
     ? {
         target: "_blank",
         rel: "noopener noreferrer",
@@ -88,7 +80,15 @@ export const DownloadableDocument = ({
             variables: {
               identifier: documentIdentifier,
             },
-          });
+          })
+            .then(({ data: { document } }) => {
+              downloadBase64File(
+                document.data,
+                document.mimeType,
+                document.fileName
+              );
+            })
+            .catch((err) => console.error(err));
         },
       };
 
