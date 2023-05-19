@@ -29,6 +29,11 @@ const SECURITY_DETAILS_QUERY = gql`
       }
       fxRate(quoteCurrency: $currency)
       tagsAsSet
+      documents {
+        fileName
+        identifier
+        mimeType
+      }
     }
   }
 `;

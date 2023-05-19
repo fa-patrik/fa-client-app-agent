@@ -43,11 +43,12 @@ export const HoldingDetails = ({
     url,
     url2,
     tagsAsSet,
+    documents,
   } = security;
   const navigate = useNavigate();
   const { i18n, t } = useModifiedTranslation();
 
-  const canTrade = useCanTrade()
+  const canTrade = useCanTrade();
   const isTradable = tagsAsSet.includes(tradableTag);
 
   const {
@@ -121,6 +122,13 @@ export const HoldingDetails = ({
                       url={addProtocolToUrl(url2)}
                     />
                   )}
+                  {documents?.map(({ fileName }) => (
+                    <DocumentRow
+                      key={fileName}
+                      label={fileName}
+                      url={addProtocolToUrl(url2)}
+                    />
+                  ))}
                 </div>
               </Card>
               {isTradable && canTrade && (
@@ -154,7 +162,7 @@ export const HoldingDetails = ({
                   >
                     <SellModalContent {...sellModalContentProps} />
                   </Modal>
-                  </>
+                </>
               )}
             </div>
           </div>

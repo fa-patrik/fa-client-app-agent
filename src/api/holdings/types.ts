@@ -101,6 +101,11 @@ export interface SecurityDetailsPosition {
   fxRate: number;
   // misnamed on backend, should be tagsAsList
   tagsAsSet: string[];
+  documents: {
+    fileName: string;
+    identifier: string;
+    mimeType: string;
+  }[];
 }
 
 export interface SecurityDetailsQuery {
