@@ -1,10 +1,10 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { LoadingIndicator } from "components";
 import { useFeedI18nextWithLocale } from "hooks/useFeedI18nextWithLocale";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { keycloakService } from "services/keycloakService";
 import { NotFoundView } from "views/notFoundView/notFoundView";
 
@@ -23,10 +23,13 @@ interface ContactGuardProps {
  * @returns children
  */
 export const ContactGuard = ({ children, impersonate }: ContactGuardProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const params = useParams();
   const contactId = params?.contactDbId;
   const { linkedContact } = useKeycloak();
-  const { setSelectedContact, setSelectedContactId } = useGetContractIdData();
+  const { setSelectedContact, setSelectedContactId, selectedContact } =
+    useGetContractIdData();
   //this data is expected to be null if the
   //user does not have access rights to the contactId
   const {
@@ -35,6 +38,24 @@ export const ContactGuard = ({ children, impersonate }: ContactGuardProps) => {
     loading,
   } = useGetContactInfo(false, impersonate ? contactId : linkedContact);
 
+  const searchParams = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search]
+  ) as URLSearchParams & { contactId: string | null };
+
+  const contactIdFromURL = searchParams.get("contactId");
+
+  useEffect(() => {
+    if (!selectedContact?.id || !linkedContact) return;
+
+    if (selectedContact?.id?.toString() !== linkedContact?.toString())
+      searchParams.set("contactId", selectedContact?.id.toString());
+    else searchParams.delete("contactId");
+
+    navigate({ search: searchParams.toString() }, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedContact?.id, navigate]);
+
   //set the user to the app
   useEffect(() => {
     if (initialSelectedContact?.contactId) {
@@ -42,20 +63,39 @@ export const ContactGuard = ({ children, impersonate }: ContactGuardProps) => {
       if (impersonate && contactId && contactId !== linkedContact) {
         keycloakService.setLinkedContact(contactId);
       }
+
       //set the selected contact
-      setSelectedContactId(initialSelectedContact?.contactId);
-      setSelectedContact({
-        id: initialSelectedContact?.contactId,
-        contactId: initialSelectedContact?._contactId,
-        userName: initialSelectedContact?.name,
-      });
+      if (!contactIdFromURL) {
+        setSelectedContactId(initialSelectedContact?.contactId);
+        setSelectedContact({
+          id: initialSelectedContact?.contactId,
+          contactId: initialSelectedContact?._contactId,
+          userName: initialSelectedContact?.name,
+        });
+      } else {
+        const selectedContact = initialSelectedContact.representees?.find(
+          (representee) => +representee.id === +contactIdFromURL
+        );
+
+        if (selectedContact) {
+          setSelectedContactId(selectedContact.id);
+          setSelectedContact({
+            id: selectedContact.id,
+            contactId: selectedContact.contactId,
+            userName: selectedContact.name,
+          });
+        }
+      }
     }
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     impersonate,
     contactId,
     linkedContact,
     initialSelectedContact?.contactId,
     initialSelectedContact?._contactId,
+    initialSelectedContact?.representees,
     initialSelectedContact?.name,
     setSelectedContactId,
     setSelectedContact,

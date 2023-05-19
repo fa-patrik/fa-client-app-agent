@@ -8,6 +8,7 @@ import { useNavigate } from "react-router";
 import { addProtocolToUrl } from "utils/url";
 import { dateFromYYYYMMDD } from "../../../utils/date";
 import { NameWithFlag } from "../../holdings/components/NameWithFlag";
+import { DelayRenderingTillVisible } from "./DelayRenderingTillVisible";
 import {
   TradableSecuritiesListSized,
   TradableSecuritySized,
@@ -29,11 +30,16 @@ export const TradableSecuritiesListMd = ({
         <span>&nbsp;</span>
       </Grid.Header>
       {securities.map((security) => (
-        <TradableSecurityMd
-          {...security}
+        <DelayRenderingTillVisible
           key={security.id}
-          onBuyModalOpen={onBuyModalOpen}
-        />
+          placeholderClassName="h-10"
+        >
+          <TradableSecurityMd
+            {...security}
+            key={security.id}
+            onBuyModalOpen={onBuyModalOpen}
+          />
+        </DelayRenderingTillVisible>
       ))}
     </div>
   );
