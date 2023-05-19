@@ -122,11 +122,11 @@ export const HoldingDetails = ({
                       url={addProtocolToUrl(url2)}
                     />
                   )}
-                  {documents?.map(({ fileName }) => (
+                  {documents?.map(({ fileName, identifier }) => (
                     <DocumentRow
                       key={fileName}
                       label={fileName}
-                      url={addProtocolToUrl(url2)}
+                      documentIdentifier={identifier}
                     />
                   ))}
                 </div>
