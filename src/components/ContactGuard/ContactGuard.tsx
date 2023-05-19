@@ -26,24 +26,24 @@ export const ContactGuard = ({ children, impersonate }: ContactGuardProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
-  const contactId = params?.contactDbId;
+  const routeContactId = params?.contactDbId;
   const { linkedContact } = useKeycloak();
   const { setSelectedContact, setSelectedContactId, selectedContact } =
     useGetContractIdData();
   //this data is expected to be null if the
   //user does not have access rights to the contactId
   const {
-    data: initialSelectedContact,
+    data: contactInfoData,
     error,
     loading,
-  } = useGetContactInfo(false, impersonate ? contactId : linkedContact);
+  } = useGetContactInfo(false, impersonate ? routeContactId : linkedContact);
 
   const searchParams = useMemo(
     () => new URLSearchParams(location.search),
     [location.search]
   ) as URLSearchParams & { contactId: string | null };
 
-  const contactIdFromURL = searchParams.get("contactId");
+  const queryParamContactId = searchParams.get("contactId");
 
   useEffect(() => {
     if (!selectedContact?.id || !linkedContact) return;
@@ -58,54 +58,46 @@ export const ContactGuard = ({ children, impersonate }: ContactGuardProps) => {
 
   //set the user to the app
   useEffect(() => {
-    if (initialSelectedContact?.contactId) {
-      //override user's linked contact (impersonating)
-      if (impersonate && contactId && contactId !== linkedContact) {
-        keycloakService.setLinkedContact(contactId);
+    // check if the user has access to the contact data
+    if (contactInfoData?.contactId) {
+      // override user's linked contact with the route param if impersonating
+      if (impersonate && routeContactId && routeContactId !== linkedContact) {
+        keycloakService.setLinkedContact(routeContactId);
       }
-
-      //set the selected contact
-      if (!contactIdFromURL) {
-        setSelectedContactId(initialSelectedContact?.contactId);
-        setSelectedContact({
-          id: initialSelectedContact?.contactId,
-          contactId: initialSelectedContact?._contactId,
-          userName: initialSelectedContact?.name,
-        });
-      } else {
-        const selectedContact = initialSelectedContact.representees?.find(
-          (representee) => +representee.id === +contactIdFromURL
+      // if query param exists and is valid, use it to set the selected contact
+      // otherwise set the selected contact based on the contactInfo query result data
+      const queryParamBasedContact =
+        queryParamContactId &&
+        contactInfoData.representees?.find(
+          (representee) => +representee.id === +queryParamContactId
         );
 
-        if (selectedContact) {
-          setSelectedContactId(selectedContact.id);
-          setSelectedContact({
-            id: selectedContact.id,
-            contactId: selectedContact.contactId,
-            userName: selectedContact.name,
-          });
-        }
+      // just making sure the contact data exists
+      if (queryParamBasedContact && queryParamBasedContact.contactId) {
+        setSelectedContactId(queryParamBasedContact.id);
+        setSelectedContact({
+          id: queryParamBasedContact.id,
+          contactId: queryParamBasedContact.contactId,
+          userName: queryParamBasedContact.name,
+        });
+      } else if (contactInfoData?.contactId !== selectedContact?.contactId) {
+        setSelectedContactId(contactInfoData?.contactId);
+        setSelectedContact({
+          id: contactInfoData?.contactId,
+          contactId: contactInfoData?._contactId,
+          userName: contactInfoData?.name,
+        });
       }
     }
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    impersonate,
-    contactId,
-    linkedContact,
-    initialSelectedContact?.contactId,
-    initialSelectedContact?._contactId,
-    initialSelectedContact?.representees,
-    initialSelectedContact?.name,
-    setSelectedContactId,
-    setSelectedContact,
-  ]);
+  }, [impersonate, routeContactId, linkedContact, contactInfoData?.contactId]);
 
   const { isReady: isLanguageReady } = useFeedI18nextWithLocale(
-    initialSelectedContact?.locale
+    contactInfoData?.locale
   );
 
-  if (error || (!loading && !initialSelectedContact?.contactId))
+  if (error || (!loading && !contactInfoData?.contactId))
     return <NotFoundView />;
 
   if (loading || !isLanguageReady)
