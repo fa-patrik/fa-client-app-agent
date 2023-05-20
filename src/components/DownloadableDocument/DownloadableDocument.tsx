@@ -1,13 +1,9 @@
 import { HTMLAttributes, useMemo } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 import { ReactComponent as FileIcon } from "assets/document-text.svg";
+import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { toast } from "react-toastify";
 import { isValidUrl } from "utils/url";
-
-interface DownloadableDocumentProps extends HTMLAttributes<HTMLAnchorElement> {
-  label: string;
-  url?: string;
-  documentIdentifier?: string;
-}
 
 function downloadBase64File(
   base64Data: string,
@@ -17,7 +13,6 @@ function downloadBase64File(
   const sliceSize = 512;
   const byteCharacters = atob(base64Data);
   const byteArrays: Uint8Array[] = [];
-
   for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
     const slice = byteCharacters.slice(offset, offset + sliceSize);
     const byteNumbers = new Array<number>(slice.length);
@@ -29,22 +24,17 @@ function downloadBase64File(
     const byteArray = new Uint8Array(byteNumbers);
     byteArrays.push(byteArray);
   }
-
   const blob = new Blob(byteArrays, { type: contentType });
+  const url = window.URL.createObjectURL(blob);
 
   const a = document.createElement("a");
   a.style.display = "none";
-  document.body.appendChild(a);
-
-  const url = window.URL.createObjectURL(blob);
   a.href = url;
   a.download = fileName;
+  document.body.appendChild(a).click();
 
-  a.click();
-
+  // Cleanup
   window.URL.revokeObjectURL(url);
-
-  // Clean up
   document.body.removeChild(a);
 }
 
@@ -58,12 +48,19 @@ const DOWNLOAD_DOCUMENT = gql`
   }
 `;
 
+interface DownloadableDocumentProps extends HTMLAttributes<HTMLAnchorElement> {
+  label: string;
+  url?: string;
+  documentIdentifier?: string;
+}
+
 export const DownloadableDocument = ({
   label,
   url,
   documentIdentifier,
   ...anchorAttributes
 }: DownloadableDocumentProps) => {
+  const { t } = useModifiedTranslation();
   const [downloadDocument] = useLazyQuery(DOWNLOAD_DOCUMENT);
 
   const isValidURL: boolean = useMemo(() => !!url && isValidUrl(url), [url]);
@@ -88,7 +85,7 @@ export const DownloadableDocument = ({
                 document.fileName
               );
             })
-            .catch((err) => console.error(err));
+            .catch((error) => toast.error(t("messages.error")));
         },
       };
 
