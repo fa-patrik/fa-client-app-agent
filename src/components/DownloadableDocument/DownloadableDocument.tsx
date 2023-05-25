@@ -72,7 +72,8 @@ export const DownloadableDocument = ({
       }
     : {
         href: "#",
-        onClick: () => {
+        onClick: (e) => {
+          e.preventDefault();
           downloadDocument({
             variables: {
               identifier: documentIdentifier,
@@ -89,7 +90,7 @@ export const DownloadableDocument = ({
         },
       };
 
-  return isValidURL || document ? (
+  return isValidURL || documentIdentifier ? (
     <a {...linkAttributes} {...anchorAttributes}>
       <div className="flex justify-between text-primary-600 stroke-primary-600">
         <div className="text-base font-semibold">{label}</div>
