@@ -1,56 +1,15 @@
 import { HTMLAttributes, useMemo } from "react";
-import { gql, useLazyQuery } from "@apollo/client";
+import { useDownloadDocument } from "api/documents/useDownloadDocument";
 import { ReactComponent as FileIcon } from "assets/document-text.svg";
-import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { toast } from "react-toastify";
 import { isValidUrl } from "utils/url";
-
-function downloadBase64File(
-  base64Data: string,
-  contentType: string,
-  fileName: string
-): void {
-  const sliceSize = 512;
-  const byteCharacters = atob(base64Data);
-  const byteArrays: Uint8Array[] = [];
-  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-    const slice = byteCharacters.slice(offset, offset + sliceSize);
-    const byteNumbers = new Array<number>(slice.length);
-
-    for (let i = 0; i < slice.length; i++) {
-      byteNumbers[i] = slice.charCodeAt(i);
-    }
-
-    const byteArray = new Uint8Array(byteNumbers);
-    byteArrays.push(byteArray);
-  }
-  const blob = new Blob(byteArrays, { type: contentType });
-  const url = window.URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.style.display = "none";
-  a.href = url;
-  a.download = fileName;
-  document.body.appendChild(a).click();
-
-  // Cleanup
-  window.URL.revokeObjectURL(url);
-  document.body.removeChild(a);
-}
-
-const DOWNLOAD_DOCUMENT = gql`
-  query DownloadDocument($identifier: String!) {
-    document(identifier: $identifier) {
-      data
-      mimeType
-      fileName
-    }
-  }
-`;
 
 interface DownloadableDocumentProps extends HTMLAttributes<HTMLAnchorElement> {
   label: string;
   url?: string;
+  /**
+   * When documentIdentifier is present, clicking on the link will download the document or open it in a new tab if the name ends with .link
+   * When documentIdentifier is not present, clicking on the link will open the url in a new tab
+   */
   documentIdentifier?: string;
 }
 
@@ -60,10 +19,12 @@ export const DownloadableDocument = ({
   documentIdentifier,
   ...anchorAttributes
 }: DownloadableDocumentProps) => {
-  const { t } = useModifiedTranslation();
-  const [downloadDocument] = useLazyQuery(DOWNLOAD_DOCUMENT);
+  const { downloadDocument } = useDownloadDocument();
 
   const isValidURL: boolean = useMemo(() => !!url && isValidUrl(url), [url]);
+  // remove .link file extension from label if present
+  const labelCleaned = label.endsWith(".link") ? label.slice(0, -5) : label;
+
   const linkAttributes: JSX.IntrinsicElements["a"] = !documentIdentifier
     ? {
         target: "_blank",
@@ -74,27 +35,15 @@ export const DownloadableDocument = ({
         href: "#",
         onClick: (e) => {
           e.preventDefault();
-          downloadDocument({
-            variables: {
-              identifier: documentIdentifier,
-            },
-          })
-            .then(({ data: { document } }) => {
-              downloadBase64File(
-                document.data,
-                document.mimeType,
-                document.fileName
-              );
-            })
-            .catch((error) => toast.error(t("messages.error")));
+          downloadDocument(documentIdentifier, "base64");
         },
       };
 
   return isValidURL || documentIdentifier ? (
     <a {...linkAttributes} {...anchorAttributes}>
       <div className="flex justify-between text-primary-600 stroke-primary-600">
-        <div className="text-base font-semibold">{label}</div>
-        <FileIcon className="w-6 h-6 stroke-primary-600" />
+        <div className="text-base font-semibold">{labelCleaned}</div>
+        <FileIcon className="w-6 h-6" />
       </div>
     </a>
   ) : null;
