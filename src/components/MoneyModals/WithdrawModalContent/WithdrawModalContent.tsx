@@ -26,7 +26,6 @@ export const WithdrawModalContent = ({
   );
   const portfolioSelectProps = useWithdrawablePortfolioSelect();
   const { portfolioId } = portfolioSelectProps;
-
   const { accountsLoading, ...cashAccountSelectProps } =
     usePortfoliosAccountsState(portfolioId);
   const {

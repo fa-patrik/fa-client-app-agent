@@ -1,5 +1,6 @@
 import { UserMenu, Logo, PortfolioSelect } from "components";
 import { SelectedContactAvatar } from "components/Avatar/SelectedContactAvatar";
+import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import {
   TOTAL_INVESTMENTS_OPTION_ID,
   useGetPortfolioOptions,
@@ -7,28 +8,28 @@ import {
 import { Navigate, useParams } from "react-router-dom";
 import { useNavigateToPortfolioTab } from "./useNavigateToPortfolioTab";
 import { useRedirectIfOnlyOnePortfolio } from "./useRedirectIfOnlyOnePortfolio";
-export interface PortfolioOption {
-  id: number;
-  urlPrefix: string;
-  label: string;
-}
 
 export const PortfolioNavigationHeader = () => {
   const portfolioOptions = useGetPortfolioOptions();
-  const { portfolioId, contactDbId } = useParams();
+  const { contactDbId, portfolioId: portfolioIdUrl } = useParams();
+  const portfolioId = portfolioIdUrl
+    ? parseInt(portfolioIdUrl, 10)
+    : TOTAL_INVESTMENTS_OPTION_ID;
   const navigateToPortfolioTab = useNavigateToPortfolioTab();
   useRedirectIfOnlyOnePortfolio();
   const onPortfolioChange = (selectedOption: PortfolioOption) => {
     navigateToPortfolioTab(selectedOption.urlPrefix);
   };
-  const currentPortfolio = portfolioId
-    ? parseInt(portfolioId, 10)
-    : TOTAL_INVESTMENTS_OPTION_ID;
 
   // redirect to root when portfolioId does not match available portfolios
   if (
-    currentPortfolio !== TOTAL_INVESTMENTS_OPTION_ID &&
-    !portfolioOptions.some((option) => option.id === currentPortfolio)
+    portfolioId !== TOTAL_INVESTMENTS_OPTION_ID &&
+    !portfolioOptions.some(
+      (option) =>
+        option.id === portfolioId ||
+        //Extend this to a recursive operation to check subs of subs
+        option?.subOptions?.some((subOption) => subOption.id === portfolioId)
+    )
   ) {
     //handle impersonation mode
     if (contactDbId) return <Navigate to={`/impersonate/${contactDbId}/`} />;
@@ -44,7 +45,7 @@ export const PortfolioNavigationHeader = () => {
             <div className="max-w-[350px]">
               <PortfolioSelect
                 portfolioOptions={portfolioOptions}
-                portfolioId={currentPortfolio}
+                portfolioId={portfolioId}
                 onChange={onPortfolioChange}
               />
             </div>

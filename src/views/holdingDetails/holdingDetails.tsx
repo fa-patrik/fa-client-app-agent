@@ -1,4 +1,7 @@
-import { HoldingPosition, SecurityDetailsPosition } from "api/holdings/types";
+import {
+  AllocationBySecurity,
+  SecurityDetailsPosition,
+} from "api/holdings/types";
 import { ReactComponent as MinusCircle } from "assets/minus-circle.svg";
 import { ReactComponent as PlusCircle } from "assets/plus-circle.svg";
 import {
@@ -26,7 +29,7 @@ import { PerformanceRows } from "./components/PerformanceRows";
 
 interface HoldingDetailsProps {
   data: {
-    holding?: Omit<HoldingPosition, "security">;
+    holding?: AllocationBySecurity;
     security: SecurityDetailsPosition;
   };
 }
@@ -47,7 +50,7 @@ export const HoldingDetails = ({
   const navigate = useNavigate();
   const { i18n, t } = useModifiedTranslation();
 
-  const canTrade = useCanTrade()
+  const canTrade = useCanTrade();
   const isTradable = tagsAsSet.includes(tradableTag);
 
   const {
@@ -154,7 +157,7 @@ export const HoldingDetails = ({
                   >
                     <SellModalContent {...sellModalContentProps} />
                   </Modal>
-                  </>
+                </>
               )}
             </div>
           </div>

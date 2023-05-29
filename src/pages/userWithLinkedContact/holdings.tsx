@@ -1,9 +1,9 @@
-import { useGetAllPortfoliosHoldings } from "api/holdings/useGetAllPortfoliosHoldings";
+import { useGetContactHoldings } from "api/holdings/useGetContactHoldings";
 import { QueryLoadingWrapper } from "components";
 import { Holdings } from "views/holdings/holdings";
 
 export const HoldingsPage = () => {
-  const queryData = useGetAllPortfoliosHoldings();
+  const queryData = useGetContactHoldings();
 
   return <QueryLoadingWrapper {...queryData} SuccessComponent={Holdings} />;
 };

@@ -7,7 +7,6 @@ export const useRedirectIfOnlyOnePortfolio = () => {
   const navigateToPortfolioTab = useNavigateToPortfolioTab();
   const portfolioOptions = useGetPortfolioOptions();
   const { portfolioId } = useParams();
-
   useEffect(() => {
     if (portfolioOptions.length === 1 && !portfolioId) {
       navigateToPortfolioTab(portfolioOptions[0].urlPrefix);

@@ -1,4 +1,4 @@
-import { ReactNode, Fragment } from "react";
+import React, { ReactNode, Fragment } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { ReactComponent as ChevronDown } from "assets/chevron-down.svg";
 import classNames from "classnames";
@@ -8,6 +8,7 @@ import { usePopper } from "../../hooks/usePopper";
 export interface Option {
   id: number | string | null;
   label: string;
+  subOptions?: Option[];
   OptionComponent?: ReactNode;
 }
 
@@ -17,6 +18,40 @@ interface SelectProps<T> {
   options: T[];
   label?: string;
 }
+
+/**
+ * Recursively renders a list of options and their sub-options.
+ * Increases the padding for each sub-option level.
+ * @param {Option[]} options - The list of options to render.
+ * @param {number} [level=1] - The current sub-option level. Defaults to 1.
+ * @returns {React.ReactNode} The rendered list of options and sub-options.
+ */
+const renderOptions = (options: Option[], level = 1) => {
+  const padding = level * 10;
+  return options.map((option) => {
+    return (
+      <React.Fragment key={option.id}>
+        <Listbox.Option value={option} as={Fragment}>
+          {({ active, selected }) => (
+            <li
+              className={classNames(
+                "block py-2 pl-4 pr-4 text-sm text-gray-700 dark:text-gray-200 cursor-pointer select-none bg-white",
+                {
+                  "dark:text-white bg-primary-50 dark:bg-gray-600": active,
+                  "font-bold": selected,
+                }
+              )}
+              style={{ paddingLeft: `${padding}px` }}
+            >
+              {option.OptionComponent ?? option.label}
+            </li>
+          )}
+        </Listbox.Option>
+        {option?.subOptions && renderOptions(option.subOptions, level + 1)}
+      </React.Fragment>
+    );
+  });
+};
 
 export const Select = <TOption extends Option>({
   options,
@@ -72,24 +107,7 @@ export const Select = <TOption extends Option>({
           leaveTo="transform scale-95 opacity-0"
         >
           <Listbox.Options className="overflow-y-auto py-1 max-h-96 text-base list-none bg-white rounded divide-y divide-gray-100 shadow">
-            {options.map((option) => (
-              <Listbox.Option key={option.id} value={option} as={Fragment}>
-                {({ active, selected }) => (
-                  <li
-                    className={classNames(
-                      "block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 cursor-pointer select-none",
-                      {
-                        "dark:text-white bg-primary-50 dark:bg-gray-600":
-                          active,
-                        "font-bold": selected,
-                      }
-                    )}
-                  >
-                    {option.OptionComponent ?? option.label}
-                  </li>
-                )}
-              </Listbox.Option>
-            ))}
+            {renderOptions(options)}
           </Listbox.Options>
         </Transition>
       </div>

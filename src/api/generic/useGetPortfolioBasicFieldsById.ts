@@ -23,14 +23,16 @@ interface PortfolioQuery {
  * @param portfolioId Database id of portfolio to get.
  * @returns The requested portfolio if found in cache or in FA.
  */
-export const useGetPortfolioBasicFieldsById = (portfolioId: number) => {
+export const useGetPortfolioBasicFieldsById = (
+  portfolioId: number | undefined
+) => {
   const { loading, error, data } = useQuery<PortfolioQuery>(PORTFOLIO_QUERY, {
     variables: {
       portfolioId,
     },
+    skip: !portfolioId,
     fetchPolicy: "cache-first",
   });
-
   return { loading, error, data: data?.portfolio };
 };
 
