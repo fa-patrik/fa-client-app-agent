@@ -114,10 +114,10 @@ backend API - transaction and order types (sell, buy, etc.) and holding types (s
 
 To change app icon you need to change at least 4 files in *public* directory:
 
-* `favicon.ico` - used as favicon in browsers
-* `logo.[extension]` - used as icon on navbar. The logo file can now be in any common image format (svg, png, jpeg, jpg, gif). The filename should match the one set in your `.env` file (i.e., `REACT_APP_LOGO_FILENAME`).
-* `logo192.png` (192px x 192px) - used in PWA and apple touch icon
-* `logo_maskable.png` - used in PWA
+* favicon.ico - used as favicon in browsers
+* logo.svg - used as icon on navbar
+* logo192.png (192px x 192px) - used in PWA and apple touch icon
+* logo_maskable.png - used in PWA
 
 Keep in mind that for PWA we use maskable icon (more info can be found [here](https://web.dev/maskable-icon/)), if your
 do not have maskable icon please adjust *manifest.json* file. You can also add other sizes but changes in *
