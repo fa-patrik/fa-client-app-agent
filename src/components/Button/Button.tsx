@@ -40,9 +40,14 @@ export const Button = ({
         "w-full": isFullWidth,
         "text-sm font-medium py-2.5 px-5": size === "md",
         "text-xs font-medium py-1 px-2": size === "xs",
-        "bg-primary-600/50 hover:bg-primary-600/50 cursor-not-allowed": variant === "Primary" && disabled,
-        "bg-red-600/50 hover:bg-red-600/50 cursor-not-allowed": variant === "Red" && disabled,
-        "bg-gray-700/50 hover:bg-gray-700/50 cursor-not-allowed": variant === "Dark" && disabled
+        "bg-primary-600/50 hover:bg-primary-600/50 cursor-not-allowed":
+          variant === "Primary" && disabled,
+        "bg-primary-100/30 border-primary-600/10 text-primary-600/30 hover:bg-primary-100/20 cursor-not-allowed":
+          variant === "Secondary" && disabled,
+        "bg-red-600/50 hover:bg-red-600/50 cursor-not-allowed":
+          variant === "Red" && disabled,
+        "bg-gray-700/50 hover:bg-gray-700/50 cursor-not-allowed":
+          variant === "Dark" && disabled,
       }
     )}
   >

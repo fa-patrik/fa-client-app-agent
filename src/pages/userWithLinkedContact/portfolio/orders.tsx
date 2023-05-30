@@ -5,10 +5,11 @@ import { Orders } from "views/orders/orders";
 
 export const OrdersPage = () => {
   const { portfolioId } = useParams();
-  const queryData = useGetPortfolioTradeOrders(portfolioId);
+  const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
+  const queryData = useGetPortfolioTradeOrders(portfolioIdAsNr);
   const { data, startDate, endDate } = queryData;
   const { orders: unhandledOrdersFromLocalStorage } = useLocalTradeStorageState(
-    portfolioId,
+    portfolioIdAsNr,
     startDate,
     endDate
   );

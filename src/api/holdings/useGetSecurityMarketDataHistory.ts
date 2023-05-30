@@ -28,7 +28,6 @@ export const useGetSecurityMarketDataHistory = (
         securityId,
         timePeriodCode,
       },
-      fetchPolicy: "cache-first",
     }
   );
 

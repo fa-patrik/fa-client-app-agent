@@ -2,8 +2,8 @@ import { Dispatch, SetStateAction } from "react";
 import { CashAccount } from "api/money/useGetPortfoliosAccounts";
 import { ReactComponent as ExclamationIcon } from "assets/exclamation-circle.svg";
 import { PortfolioSelect, ComboBox, LabeledDiv } from "components";
+import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { PortfolioOption } from "layouts/PortfolioNavigationHeaderLayout/PortfolioNavigationHeader/PortfolioNavigationHeader";
 
 interface CashAccountSelectProps {
   portfolioId: number;
@@ -23,8 +23,8 @@ interface CashAccountSelectProps {
 }
 
 export const CashAccountSelect = ({
-  portfolioId,
   setPortfolioId,
+  portfolioId,
   portfolioOptions,
   currentInternalCashAccount,
   setCurrentInternalCashAccount,

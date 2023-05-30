@@ -1,13 +1,8 @@
 import { gql, useQuery } from "@apollo/client";
 import { fallbackLanguage } from "i18n";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { CancelOrderPermissionGroup } from "services/permissions/cancelOrder";
-import {
-  DepositPermissionGroup,
-  WithdrawalPermissionGroup,
-} from "services/permissions/money";
-import { TradePermissionGroup } from "services/permissions/trade";
 
+//with 1 sub portfolio depth
 export const PORTFOLIO_BASIC_FIELDS = gql`
   fragment PortfolioBasicFields on Portfolio {
     id
@@ -21,9 +16,26 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
       id
       code
     }
+    parentPortfolios {
+      id
+    }
+    portfolios {
+      id
+      name
+      status
+      shortName
+      currency {
+        securityCode
+      }
+      portfolioGroups {
+        id
+        code
+      }
+    }
   }
 `;
 
+//maximum of 2 sub portfolio depth
 export const CONTACT_INFO_QUERY = gql`
   ${PORTFOLIO_BASIC_FIELDS}
   query GetContactInfo($contactId: Long) {
@@ -65,12 +77,16 @@ export enum PortfolioStatus {
   Closed = "C",
 }
 
+export enum PortfolioGroups {
+  CANCEL_ORDER = "CP_CANCEL",
+  DEPOSIT = "CP_DEPOSIT",
+  WITHDRAW = "CP_WITHDRAWAL",
+  TRADE = "CP_TRADING",
+  HIDE = "CP_HIDE_PF",
+}
+
 interface PortfolioGroup {
-  code:
-    | typeof TradePermissionGroup
-    | typeof DepositPermissionGroup
-    | typeof WithdrawalPermissionGroup
-    | typeof CancelOrderPermissionGroup;
+  code: PortfolioGroups;
 }
 
 export interface Representee {
@@ -93,6 +109,10 @@ export interface Portfolio {
   name: string;
   status: string;
   shortName: string;
+  parentPortfolios: {
+    id: number;
+  }[];
+  portfolios: Portfolio[]; //sub portfolios
   currency: {
     securityCode: string;
   };
@@ -113,11 +133,7 @@ interface ContactInfoQuery {
   };
 }
 
-export const useGetContactInfo = (
-  callAPI = false,
-  id?: string | number,
-  queryWithRepresentees?: boolean
-) => {
+export const useGetContactInfo = (callAPI = false, id?: string | number) => {
   const { linkedContact } = useKeycloak();
   const { loading, error, data } = useQuery<ContactInfoQuery>(
     CONTACT_INFO_QUERY,
@@ -136,9 +152,9 @@ export const useGetContactInfo = (
       contactId: data.contact?.id,
       _contactId: data.contact?.contactId,
       portfolios:
-        data.contact?.portfolios?.filter(
-          (portfolio) => portfolio.status !== PortfolioStatus.Closed
-        ) || [],
+        (data?.contact?.portfolios &&
+          removeClosed(data?.contact?.portfolios)) ||
+        [],
       locale: data.contact?.language?.locale || fallbackLanguage,
       // all contact portfolios have same currency
       portfoliosCurrency:
@@ -148,4 +164,23 @@ export const useGetContactInfo = (
       name: data.contact?.name,
     },
   };
+};
+
+/**
+ * Removes closed portfolios (recursively on all sub portfolios as well).
+ * @param portfolios Raw portfolio data from FA
+ * @returns active/pending portfolios
+ */
+export const removeClosed = (portfolios: Portfolio[]) => {
+  const result = [] as Portfolio[];
+  portfolios?.forEach((portfolio) => {
+    if (portfolio.status !== PortfolioStatus.Closed) {
+      const portfolios = removeClosed(portfolio.portfolios);
+      result.push({
+        ...portfolio,
+        portfolios,
+      });
+    }
+  });
+  return result;
 };

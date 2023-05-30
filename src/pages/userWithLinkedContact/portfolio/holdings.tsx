@@ -1,11 +1,11 @@
 import { useGetPortfolioHoldings } from "api/holdings/useGetPortfolioHoldings";
 import { QueryLoadingWrapper } from "components";
 import { useParams } from "react-router-dom";
-import { Holdings } from "views/holdings/holdings";
+import { Holdings } from "views/portfolio/holdings/holdings";
 
 export const HoldingsView = () => {
   const { portfolioId } = useParams();
-  const queryData = useGetPortfolioHoldings(portfolioId);
-
+  const portflioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
+  const queryData = useGetPortfolioHoldings(portflioIdAsNr);
   return <QueryLoadingWrapper {...queryData} SuccessComponent={Holdings} />;
 };

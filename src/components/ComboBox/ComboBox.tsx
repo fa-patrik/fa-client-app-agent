@@ -1,13 +1,15 @@
-import { ReactNode, Fragment, useState } from "react";
+import React, { ReactNode, Fragment, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { ReactComponent as ChevronDown } from "assets/chevron-down.svg";
 import classNames from "classnames";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { filterOptionsByQuery } from "utils/filtering";
 import { usePopper } from "../../hooks/usePopper";
 
 export interface Option {
   id: number | string | null;
   label: string;
+  subOptions?: Option[];
   OptionComponent?: ReactNode;
 }
 
@@ -17,6 +19,39 @@ interface ComboBoxProps<T> {
   options: T[];
   label?: string;
 }
+
+const renderOptions = (
+  options: Option[],
+  selectedOption: Option | undefined,
+  level = 1
+) => {
+  const padding = level * 10;
+  return options.map((option) => {
+    const isSelected = selectedOption && selectedOption.id === option.id;
+    return (
+      <React.Fragment key={option.id}>
+        <Combobox.Option value={option} as={Fragment}>
+          {({ active }) => (
+            <li
+              className={classNames(
+                "block py-2 pl-4 pr-4 text-sm text-gray-700 dark:text-gray-200 cursor-pointer select-none bg-white",
+                {
+                  "dark:text-white bg-primary-50 dark:bg-gray-600": active,
+                  "font-bold": isSelected,
+                }
+              )}
+              style={{ paddingLeft: `${padding}px` }}
+            >
+              {option.OptionComponent ?? option.label}
+            </li>
+          )}
+        </Combobox.Option>
+        {option?.subOptions &&
+          renderOptions(option.subOptions, selectedOption, level + 1)}
+      </React.Fragment>
+    );
+  });
+};
 
 export const ComboBox = <TOption extends Option>({
   options,
@@ -50,10 +85,7 @@ export const ComboBox = <TOption extends Option>({
     ],
   });
 
-  const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(query.toLowerCase())
-  );
-
+  const filteredOptions = filterOptionsByQuery(options, query);
   return (
     <Combobox as="div" value={value} onChange={onChange}>
       {label && (
@@ -84,24 +116,7 @@ export const ComboBox = <TOption extends Option>({
           leaveTo="transform scale-95 opacity-0"
         >
           <Combobox.Options className="overflow-y-auto py-1 max-h-96 text-base list-none bg-white rounded divide-y divide-gray-100 shadow">
-            {filteredOptions.map((option) => (
-              <Combobox.Option key={option.id} value={option} as={Fragment}>
-                {({ active, selected }) => (
-                  <li
-                    className={classNames(
-                      "block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 cursor-pointer select-none",
-                      {
-                        "dark:text-white bg-primary-50 dark:bg-gray-600":
-                          active,
-                        "font-bold": selected,
-                      }
-                    )}
-                  >
-                    {option.OptionComponent ?? option.label}
-                  </li>
-                )}
-              </Combobox.Option>
-            ))}
+            {renderOptions(filteredOptions, value)}
           </Combobox.Options>
         </Transition>
       </div>

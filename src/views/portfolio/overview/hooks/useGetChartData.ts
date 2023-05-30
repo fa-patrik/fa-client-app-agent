@@ -1,16 +1,16 @@
 import { useMemo } from "react";
-import { DetailedPortfolio } from "api/overview/types";
+import { SecurityTypeDataWithSecurityData } from "api/overview/types";
 
-export const useGetChartData = (data: DetailedPortfolio) => {
+export const useGetChartData = (
+  securityTypes: SecurityTypeDataWithSecurityData[]
+) => {
   return useMemo(
     () => ({
-      series: data.analytics.allocationTopLevel.allocationByType.map(
-        (typeData) => typeData.figures.shareOfTotal * 100
+      series: securityTypes.map(
+        (typeData) => typeData.firstAnalysis.shareOfTotal * 100
       ),
-      labels: data.analytics.allocationTopLevel.allocationByType.map(
-        (typeData) => typeData.name
-      ),
+      labels: securityTypes.map((typeData) => typeData.name),
     }),
-    [data]
+    [securityTypes]
   );
 };

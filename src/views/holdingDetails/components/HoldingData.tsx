@@ -1,4 +1,4 @@
-import { HoldingPosition, SecurityTypeCode } from "api/holdings/types";
+import { AllocationBySecurity, SecurityTypeCode } from "api/holdings/types";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { Card, GainLoseColoring } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -6,23 +6,27 @@ import { useGetContractIdData } from "providers/ContractIdProvider";
 import { DataRow } from "./DataRow";
 import { HoldingHeader } from "./HoldingHeader";
 
-type HoldingDataProps = Omit<HoldingPosition, "security"> & {
+type HoldingDataProps = AllocationBySecurity & {
   typeCode: SecurityTypeCode;
 };
 
 export const HoldingData = ({
-  amount,
-  purchaseTradeAmount,
-  accruedInterest,
-  marketValue,
-  valueChangeRelative,
-  valueChangeAbsolute,
+  figures: {
+    amount,
+    tradeAmount,
+    purchaseTradeAmount,
+    accruedInterest,
+    marketValue,
+  },
   typeCode,
 }: HoldingDataProps) => {
   const { t } = useModifiedTranslation();
   const { selectedContactId } = useGetContractIdData();
   const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
     useGetContactInfo(false, selectedContactId);
+
+  const valueChange = marketValue - tradeAmount;
+  const valueChangePercent = valueChange / (tradeAmount ?? 1);
   return (
     <Card
       header={
@@ -63,9 +67,9 @@ export const HoldingData = ({
         <DataRow
           label={t("holdingsPage.changePercentage")}
           value={
-            <GainLoseColoring value={valueChangeRelative}>
+            <GainLoseColoring value={valueChangePercent}>
               {`${t("number", {
-                value: valueChangeRelative * 100,
+                value: valueChangePercent * 100,
                 formatParams: {
                   value: {
                     signDisplay: "always",
@@ -80,9 +84,9 @@ export const HoldingData = ({
         <DataRow
           label={t("holdingsPage.unrealizedProfits")}
           value={
-            <GainLoseColoring value={valueChangeRelative}>
+            <GainLoseColoring value={valueChange}>
               {t("numberWithCurrency", {
-                value: valueChangeAbsolute,
+                value: valueChange,
                 currency: portfoliosCurrency,
                 formatParams: {
                   value: {

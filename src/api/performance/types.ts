@@ -18,11 +18,9 @@ export enum TimePeriodForGraph {
 }
 
 export interface PerformanceQuery {
-  portfolio: {
-    graph: {
-      dailyValues: {
-        dailyValue: DailyValue[];
-      };
+  graph: {
+    dailyValues: {
+      dailyValue: DailyValue[];
     };
   };
 }

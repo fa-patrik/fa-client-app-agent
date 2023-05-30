@@ -1,30 +1,33 @@
 import { useState } from "react";
-import { Portfolio } from "api/initial/useGetContactInfo";
+import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { usePortfolioSelect } from "hooks/usePortfolioSelect";
+import { filterPortfolioOptionsByFunction } from "utils/filtering";
 
 export const useFilteredPortfolioSelect = (
-  filterFunction: (portfolio: Portfolio) => boolean
+  filterFunction: (PortfolioOption: PortfolioOption) => boolean
 ) => {
-  const { portfolioOptions, portfolioId: firstChoicePortfolioId } =
-    usePortfolioSelect();
-  const filteredPortfolioOptions = portfolioOptions.filter(
-    (option) => option.details && filterFunction(option.details)
+  const { portfolioOptions, selectedPortfolioId } = usePortfolioSelect();
+  const filteredPortfolioOptions = filterPortfolioOptionsByFunction(
+    portfolioOptions,
+    filterFunction
   );
-  // override state from usePortfolioSelect to make sure that portfolioId is from filtered options
+
   const [portfolioId, setPortfolioId] = useState(() => {
     if (
       filteredPortfolioOptions.some(
-        (option) => option.id === firstChoicePortfolioId
+        (option) => option.id === selectedPortfolioId
       )
     ) {
-      return firstChoicePortfolioId;
+      return selectedPortfolioId;
     }
     return filteredPortfolioOptions[0]?.id;
   });
 
-  return {
+  const result = {
     portfolioId,
     setPortfolioId,
     portfolioOptions: filteredPortfolioOptions,
   };
+
+  return result;
 };

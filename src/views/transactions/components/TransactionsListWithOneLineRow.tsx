@@ -17,6 +17,7 @@ export const TransactionsListWithOneLineRow = ({
 }: TransactionsListProps) => {
   const { portfolioId } = useParams();
   const showPortfolioLabel = !portfolioId;
+  
   const { t } = useModifiedTranslation();
   const navigate = useNavigateToDetails(type);
 

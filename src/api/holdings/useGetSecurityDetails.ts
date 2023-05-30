@@ -1,5 +1,4 @@
 import { gql, useQuery } from "@apollo/client";
-import { getFetchPolicyOptions } from "api/utils";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useGetContactInfo } from "../initial/useGetContactInfo";
 import { SecurityDetailsQuery } from "./types";
@@ -44,7 +43,6 @@ export const useGetSecurityDetails = (securityId: string | undefined) => {
         securityId: securityId,
         currency: portfoliosCurrency,
       },
-      ...getFetchPolicyOptions(`useGetSecurityDetails.${securityId}`),
     }
   );
 
