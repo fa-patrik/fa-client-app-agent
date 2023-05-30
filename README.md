@@ -112,12 +112,13 @@ backend API - transaction and order types (sell, buy, etc.) and holding types (s
 
 ### Icons
 
-To change app icon you need to change at least 4 files in *public* directory:
+To change the app icon, you need to change at least 4 files in the *public* directory:
 
-* favicon.ico - used as favicon in browsers
-* logo.svg - used as icon on navbar
-* logo192.png (192px x 192px) - used in PWA and apple touch icon
-* logo_maskable.png - used in PWA
+* `favicon.ico` - used as the favicon in browsers.
+* `logo.[extension]` (e.g., `logo.svg`) - utilized as the icon on the navbar. The logo file supports a range of common image formats, including SVG, PNG, JPEG, JPG, and GIF.
+* `logo192.png` (192px x 192px) - used in PWA and as an Apple touch icon.
+* `logo_maskable.png` - used in PWA.
+
 
 Keep in mind that for PWA we use maskable icon (more info can be found [here](https://web.dev/maskable-icon/)), if your
 do not have maskable icon please adjust *manifest.json* file. You can also add other sizes but changes in *
