@@ -3,12 +3,15 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useGetContactInfo } from "../initial/useGetContactInfo";
 import { ALLOCATION_BY_SECURITY_TYPE_FIELDS } from "./fragments";
-import { AllPortfoliosHoldingsQuery, AllocationByType } from "./types";
+import { ContactHoldingsQuery, AllocationByType } from "./types";
 
 // to distinct Contact analytics from Portfolio analytics in Contact version we set portfolio.id as portfolio.parentPortfolioId (line 32)
 const HOLDINGS_QUERY = gql`
   ${ALLOCATION_BY_SECURITY_TYPE_FIELDS}
-  query GetHoldings($contactId: Long, $locale: Locale) {
+  query GetContactHoldingsGroupedBySecurityType(
+    $contactId: Long
+    $locale: Locale
+  ) {
     contact(id: $contactId) {
       id
       analytics(
@@ -16,7 +19,7 @@ const HOLDINGS_QUERY = gql`
           paramsSet: {
             key: "allHoldingsByTypeBySecurity"
             timePeriodCodes: "DAYS-0"
-            grouppedByProperties: [TYPE, POSITION]
+            grouppedByProperties: [TYPE, SECURITY]
             includeData: false
             includeChildren: true
             drilldownEnabled: false
@@ -39,12 +42,12 @@ const HOLDINGS_QUERY = gql`
   }
 `;
 
-export const useGetAllPortfoliosHoldings = () => {
+export const useGetContactHoldings = () => {
   const { selectedContactId } = useGetContractIdData();
   const { i18n } = useModifiedTranslation();
   const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
     useGetContactInfo(false, selectedContactId);
-  const { loading, error, data } = useQuery<AllPortfoliosHoldingsQuery>(
+  const { loading, error, data } = useQuery<ContactHoldingsQuery>(
     HOLDINGS_QUERY,
     {
       variables: {

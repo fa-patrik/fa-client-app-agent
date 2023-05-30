@@ -21,15 +21,11 @@ export const DatePicker = ({ label, ...props }: DatePickerProps) => {
 
   return (
     <div className="flex flex-col gap-0 w-full" ref={targetRefCallback}>
-      {label && (
-        <label className="mb-1 text-sm font-medium text-gray-900">
-          {label}
-        </label>
-      )}
+      {label && <label className="mb-1 text-sm font-normal">{label}</label>}
       <ReactDatePicker
         calendarIcon={<CalendarIcon />}
         clearIcon={null}
-        className="py-3 px-3.5 text-base font-normal leading-tight text-gray-500 bg-gray-50 rounded-lg border border-gray-200"
+        className="px-2 pt-2 pb-1.5 text-base font-normal text-gray-900 bg-gray-50 rounded-lg border border-gray-300"
         locale={i18n.language}
         showLeadingZeros
         inputRef={positionedElementRefCallback}

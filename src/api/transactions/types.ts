@@ -25,9 +25,10 @@ export interface Transaction {
 }
 
 export interface PortfolioTransactionsQuery {
-  portfolio: {
+  portfolios: {
+    id: number;
     transactions: Transaction[];
-  };
+  }[];
 }
 
 export interface AllPortfoliosTransactionsQuery {

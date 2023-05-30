@@ -34,7 +34,7 @@ export const Transactions = ({
   return (
     <div className="flex flex-col gap-4">
       <Card>
-        <div className="flex gap-2 p-2 text-normal">
+        <div className="flex flex-wrap gap-2 p-2 w-full text-normal">
           <div className="md:w-48 grow md:grow-0">
             <DatePicker
               label={t("transactionsPage.datePickerFromLabel")}
@@ -51,6 +51,15 @@ export const Transactions = ({
               minDate={startDate}
             />
           </div>
+          <TransactionsFilter
+            transactionsData={transactionsData || []}
+            filterHeader={t("transactionsPage.transactionsFilterTitle")}
+            onFilter={(filteredTransactionData) =>
+              setFilteredTransactionData(
+                filteredTransactionData as Transaction[]
+              )
+            }
+          />
         </div>
       </Card>
       {!!transactionsData?.length && (

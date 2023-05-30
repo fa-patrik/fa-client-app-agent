@@ -1,8 +1,8 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { TradeOrder } from "api/orders/types";
 import { Transaction } from "api/transactions/types";
-import { Button, SelectFilter } from "components";
-import { FilterOption } from "components/SelectFilter/SelectFilter";
+import { Button } from "components";
+import { Option, Select } from "components/Select/Select";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 /**
@@ -42,8 +42,12 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
 }) => {
   const { t } = useModifiedTranslation();
 
-  const [transactionType, setTransactionType] = useState<FilterOption[]>([]);
-  const [securityName, setSecurityName] = useState<FilterOption[]>([]);
+  const [selectedTransactionTypes, setSelectedTransactionTypes] = useState<
+    Option[]
+  >([]);
+  const [selectedSecurityNames, setSelectedSecurityNames] = useState<Option[]>(
+    []
+  );
 
   const [
     filteredDataByBoth,
@@ -53,13 +57,15 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
     if (!transactionsData) return [];
     const filteredDataByBoth = transactionsData.filter((transaction) => {
       const isTransactionTypeMatch =
-        !transactionType.length ||
-        transactionType.some(
+        !selectedTransactionTypes.length ||
+        selectedTransactionTypes.some(
           (type) => type.label === transaction.type.typeName
         );
       const isSecurityNameMatch =
-        !securityName.length ||
-        securityName.some((name) => name.label === transaction.securityName);
+        !selectedSecurityNames.length ||
+        selectedSecurityNames.some(
+          (name) => name.label === transaction.securityName
+        );
 
       return isTransactionTypeMatch && isSecurityNameMatch;
     });
@@ -67,8 +73,10 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
     const filteredDataBySecurityName = transactionsData.filter(
       (transaction) => {
         const isSecurityNameMatch =
-          !securityName.length ||
-          securityName.some((name) => name.label === transaction.securityName);
+          !selectedSecurityNames.length ||
+          selectedSecurityNames.some(
+            (name) => name.label === transaction.securityName
+          );
 
         return isSecurityNameMatch;
       }
@@ -77,8 +85,8 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
     const filteredDataByTransactionType = transactionsData.filter(
       (transaction) => {
         const isTransactionTypeMatch =
-          !transactionType.length ||
-          transactionType.some(
+          !selectedTransactionTypes.length ||
+          selectedTransactionTypes.some(
             (type) => type.label === transaction.type.typeName
           );
 
@@ -91,7 +99,7 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
       filteredDataBySecurityName,
       filteredDataByTransactionType,
     ];
-  }, [transactionsData, transactionType, securityName]);
+  }, [transactionsData, selectedTransactionTypes, selectedSecurityNames]);
 
   useEffect(() => {
     onFilter(filteredDataByBoth || []);
@@ -124,35 +132,39 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
   }, [filteredDataBySecurityName, filteredDataByTransactionType]);
 
   return (
-    <div className="flex flex-col gap-4 py-4 px-2">
+    <div className="flex flex-col gap-4">
       {filterHeader && (
-        <div className="font-bold text-normal">{filterHeader}</div>
+        <div className="text-sm font-normal">{filterHeader}</div>
       )}
-      <div className="grid flex-wrap grid-cols-1 md:grid-cols-2 gap-2">
-        <SelectFilter
+      <div className="grid flex-wrap grid-cols-1 md:grid-cols-3 gap-2 -mt-3">
+        <Select
           label={t("transactionFilter.transactionType")}
-          value={transactionType}
+          value={selectedTransactionTypes}
           options={transactionTypes}
-          onChange={setTransactionType}
+          onChangeMultiple={setSelectedTransactionTypes}
+          selectMultiple
         />
-        <SelectFilter
+        <Select
           label={t("transactionFilter.securityName")}
-          value={securityName}
+          value={selectedSecurityNames}
           options={securityNames}
-          onChange={setSecurityName}
+          onChangeMultiple={setSelectedSecurityNames}
+          selectMultiple
         />
-      </div>
-      <div className="self-end pb-[1]">
-        <Button
-          onClick={() => {
-            setTransactionType([]);
-            setSecurityName([]);
-          }}
-          disabled={!transactionType.length && !securityName.length}
-          variant="Secondary"
-        >
-          {t("transactionFilter.resetFilter")}
-        </Button>
+        <div className="self-end pb-[1]">
+          <Button
+            onClick={() => {
+              setSelectedTransactionTypes([]);
+              setSelectedSecurityNames([]);
+            }}
+            disabled={
+              !selectedTransactionTypes.length && !selectedSecurityNames.length
+            }
+            variant="Secondary"
+          >
+            {t("transactionFilter.resetFilter")}
+          </Button>
+        </div>
       </div>
     </div>
   );

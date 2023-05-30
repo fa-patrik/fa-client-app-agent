@@ -21,7 +21,7 @@ export const LocalTradeOrderId = -1;
 export const LocalTradeOrderStatus = "-1";
 
 export const useLocalTradeStorageState = (
-  portfolioId?: string,
+  portfolioId?: number,
   startDate?: Date,
   endDate?: Date
 ) => {
@@ -54,7 +54,7 @@ export const useLocalTradeStorageState = (
   }, [apiTransactions, apiTradeOrders, orders, setOrders]);
 
   const ordersInRange = orders.filter((order) => {
-    if (portfolioId && order.parentPortfolio.id !== parseInt(portfolioId)) {
+    if (portfolioId && order.parentPortfolio.id !== portfolioId) {
       return false;
     }
     const orderDate = dateFromYYYYMMDD(order.transactionDate);
@@ -66,7 +66,7 @@ export const useLocalTradeStorageState = (
 
 // startDate and endDate is not needed because we use global storage in useGetAllTradeOrders and useGetPortfolioTradeOrders
 // without date range global storage we need pass those dates to useGetAllTradeOrders and useGetPortfolioTradeOrders
-const useGetTradeOrdersAndTransactions = (portfolioId?: string) => {
+const useGetTradeOrdersAndTransactions = (portfolioId?: number) => {
   const { data: allPortfoliosTradeOrders = [] } = useGetAllTradeOrders({
     fetchPolicy: "cache-first",
     skip: !!portfolioId,

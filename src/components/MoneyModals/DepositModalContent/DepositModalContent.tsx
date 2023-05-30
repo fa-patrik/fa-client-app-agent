@@ -26,7 +26,6 @@ export const DepositModalContent = ({
   );
   const portfolioSelectProps = useDepositablePortfolioSelect();
   const { portfolioId } = portfolioSelectProps;
-
   const { accountsLoading, ...cashAccountSelectProps } =
     usePortfoliosAccountsState(portfolioId);
   const {

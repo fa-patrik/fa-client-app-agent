@@ -1,12 +1,5 @@
 import { Portfolio } from "api/initial/useGetContactInfo";
-import { PortfolioOption } from "layouts/PortfolioNavigationHeaderLayout/PortfolioNavigationHeader/PortfolioNavigationHeader";
-
-enum PortfolioGroups {
-  CANCEL_ORDER = "CP_CANCEL",
-  DEPOSIT = "CP_DEPOSIT",
-  WITHDRAW = "CP_WITHDRAWAL",
-  TRADE = "CP_TRADING",
-}
+import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
 export const portfolioOptionsMock = [
   {
@@ -21,10 +14,7 @@ export const portfolioOptionsMock = [
       currency: {
         securityCode: "USD",
       },
-      portfolioGroups: [
-        { code: PortfolioGroups.TRADE },
-        { code: PortfolioGroups.DEPOSIT },
-      ],
+      portfolioGroups: [{ code: "CP_TRADING" }, { code: "CP_DEPOSIT" }],
     },
   },
   {
@@ -40,9 +30,9 @@ export const portfolioOptionsMock = [
         securityCode: "USD",
       },
       portfolioGroups: [
-        { code: PortfolioGroups.TRADE },
-        { code: PortfolioGroups.DEPOSIT },
-        { code: PortfolioGroups.CANCEL_ORDER },
+        { code: "CP_TRADING" },
+        { code: "CP_DEPOSIT" },
+        { code: "CP_CANCEL" },
       ],
     },
   },
@@ -60,5 +50,22 @@ export const portfolioOptionsMock = [
       },
       portfolioGroups: [{ code: "OTHER_GROUP" }],
     },
+    subOptions: [
+      {
+        id: 4,
+        urlPrefix: "/portfolio/4",
+        label: "Sub portfolio",
+        details: {
+          id: 4,
+          name: "Sub portfolio",
+          status: "A",
+          shortName: "P4",
+          currency: {
+            securityCode: "USD",
+          },
+          portfolioGroups: [{ code: "CP_TRADING" }],
+        },
+      },
+    ],
   },
 ] as (PortfolioOption & { details: Portfolio })[];

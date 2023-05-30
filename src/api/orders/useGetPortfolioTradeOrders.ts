@@ -1,17 +1,18 @@
 import { gql, QueryHookOptions, useQuery } from "@apollo/client";
+import { useGetSubPortfolioIds } from "api/generic/useGetSubPortfolioIds";
 import { useGlobalDateRange } from "hooks/useGlobalDateRange";
 import { toShortISOString } from "utils/date";
 import { TRADE_ORDERS_DETAILS } from "./fragments";
-import { PortfolioTradeOrdersQuery } from "./types";
+import { PortfolioTradeOrdersQuery, TradeOrder } from "./types";
 
 export const PORTFOLIO_TRADE_ORDERS_QUERY = gql`
   ${TRADE_ORDERS_DETAILS}
   query GetPortfolioTradeOrders(
-    $portfolioId: Long
+    $portfolioIds: [String]
     $startDate: String
     $endDate: String
   ) {
-    portfolio(id: $portfolioId) {
+    portfolios(ids: $portfolioIds) {
       id
       tradeOrders(
         transactionStartDate: $startDate
@@ -24,9 +25,14 @@ export const PORTFOLIO_TRADE_ORDERS_QUERY = gql`
 `;
 
 export const useGetPortfolioTradeOrders = (
-  portfolioId: string | undefined,
-  options?: QueryHookOptions
+  portfolioId: number | undefined,
+  options?: QueryHookOptions,
+  includeSubPortfolios = true
 ) => {
+  const subPortfolioIds = useGetSubPortfolioIds(portfolioId);
+  const portfolioIds = includeSubPortfolios
+    ? [portfolioId, ...subPortfolioIds]
+    : [portfolioId];
   const dateRangeProps = useGlobalDateRange();
   const { startDate, endDate } = dateRangeProps;
 
@@ -36,7 +42,7 @@ export const useGetPortfolioTradeOrders = (
       variables: {
         startDate: toShortISOString(startDate),
         endDate: toShortISOString(endDate),
-        portfolioId,
+        portfolioIds: portfolioIds,
       },
       fetchPolicy: "network-only",
       nextFetchPolicy: "cache-first",
@@ -47,7 +53,10 @@ export const useGetPortfolioTradeOrders = (
   return {
     loading,
     error,
-    data: data?.portfolio.tradeOrders,
+    data: data?.portfolios?.reduce((prev, curr) => {
+      if (curr?.tradeOrders?.length) prev.push(...curr.tradeOrders);
+      return prev;
+    }, [] as TradeOrder[]),
     ...dateRangeProps,
   };
 };

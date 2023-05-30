@@ -1,4 +1,7 @@
-import { HoldingPosition, SecurityDetailsPosition } from "api/holdings/types";
+import {
+  AllocationBySecurity,
+  SecurityDetailsPosition,
+} from "api/holdings/types";
 import { ReactComponent as MinusCircle } from "assets/minus-circle.svg";
 import { ReactComponent as PlusCircle } from "assets/plus-circle.svg";
 import {
@@ -26,7 +29,7 @@ import { PerformanceRows } from "./components/PerformanceRows";
 
 interface HoldingDetailsProps {
   data: {
-    holding?: Omit<HoldingPosition, "security">;
+    holding?: AllocationBySecurity;
     security: SecurityDetailsPosition;
   };
 }

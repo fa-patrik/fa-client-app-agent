@@ -11,8 +11,8 @@ export interface AllocationBySecurity {
   figures: {
     marketValue: number;
     tradeAmount: number;
-    fxRate: number;
     amount: number;
+    accruedInterest: number;
     purchaseTradeAmount: number;
   };
 }
@@ -27,7 +27,7 @@ export interface AllocationByType {
   allocationsBySecurity: AllocationBySecurity[];
 }
 
-export interface AllPortfoliosHoldingsQuery {
+export interface ContactHoldingsQuery {
   contact: {
     analytics: {
       allocationTopLevel: {
@@ -41,14 +41,13 @@ export interface AllPortfoliosHoldingsQuery {
 }
 
 export interface PortfolioHoldingsQuery {
-  portfolio: {
-    analytics: {
-      allocationTopLevel: {
-        portfolio: {
-          currencyCode: string;
-        };
-        allocationByType: AllocationByType[];
+  analytics: {
+    allocationTopLevel: {
+      portfolio: {
+        id: number;
+        currencyCode: string;
       };
+      allocationByType: AllocationByType[];
     };
   };
 }
@@ -125,20 +124,9 @@ export interface HoldingPosition {
     id: number;
   };
   amount: number;
-  accruedInterest: number;
   purchaseTradeAmount: number;
   marketValue: number;
-  valueChangeAbsolute: number;
-  valueChangeRelative: number;
   marketFxRate: number;
-}
-
-export interface AllPortfoliosHoldingDetailsQuery {
-  contact: {
-    portfolioReport: {
-      holdingPositions: HoldingPosition[];
-    };
-  };
 }
 
 export interface PortfolioHoldingDetailsQuery {

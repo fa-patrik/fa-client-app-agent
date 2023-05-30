@@ -106,12 +106,15 @@ export const BuyModalContent = ({
     false,
     selectedContactId
   );
-  const { portfolioId, setPortfolioId, portfolioOptions } =
+  const { setPortfolioId, portfolioOptions, portfolioId } =
     useTradablePortfolioSelect();
+
+  const selectedPortfolioId = portfolioId;
+
   const {
     loading,
     data: { availableCash = 0, currency: portfolioCurrency = "EUR" } = {},
-  } = useGetBuyData(portfolioId?.toString());
+  } = useGetBuyData(selectedPortfolioId);
 
   const [amount, setAmount] = useState(0);
 
@@ -144,7 +147,10 @@ export const BuyModalContent = ({
       </LabeledDiv>
       {url2 && (
         <div className="w-fit">
-          <DownloadableDocument url={addProtocolToUrl(url2)} label={t("tradingModal.kiid")} />
+          <DownloadableDocument
+            url={addProtocolToUrl(url2)}
+            label={t("tradingModal.kiid")}
+          />
         </div>
       )}
       <PortfolioSelect

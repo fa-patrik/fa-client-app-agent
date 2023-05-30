@@ -1,7 +1,6 @@
 import { useQuery, gql } from "@apollo/client";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { getFetchPolicyOptions } from "../utils";
 import { DOCUMENT_FIELDS } from "./fragments";
 import { Document } from "./types";
 
@@ -35,7 +34,7 @@ interface AllDocumentsQuery {
 
 const filterTags: string[] = ["Online"];
 
-export const useGetDocuments = (portfolioId?: string | undefined) => {
+export const useGetDocuments = (portfolioIds?: string) => {
   const { linkedContact } = useKeycloak();
   const { selectedContactId } = useGetContractIdData();
   const { loading, error, data } = useQuery<AllDocumentsQuery>(
@@ -45,28 +44,19 @@ export const useGetDocuments = (portfolioId?: string | undefined) => {
         contactId: selectedContactId || linkedContact,
         filterTags,
       },
-      ...getFetchPolicyOptions(`useGetDocuments.${selectedContactId || linkedContact}`),
     }
   );
+
+  const portfolioDocuments =
+    data?.contact?.portfolios?.reduce((prev, currPortfolio) => {
+      const portfolioDocuments = currPortfolio.documents;
+      if (portfolioDocuments) prev.push(...portfolioDocuments);
+      return prev;
+    }, [] as Document[]) || [];
 
   return {
     loading,
     error,
-    data: data && [
-      ...data.contact.documents,
-      ...getPortfoliosDocuments(data, portfolioId),
-    ],
+    data: data && [...data.contact.documents, ...portfolioDocuments],
   };
 };
-
-// returns documents of specified portfolio if portfolioId is not given returns documents for all portfolios
-const getPortfoliosDocuments = (
-  data: AllDocumentsQuery,
-  portfolioId: string | undefined
-) =>
-  data.contact.portfolios
-    .filter((portfolio) =>
-      portfolioId ? portfolio.id === parseInt(portfolioId) : true
-    )
-    .map((portfolio) => portfolio.documents)
-    .flat();

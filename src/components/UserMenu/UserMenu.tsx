@@ -76,7 +76,7 @@ const getMenuItems = (
             });
           },
           Icon: UserIcon,
-          selected: representee?.id === selectedContactId,
+          selected: representee?.id?.toString() === selectedContactId?.toString(),
         }))
       : []),
     "separator",

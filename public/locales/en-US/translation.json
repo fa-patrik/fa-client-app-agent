@@ -33,7 +33,8 @@
   },
   "portfolioSummary": {
     "currentMarketValue": "Current market value",
-    "availableCash": "Available cash",
+    "currentBalance": "Current balance",
+    "currentBalanceTooltip": "Realized, unsettled trades have been taken into account.",
     "unrealizedProfits": "Unrealised profits"
   },
   "overviewPage": {

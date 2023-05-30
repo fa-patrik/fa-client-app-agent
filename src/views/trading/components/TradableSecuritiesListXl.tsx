@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { dateFromYYYYMMDD } from "utils/date";
 import { addProtocolToUrl } from "utils/url";
 import { NameWithFlag } from "../../holdings/components/NameWithFlag";
+import { DelayRenderingTillVisible } from "./DelayRenderingTillVisible";
 import {
   TradableSecuritiesListSized,
   TradableSecuritySized,
@@ -27,11 +28,16 @@ export const TradableSecuritiesListXl = ({
         <span>&nbsp;</span>
       </Grid.Header>
       {securities.map((security) => (
-        <TradableSecurityMd
-          {...security}
+        <DelayRenderingTillVisible
           key={security.id}
-          onBuyModalOpen={onBuyModalOpen}
-        />
+          placeholderClassName="h-11"
+        >
+          <TradableSecurityMd
+            {...security}
+            key={security.id}
+            onBuyModalOpen={onBuyModalOpen}
+          />
+        </DelayRenderingTillVisible>
       ))}
     </div>
   );

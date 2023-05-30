@@ -35,10 +35,10 @@ export interface AllTradeOrdersQuery {
 }
 
 export interface PortfolioTradeOrdersQuery {
-  portfolio: {
+  portfolios: {
     id: number;
     tradeOrders: TradeOrder[];
-  };
+  }[];
 }
 
 export interface TradeOrderQueryById {

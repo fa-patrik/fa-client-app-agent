@@ -26,19 +26,25 @@ describe("useTradablePortfolioSelect", () => {
     jest.clearAllMocks();
   });
 
-  it("should pre-select the portfolio chosen in main portfolio selector if it is tradeable", () => {
-    (useParams as jest.Mock).mockReturnValue({ portfolioId: "1" });
+  it("should pre-select the parent portfolio chosen in main portfolio selector if it is tradable", () => {
+    (useParams as jest.Mock).mockReturnValue({ portfolioId: 1 });
     const { result } = renderHook(() => useTradablePortfolioSelect());
     expect(result.current.portfolioId).toBe(1);
   });
 
-  it("should not pre-select a portfolio if there are multiple tradeable portfolios and no tradeable portfolio chosen in main portfolio selector", () => {
+  it("should pre-select the sub portfolio chosen in main portfolio selector if it is tradable", () => {
+    (useParams as jest.Mock).mockReturnValue({ portfolioId: 4 });
+    const { result } = renderHook(() => useTradablePortfolioSelect());
+    expect(result.current.portfolioId).toBe(4);
+  });
+
+  it("should not pre-select a portfolio if there are multiple tradable portfolios (incl subs) and no tradable portfolio chosen in main portfolio selector", () => {
     (useParams as jest.Mock).mockReturnValue({ portfolioId: undefined });
     const { result } = renderHook(() => useTradablePortfolioSelect());
     expect(result.current.portfolioId).toBe(undefined);
   });
 
-  it("should pre-select the only tradeable portfolio when no tradeable portfolio chosen in main portfolio selector", () => {
+  it("should pre-select the only tradable parent portfolio when no tradable portfolio chosen in main portfolio selector", () => {
     (useParams as jest.Mock).mockReturnValue({ portfolioId: undefined });
     (useGetPortfolioOptions as jest.Mock).mockReturnValue([
       portfolioOptionsMock[0],
@@ -47,12 +53,30 @@ describe("useTradablePortfolioSelect", () => {
     expect(result.current.portfolioId).toBe(1);
   });
 
-  it("should pre-select the only tradeable portfolio even though another portfolio is chosen in main portfolio selector", () => {
-    (useParams as jest.Mock).mockReturnValue({ portfolioId: "1" });
+  it("should pre-select the only tradable sub portfolio when no tradable portfolio chosen in main portfolio selector", () => {
+    (useParams as jest.Mock).mockReturnValue({ portfolioId: undefined });
+    (useGetPortfolioOptions as jest.Mock).mockReturnValue([
+      portfolioOptionsMock[2],
+    ]);
+    const { result } = renderHook(() => useTradablePortfolioSelect());
+    expect(result.current.portfolioId).toBe(4);
+  });
+
+  it("should pre-select the only tradable parent portfolio even though another portfolio is chosen in main portfolio selector", () => {
+    (useParams as jest.Mock).mockReturnValue({ portfolioId: 1 });
     (useGetPortfolioOptions as jest.Mock).mockReturnValue([
       portfolioOptionsMock[1],
     ]);
     const { result } = renderHook(() => useTradablePortfolioSelect());
     expect(result.current.portfolioId).toBe(2);
+  });
+
+  it("should pre-select the only tradable sub portfolio even though another portfolio is chosen in main portfolio selector", () => {
+    (useParams as jest.Mock).mockReturnValue({ portfolioId: 3 });
+    (useGetPortfolioOptions as jest.Mock).mockReturnValue([
+      portfolioOptionsMock[2],
+    ]);
+    const { result } = renderHook(() => useTradablePortfolioSelect());
+    expect(result.current.portfolioId).toBe(4);
   });
 });

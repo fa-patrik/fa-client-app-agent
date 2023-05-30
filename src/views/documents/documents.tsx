@@ -78,37 +78,42 @@ export const Documents = ({ data: documents }: DocumentsProps) => {
   //TODO: Replace the impromptu grid approach to a proper table
   return (
     <div className="flex flex-col gap-4">
-      {Object.entries(groupedDocuments)?.map(([type, documents]) => (
-        <Card
-          key={type}
-          header={
-            /**
-             * The translation may or may not contain a nr as first char.
-             * But we don't want to show the nr if there is one.
-             */
-            isNaN(Number(t(`documentsPage.type.${type}`).charAt(0)))
-              ? t(`documentsPage.type.${type}`)
-              : t(`documentsPage.type.${type}`).substring(1)
-          }
-        >
-          <div className="md:flex flex-col px-2 md:px-0 divide-y">
-            {isMdVersion && (
-              <div className="md:flex md:flex-row w-full">
-                <HeaderLabel size="lg">{t("documentsPage.name")}</HeaderLabel>
-                <HeaderLabel size="md" align="right">
-                  {t("documentsPage.date")}
-                </HeaderLabel>
-                <HeaderLabel size="md" align="right">
-                  {t("documentsPage.download")}
-                </HeaderLabel>
-              </div>
-            )}
-            {documents.map((document) => (
-              <DocumentRow key={document.identifier} {...document} />
-            ))}
-          </div>
-        </Card>
-      ))}
+      {Object.entries(groupedDocuments)?.map(([type, documents]) => {
+        const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+        return (
+          <Card
+            key={type}
+            header={
+              /**
+               * The translation may or may not contain a nr as first char.
+               * But we don't want to show the nr if there is one.
+               */
+              isNaN(Number(t(`documentsPage.type.${type}`).charAt(0)))
+                ? t(`documentsPage.type.${type}`, {
+                    defaultValue: capitalizedType,
+                  })
+                : t(`documentsPage.type.${type}`).substring(1)
+            }
+          >
+            <div className="md:flex flex-col px-2 md:px-0 divide-y">
+              {isMdVersion && (
+                <div className="md:flex md:flex-row w-full">
+                  <HeaderLabel size="lg">{t("documentsPage.name")}</HeaderLabel>
+                  <HeaderLabel size="md" align="right">
+                    {t("documentsPage.date")}
+                  </HeaderLabel>
+                  <HeaderLabel size="md" align="right">
+                    {t("documentsPage.download")}
+                  </HeaderLabel>
+                </div>
+              )}
+              {documents.map((document) => (
+                <DocumentRow key={document.identifier} {...document} />
+              ))}
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
 };
