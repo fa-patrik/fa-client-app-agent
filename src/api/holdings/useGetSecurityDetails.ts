@@ -5,7 +5,7 @@ import { useGetContactInfo } from "../initial/useGetContactInfo";
 import { SecurityDetailsQuery } from "./types";
 
 const SECURITY_DETAILS_QUERY = gql`
-  query GetSecurityDetails($securityId: Long, $currency: String) {
+  query GetSecurityDetails($securityId: Long, $currency: String, $filterTags: String) {
     security(id: $securityId) {
       id
       name
@@ -29,7 +29,7 @@ const SECURITY_DETAILS_QUERY = gql`
       }
       fxRate(quoteCurrency: $currency)
       tagsAsSet
-      documents(filterTags: "Online") {
+      documents(filterTags: $filterTags) {
         fileName
         identifier
         mimeType
@@ -48,6 +48,7 @@ export const useGetSecurityDetails = (securityId: string | undefined) => {
       variables: {
         securityId: securityId,
         currency: portfoliosCurrency,
+        filterTags: "Online",
       },
       ...getFetchPolicyOptions(`useGetSecurityDetails.${securityId}`),
     }

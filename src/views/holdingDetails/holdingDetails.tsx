@@ -124,7 +124,7 @@ export const HoldingDetails = ({
                   )}
                   {documents?.map(({ fileName, identifier }) => (
                     <DocumentRow
-                      key={fileName}
+                      key={identifier}
                       label={fileName}
                       documentIdentifier={identifier}
                     />
