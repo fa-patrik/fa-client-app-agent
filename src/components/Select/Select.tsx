@@ -164,7 +164,7 @@ export const Select = <TOption extends Option>({
       as="div"
       value={value}
       disabled={selectButtonDisabled}
-      onChange={(v: TOption | TOption[]) =>
+      onChange={(v) =>
         Array.isArray(v) ? onChangeMultiple?.(v) : onChange?.(v)
       }
       by={selectMultiple ? "label" : undefined}
