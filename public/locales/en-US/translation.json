@@ -251,8 +251,8 @@
     "orderAlreadyCancelled": "Order has already been cancelled."
   },
   "transactionFilter": {
-    "transactionType": "Transaction type",
-    "securityName": "Security name",
-    "resetFilter": "Reset filter"
+    "transactionType": "Transaction",
+    "securityName": "Security",
+    "resetFilter": "Clear filter"
   }
 }

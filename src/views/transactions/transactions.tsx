@@ -35,7 +35,7 @@ export const Transactions = ({
     <div className="flex flex-col gap-4">
       <Card>
         <div className="flex flex-wrap gap-2 p-2 w-full text-normal">
-          <div className="md:w-48 grow md:grow-0">
+          <div className="sm:w-48 grow sm:grow-0">
             <DatePicker
               label={t("transactionsPage.datePickerFromLabel")}
               value={startDate}
@@ -43,7 +43,7 @@ export const Transactions = ({
               maxDate={endDate}
             />
           </div>
-          <div className="md:w-48 grow md:grow-0">
+          <div className="sm:w-48 grow sm:grow-0">
             <DatePicker
               label={t("transactionsPage.datePickerFromTo")}
               value={endDate}

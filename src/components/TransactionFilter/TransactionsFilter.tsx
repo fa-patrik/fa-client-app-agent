@@ -132,26 +132,30 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
   }, [filteredDataBySecurityName, filteredDataByTransactionType]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full sm:w-fit">
       {filterHeader && (
         <div className="text-sm font-normal">{filterHeader}</div>
       )}
-      <div className="grid flex-wrap grid-cols-1 md:grid-cols-3 gap-2 -mt-3">
-        <Select
-          label={t("transactionFilter.transactionType")}
-          value={selectedTransactionTypes}
-          options={transactionTypes}
-          onChangeMultiple={setSelectedTransactionTypes}
-          selectMultiple
-        />
-        <Select
-          label={t("transactionFilter.securityName")}
-          value={selectedSecurityNames}
-          options={securityNames}
-          onChangeMultiple={setSelectedSecurityNames}
-          selectMultiple
-        />
-        <div className="self-end pb-[1]">
+      <div className="grid flex-wrap grid-cols-1 sm:grid-cols-3 gap-2 -mt-3">
+        <div className="w-full sm:w-48">
+          <Select
+            label={t("transactionFilter.transactionType")}
+            value={selectedTransactionTypes}
+            options={transactionTypes}
+            onChangeMultiple={setSelectedTransactionTypes}
+            selectMultiple
+          />
+        </div>
+        <div className="w-full sm:w-48">
+          <Select
+            label={t("transactionFilter.securityName")}
+            value={selectedSecurityNames}
+            options={securityNames}
+            onChangeMultiple={setSelectedSecurityNames}
+            selectMultiple
+          />
+        </div>
+        <div className="place-self-end sm:place-self-start pb-[1]">
           <Button
             onClick={() => {
               setSelectedTransactionTypes([]);
