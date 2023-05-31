@@ -132,7 +132,10 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
   }, [filteredDataBySecurityName, filteredDataByTransactionType]);
 
   return (
-    <div className="flex flex-col gap-4 w-full sm:w-fit">
+    <div
+      id="transactionsFilter"
+      className="flex flex-col gap-4 w-full sm:w-fit"
+    >
       {filterHeader && (
         <div className="text-sm font-normal">{filterHeader}</div>
       )}
