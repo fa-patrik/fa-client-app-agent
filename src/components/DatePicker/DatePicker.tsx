@@ -25,7 +25,7 @@ export const DatePicker = ({ label, ...props }: DatePickerProps) => {
       <ReactDatePicker
         calendarIcon={<CalendarIcon />}
         clearIcon={null}
-        className="px-2 pt-2 pb-1.5 text-base font-normal text-gray-900 bg-gray-50 rounded-lg border border-gray-300"
+        className="px-2 pt-2 pb-1.5 text-base font-normal text-gray-500 bg-gray-50 rounded-lg border border-gray-300"
         locale={i18n.language}
         showLeadingZeros
         inputRef={positionedElementRefCallback}
