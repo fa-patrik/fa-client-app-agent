@@ -107,7 +107,7 @@ export const PortfolioInfoCard = ({
               </div>
             </div>
             <div className="text-right">
-              <div className="flex flex-row gap-x-2">
+              <div className="flex flex-row gap-x-2 justify-end">
                 <Label colorScheme={colorScheme}>
                   {t("portfolioSummary.currentBalance")}
                 </Label>

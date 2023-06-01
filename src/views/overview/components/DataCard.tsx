@@ -30,12 +30,10 @@ export const DataCard = ({
       <CardWithChartBackground colorScheme={colorScheme}>
         <div className="relative p-4">
           <div
-            className={classNames(
-              "text-sm font-normal text-gray-600 flex flex-row gap-2",
-              {
-                "text-gray-300": colorScheme === "black",
-              }
-            )}
+            className={classNames("text-sm font-normal flex flex-row gap-2", {
+              "text-gray-600": colorScheme !== "black",
+              "text-gray-300": colorScheme === "black",
+            })}
           >
             {label}
             {showTooltip && toolTipContent && (
