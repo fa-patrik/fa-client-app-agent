@@ -74,7 +74,7 @@ export const PortfolioInfoCard = ({
         colorScheme={colorScheme}
       >
         <div className="relative p-4">
-          <div className="mb-5 text-xl font-bold">
+          <div className="mb-5 text-xl font-bold truncate">
             {name ?? portfolioData?.name}
           </div>
           <div className="mb-2">
