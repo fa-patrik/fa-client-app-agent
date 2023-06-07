@@ -73,11 +73,11 @@ export const PortfolioInfoCard = ({
         onClick={navigateToPortfolioDetails}
         colorScheme={colorScheme}
       >
-        <div className="relative p-4">
-          <div className="mb-5 text-xl font-bold truncate">
+        <div className="flex flex-col justify-end p-4 h-full">
+          <div className="z-0 pb-5 mb-auto text-xl font-bold">
             {name ?? portfolioData?.name}
           </div>
-          <div className="mb-2">
+          <div className="z-0 mb-2">
             <Label colorScheme={colorScheme}>
               {t("portfolioSummary.currentMarketValue")}
             </Label>
@@ -89,7 +89,7 @@ export const PortfolioInfoCard = ({
               })}
             </div>
           </div>
-          <div className="flex justify-between">
+          <div className="flex z-0 justify-between">
             <div>
               <Label colorScheme={colorScheme}>
                 {t("portfolioSummary.unrealizedProfits")}
