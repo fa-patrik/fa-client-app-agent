@@ -1,15 +1,18 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { getFetchPolicyOptions } from "api/utils";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import {
-  SECURITY_TYPE_FRAGMENT,
-  PORTFOLIO_CARD_DATA_FRAGMENT,
+  PORTFOLIO_DATA_FRAGMENT,
+  SECURITY_DATA_FRAGMENT,
+  SECURITY_TYPE_WITH_SECURITIES_FRAGMENT,
 } from "./fragments";
 import { ContactOverviewQuery } from "./types";
 
 const CONTACT_OVERVIEW_QUERY = gql`
-  ${SECURITY_TYPE_FRAGMENT}
-  ${PORTFOLIO_CARD_DATA_FRAGMENT}
+  ${SECURITY_DATA_FRAGMENT}
+  ${SECURITY_TYPE_WITH_SECURITIES_FRAGMENT}
+  ${PORTFOLIO_DATA_FRAGMENT}
   query GetContactOverview($contactId: Long, $locale: Locale) {
     contact(id: $contactId) {
       id
@@ -18,7 +21,7 @@ const CONTACT_OVERVIEW_QUERY = gql`
           paramsSet: {
             key: "contactOverview"
             timePeriodCodes: "DAYS-0"
-            grouppedByProperties: [PORTFOLIO, TYPE]
+            grouppedByProperties: [PORTFOLIO, TYPE, SECURITY]
             includeData: false
             includeChildren: true
             drilldownEnabled: false
@@ -33,16 +36,19 @@ const CONTACT_OVERVIEW_QUERY = gql`
             marketValue
             tradeAmount
           }
-          ...PortfolioCardData
+          ...PortfolioData
         }
       }
     }
   }
 `;
 
-export const useGetContactOverview = () => {
+export const useGetContactOverview = (cacheOnly = false) => {
   const { selectedContactId } = useGetContractIdData();
   const { i18n } = useModifiedTranslation();
+  const defaultPolicies = getFetchPolicyOptions(
+    `useGetContactOverview.${selectedContactId}`
+  );
   const { loading, error, data } = useQuery<ContactOverviewQuery>(
     CONTACT_OVERVIEW_QUERY,
     {
@@ -50,6 +56,8 @@ export const useGetContactOverview = () => {
         contactId: selectedContactId,
         locale: i18n.language,
       },
+      fetchPolicy: cacheOnly ? "cache-only" : defaultPolicies.fetchPolicy,
+      onCompleted: cacheOnly ? undefined : defaultPolicies.onCompleted,
     }
   );
   return { loading, error, data };

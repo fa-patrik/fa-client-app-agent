@@ -5,16 +5,27 @@ export interface SecurityTypeData {
     marketValue: number;
     tradeAmount: number;
     shareOfTotal: number;
+    [key: string]: number;
   };
 }
 
 export interface SecurityData {
-  security: { id: number };
+  security: {
+    id: number;
+    isinCode: string;
+    countryCode: string;
+    currencyCode: string;
+    tagsAsList: string[];
+  };
   code: string;
   name: string;
   firstAnalysis: {
     marketValue: number;
     tradeAmount: number;
+    amount: number;
+    accruedInterest: number;
+    purchaseTradeAmount: number;
+    [key: string]: number;
   };
 }
 
@@ -22,17 +33,16 @@ export interface SecurityTypeDataWithSecurityData extends SecurityTypeData {
   securities: SecurityData[];
 }
 
-export interface PortfolioCardData {
-  code: string;
-  name: string;
+export interface PortfolioData {
   portfolio: {
     id: number;
   };
   firstAnalysis: {
     marketValue: number;
     tradeAmount: number;
+    [key: string]: number;
   };
-  securityTypes: SecurityTypeData[];
+  securityTypes: SecurityTypeDataWithSecurityData[];
 }
 
 export interface ContactOverviewQuery {
@@ -43,8 +53,9 @@ export interface ContactOverviewQuery {
         firstAnalysis: {
           marketValue: number;
           tradeAmount: number;
+          [key: string]: number;
         };
-        parentPortfolios: PortfolioCardData[];
+        parentPortfolios: PortfolioData[];
       };
     };
   };
@@ -52,15 +63,6 @@ export interface ContactOverviewQuery {
 
 export interface PortfolioOverviewQuery {
   analytics: {
-    grouppedAnalytics: {
-      portfolio: {
-        id: number;
-      };
-      firstAnalysis: {
-        marketValue: number;
-        tradeAmount: number;
-      };
-      securityTypes: SecurityTypeDataWithSecurityData[];
-    };
+    grouppedAnalytics: PortfolioData;
   };
 }

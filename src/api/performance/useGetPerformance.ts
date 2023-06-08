@@ -7,12 +7,12 @@ export const useGetPerformance = (
   portfolioId: number,
   timePeriod: string | number
 ) => {
-  const subPortfolioIds = useGetSubPortfolioIds(portfolioId);
+  const ids = useGetSubPortfolioIds(portfolioId);
   const { loading, error, data } = useQuery<PerformanceQuery>(
     PERFORMANCE_PORTFOLIO_INDEXED_VALUE,
     {
       variables: {
-        portfolioIds: portfolioId ? [portfolioId, ...subPortfolioIds] : [],
+        portfolioIds: ids,
         timePeriod,
       },
     }

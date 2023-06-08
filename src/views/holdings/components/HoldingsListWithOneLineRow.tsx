@@ -72,7 +72,7 @@ const HoldingLg = ({
   name,
   code,
   security,
-  figures: { marketValue, tradeAmount, amount, purchaseTradeAmount },
+  firstAnalysis: { marketValue, tradeAmount, amount, purchaseTradeAmount },
   onClick,
   showFlag,
   currency,

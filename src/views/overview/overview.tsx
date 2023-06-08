@@ -15,7 +15,7 @@ export const OverviewView = () => {
 };
 
 interface OverviewProps {
-  data: ContactOverviewQuery;
+  data: ContactOverviewQuery | undefined;
 }
 
 const Overview = ({ data }: OverviewProps) => {
@@ -26,7 +26,7 @@ const Overview = ({ data }: OverviewProps) => {
     data?.contact?.analytics?.contact?.parentPortfolios;
   const breakPortfolioInfoCard = useMatchesBreakpoint("sm");
   const { data: portfolioData } = useGetPortfolioBasicFieldsById(
-    contactPortfoliosAnalysis[0]?.portfolio?.id
+    contactPortfoliosAnalysis?.[0]?.portfolio?.id
   );
 
   //assumption that all portfolios have same currency, so we use currency from first one

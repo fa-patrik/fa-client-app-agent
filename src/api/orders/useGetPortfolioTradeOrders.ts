@@ -26,13 +26,9 @@ export const PORTFOLIO_TRADE_ORDERS_QUERY = gql`
 
 export const useGetPortfolioTradeOrders = (
   portfolioId: number | undefined,
-  options?: QueryHookOptions,
-  includeSubPortfolios = true
+  options?: QueryHookOptions
 ) => {
-  const subPortfolioIds = useGetSubPortfolioIds(portfolioId);
-  const portfolioIds = includeSubPortfolios
-    ? [portfolioId, ...subPortfolioIds]
-    : [portfolioId];
+  const portfolioIds = useGetSubPortfolioIds(portfolioId);
   const dateRangeProps = useGlobalDateRange();
   const { startDate, endDate } = dateRangeProps;
 

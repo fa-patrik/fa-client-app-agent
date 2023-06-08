@@ -1,5 +1,6 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery } from "@apollo/client";
 import { useGetSubPortfolioIds } from "api/generic/useGetSubPortfolioIds";
+import { getFetchPolicyOptions } from "api/utils";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import {
   SECURITY_DATA_FRAGMENT,
@@ -41,18 +42,16 @@ const PORTFOLIO_OVERVIEW_QUERY = gql`
   }
 `;
 
-export const useGetPortfolioOverview = (id: number | undefined) => {
+export const useLazyGetPortfolioOverview = (id: number | undefined) => {
   const { i18n } = useModifiedTranslation();
-  const subPortfolioIds = useGetSubPortfolioIds(id);
-  const ids = id ? [id, ...subPortfolioIds] : [];
-  const { loading, error, data } = useQuery<PortfolioOverviewQuery>(
-    PORTFOLIO_OVERVIEW_QUERY,
-    {
+  const ids = useGetSubPortfolioIds(id);
+  const [getPortfolioOverview, { loading, error, data }] =
+    useLazyQuery<PortfolioOverviewQuery>(PORTFOLIO_OVERVIEW_QUERY, {
       variables: {
         portfolioIds: ids,
         locale: i18n.language,
       },
-    }
-  );
-  return { loading, error, data };
+      ...getFetchPolicyOptions(`useLazyGetPortfolioOverview.${id}`),
+    });
+  return { getPortfolioOverview, loading, error, data };
 };

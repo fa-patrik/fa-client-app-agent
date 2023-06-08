@@ -1,7 +1,5 @@
-import {
-  AllocationBySecurity,
-  SecurityDetailsPosition,
-} from "api/holdings/types";
+import { SecurityDetailsPosition } from "api/holdings/types";
+import { SecurityData } from "api/overview/types";
 import { ReactComponent as MinusCircle } from "assets/minus-circle.svg";
 import { ReactComponent as PlusCircle } from "assets/plus-circle.svg";
 import {
@@ -29,7 +27,7 @@ import { PerformanceRows } from "./components/PerformanceRows";
 
 interface HoldingDetailsProps {
   data: {
-    holding?: AllocationBySecurity;
+    holding?: SecurityData;
     security: SecurityDetailsPosition;
   };
 }

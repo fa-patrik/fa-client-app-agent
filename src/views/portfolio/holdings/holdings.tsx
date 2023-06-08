@@ -1,5 +1,8 @@
 import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
-import { PortfolioHoldingsQuery } from "api/holdings/types";
+import {
+  PortfolioData,
+  SecurityTypeDataWithSecurityData,
+} from "api/overview/types";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import { useModal } from "../../../components/Modal/useModal";
@@ -15,7 +18,11 @@ import { useCanTrade } from "../../../services/permissions/trade";
 import { HoldingsGroupedByType } from "../../holdings/components/HoldingsGroupedByType";
 import { NoHoldings } from "../../holdings/components/NoHoldings";
 
-export const Holdings = (props: { data: PortfolioHoldingsQuery }) => {
+interface PortfolioHoldingsViewProps {
+  data: PortfolioData | undefined;
+}
+
+export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
   const canTrade = useCanTrade();
   const { t } = useModifiedTranslation();
   const {
@@ -35,14 +42,13 @@ export const Holdings = (props: { data: PortfolioHoldingsQuery }) => {
   const { data: portfolioData } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
   const currencyCode = portfolioData?.currency.securityCode || "";
-  const analytics = props.data?.analytics;
-  if (analytics?.allocationTopLevel.allocationByType.length === 0) {
+  if (data?.securityTypes.length === 0) {
     return <NoHoldings />;
   }
   return (
     <>
       <div className="flex flex-col gap-4">
-        {analytics?.allocationTopLevel.allocationByType.map((group) => (
+        {data?.securityTypes.map((group: SecurityTypeDataWithSecurityData) => (
           <HoldingsGroupedByType
             key={group.code}
             currency={currencyCode}

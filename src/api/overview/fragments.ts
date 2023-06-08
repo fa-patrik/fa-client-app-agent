@@ -7,10 +7,17 @@ export const SECURITY_DATA_FRAGMENT = gql`
       name
       security {
         id
+        isinCode
+        countryCode
+        currencyCode
+        tagsAsList
       }
       firstAnalysis {
         marketValue
         tradeAmount
+        amount
+        accruedInterest
+        purchaseTradeAmount
       }
     }
   }
@@ -33,9 +40,6 @@ export const SECURITY_TYPE_FRAGMENT = gql`
 export const SECURITY_TYPE_WITH_SECURITIES_FRAGMENT = gql`
   fragment SecurityTypeWithSecuritiesData on GrouppedAnalyticsDTO {
     securityTypes: grouppedAnalytics {
-      security {
-        id
-      }
       code
       name
       firstAnalysis {
@@ -48,11 +52,9 @@ export const SECURITY_TYPE_WITH_SECURITIES_FRAGMENT = gql`
   }
 `;
 
-export const PORTFOLIO_CARD_DATA_FRAGMENT = gql`
-  fragment PortfolioCardData on GrouppedAnalyticsDTO {
+export const PORTFOLIO_DATA_FRAGMENT = gql`
+  fragment PortfolioData on GrouppedAnalyticsDTO {
     parentPortfolios: grouppedAnalytics {
-      code
-      name
       portfolio {
         id
       }
@@ -60,7 +62,7 @@ export const PORTFOLIO_CARD_DATA_FRAGMENT = gql`
         marketValue
         tradeAmount
       }
-      ...SecurityTypeData
+      ...SecurityTypeWithSecuritiesData
     }
   }
 `;

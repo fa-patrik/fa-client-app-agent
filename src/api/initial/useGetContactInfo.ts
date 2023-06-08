@@ -144,6 +144,9 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
       fetchPolicy: callAPI ? "cache-and-network" : "cache-first",
     }
   );
+  const activeAndPassivePortfolios = !data?.contact?.portfolios?.length
+    ? []
+    : removeClosed(data?.contact?.portfolios);
 
   return {
     loading: loading,
@@ -151,10 +154,7 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
     data: data && {
       contactId: data.contact?.id,
       _contactId: data.contact?.contactId,
-      portfolios:
-        (data?.contact?.portfolios &&
-          removeClosed(data?.contact?.portfolios)) ||
-        [],
+      portfolios: activeAndPassivePortfolios,
       locale: data.contact?.language?.locale || fallbackLanguage,
       // all contact portfolios have same currency
       portfoliosCurrency:

@@ -2,15 +2,15 @@ import { useMemo } from "react";
 import { SecurityTypeDataWithSecurityData } from "api/overview/types";
 
 export const useGetChartData = (
-  securityTypes: SecurityTypeDataWithSecurityData[]
+  securityTypes: SecurityTypeDataWithSecurityData[] | undefined
 ) => {
-  return useMemo(
-    () => ({
+  return useMemo(() => {
+    if (!securityTypes?.length) return { series: [], labels: [] };
+    return {
       series: securityTypes.map(
         (typeData) => typeData.firstAnalysis.shareOfTotal * 100
       ),
       labels: securityTypes.map((typeData) => typeData.name),
-    }),
-    [securityTypes]
-  );
+    };
+  }, [securityTypes]);
 };

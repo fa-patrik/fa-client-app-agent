@@ -7,7 +7,7 @@ interface FetchPolicyOptions {
   onCompleted: (data: unknown) => void;
 }
 
-const TIME_TO_STALE = 86_400_000; // day in ms
+const TIME_TO_STALE = 3600 * 1000; // 1h in ms
 
 const isStale = (hookKey: string) => {
   if (!apiHookCalledMap[hookKey]) {

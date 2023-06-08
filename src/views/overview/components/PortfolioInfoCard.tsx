@@ -15,10 +15,10 @@ interface PortfolioInfoCardProps {
   name?: string;
   colorScheme?: ColorScheme;
   portfolioId?: number;
-  marketValue: number;
-  currencyCode: string;
-  tradeAmount: number;
-  currentBalance?: number;
+  marketValue: number | undefined;
+  currencyCode: string | undefined;
+  tradeAmount: number | undefined;
+  currentBalance?: number | undefined;
 }
 
 export const QuestionmarkIcon = ({ w, h }: { w?: string; h?: string }) => (

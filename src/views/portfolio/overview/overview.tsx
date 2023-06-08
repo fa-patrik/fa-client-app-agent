@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { SecurityTypeCode } from "api/holdings/types";
-import { PortfolioOverviewQuery } from "api/overview/types";
-import { useGetPortfolioOverview } from "api/overview/useGetPortfolioOverview";
+import { PortfolioData } from "api/overview/types";
+import { useGetPortfolioOverviewSmart } from "api/overview/useGetPortfolioOverviewSmart";
 import { TimePeriodForGraph } from "api/performance/types";
 import { useGetPerformance } from "api/performance/useGetPerformance";
 import { ReactComponent as Spinner } from "assets/spinner.svg";
@@ -52,7 +52,7 @@ export const chartRangeOptions = [
 export const OverviewView = () => {
   const { portfolioId } = useParams();
   const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
-  const queryData = useGetPortfolioOverview(portfolioIdAsNr);
+  const queryData = useGetPortfolioOverviewSmart(portfolioIdAsNr);
   return <QueryLoadingWrapper {...queryData} SuccessComponent={Overview} />;
 };
 
@@ -62,13 +62,12 @@ const defaultDateFormatting = {
 };
 
 interface OverviewProps {
-  data: PortfolioOverviewQuery;
+  data: PortfolioData | undefined;
 }
 
 const Overview = ({ data }: OverviewProps) => {
   const { portfolioId } = useParams();
   const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
-  const analytics = data.analytics?.grouppedAnalytics;
   const { t } = useModifiedTranslation();
   const { data: portfolioData } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
@@ -77,10 +76,10 @@ const Overview = ({ data }: OverviewProps) => {
   const currencyCode = portfolioData?.currency?.securityCode || "";
 
   const { topSecurities, worstSecurities } = useSecuritiesSummary(
-    analytics?.securityTypes
+    data?.securityTypes
   );
 
-  const chartData = useGetChartData(analytics?.securityTypes);
+  const chartData = useGetChartData(data?.securityTypes);
 
   const [timeValue, setTimeValue] = useState<Option>({
     id: TimePeriodForGraph["DAYS-7"],
@@ -102,23 +101,23 @@ const Overview = ({ data }: OverviewProps) => {
           <PortfolioSummary
             currencyCode={currencyCode}
             accountBalance={
-              analytics?.securityTypes?.find(
+              data?.securityTypes?.find(
                 (type) => type.code === SecurityTypeCode.CURRENCY
               )?.firstAnalysis?.marketValue
             }
-            tradeAmount={analytics?.firstAnalysis?.tradeAmount}
-            marketValue={analytics?.firstAnalysis?.marketValue}
+            tradeAmount={data?.firstAnalysis?.tradeAmount}
+            marketValue={data?.firstAnalysis?.marketValue}
           />
         ) : (
           <PortfolioInfoCard
             currentBalance={
-              analytics?.securityTypes?.find(
+              data?.securityTypes?.find(
                 (type) => type.code === SecurityTypeCode.CURRENCY
               )?.firstAnalysis?.marketValue
             }
             currencyCode={currencyCode}
-            tradeAmount={analytics?.firstAnalysis?.tradeAmount}
-            marketValue={analytics?.firstAnalysis?.marketValue}
+            tradeAmount={data?.firstAnalysis?.tradeAmount}
+            marketValue={data?.firstAnalysis?.marketValue}
           />
         )}
       </div>

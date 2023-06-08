@@ -1,18 +1,20 @@
-import { AllocationByType } from "api/holdings/types";
-import { useGetContactHoldings } from "api/holdings/useGetContactHoldings";
+import { useMemo } from "react";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
+import { SecurityTypeDataWithSecurityData } from "api/overview/types";
+import { useGetContactOverview } from "api/overview/useGetContactOverview";
 import { QueryLoadingWrapper } from "components";
 import { useParams } from "react-router-dom";
 import { HoldingDetails } from "views/holdingDetails/holdingDetails";
+import { aggregatePortfolioData } from "views/holdings/holdings";
 import { NotFoundView } from "views/notFoundView/notFoundView";
 
 const findHolding = (
-  holdingsGroupedByType: AllocationByType[] | undefined,
+  holdingsGroupedByType: SecurityTypeDataWithSecurityData[] | undefined,
   securityId: string | undefined
 ) => {
   if (!holdingsGroupedByType || !securityId) return;
   for (const type of holdingsGroupedByType) {
-    const holding = type.allocationsBySecurity?.find(
+    const holding = type.securities?.find(
       (holding) => holding?.security?.id?.toString() === securityId
     );
     if (holding) return holding;
@@ -30,9 +32,16 @@ export const HoldingPage = () => {
     loading: holdingLoading,
     error: holdingError,
     data: holdingData,
-  } = useGetContactHoldings();
+  } = useGetContactOverview();
 
-  const holding = findHolding(holdingData?.allocationByType, holdingId);
+  const aggregatedData = useMemo(() => {
+    const portfolioData =
+      holdingData?.contact?.analytics?.contact?.parentPortfolios || [];
+    return aggregatePortfolioData(portfolioData);
+  }, [holdingData?.contact?.analytics?.contact?.parentPortfolios]);
+
+  const securityTypesData = aggregatedData ? Object.values(aggregatedData) : [];
+  const holding = findHolding(securityTypesData, holdingId);
 
   // marge data are ready when:
   // 1) there are securityData (cached or fresh) and

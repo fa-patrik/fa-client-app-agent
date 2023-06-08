@@ -1,18 +1,18 @@
-import { AllocationByType } from "api/holdings/types";
-import { useGetPortfolioHoldings } from "api/holdings/useGetPortfolioHoldings";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
+import { SecurityTypeDataWithSecurityData } from "api/overview/types";
+import { useGetPortfolioOverviewSmart } from "api/overview/useGetPortfolioOverviewSmart";
 import { QueryLoadingWrapper } from "components";
 import { useParams } from "react-router-dom";
 import { HoldingDetails } from "views/holdingDetails/holdingDetails";
 import { NotFoundView } from "views/notFoundView/notFoundView";
 
 const findHolding = (
-  holdingsGroupedByType: AllocationByType[] | undefined,
+  holdingsGroupedByType: SecurityTypeDataWithSecurityData[] | undefined,
   securityId: string | undefined
 ) => {
   if (!holdingsGroupedByType || !securityId) return;
   for (const type of holdingsGroupedByType) {
-    const holding = type.allocationsBySecurity?.find(
+    const holding = type.securities?.find(
       (holding) => holding?.security?.id?.toString() === securityId
     );
     if (holding) return holding;
@@ -31,12 +31,9 @@ export const HoldingPage = () => {
     loading: holdingLoading,
     error: holdingError,
     data: holdingData,
-  } = useGetPortfolioHoldings(portfolioIdAsNr);
+  } = useGetPortfolioOverviewSmart(portfolioIdAsNr);
 
-  const holding = findHolding(
-    holdingData?.analytics.allocationTopLevel.allocationByType,
-    holdingId
-  );
+  const holding = findHolding(holdingData?.securityTypes, holdingId);
 
   // marge data are ready when:
   // 1) there are securityData (cached or fresh) and

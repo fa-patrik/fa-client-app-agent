@@ -43,7 +43,7 @@ const HoldingBase = ({
   name,
   code,
   security: { isinCode, countryCode },
-  figures: { marketValue, tradeAmount },
+  firstAnalysis: { marketValue, tradeAmount },
   onClick,
   showFlag,
   currency,

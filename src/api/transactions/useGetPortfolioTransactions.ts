@@ -25,8 +25,7 @@ export const useGetPortfolioTransactions = (
   portfolioId: number | undefined,
   options?: QueryHookOptions
 ) => {
-  const subPortfolioIds = useGetSubPortfolioIds(portfolioId);
-  const portfolioIds = [portfolioId, ...subPortfolioIds];
+  const portfolioIds = useGetSubPortfolioIds(portfolioId);
   const dateRangeProps = useGlobalDateRange();
   const { startDate, endDate } = dateRangeProps;
 

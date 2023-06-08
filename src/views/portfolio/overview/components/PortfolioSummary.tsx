@@ -3,9 +3,9 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { DataCard } from "../../../overview/components/DataCard";
 
 interface PortfolioSummaryProps {
-  currencyCode: string;
-  marketValue: number;
-  tradeAmount: number;
+  currencyCode: string | undefined;
+  marketValue: number | undefined;
+  tradeAmount: number | undefined;
   accountBalance: number | undefined;
 }
 
