@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Attribute,
   Portfolio,
@@ -98,6 +98,24 @@ enum MonthlyInvestmentsKeys {
   DATE = "date",
 }
 
+const getHasMonthlyInvestmentPlan = (
+  portfoliosMonthlyInvestmentsDataMap:
+    | Record<string, Record<string, Record<string, Attribute>>>
+    | undefined
+) => {
+  const portfolioRows =
+    portfoliosMonthlyInvestmentsDataMap &&
+    Object.values(portfoliosMonthlyInvestmentsDataMap);
+  return (
+    portfolioRows?.some((rows) => {
+      const attributes = rows && Object.values(rows);
+      return attributes?.some((attribute) => {
+        return attribute[MonthlyInvestmentsKeys.SECURITY]?.stringValue;
+      });
+    }) || false
+  );
+};
+
 /**
  * Initial step of the monthly savings wizard.
  * Displays existing monthly savings setup
@@ -111,17 +129,22 @@ const StepZero = () => {
     data: contactData,
     refetch: refetchContactInfo,
     loading: loadingContactData,
-  } = useGetContactInfo();
+  } = useGetContactInfo(true);
+
+  const portfolios = contactData?.portfolios;
   const { getTradableSecurity } = useGetTradebleSecurityLazy();
   const [securities, setSecurities] = useState<
     Record<TradableSecurity["securityCode"], TradableSecurity>
   >({});
-
-  const portfoliosMonthlyInvestmentsDataMap = useMemo(
-    () => getMonthlyInvestmentDataMap(contactData?.portfolios),
-    [contactData]
+  const [
+    portfoliosMonthlyInvestmentsDataMap,
+    setPortfoliosMonthlyInvestmentsDataMap,
+  ] = useState<Record<string, Record<string, Record<string, Attribute>>>>(
+    getMonthlyInvestmentDataMap(portfolios)
   );
-
+  const [hasMonthlyInvestments, setHasMonthlyInvestments] = useState(
+    getHasMonthlyInvestmentPlan(portfoliosMonthlyInvestmentsDataMap)
+  );
   const { i18n } = useModifiedTranslation();
   const { setMonthlyInvestments } = useSetMonthlyInvestments("Delete");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -131,25 +154,22 @@ const StepZero = () => {
     undefined
   );
 
-  /**
-   * Loops through all portfolio monthly investment profiles to find if at least
-   * one has a row with a security code defined.
-   */
-  const hasMonthlyInvestments = useMemo(() => {
-    const portfolioRows =
-      portfoliosMonthlyInvestmentsDataMap &&
-      Object.values(portfoliosMonthlyInvestmentsDataMap);
-    return portfolioRows?.some((rows) => {
-      const attributes = rows && Object.values(rows);
-      return attributes?.some((attribute) => {
-        return attribute[MonthlyInvestmentsKeys.SECURITY]?.stringValue;
-      });
-    });
+  useEffect(() => {
+    const newMap = getMonthlyInvestmentDataMap(portfolios);
+    setPortfoliosMonthlyInvestmentsDataMap(() => newMap);
+  }, [portfolios]);
+
+  useEffect(() => {
+    setHasMonthlyInvestments(
+      getHasMonthlyInvestmentPlan(portfoliosMonthlyInvestmentsDataMap)
+    );
   }, [portfoliosMonthlyInvestmentsDataMap]);
 
   useEffect(() => {
-    return () => setIsMounted(false);
-  });
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -190,8 +210,9 @@ const StepZero = () => {
       setLoadingSecurities(false);
     };
     if (isMounted) fetchData();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contactData]);
+  }, [portfoliosMonthlyInvestmentsDataMap]);
 
   const deleteMonthlyInvestmentProfile = async () => {
     setLoadingDelete(true);
@@ -219,10 +240,13 @@ const StepZero = () => {
       ...prevState,
       nextDisabled: false,
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setWizardData]);
 
-  if (loadingSecurityData || loadingContactData)
+  if (
+    loadingSecurityData ||
+    (loadingContactData && !contactData) ||
+    (!hasMonthlyInvestments && loadingContactData)
+  )
     return <LoadingIndicator center />;
 
   const AddNewPlanButton = () => (
@@ -239,7 +263,6 @@ const StepZero = () => {
       Add new plan
     </Button>
   );
-
   return (
     <div
       className={classNames("flex flex-col gap-y-3 ", {
@@ -255,7 +278,7 @@ const StepZero = () => {
           </Badge>
         </div>
       )}
-      {contactData?.portfolios?.map((portfolio) => {
+      {portfolios?.map((portfolio) => {
         const monthlyInvestmentsDataMap =
           portfoliosMonthlyInvestmentsDataMap?.[portfolio.id];
         const securitiesInProfile: TradableSecurity[] = [];
@@ -324,7 +347,6 @@ const StepZero = () => {
             </Card>
           );
         //portfolio did not have any monthly investment profile entries
-        //or the security api requests failed
         return null;
       })}
       <div>

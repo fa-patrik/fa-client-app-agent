@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { fallbackLanguage } from "i18n";
 import { useKeycloak } from "providers/KeycloakProvider";
@@ -18,6 +19,22 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
     }
     parentPortfolios {
       id
+    }
+    profile {
+      id
+      attributes {
+        id
+        attributeKey
+        defaultValue
+        doubleValue
+        stringValue
+        booleanValue
+        dateValue
+        intValue
+      }
+    }
+    figuresAsObject {
+      latestValues
     }
     portfolios {
       id
@@ -187,9 +204,13 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
       fetchPolicy: callAPI ? "cache-and-network" : "cache-first",
     }
   );
-  const activeAndPassivePortfolios = !data?.contact?.portfolios?.length
-    ? []
-    : removeClosed(data?.contact?.portfolios);
+  const activeAndPassivePortfolios = useMemo(
+    () =>
+      !data?.contact?.portfolios?.length
+        ? []
+        : removeClosed(data?.contact?.portfolios),
+    [data?.contact?.portfolios]
+  );
 
   return {
     loading: loading,

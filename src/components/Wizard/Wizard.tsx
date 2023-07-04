@@ -51,11 +51,12 @@ export const Wizard: React.FC<WizardProps> = ({
   const resetWizardState = () => {
     setWizardData(() => ({
       step: 0,
-      data: undefined,
+      data: {},
       backDisabled: false,
       nextDisabled: true,
       onFinish: undefined,
-      onExit: undefined,
+      onExit: exitWizard,
+      onReset: resetWizardState,
     }));
   };
 
