@@ -5,6 +5,10 @@ import {
 } from "api/overview/types";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
+import {
+  canPortfolioTrade,
+  usePermission,
+} from "services/permissions/usePermission";
 import { useModal } from "../../../components/Modal/useModal";
 import {
   BuyModalContent,
@@ -14,7 +18,6 @@ import {
   SellModalContent,
   SellModalInitialData,
 } from "../../../components/TradingModals/SellModalContent/SellModalContent";
-import { useCanTrade } from "../../../services/permissions/trade";
 import { HoldingsGroupedByType } from "../../holdings/components/HoldingsGroupedByType";
 import { NoHoldings } from "../../holdings/components/NoHoldings";
 
@@ -23,7 +26,7 @@ interface PortfolioHoldingsViewProps {
 }
 
 export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
-  const canTrade = useCanTrade();
+  const canTrade = usePermission(undefined, canPortfolioTrade);
   const { t } = useModifiedTranslation();
   const {
     Modal,

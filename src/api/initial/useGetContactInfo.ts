@@ -31,6 +31,22 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
         id
         code
       }
+      profile {
+        id
+        attributes {
+          id
+          attributeKey
+          defaultValue
+          doubleValue
+          stringValue
+          booleanValue
+          dateValue
+          intValue
+        }
+      }
+      figuresAsObject {
+        latestValues
+      }
     }
   }
 `;
@@ -83,6 +99,7 @@ export enum PortfolioGroups {
   WITHDRAW = "CP_WITHDRAWAL",
   TRADE = "CP_TRADING",
   HIDE = "CP_HIDE_PF",
+  MONTHLY_INVESTMENTS = "CP_MONTHLYINVESTMENTS",
 }
 
 interface PortfolioGroup {
@@ -104,6 +121,30 @@ interface AssetManagerPortfolios {
   };
 }
 
+export interface Attribute {
+  id: number;
+  attributeKey: string;
+  defaultValue: string | number | Date | null;
+  doubleValue: number | null;
+  stringValue: string | null;
+  booleanValue: boolean | null;
+  dateValue: Date | null;
+  intValue: number | null;
+}
+
+export interface Profile {
+  id: number;
+  attributes: Attribute[];
+}
+
+interface KeyFigure {
+  date: string;
+  value: string | number | Date | boolean;
+}
+interface FiguresAsObject {
+  latestValues: Record<string, KeyFigure>;
+}
+
 export interface Portfolio {
   id: number;
   name: string;
@@ -117,6 +158,8 @@ export interface Portfolio {
     securityCode: string;
   };
   portfolioGroups: PortfolioGroup[];
+  profile: Profile | null;
+  figuresAsObject: FiguresAsObject;
 }
 
 interface ContactInfoQuery {
@@ -135,7 +178,7 @@ interface ContactInfoQuery {
 
 export const useGetContactInfo = (callAPI = false, id?: string | number) => {
   const { linkedContact } = useKeycloak();
-  const { loading, error, data } = useQuery<ContactInfoQuery>(
+  const { loading, error, data, refetch } = useQuery<ContactInfoQuery>(
     CONTACT_INFO_QUERY,
     {
       variables: {
@@ -163,6 +206,7 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
       assetManagerPortfolios: data?.contact?.assetManagerPortfolios,
       name: data.contact?.name,
     },
+    refetch,
   };
 };
 

@@ -60,6 +60,7 @@ const TradableSecurityMd = (security: TradableSecuritySized) => {
   const { t } = useModifiedTranslation();
   const navigate = useNavigate();
   const [expanded, toggleExpanded] = useReducer((state) => !state, false);
+
   return (
     <>
       <Grid.Row key={id} className="py-2 border-t" onClick={toggleExpanded}>

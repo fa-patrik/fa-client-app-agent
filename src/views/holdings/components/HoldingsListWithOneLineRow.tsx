@@ -5,7 +5,7 @@ import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate } from "react-router";
 import { getGridColsClass } from "utils/tailwindClasses";
-import { tradableTag } from "../../../services/permissions/trade";
+import { tradableTag } from "../../../services/permissions/usePermission";
 import { GroupedHoldings, HoldingProps } from "./HoldingsGroupedByType";
 import { NameWithFlag } from "./NameWithFlag";
 

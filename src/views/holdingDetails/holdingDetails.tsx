@@ -15,7 +15,11 @@ import { SellModalInitialData } from "components/TradingModals/SellModalContent/
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
 import { useNavigate } from "react-router-dom";
-import { tradableTag, useCanTrade } from "services/permissions/trade";
+import {
+  canPortfolioTrade,
+  usePermission,
+  tradableTag,
+} from "services/permissions/usePermission";
 import { getNameFromBackendTranslations } from "utils/transactions";
 import { addProtocolToUrl } from "utils/url";
 import { DataRow } from "./components/DataRow";
@@ -49,7 +53,7 @@ export const HoldingDetails = ({
   const navigate = useNavigate();
   const { i18n, t } = useModifiedTranslation();
 
-  const canTrade = useCanTrade();
+  const canTrade = usePermission(undefined, canPortfolioTrade);
   const isTradable = tagsAsSet.includes(tradableTag);
 
   const {

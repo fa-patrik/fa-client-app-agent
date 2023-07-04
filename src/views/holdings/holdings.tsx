@@ -6,6 +6,10 @@ import {
   SecurityData,
   SecurityTypeDataWithSecurityData,
 } from "api/overview/types";
+import {
+  canPortfolioTrade,
+  usePermission,
+} from "services/permissions/usePermission";
 import { useModal } from "../../components/Modal/useModal";
 import {
   BuyModalContent,
@@ -16,7 +20,6 @@ import {
   SellModalInitialData,
 } from "../../components/TradingModals/SellModalContent/SellModalContent";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
-import { useCanTrade } from "../../services/permissions/trade";
 import { HoldingsGroupedByType } from "./components/HoldingsGroupedByType";
 import { NoHoldings } from "./components/NoHoldings";
 
@@ -105,7 +108,7 @@ interface ContactHoldingsProps {
 }
 
 export const Holdings = ({ data }: ContactHoldingsProps) => {
-  const canTrade = useCanTrade();
+  const canTrade = usePermission(undefined, canPortfolioTrade);
   const contactData = data?.contact;
   const { data: portfolioData } = useGetPortfolioBasicFieldsById(
     contactData?.analytics?.contact?.parentPortfolios?.[0]?.portfolio?.id

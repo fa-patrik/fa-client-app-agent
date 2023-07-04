@@ -30,3 +30,21 @@ export interface DailyValue {
   indexedValue: number;
   benchmarkIndexedValue: number;
 }
+
+export interface PerformanceBySecurityQuery {
+  analytics: {
+    grouppedAnalytics: {
+      grouppedAnalytics: [
+        {
+          code: string;
+          grouppedAnalyticsTimePeriod: [
+            {
+              timePeriodCode: string;
+              performance: number;
+            }
+          ];
+        }
+      ];
+    };
+  };
+}
