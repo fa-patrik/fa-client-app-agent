@@ -7,6 +7,14 @@ import { useTradablePortfolioSelect } from "./useTradablePortfolioSelect";
 //used by useGetPortfolioOptions
 jest.mock("api/initial/useGetContactInfo", () => ({
   useGetContactInfo: jest.fn(() => ({ data: { portfolios: [] } })),
+  PortfolioGroups: {
+    CANCEL_ORDER: "CP_CANCEL",
+    DEPOSIT: "CP_DEPOSIT",
+    WITHDRAW: "CP_WITHDRAWAL",
+    TRADE: "CP_TRADING",
+    HIDE: "CP_HIDE_PF",
+    MONTHLY_INVESTMENTS: "CP_MONTHLYINVESTMENTS",
+  },
 }));
 //used by useGetPortfolioOptions
 jest.mock("providers/ContractIdProvider", () => ({
