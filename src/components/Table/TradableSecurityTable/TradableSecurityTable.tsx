@@ -202,7 +202,7 @@ const TradableSecurityTable = ({
         id: "security",
         enableSorting: true,
         align: "left",
-        name: "Security",
+        name: t("component.tradableSecuritiesTable.securityColumnHeader"),
         sortFn: (columnSortedState: Record<string, string>) => {
           const currenColumnSortedState = columnSortedState[
             "security"
@@ -215,12 +215,12 @@ const TradableSecurityTable = ({
         id: "performance1year",
         enableSorting: false,
         align: "right",
-        name: "1 year %",
+        name: t("component.tradableSecuritiesTable.1yrTwrColumnHeader"),
         sortFn: undefined,
       },
       {
         id: "managementFee",
-        name: "Fee",
+        name: t("component.tradableSecuritiesTable.feeColumnHeader"),
         align: "right",
         enableSorting: true,
         sortFn: (columnSortedState: Record<string, string>) => {
@@ -238,7 +238,7 @@ const TradableSecurityTable = ({
       },
       {
         id: "minTradeAmount",
-        name: "Min. trade amount",
+        name: t("component.tradableSecuritiesTable.minTradeAmountColumnHeader"),
         align: "right",
         enableSorting: true,
         sortFn: (columnSortedState: Record<string, string>) => {
@@ -256,14 +256,14 @@ const TradableSecurityTable = ({
       },
       {
         id: "KIID",
-        name: "KIID",
+        name: t("component.tradableSecuritiesTable.securityUrl1ColumnHeader"),
         align: "center",
         enableSorting: false,
         sortFn: undefined,
       },
       {
         id: "Details",
-        name: "Details",
+        name: t("component.tradableSecuritiesTable.detailsHeader"),
         align: "center",
         enableSorting: false,
         sortFn: undefined,
@@ -519,7 +519,7 @@ const TradableSecurityTable = ({
                           }/holdings/${security.id}`}
                         >
                           <Button size="xs" variant="Secondary">
-                            {t("tradingList.detailsButton")}
+                            {t("component.tradableSecuritiesTable.detailsButtonLabel")}
                           </Button>
                         </Link>
                       </div>
@@ -548,15 +548,15 @@ const TradableSecurityTable = ({
               })
             }
           >
-            Deselect all
+            {t("component.tradableSecuritiesTable.deselectAllButtonLabel")}
           </Button>
         </div>
         <Pagination
           currentPageindex={pageIndex}
           pageCount={pageCount}
           setPage={setPageIndex}
-          backLabel="Previous"
-          nextLabel="Next"
+          backLabel=""
+          nextLabel=""
           onBack={onPageBack}
           backDisabled={pageIndex === 1}
           onNext={onPageNext}

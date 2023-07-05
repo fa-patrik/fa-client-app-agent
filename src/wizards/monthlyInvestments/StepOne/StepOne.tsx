@@ -3,6 +3,7 @@ import { PortfolioWithProfileAndFigures, useGetPortfoliosWithProfileAndFigures }
 import { Card, Input, PortfolioSelect } from "components";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
+import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { canPortfolioOptionMonthlyInvest } from "services/permissions/usePermission";
 
@@ -15,6 +16,7 @@ const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MINAMOUNT";
  */
 const StepOne = () => {
   const { wizardData, setWizardData } = useWizard();
+  const {t} = useModifiedTranslation()
   const {data} = useGetPortfoliosWithProfileAndFigures()
   const { portfolioOptions } = useFilteredPortfolioSelect(
     canPortfolioOptionMonthlyInvest
@@ -68,7 +70,7 @@ const StepOne = () => {
     }
 
     if (minAmount && inputAsNumber < minAmount) {
-      setInputError("Value is below the minimum amount");
+      setInputError(t("wizards.monthlyInvestments.stepOne.amountInputError"));
       setWizardData((prevState) => ({ ...prevState, nextDisabled: true }));
       return;
     }
@@ -83,7 +85,7 @@ const StepOne = () => {
       },
     }));
     setInputError("");
-  }, [inputValue, setWizardData, minAmount]);
+  }, [inputValue, setWizardData, minAmount, t]);
 
   useEffect(() => {
     setWizardData((prevState) => ({
@@ -116,9 +118,8 @@ const StepOne = () => {
     <div className="flex flex-col gap-y-3">
       <Card>
         <div className="flex flex-col gap-y-3 p-6">
-          <p className="mx-auto text-lg font-bold">Portfolio selection</p>
           <PortfolioSelect
-            label="Select portfolio"
+            label={t("wizards.monthlyInvestments.stepOne.portfolioInputLabel")}
             onChange={setSelectedPortfolioOption}
             portfolioId={selectedPortfolioOption.id}
             portfolioOptions={portfolioOptions}
@@ -130,12 +131,17 @@ const StepOne = () => {
             onChange={(e) => handleInput(e)}
             onPaste={(e) => handlePaste(e)}
             className="text-black rounded-lg"
-            label={`Amount in ${portfolioCurrencyCode}`}
+            label={t("wizards.monthlyInvestments.stepOne.amountInputLabel",{
+              currency: portfolioCurrencyCode
+            })}
             placeholder={`${minAmount || 100}`}
           />
           {minAmount && (
             <p className="text-sm font-thin">
-              Min. {minAmount} {portfolioCurrencyCode}
+              {t("wizards.monthlyInvestments.stepOne.minAmountDisclaimer",{
+                amount: minAmount,
+                currency: portfolioCurrencyCode
+              })}
             </p>
           )}
         </div>

@@ -21,7 +21,7 @@ const dateOptions = Array(31)
  */
 const StepFour = () => {
   const { wizardData, setWizardData } = useWizard();
-  const { i18n } = useModifiedTranslation();
+  const { t, i18n } = useModifiedTranslation();
   const monthsAsString = months.map((dateNr) => {
     const date = new Date();
     date.setMonth(dateNr);
@@ -76,12 +76,11 @@ const StepFour = () => {
     <div className="flex flex-col gap-y-3">
       <Card id="investmentScheduleCard">
         <div className="flex flex-col gap-y-4 items-center p-6 select-none">
-          <p className="text-lg font-bold">Investment schedule</p>
           <div className="z-10">
             <ComboBox
               id="buyDateInput"
-              label="Buy date"
-              tooltipContent="If the day is missing in a month (for example, the 31st), the last day of the month is used."
+              label={t("wizards.monthlyInvestments.stepFour.buyDateInputLabel")}
+              tooltipContent={t("wizards.monthlyInvestments.stepFour.buyDateDialogDescription")}
               options={dateOptions}
               onChange={setSelectedDate}
               value={selectedDate}
@@ -90,7 +89,7 @@ const StepFour = () => {
 
           <div className="flex gap-x-3 items-center">
             <p className="text-sm font-thin">
-              {!toggleSelectAll ? "Select" : "Deselect"} all months
+              {!toggleSelectAll ? t("wizards.monthlyInvestments.stepFour.selectAllMonthsToggleLabel"): t("wizards.monthlyInvestments.stepFour.deselectAllMonthsToggleLabel")}
             </p>
             <Switch
               id="toggleAllMonthsSwitch"
@@ -124,7 +123,7 @@ const StepFour = () => {
             selectBoxes={monthsAsString}
           />
 
-          <LabeledDiv className="font-bold" label="Total investment per year">
+          <LabeledDiv className="font-bold" label={t("wizards.monthlyInvestments.stepFour.totalInvestmentsPerYear")}>
             {yearlyInvestmentAmount.toLocaleString(i18n.language, {
               style: "currency",
               currency:

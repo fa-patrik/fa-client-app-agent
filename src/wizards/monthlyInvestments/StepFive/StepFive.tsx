@@ -36,7 +36,7 @@ const months = Array(12)
 const StepFive = () => {
   const { impersonating } = useKeycloak();
   const { wizardData, setWizardData } = useWizard();
-  const { i18n } = useModifiedTranslation();
+  const { t, i18n } = useModifiedTranslation();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { setMonthlyInvestments } = useSetMonthlyInvestments();
   const [loadingFinish, setLoadingFinish] = useState(false);
@@ -182,7 +182,7 @@ const StepFive = () => {
     <div className="flex flex-col gap-y-3">
       <Card>
         <div className="flex flex-col gap-y-3 p-2 select-none">
-          <p className="mx-auto text-lg font-bold">Summary</p>
+          <p className="mx-auto text-lg font-bold">{t("wizards.monthlyInvestments.stepFive.summaryTitle")}</p>
           <ul className="flex flex-col gap-y-2 w-full text-sm">
             <li className="flex">
               <p className="w-1/2">Portfolio</p>
@@ -191,7 +191,7 @@ const StepFive = () => {
               </p>
             </li>
             <li className="flex justify-between">
-              <p>Amount</p>
+              <p>{t("wizards.monthlyInvestments.stepFive.amount")}</p>
               <p id="amountToInvest" className="font-bold">
                 {amountToInvest?.toLocaleString(i18n.language, {
                   style: "currency",
@@ -201,7 +201,7 @@ const StepFive = () => {
               </p>
             </li>
             <li className="flex justify-between">
-              <p>Yearly amount</p>
+              <p>{t("wizards.monthlyInvestments.stepFive.yearlyAmount")}</p>
               <p id="yearlyAmount" className="font-bold">
                 {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
                   style: "currency",
@@ -212,7 +212,7 @@ const StepFive = () => {
             </li>
           </ul>
           <hr className="w-full border-1" />
-          <p>Investment distribution</p>
+          <p>{t("wizards.monthlyInvestments.stepFive.securityDistributionTableTitle")}</p>
           <div className="overflow-x-auto w-full">
             <SecurityDistributionTable
               totalAmount={wizardData.data.amountToInvest}
@@ -226,13 +226,15 @@ const StepFive = () => {
           <hr className="w-full border-1" />
           <ul className="flex flex-col gap-y-2 w-full text-sm">
             <li className="flex">
-              <p className="w-1/2">Buy date</p>
+              <p className="w-1/2">{t("wizards.monthlyInvestments.stepFive.buyDate")}</p>
               <p id={`selectedDate`} className="w-1/2 font-bold text-right">
-                {Number(selectedDate.id || 0)}. day of month
+              {t("wizards.monthlyInvestments.stepFive.selectedBuyDate",{
+                date: Number(selectedDate.id || 0)
+              })}
               </p>
             </li>
           </ul>
-          <p>Months selected</p>
+          <p>{t("wizards.monthlyInvestments.stepFive.monthsSelectedGridTitle")}</p>
           <div className="flex justify-start w-full">
             <SelectGrid
               id="selectableMonthsGrid"
@@ -246,10 +248,10 @@ const StepFive = () => {
         </div>
       </Card>
       <ConfirmDialog
-        title="Confirm your new monthly investment?"
-        description={`This will create a new or update an existing monthly investment plan.`}
-        confirmButtonText="Confirm"
-        cancelButtonText="Cancel"
+        title={t("wizards.monthlyInvestments.stepFive.confirmDialogTitle")}
+        description={t("wizards.monthlyInvestments.stepFive.confirmDialogDescription")}
+        confirmButtonText={t("wizards.monthlyInvestments.stepFive.confirmDialogCancelButtonLabel")}
+        cancelButtonText={t("wizards.monthlyInvestments.stepFive.confirmDialogCancelButtonLabel")}
         onConfirm={async () => await handleFinishConfirm()}
         isOpen={confirmDialogOpen}
         setIsOpen={setConfirmDialogOpen}

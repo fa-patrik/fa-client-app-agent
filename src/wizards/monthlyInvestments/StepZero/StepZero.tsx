@@ -118,6 +118,7 @@ const getHasMonthlyInvestmentPlan = (
  */
 const StepZero = () => {
   const [isMounted, setIsMounted] = useState(true);
+  const {t} = useModifiedTranslation()
   const { impersonating } = useKeycloak();
   const { setWizardData } = useWizard();
   const {
@@ -255,7 +256,7 @@ const StepZero = () => {
           <div className="max-w-sm">
             <Badge colorScheme="blue">
               <div className="p-4 text-lg">
-                You do not have any monthly investments plans
+                {t("wizards.monthlyInvestments.stepZero.noPlansLabel")}
               </div>
             </Badge>
           </div>
@@ -292,7 +293,7 @@ const StepZero = () => {
             <Card key={portfolio.id} header={portfolio.name}>
               <div className="flex flex-col gap-y-2 p-3">
                 <div className="flex justify-between">
-                  <span>Amount</span>
+                  <span>{t("wizards.monthlyInvestments.stepZero.amount")}</span>
                   <span className="font-bold">
                     {totalAmount.toLocaleString(i18n.language, {
                       style: "currency",
@@ -319,7 +320,7 @@ const StepZero = () => {
                       setConfirmDialogOpen(true);
                     }}
                   >
-                    Delete
+                    {t("wizards.monthlyInvestments.stepZero.deletePlanButtonLabel")}
                   </Button>
                   {false && ( //to be implemented
                     <Button variant="Secondary">Edit</Button>
@@ -344,14 +345,14 @@ const StepZero = () => {
             }))
           }
         >
-          {loadingContactData ? "Refreshing data" : "Add new plan"}
+          {loadingContactData ? t("wizards.monthlyInvestments.stepZero.refreshingDataButtonLabel") : t("wizards.monthlyInvestments.stepZero.addNewPlanButtonLabel")}
         </Button>
       </div>
       <ConfirmDialog
-        title="Delete monthly investment plan?"
-        description={`This will delete the plan.`}
-        confirmButtonText="Delete"
-        cancelButtonText="Cancel"
+        title={t("wizards.monthlyInvestments.stepZero.deleteDialogTitle")}
+        description={t("wizards.monthlyInvestments.stepZero.deleteDialogDescription")}
+        confirmButtonText={t("wizards.monthlyInvestments.stepZero.deleteDialogConfirmButtonLabel")}
+        cancelButtonText={t("wizards.monthlyInvestments.stepZero.deleteDialogCancelButtonLabel")}
         onConfirm={async () => await deleteMonthlyInvestmentProfile()}
         isOpen={confirmDialogOpen}
         setIsOpen={setConfirmDialogOpen}
