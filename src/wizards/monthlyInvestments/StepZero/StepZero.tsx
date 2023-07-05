@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Attribute, Portfolio } from "api/initial/useGetContactInfo";
-import { useGetContactInfoLight } from "api/initial/useGetContactInfoLight";
+import { Attribute, PortfolioWithProfileAndFigures, useGetPortfoliosWithProfileAndFigures } from "api/generic/useGetPortfoliosWithProfileAndFigures";
+import { Portfolio } from "api/initial/useGetContactInfo";
 import {
   TradableSecurity,
   useGetTradebleSecurityLazy,
@@ -61,7 +61,7 @@ const createEmptyMonthlyInvestmentPlan = () => {
  * @param portfolios
  * @returns A map looking like this: [pfId: [rowNr: [attributeKey: Attribute]]]
  */
-const getMonthlyInvestmentDataMap = (portfolios: Portfolio[] | undefined) => {
+const getMonthlyInvestmentDataMap = (portfolios: PortfolioWithProfileAndFigures[] | undefined) => {
   if (!portfolios?.length) return {};
   return portfolios?.reduce((prev, curr) => {
     if (curr.profile) {
@@ -79,10 +79,8 @@ const getMonthlyInvestmentDataMap = (portfolios: Portfolio[] | undefined) => {
       }, {} as Record<string, Record<string, Attribute>>);
       prev = { ...prev };
     }
-    const subPortfolioMonthlyInvestmentDataMap = getMonthlyInvestmentDataMap(
-      curr.portfolios
-    );
-    prev = { ...prev, ...subPortfolioMonthlyInvestmentDataMap };
+
+    prev = { ...prev};
     return prev;
   }, {} as Record<string, Record<string, Record<string, Attribute>>>);
 };
@@ -123,12 +121,12 @@ const StepZero = () => {
   const { impersonating } = useKeycloak();
   const { setWizardData } = useWizard();
   const {
-    data: contactData,
+    data,
     refetch: refetchContactInfo,
     loading: loadingContactData,
-  } = useGetContactInfoLight(true);
+  } = useGetPortfoliosWithProfileAndFigures(true);
 
-  const portfolios = contactData?.portfolios;
+  const portfolios = data?.portfolios;
   const { getTradableSecurity } = useGetTradebleSecurityLazy();
   const [securities, setSecurities] = useState<
     Record<TradableSecurity["securityCode"], TradableSecurity>
@@ -224,10 +222,9 @@ const StepZero = () => {
         targetPortfolio.shortName,
         monthlyInvestmentProfileAsImportString
       );
-      await refetchContactInfo();
-      //close the open dialog
       setLoadingDelete(false);
       setConfirmDialogOpen(false);
+      await refetchContactInfo();
     }
   };
 
@@ -241,7 +238,7 @@ const StepZero = () => {
 
   if (
     loadingSecurityData ||
-    (loadingContactData && !contactData) ||
+    (loadingContactData && !data) ||
     (!hasMonthlyInvestments && loadingContactData)
   )
     return <LoadingIndicator center />;

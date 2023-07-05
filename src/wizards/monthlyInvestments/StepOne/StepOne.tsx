@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { PortfolioWithProfileAndFigures, useGetPortfoliosWithProfileAndFigures } from "api/generic/useGetPortfoliosWithProfileAndFigures";
 import { Card, Input, PortfolioSelect } from "components";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
@@ -14,6 +15,7 @@ const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MINAMOUNT";
  */
 const StepOne = () => {
   const { wizardData, setWizardData } = useWizard();
+  const {data} = useGetPortfoliosWithProfileAndFigures()
   const { portfolioOptions } = useFilteredPortfolioSelect(
     canPortfolioOptionMonthlyInvest
   );
@@ -21,13 +23,16 @@ const StepOne = () => {
     useState<PortfolioOption>(
       wizardData?.data?.selectedPortfolioOption || portfolioOptions[0]
     );
+
+  const [portfolio, setPortfolio] = useState<PortfolioWithProfileAndFigures | undefined>(() => data?.portfolios?.find(p => p.id === selectedPortfolioOption.id))
+    
   const minAmount =
-    selectedPortfolioOption.details?.figuresAsObject?.latestValues[
+    portfolio?.figuresAsObject?.latestValues[
       PF_KEYFIGURE_CODE_MIN_AMOUNT
-    ]?.value;
+    ]?.value as number;
 
   const portfolioCurrencyCode =
-    selectedPortfolioOption.details?.currency.securityCode;
+    portfolio?.currency.securityCode;
 
   const [inputValue, setInputValue] = useState(() => {
     if (minAmount && wizardData?.data?.amountToInvest < minAmount) {
@@ -36,6 +41,11 @@ const StepOne = () => {
     return wizardData?.data?.amountToInvest || 100;
   });
   const [inputError, setInputError] = useState("");
+
+  useEffect(() => {
+    const selectedPortfolio = data?.portfolios?.find(p => p.id === selectedPortfolioOption.id)
+    setPortfolio(() => selectedPortfolio)
+  },[data?.portfolios, selectedPortfolioOption])
 
   //set portfolio to wizard state
   useEffect(() => {
@@ -80,10 +90,10 @@ const StepOne = () => {
       ...prevState,
       data: {
         ...prevState.data,
-        selectedPortfolio: selectedPortfolioOption.details,
+        selectedPortfolio: portfolio,
       },
     }));
-  }, [selectedPortfolioOption, setWizardData]);
+  }, [portfolio, setWizardData]);
 
   /** Ensures input is a positive integer */
   const handleInput = (event: React.FormEvent<HTMLInputElement>) => {

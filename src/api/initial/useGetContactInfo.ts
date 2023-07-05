@@ -20,22 +20,6 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
     parentPortfolios {
       id
     }
-    profile {
-      id
-      attributes {
-        id
-        attributeKey
-        defaultValue
-        doubleValue
-        stringValue
-        booleanValue
-        dateValue
-        intValue
-      }
-    }
-    figuresAsObject {
-      latestValues
-    }
     portfolios {
       id
       name
@@ -47,22 +31,6 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
       portfolioGroups {
         id
         code
-      }
-      profile {
-        id
-        attributes {
-          id
-          attributeKey
-          defaultValue
-          doubleValue
-          stringValue
-          booleanValue
-          dateValue
-          intValue
-        }
-      }
-      figuresAsObject {
-        latestValues
       }
     }
   }
@@ -138,30 +106,6 @@ export interface AssetManagerPortfolios {
   };
 }
 
-export interface Attribute {
-  id: number;
-  attributeKey: string;
-  defaultValue: string | number | Date | null;
-  doubleValue: number | null;
-  stringValue: string | null;
-  booleanValue: boolean | null;
-  dateValue: Date | null;
-  intValue: number | null;
-}
-
-export interface Profile {
-  id: number;
-  attributes: Attribute[];
-}
-
-export interface KeyFigure {
-  date: string;
-  value: string | number | Date | boolean;
-}
-export interface FiguresAsObject {
-  latestValues: Record<string, KeyFigure>;
-}
-
 export interface Portfolio {
   id: number;
   name: string;
@@ -175,8 +119,6 @@ export interface Portfolio {
     securityCode: string;
   };
   portfolioGroups: PortfolioGroup[];
-  profile: Profile | null;
-  figuresAsObject: FiguresAsObject;
 }
 
 export interface ContactInfoQuery {
