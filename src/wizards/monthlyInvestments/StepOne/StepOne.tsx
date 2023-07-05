@@ -6,7 +6,7 @@ import { useWizard } from "providers/WizardProvider";
 import { canPortfolioOptionMonthlyInvest } from "services/permissions/usePermission";
 
 //min units of money to invest
-const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MIN_AMOUNT";
+const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MINAMOUNT";
 
 /**
  * Step one of the monthly investments process.

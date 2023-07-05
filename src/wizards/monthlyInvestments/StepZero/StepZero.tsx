@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import {
-  Attribute,
-  Portfolio,
-  useGetContactInfo,
-} from "api/initial/useGetContactInfo";
+import { Attribute, Portfolio } from "api/initial/useGetContactInfo";
+import { useGetContactInfoLight } from "api/initial/useGetContactInfoLight";
 import {
   TradableSecurity,
   useGetTradebleSecurityLazy,
@@ -129,7 +126,7 @@ const StepZero = () => {
     data: contactData,
     refetch: refetchContactInfo,
     loading: loadingContactData,
-  } = useGetContactInfo(true);
+  } = useGetContactInfoLight(true);
 
   const portfolios = contactData?.portfolios;
   const { getTradableSecurity } = useGetTradebleSecurityLazy();
@@ -249,35 +246,23 @@ const StepZero = () => {
   )
     return <LoadingIndicator center />;
 
-  const AddNewPlanButton = () => (
-    <Button
-      LeftIcon={PlusIcon}
-      onClick={() =>
-        setWizardData((prevState) => ({
-          ...prevState,
-          step: 1,
-          backDisabled: false,
-        }))
-      }
-    >
-      Add new plan
-    </Button>
-  );
   return (
     <div
       className={classNames("flex flex-col gap-y-3 ", {
         "justify-center items-center h-full": !hasMonthlyInvestments,
       })}
     >
-      {!hasMonthlyInvestments && (
-        <div className="max-w-sm">
-          <Badge colorScheme="blue">
-            <div className="p-4 text-lg">
-              You do not have any monthly investments plans
-            </div>
-          </Badge>
-        </div>
-      )}
+      {!hasMonthlyInvestments &&
+        !loadingContactData &&
+        !loadingSecurityData && (
+          <div className="max-w-sm">
+            <Badge colorScheme="blue">
+              <div className="p-4 text-lg">
+                You do not have any monthly investments plans
+              </div>
+            </Badge>
+          </div>
+        )}
       {portfolios?.map((portfolio) => {
         const monthlyInvestmentsDataMap =
           portfoliosMonthlyInvestmentsDataMap?.[portfolio.id];
@@ -349,8 +334,21 @@ const StepZero = () => {
         //portfolio did not have any monthly investment profile entries
         return null;
       })}
-      <div>
-        <AddNewPlanButton />
+      <div className="absolute right-5 bottom-5">
+        <Button
+          isLoading={loadingContactData}
+          disabled={loadingContactData}
+          LeftIcon={PlusIcon}
+          onClick={() =>
+            setWizardData((prevState) => ({
+              ...prevState,
+              step: 1,
+              backDisabled: false,
+            }))
+          }
+        >
+          {loadingContactData ? "Refreshing data" : "Add new plan"}
+        </Button>
       </div>
       <ConfirmDialog
         title="Delete monthly investment plan?"

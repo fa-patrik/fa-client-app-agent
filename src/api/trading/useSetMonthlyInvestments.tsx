@@ -146,13 +146,16 @@ export const useSetMonthlyInvestments = (mode = "New") => {
             ? "Deleted monthly investment"
             : "Created new monthly investment"
         ),
-        { autoClose: 3000, closeButton: false }
+        { autoClose: 3000, closeButton: false,  position: "top-center" }
       );
       setSubmitting(false);
       return apiResponse;
     } catch (e: unknown) {
       toast.error(t("Something went wrong."), {
         style: { whiteSpace: "pre-line" },
+        closeButton: false,
+        autoClose: 3000,
+        position: "top-center"
       });
       setSubmitting(false);
       return null;

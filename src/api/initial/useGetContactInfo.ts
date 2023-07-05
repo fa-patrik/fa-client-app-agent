@@ -119,7 +119,7 @@ export enum PortfolioGroups {
   MONTHLY_INVESTMENTS = "CP_MONTHLYINVESTMENTS",
 }
 
-interface PortfolioGroup {
+export interface PortfolioGroup {
   code: PortfolioGroups;
 }
 
@@ -131,7 +131,7 @@ export interface Representee {
   representees: [];
 }
 
-interface AssetManagerPortfolios {
+export interface AssetManagerPortfolios {
   primaryContact: {
     contactId: string;
     name: string;
@@ -154,11 +154,11 @@ export interface Profile {
   attributes: Attribute[];
 }
 
-interface KeyFigure {
+export interface KeyFigure {
   date: string;
   value: string | number | Date | boolean;
 }
-interface FiguresAsObject {
+export interface FiguresAsObject {
   latestValues: Record<string, KeyFigure>;
 }
 
@@ -179,7 +179,7 @@ export interface Portfolio {
   figuresAsObject: FiguresAsObject;
 }
 
-interface ContactInfoQuery {
+export interface ContactInfoQuery {
   contact?: {
     id: number;
     contactId: string;

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import {
   MonthlyInvestmentsProfile,
@@ -35,7 +34,6 @@ const months = Array(12)
  * An API request is made to FA Back.
  */
 const StepFive = () => {
-  const { refetch: refetchContactInfo } = useGetContactInfo();
   const { impersonating } = useKeycloak();
   const { wizardData, setWizardData } = useWizard();
   const { i18n } = useModifiedTranslation();
@@ -158,8 +156,6 @@ const StepFive = () => {
         selectedPortfolioShortName,
         monthlyInvestmentProfileAsImportString
       );
-      //refetch the contact info, containing the profiles
-      await refetchContactInfo();
     }
     //close the open dialog and go back to step 0
     setLoadingFinish(false);
