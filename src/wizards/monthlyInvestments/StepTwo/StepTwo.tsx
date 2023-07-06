@@ -3,6 +3,7 @@ import {
   TradableSecurity,
   useGetTradebleSecurities,
 } from "api/trading/useGetTradebleSecurities";
+import { SUPPORTED_ROWS_MONTHLY_INVESTMENTS } from "api/trading/useSetMonthlyInvestments";
 import { Card, ComboBox, Input, QueryLoadingWrapper } from "components";
 import { Option } from "components/ComboBox/ComboBox";
 import TradableSecurityTable from "components/Table/TradableSecurityTable/TradableSecurityTable";
@@ -109,7 +110,7 @@ const StepTwo = () => {
   //and enable/disable next and back buttons
   useEffect(() => {
     const disableNext =
-      selectedSecurities.length === 0 || selectedSecurities.length > 15;
+      selectedSecurities.length === 0 || selectedSecurities.length > SUPPORTED_ROWS_MONTHLY_INVESTMENTS;
     const disableBack = false;
 
     if (selectedSecurities.length > 15 && !displayedMaxNrSecuritiesWarning) {

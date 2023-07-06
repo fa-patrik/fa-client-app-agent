@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import {
-  MonthlyInvestmentsProfile,
-  monthlyInvestmentsProfileToImportString,
-  SUPPORTED_ROWS_MONTHLY_INVESTMENTS,
+  PortfolioMonthlyInvestmentsDTO,
   useSetMonthlyInvestments,
 } from "api/trading/useSetMonthlyInvestments";
 import { Card } from "components";
@@ -102,59 +100,34 @@ const StepFive = () => {
     //However, the user might have had SUPPORTED_ROWS_MONTHLY_INVESTMENTS securities there previously.
     //We need to reset the rows that will not be populated. Otherwise, they will stay the same.
     setLoadingFinish(true);
-    const selectedSecuritiesPadded = selectedSecurities?.concat(
-      new Array(
-        Math.max(
-          0,
-          SUPPORTED_ROWS_MONTHLY_INVESTMENTS - selectedSecurities.length
-        )
-      ).fill(undefined)
-    );
-    const monthlyInvestmentProfile: MonthlyInvestmentsProfile =
-      selectedSecuritiesPadded?.reduce(
-        (prev, curr: TradableSecurity | undefined) => {
-          if (!curr) {
-            //reset old rows in the profile
-            prev.rows.push({
-              date: 0,
-              selectedMonths: months.reduce((prev, curr) => {
-                prev[curr] = false;
-                return prev;
-              }, {} as Record<string, boolean>),
-              security: "",
-              amount: 0,
-            });
-          } else {
+    const selectedPortfolioShortName =
+      selectedPortfolioOption?.details?.shortName;
+    const monthlyInvestmentProfile: PortfolioMonthlyInvestmentsDTO | undefined =
+    selectedSecurities?.reduce(
+        (prev, curr: TradableSecurity) => {
             //populate new row in the profile
             prev.rows.push({
               date: Number(selectedDate.id),
-              selectedMonths: selectedMonths,
+              selectedMonths: Object.keys(selectedMonths).reduce((prev,currMonthNr) =>{
+                if(selectedMonths[currMonthNr]) prev.push(Number(currMonthNr))
+                return prev
+              },[] as number[] ),
               security: curr.securityCode,
               amount: amountDistribution?.[curr.id] || 0,
             });
-          }
           return prev;
         },
         {
+          shortName: selectedPortfolioShortName,
           enableInPfCurrency: ENABLE_IN_PF_CURRENCY,
           rows: [],
-        } as MonthlyInvestmentsProfile
-      ) ||
-      ({
-        enableInPfCurrency: ENABLE_IN_PF_CURRENCY,
-        rows: [],
-      } as MonthlyInvestmentsProfile);
+        } as PortfolioMonthlyInvestmentsDTO
+      )
 
-    const selectedPortfolioShortName =
-      selectedPortfolioOption?.details?.shortName;
-
-    const monthlyInvestmentProfileAsImportString =
-      monthlyInvestmentsProfileToImportString(monthlyInvestmentProfile);
     //send mutation to FA Back
-    if (selectedPortfolioShortName && monthlyInvestmentProfileAsImportString) {
+    if (selectedPortfolioShortName && monthlyInvestmentProfile) {
       await setMonthlyInvestments(
-        selectedPortfolioShortName,
-        monthlyInvestmentProfileAsImportString
+        monthlyInvestmentProfile
       );
     }
     //close the open dialog and go back to step 0

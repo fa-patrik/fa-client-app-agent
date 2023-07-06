@@ -6,9 +6,7 @@ import {
   useGetTradebleSecurityLazy,
 } from "api/trading/useGetTradebleSecurities";
 import {
-  MonthlyInvestmentsProfile,
-  monthlyInvestmentsProfileToImportString,
-  SUPPORTED_ROWS_MONTHLY_INVESTMENTS,
+  PortfolioMonthlyInvestmentsDTO,
   useSetMonthlyInvestments,
 } from "api/trading/useSetMonthlyInvestments";
 import { ReactComponent as PlusIcon } from "assets/plus-circle.svg";
@@ -18,41 +16,6 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
 import SecurityDistributionTable from "../StepFive/SecurityDistributionTable";
-
-const months = Array(12)
-  .fill(undefined)
-  .map((_, idx) => {
-    return idx;
-  });
-
-const createEmptyMonthlyInvestmentPlan = () => {
-  const rowsInProfile = new Array(SUPPORTED_ROWS_MONTHLY_INVESTMENTS).fill(
-    undefined
-  );
-
-  const emptyMonthlyInvestmentProfile: MonthlyInvestmentsProfile =
-    rowsInProfile?.reduce(
-      (prev, curr: undefined) => {
-        //reset rows in the profile
-        prev.rows.push({
-          date: 0,
-          selectedMonths: months.reduce((prev, curr) => {
-            prev[curr] = false;
-            return prev;
-          }, {} as Record<string, boolean>),
-          security: "",
-          amount: 0,
-        });
-        return prev;
-      },
-      {
-        enableInPfCurrency: false,
-        rows: [],
-      } as MonthlyInvestmentsProfile
-    );
-
-  return emptyMonthlyInvestmentProfile;
-};
 
 /**
  * Returns a map of the monthly investments from a list of portfolios.
@@ -156,16 +119,18 @@ const StepZero = () => {
 
   const deleteMonthlyInvestmentProfile = async () => {
     setLoadingDelete(true);
-    const monthlyInvestmentProfile: MonthlyInvestmentsProfile =
-      createEmptyMonthlyInvestmentPlan();
+    
 
-    const monthlyInvestmentProfileAsImportString =
-      monthlyInvestmentsProfileToImportString(monthlyInvestmentProfile);
     //send mutation to FA Back
-    if (targetPortfolio && monthlyInvestmentProfileAsImportString) {
+    if (targetPortfolio) {
+      const emptyMonthlyInvestmentProfile: PortfolioMonthlyInvestmentsDTO = {
+        enableInPfCurrency: false,
+        shortName: targetPortfolio?.shortName,
+        rows: []
+      }
+
       await setMonthlyInvestments(
-        targetPortfolio.shortName,
-        monthlyInvestmentProfileAsImportString
+        emptyMonthlyInvestmentProfile
       );
       setLoadingDelete(false);
       setConfirmDialogOpen(false);
