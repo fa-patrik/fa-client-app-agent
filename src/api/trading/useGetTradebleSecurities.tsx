@@ -1,5 +1,5 @@
-import { useReducer } from "react";
-import { gql, OperationVariables, useQuery } from "@apollo/client";
+import { useReducer, useState } from "react";
+import { ApolloError, gql, OperationVariables, useQuery } from "@apollo/client";
 import { useApolloClient } from "@apollo/client";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { Option } from "components/Select/Select";
@@ -160,6 +160,7 @@ export const useGetTradebleSecurities = (currencyCode?: string) => {
     }
   );
 
+
   //derive the selectable options from the received security data, if any
   const filterOptions =
     data?.securities?.reduce((prev, curr) => {
@@ -192,9 +193,11 @@ export const useGetTradebleSecurities = (currencyCode?: string) => {
           ),
         });
       }
+      
 
       return prev;
     }, filterOptionsInitial) ?? filterOptionsInitial;
+
 
   return {
     loading,
@@ -207,18 +210,31 @@ export const useGetTradebleSecurities = (currencyCode?: string) => {
 };
 
 export const useGetTradebleSecurityLazy = () => {
+  const [error, setError] = useState<ApolloError | undefined>();
   const client = useApolloClient();
 
   const getTradableSecurity = async (variables: OperationVariables) => {
-    const result = await client.query({
-      query: TRADABLE_SECURITIES_QUERY,
-      variables,
-    });
-    return result;
+    try {
+      const result = await client.query({
+        query: TRADABLE_SECURITIES_QUERY,
+        variables,
+      });
+
+      // Emulate an error for development
+      // Uncomment below lines to emulate an error
+      //const error = new ApolloError({ errorMessage: "Emulated error" });
+      //throw error;
+
+      setError(undefined)
+      return result;
+    } catch (err) {
+      if(err instanceof ApolloError) setError(err);
+    }
   };
 
   return {
     getTradableSecurity,
+    error,
   };
 };
 

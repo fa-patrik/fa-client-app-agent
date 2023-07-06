@@ -125,18 +125,20 @@ export const useGetPortfoliosWithProfileAndFigures = (callAPI = false) => {
     return prev
   },[] as number[])
 
-  const { loading, error, data, refetch } = useQuery<PortfolioProfileAndFiguresQuery>(
+  const { loading, error, data, refetch, networkStatus } = useQuery<PortfolioProfileAndFiguresQuery>(
     PORTFOLIO_EXTENDED_DATA_QUERY,
     {
       variables: {
         portfolioIds: portfolioIds
       },
       fetchPolicy: callAPI ? "cache-and-network" : "cache-first",
+      notifyOnNetworkStatusChange: true,
     }
   );
 
   return {
-    loading: loading,
+    loading: loading ,
+    networkStatus,
     error: error,
     data: data,
     refetch,

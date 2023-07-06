@@ -12,8 +12,7 @@ import {
   useSetMonthlyInvestments,
 } from "api/trading/useSetMonthlyInvestments";
 import { ReactComponent as PlusIcon } from "assets/plus-circle.svg";
-import classNames from "classnames";
-import { Badge, Button, Card, LoadingIndicator } from "components";
+import { Badge, Button, Card, ErrorMessage, LoadingIndicator } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useKeycloak } from "providers/KeycloakProvider";
@@ -105,7 +104,8 @@ const getHasMonthlyInvestmentPlan = (
     portfolioRows?.some((rows) => {
       const attributes = rows && Object.values(rows);
       return attributes?.some((attribute) => {
-        return attribute[MonthlyInvestmentsKeys.SECURITY]?.stringValue;
+        //check if there is an amount
+        return !!attribute[MonthlyInvestmentsKeys.AMOUNT]?.doubleValue;
       });
     }) || false
   );
@@ -118,30 +118,34 @@ const getHasMonthlyInvestmentPlan = (
  */
 const StepZero = () => {
   const [isMounted, setIsMounted] = useState(true);
-  const {t} = useModifiedTranslation()
   const { impersonating } = useKeycloak();
   const { setWizardData } = useWizard();
   const {
-    data,
-    refetch: refetchContactInfo,
-    loading: loadingContactData,
+    data: portfolioData,
+    refetch: refetchPortfolioData,
+    loading: loadingPortfolioData,
+    error: errorGettingPortfolioData,
+    networkStatus
   } = useGetPortfoliosWithProfileAndFigures(true);
+  const { getTradableSecurity, error: errorGettingSecurity } = useGetTradebleSecurityLazy();
 
-  const portfolios = data?.portfolios;
-  const { getTradableSecurity } = useGetTradebleSecurityLazy();
+  const portfolios = portfolioData?.portfolios;
+  
   const [securities, setSecurities] = useState<
     Record<TradableSecurity["securityCode"], TradableSecurity>
   >({});
   const [
     portfoliosMonthlyInvestmentsDataMap,
     setPortfoliosMonthlyInvestmentsDataMap,
-  ] = useState<Record<string, Record<string, Record<string, Attribute>>>>(
+  ] = useState<Record<string, Record<string, Record<string, Attribute>>>>( () =>
     getMonthlyInvestmentDataMap(portfolios)
   );
-  const [hasMonthlyInvestments, setHasMonthlyInvestments] = useState(
+
+  const [hasMonthlyInvestments, setHasMonthlyInvestments] = useState( () => 
     getHasMonthlyInvestmentPlan(portfoliosMonthlyInvestmentsDataMap)
   );
-  const { i18n } = useModifiedTranslation();
+
+  const { t,i18n } = useModifiedTranslation();
   const { setMonthlyInvestments } = useSetMonthlyInvestments("Delete");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
@@ -150,16 +154,24 @@ const StepZero = () => {
     undefined
   );
 
-  useEffect(() => {
-    const newMap = getMonthlyInvestmentDataMap(portfolios);
-    setPortfoliosMonthlyInvestmentsDataMap(() => newMap);
-  }, [portfolios]);
+  const deleteMonthlyInvestmentProfile = async () => {
+    setLoadingDelete(true);
+    const monthlyInvestmentProfile: MonthlyInvestmentsProfile =
+      createEmptyMonthlyInvestmentPlan();
 
-  useEffect(() => {
-    setHasMonthlyInvestments(
-      getHasMonthlyInvestmentPlan(portfoliosMonthlyInvestmentsDataMap)
-    );
-  }, [portfoliosMonthlyInvestmentsDataMap]);
+    const monthlyInvestmentProfileAsImportString =
+      monthlyInvestmentsProfileToImportString(monthlyInvestmentProfile);
+    //send mutation to FA Back
+    if (targetPortfolio && monthlyInvestmentProfileAsImportString) {
+      await setMonthlyInvestments(
+        targetPortfolio.shortName,
+        monthlyInvestmentProfileAsImportString
+      );
+      setLoadingDelete(false);
+      setConfirmDialogOpen(false);
+      await refetchPortfolioData();
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -168,6 +180,14 @@ const StepZero = () => {
   }, []);
 
   useEffect(() => {
+    setPortfoliosMonthlyInvestmentsDataMap(() => getMonthlyInvestmentDataMap(portfolios));
+  }, [portfolios]);
+
+  useEffect(() => {
+    setHasMonthlyInvestments( () =>
+      getHasMonthlyInvestmentPlan(portfoliosMonthlyInvestmentsDataMap)
+    );
+
     const fetchData = async () => {
       setLoadingSecurities(true);
       const securityData = {} as Record<string, TradableSecurity>;
@@ -199,35 +219,17 @@ const StepZero = () => {
           securityCode: code,
         };
         const response = await getTradableSecurity(variables);
-        const security = response.data?.securities?.[0];
+        const security = response?.data?.securities?.[0];
         if (security) securityData[security.securityCode] = security;
       }
       setSecurities(() => securityData);
       setLoadingSecurities(false);
     };
-    if (isMounted) fetchData();
 
+    if (isMounted) fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfoliosMonthlyInvestmentsDataMap]);
 
-  const deleteMonthlyInvestmentProfile = async () => {
-    setLoadingDelete(true);
-    const monthlyInvestmentProfile: MonthlyInvestmentsProfile =
-      createEmptyMonthlyInvestmentPlan();
-
-    const monthlyInvestmentProfileAsImportString =
-      monthlyInvestmentsProfileToImportString(monthlyInvestmentProfile);
-    //send mutation to FA Back
-    if (targetPortfolio && monthlyInvestmentProfileAsImportString) {
-      await setMonthlyInvestments(
-        targetPortfolio.shortName,
-        monthlyInvestmentProfileAsImportString
-      );
-      setLoadingDelete(false);
-      setConfirmDialogOpen(false);
-      await refetchContactInfo();
-    }
-  };
 
   //enable next
   useEffect(() => {
@@ -235,32 +237,71 @@ const StepZero = () => {
       ...prevState,
       nextDisabled: false,
     }));
-  }, [setWizardData]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  if (
-    loadingSecurityData ||
-    (loadingContactData && !data) ||
-    (!hasMonthlyInvestments && loadingContactData)
+  const loading = loadingSecurityData ||
+  (loadingPortfolioData && !portfolioData) ||
+  (!hasMonthlyInvestments && loadingPortfolioData)
+
+  const errorAndNoDataToShow =  (errorGettingPortfolioData || errorGettingSecurity) && !portfolioData && !Object.keys(securities)?.length
+
+  const AddNewPlanButton = () => (
+    <div className="absolute right-5 bottom-5">
+        <Button
+          isLoading={loadingPortfolioData}
+          disabled={loadingPortfolioData}
+          LeftIcon={PlusIcon}
+          onClick={() =>
+            setWizardData((prevState) => ({
+              ...prevState,
+              step: 1,
+              backDisabled: false,
+            }))
+          }
+        >
+          {loadingPortfolioData ? t("wizards.monthlyInvestments.stepZero.refreshingDataButtonLabel") : t("wizards.monthlyInvestments.stepZero.addNewPlanButtonLabel")}
+        </Button>
+      </div>
   )
+
+  //loading
+  if (loading)
     return <LoadingIndicator center />;
 
+  //error and no data to display
+  if(errorAndNoDataToShow){
+    return (<ErrorMessage header={t("messages.noCachedDataInfo")}>
+    {networkStatus === 4 ? (
+      <LoadingIndicator center size="sm" />
+    ): 
+    <Button onClick={() => refetchPortfolioData()} variant="Transparent">
+    <span  className="text-primary-500 underline">{t("wizards.monthlyInvestments.stepOne.refetchDataButtonLabel")}</span>
+    </Button>
+    }
+  </ErrorMessage>)
+  }
+
+  if(!hasMonthlyInvestments) return(
+    <div
+      className="flex flex-col justify-center items-center h-full"
+    >
+      <div className="max-w-sm">
+        <Badge colorScheme="blue">
+          <div className="p-4 text-lg">
+            {t("wizards.monthlyInvestments.stepZero.noPlansLabel")}
+          </div>
+        </Badge>
+      </div>
+      <AddNewPlanButton/>
+    </div>
+  )
+    
+  //at this point should have enough data to render something useful
   return (
     <div
-      className={classNames("flex flex-col gap-y-3 ", {
-        "justify-center items-center h-full": !hasMonthlyInvestments,
-      })}
+      className="flex flex-col gap-y-3 "
     >
-      {!hasMonthlyInvestments &&
-        !loadingContactData &&
-        !loadingSecurityData && (
-          <div className="max-w-sm">
-            <Badge colorScheme="blue">
-              <div className="p-4 text-lg">
-                {t("wizards.monthlyInvestments.stepZero.noPlansLabel")}
-              </div>
-            </Badge>
-          </div>
-        )}
       {portfolios?.map((portfolio) => {
         const monthlyInvestmentsDataMap =
           portfoliosMonthlyInvestmentsDataMap?.[portfolio.id];
@@ -332,22 +373,7 @@ const StepZero = () => {
         //portfolio did not have any monthly investment profile entries
         return null;
       })}
-      <div className="absolute right-5 bottom-5">
-        <Button
-          isLoading={loadingContactData}
-          disabled={loadingContactData}
-          LeftIcon={PlusIcon}
-          onClick={() =>
-            setWizardData((prevState) => ({
-              ...prevState,
-              step: 1,
-              backDisabled: false,
-            }))
-          }
-        >
-          {loadingContactData ? t("wizards.monthlyInvestments.stepZero.refreshingDataButtonLabel") : t("wizards.monthlyInvestments.stepZero.addNewPlanButtonLabel")}
-        </Button>
-      </div>
+      <AddNewPlanButton/>
       <ConfirmDialog
         title={t("wizards.monthlyInvestments.stepZero.deleteDialogTitle")}
         description={t("wizards.monthlyInvestments.stepZero.deleteDialogDescription")}
