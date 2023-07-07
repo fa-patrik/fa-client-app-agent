@@ -236,7 +236,7 @@ class KeycloakService {
     await this.keycloak.updateToken(1);
     return this.keycloak.token;
   }
-
+  
   async getContactIdFromQuery() {
     try {
       const response = await fetch(`${API_URL}/graphql`, {
@@ -346,5 +346,5 @@ class KeycloakService {
 }
 
 export const keycloakService = new KeycloakService(
-  Keycloak(`${process.env.PUBLIC_URL}/keycloak.json`)
+  new Keycloak(`${process.env.PUBLIC_URL}/keycloak.json`)
 );
