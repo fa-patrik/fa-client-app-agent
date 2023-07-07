@@ -6,7 +6,7 @@ import {
   useGetTradebleSecurityLazy,
 } from "api/trading/useGetTradebleSecurities";
 import {
-  PortfolioMonthlyInvestmentsDTO,
+  PortfolioMonthlyInvestmentsDTOInput,
   useSetMonthlyInvestments,
 } from "api/trading/useSetMonthlyInvestments";
 import { ReactComponent as PlusIcon } from "assets/plus-circle.svg";
@@ -100,12 +100,10 @@ const StepZero = () => {
   const [
     portfoliosMonthlyInvestmentsDataMap,
     setPortfoliosMonthlyInvestmentsDataMap,
-  ] = useState<Record<string, Record<string, Record<string, Attribute>>>>( () =>
-    getMonthlyInvestmentDataMap(portfolios)
-  );
+  ] = useState<Record<string, Record<string, Record<string, Attribute>>> | undefined>(undefined);
 
   const [hasMonthlyInvestments, setHasMonthlyInvestments] = useState( () => 
-    getHasMonthlyInvestmentPlan(portfoliosMonthlyInvestmentsDataMap)
+    true
   );
 
   const { t,i18n } = useModifiedTranslation();
@@ -123,18 +121,18 @@ const StepZero = () => {
 
     //send mutation to FA Back
     if (targetPortfolio) {
-      const emptyMonthlyInvestmentProfile: PortfolioMonthlyInvestmentsDTO = {
+      const emptyMonthlyInvestmentProfile: PortfolioMonthlyInvestmentsDTOInput = {
         enableInPfCurrency: false,
-        shortName: targetPortfolio?.shortName,
+        portfolio: targetPortfolio?.shortName,
         rows: []
       }
 
       await setMonthlyInvestments(
         emptyMonthlyInvestmentProfile
       );
+      await refetchPortfolioData();
       setLoadingDelete(false);
       setConfirmDialogOpen(false);
-      await refetchPortfolioData();
     }
   };
 
@@ -145,19 +143,22 @@ const StepZero = () => {
   }, []);
 
   useEffect(() => {
-    setPortfoliosMonthlyInvestmentsDataMap(() => getMonthlyInvestmentDataMap(portfolios));
+    if(portfolios){
+      const investmentPlan = getMonthlyInvestmentDataMap(portfolios)
+      setPortfoliosMonthlyInvestmentsDataMap(() => investmentPlan);
+      if(Object.keys(investmentPlan).length){
+        const investmentPlanNotEmpty = getHasMonthlyInvestmentPlan(investmentPlan)
+        setHasMonthlyInvestments(() => investmentPlanNotEmpty);
+      }
+    }
   }, [portfolios]);
 
   useEffect(() => {
-    setHasMonthlyInvestments( () =>
-      getHasMonthlyInvestmentPlan(portfoliosMonthlyInvestmentsDataMap)
-    );
-
     const fetchData = async () => {
       setLoadingSecurities(true);
       const securityData = {} as Record<string, TradableSecurity>;
-      const rows = Object.values(portfoliosMonthlyInvestmentsDataMap);
-      const uniqueSecurityCodes = rows.reduce(
+      const rows = portfoliosMonthlyInvestmentsDataMap && Object.values(portfoliosMonthlyInvestmentsDataMap);
+      const uniqueSecurityCodes = rows?.reduce(
         (accumulatedCodes: Set<string>, row) => {
           const fields = Object.values(row);
           return fields.reduce((codesInRow: Set<string>, field) => {
@@ -178,15 +179,18 @@ const StepZero = () => {
         },
         new Set<string>()
       );
-
-      for (const code of Array.from(uniqueSecurityCodes)) {
-        const variables = {
-          securityCode: code,
-        };
-        const response = await getTradableSecurity(variables);
-        const security = response?.data?.securities?.[0];
-        if (security) securityData[security.securityCode] = security;
+      
+      if(uniqueSecurityCodes){
+        for (const code of Array.from(uniqueSecurityCodes)) {
+          const variables = {
+            securityCode: code,
+          };
+          const response = await getTradableSecurity(variables);
+          const security = response?.data?.securities?.[0];
+          if (security) securityData[security.securityCode] = security;
+        }
       }
+      
       setSecurities(() => securityData);
       setLoadingSecurities(false);
     };
@@ -263,96 +267,101 @@ const StepZero = () => {
   )
     
   //at this point should have enough data to render something useful
-  return (
-    <div
-      className="flex flex-col gap-y-3 "
-    >
-      {portfolios?.map((portfolio) => {
-        const monthlyInvestmentsDataMap =
-          portfoliosMonthlyInvestmentsDataMap?.[portfolio.id];
-        const securitiesInProfile: TradableSecurity[] = [];
-        const amountDistribution: Record<TradableSecurity["id"], number> = {};
-        const securityIdToDate: Record<TradableSecurity["id"], number> = {};
-        let totalAmount = 0;
-
-        if (monthlyInvestmentsDataMap) {
-          //extract the portfolio specific data
-          for (const [, fields] of Object.entries(monthlyInvestmentsDataMap)) {
-            const amount = fields?.[MonthlyInvestmentsKeys.AMOUNT]?.doubleValue;
-            const securityCode =
-              fields?.[MonthlyInvestmentsKeys.SECURITY]?.stringValue;
-            const date = fields?.[MonthlyInvestmentsKeys.DATE]?.intValue;
-            const security = securityCode
-              ? securities[securityCode]
-              : undefined;
-            if (amount && date && security) {
-              securitiesInProfile.push(security);
-              amountDistribution[security?.id] = amount;
-              totalAmount += amount;
-              if (date) securityIdToDate[security?.id] = date;
+  if(portfolios){
+    return (
+      <div
+        className="flex flex-col gap-y-3 "
+      >
+        {portfolios.map((portfolio) => {
+          const monthlyInvestmentsDataMap =
+            portfoliosMonthlyInvestmentsDataMap?.[portfolio.id];
+          const securitiesInProfile: TradableSecurity[] = [];
+          const amountDistribution: Record<TradableSecurity["id"], number> = {};
+          const securityIdToDate: Record<TradableSecurity["id"], number> = {};
+          let totalAmount = 0;
+  
+          if (monthlyInvestmentsDataMap) {
+            //extract the portfolio specific data
+            for (const [, fields] of Object.entries(monthlyInvestmentsDataMap)) {
+              const amount = fields?.[MonthlyInvestmentsKeys.AMOUNT]?.doubleValue;
+              const securityCode =
+                fields?.[MonthlyInvestmentsKeys.SECURITY]?.stringValue;
+              const date = fields?.[MonthlyInvestmentsKeys.DATE]?.intValue;
+              const security = securityCode
+                ? securities[securityCode]
+                : undefined;
+              if (amount && date && security) {
+                securitiesInProfile.push(security);
+                amountDistribution[security?.id] = amount;
+                totalAmount += amount;
+                if (date) securityIdToDate[security?.id] = date;
+              }
             }
           }
-        }
+  
+          if (securitiesInProfile.length > 0)
+            return (
+              <Card key={portfolio.id} header={portfolio.name}>
+                <div className="flex flex-col gap-y-2 p-3">
+                  <div className="flex justify-between">
+                    <span>{t("wizards.monthlyInvestments.stepZero.amount")}</span>
+                    <span className="font-bold">
+                      {totalAmount.toLocaleString(i18n.language, {
+                        style: "currency",
+                        currency: portfolio.currency.securityCode,
+                      })}
+                    </span>
+                  </div>
+                  <hr className="border-1" />
+                  <div className="overflow-x-auto w-full">
+                    <SecurityDistributionTable
+                      id={`securityDistributionTable-${portfolio.id}`}
+                      amountDistribution={amountDistribution}
+                      totalAmount={totalAmount}
+                      securities={securitiesInProfile}
+                      portfolioCurrencyCode={portfolio.currency.securityCode}
+                    />
+                  </div>
+                  <hr className="border-1" />
+                  <div className="flex justify-between p-3">
+                    <Button
+                      variant="Delete"
+                      onClick={() => {
+                        setTargetPortfolio(portfolio);
+                        setConfirmDialogOpen(true);
+                      }}
+                    >
+                      {t("wizards.monthlyInvestments.stepZero.deletePlanButtonLabel")}
+                    </Button>
+                    {false && ( //to be implemented
+                      <Button variant="Secondary">Edit</Button>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            );
+          //portfolio did not have any monthly investment profile entries
+          return null;
+        })}
+        <AddNewPlanButton/>
+        <ConfirmDialog
+          title={t("wizards.monthlyInvestments.stepZero.deleteDialogTitle")}
+          description={t("wizards.monthlyInvestments.stepZero.deleteDialogDescription")}
+          confirmButtonText={t("wizards.monthlyInvestments.stepZero.deleteDialogConfirmButtonLabel")}
+          cancelButtonText={t("wizards.monthlyInvestments.stepZero.deleteDialogCancelButtonLabel")}
+          onConfirm={async () => await deleteMonthlyInvestmentProfile()}
+          isOpen={confirmDialogOpen}
+          setIsOpen={setConfirmDialogOpen}
+          loading={loadingDelete}
+          confirmButtonVariant="Red"
+          disabled={impersonating}
+        />
+      </div>
+    );
+  }
 
-        if (securitiesInProfile.length > 0)
-          return (
-            <Card key={portfolio.id} header={portfolio.name}>
-              <div className="flex flex-col gap-y-2 p-3">
-                <div className="flex justify-between">
-                  <span>{t("wizards.monthlyInvestments.stepZero.amount")}</span>
-                  <span className="font-bold">
-                    {totalAmount.toLocaleString(i18n.language, {
-                      style: "currency",
-                      currency: portfolio.currency.securityCode,
-                    })}
-                  </span>
-                </div>
-                <hr className="border-1" />
-                <div className="overflow-x-auto w-full">
-                  <SecurityDistributionTable
-                    id={`securityDistributionTable-${portfolio.id}`}
-                    amountDistribution={amountDistribution}
-                    totalAmount={totalAmount}
-                    securities={securitiesInProfile}
-                    portfolioCurrencyCode={portfolio.currency.securityCode}
-                  />
-                </div>
-                <hr className="border-1" />
-                <div className="flex justify-between p-3">
-                  <Button
-                    variant="Delete"
-                    onClick={() => {
-                      setTargetPortfolio(portfolio);
-                      setConfirmDialogOpen(true);
-                    }}
-                  >
-                    {t("wizards.monthlyInvestments.stepZero.deletePlanButtonLabel")}
-                  </Button>
-                  {false && ( //to be implemented
-                    <Button variant="Secondary">Edit</Button>
-                  )}
-                </div>
-              </div>
-            </Card>
-          );
-        //portfolio did not have any monthly investment profile entries
-        return null;
-      })}
-      <AddNewPlanButton/>
-      <ConfirmDialog
-        title={t("wizards.monthlyInvestments.stepZero.deleteDialogTitle")}
-        description={t("wizards.monthlyInvestments.stepZero.deleteDialogDescription")}
-        confirmButtonText={t("wizards.monthlyInvestments.stepZero.deleteDialogConfirmButtonLabel")}
-        cancelButtonText={t("wizards.monthlyInvestments.stepZero.deleteDialogCancelButtonLabel")}
-        onConfirm={async () => await deleteMonthlyInvestmentProfile()}
-        isOpen={confirmDialogOpen}
-        setIsOpen={setConfirmDialogOpen}
-        loading={loadingDelete}
-        confirmButtonVariant="Red"
-        disabled={impersonating}
-      />
-    </div>
-  );
+  return null
+  
 };
 
 export default StepZero;

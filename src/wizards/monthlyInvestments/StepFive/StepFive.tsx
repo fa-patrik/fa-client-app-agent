@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import {
-  PortfolioMonthlyInvestmentsDTO,
+  PortfolioMonthlyInvestmentsDTOInput,
   useSetMonthlyInvestments,
 } from "api/trading/useSetMonthlyInvestments";
 import { Card } from "components";
@@ -102,14 +102,14 @@ const StepFive = () => {
     setLoadingFinish(true);
     const selectedPortfolioShortName =
       selectedPortfolioOption?.details?.shortName;
-    const monthlyInvestmentProfile: PortfolioMonthlyInvestmentsDTO | undefined =
+    const monthlyInvestmentProfile: PortfolioMonthlyInvestmentsDTOInput | undefined =
     selectedSecurities?.reduce(
         (prev, curr: TradableSecurity) => {
             //populate new row in the profile
             prev.rows.push({
               date: Number(selectedDate.id),
               selectedMonths: Object.keys(selectedMonths).reduce((prev,currMonthNr) =>{
-                if(selectedMonths[currMonthNr]) prev.push(Number(currMonthNr))
+                if(selectedMonths[currMonthNr]) prev.push(Number(currMonthNr) + 1)
                 return prev
               },[] as number[] ),
               security: curr.securityCode,
@@ -118,10 +118,10 @@ const StepFive = () => {
           return prev;
         },
         {
-          shortName: selectedPortfolioShortName,
+          portfolio: selectedPortfolioShortName,
           enableInPfCurrency: ENABLE_IN_PF_CURRENCY,
           rows: [],
-        } as PortfolioMonthlyInvestmentsDTO
+        } as PortfolioMonthlyInvestmentsDTOInput
       )
 
     //send mutation to FA Back
@@ -223,7 +223,7 @@ const StepFive = () => {
       <ConfirmDialog
         title={t("wizards.monthlyInvestments.stepFive.confirmDialogTitle")}
         description={t("wizards.monthlyInvestments.stepFive.confirmDialogDescription")}
-        confirmButtonText={t("wizards.monthlyInvestments.stepFive.confirmDialogCancelButtonLabel")}
+        confirmButtonText={t("wizards.monthlyInvestments.stepFive.confirmDialogConfirmButtonLabel")}
         cancelButtonText={t("wizards.monthlyInvestments.stepFive.confirmDialogCancelButtonLabel")}
         onConfirm={async () => await handleFinishConfirm()}
         isOpen={confirmDialogOpen}

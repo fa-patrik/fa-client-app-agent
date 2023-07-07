@@ -4,11 +4,12 @@ import { toast } from "react-toastify";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 
 export const SUPPORTED_ROWS_MONTHLY_INVESTMENTS = 15;
+type mode = "Delete" | "New"
 
 /**
  * Representing a row in the FA Back Portfolio Investment plan profile.
  */
-interface PortfolioMonthlyInvestmentDTO {
+interface PortfolioMonthlyInvestmentDTOInput {
   security: string;
   amount: number;
   date: number;
@@ -18,50 +19,55 @@ interface PortfolioMonthlyInvestmentDTO {
 /**
  * Representing the FA Back Portfolio Investment plan profile.
  */
-export interface PortfolioMonthlyInvestmentsDTO {
-    shortName: string;
+export interface PortfolioMonthlyInvestmentsDTOInput {
+    portfolio: string;
     enableInPfCurrency: boolean;
-    rows: PortfolioMonthlyInvestmentDTO[];
+    rows: PortfolioMonthlyInvestmentDTOInput[];
 }
 
 interface SetMonthlyInvestmentsMutationVariables {
-  monthlyInvestmentsProfile: PortfolioMonthlyInvestmentsDTO;
+  monthlyInvestments: PortfolioMonthlyInvestmentsDTOInput;
 }
 
-const errorStatus = "ERROR" as const;
-
 interface SetMonthlyInvestmentsMutationResponse {
-  importPortfolios: ({
-    importStatus: "OK" | typeof errorStatus;
-  } & unknown)[];
+  importPortfolioMonthlyInvestments: PortfolioMonthlyInvestmentsDTOInput
 }
 
 const SET_MONTHLY_INVESTMENTS_MUTATION = gql`
-  mutation setMonthlyInvestments($shortName:String, $monthlyInvestments: PortfolioMonthlyInvestmentsDTO)
+  mutation setMonthlyInvestments($monthlyInvestments: PortfolioMonthlyInvestmentsDTOInput)
  {
-    importPortfolioMonthlyInvestments(monthlyInvestments: $monthlyInvestments)
+    importPortfolioMonthlyInvestments(monthlyInvestments: $monthlyInvestments){
+      enableInPfCurrency
+      rows {
+        amount
+        date
+        security
+        selectedMonths
+      }
+      portfolio
+    }
 }
 `;
 
 /**
  * Import monthly investments profile data.
  */
-export const useSetMonthlyInvestments = (mode = "New") => {
+export const useSetMonthlyInvestments = (mode = "New" as mode) => {
   const { t } = useModifiedTranslation();
   const [submitting, setSubmitting] = useState(false);
-  const [handleSetInvestmentPlanAndMonthlySavings] = useMutation<
+  const [handleSetMonthlyInvestments] = useMutation<
     SetMonthlyInvestmentsMutationResponse,
     SetMonthlyInvestmentsMutationVariables
   >(SET_MONTHLY_INVESTMENTS_MUTATION);
 
   const setMonthlyInvestments = async (
-    monthlyInvestments: SetMonthlyInvestmentsMutationVariables["monthlyInvestmentsProfile"]
+    monthlyInvestments: SetMonthlyInvestmentsMutationVariables["monthlyInvestments"]
   ) => {
     setSubmitting(true);
     try {
-      const apiResponse = await handleSetInvestmentPlanAndMonthlySavings({
+      const apiResponse = await handleSetMonthlyInvestments({
         variables: {
-          monthlyInvestmentsProfile: monthlyInvestments,
+          monthlyInvestments: monthlyInvestments,
         },
       });
 
@@ -98,19 +104,8 @@ const handleBadAPIResponse = (
     Record<string, unknown>
   >
 ) => {
-  if (!apiResponse.data || !apiResponse.data.importPortfolios?.[0]) {
-    throw new Error("Empty response");
-  }
-
-  if (apiResponse.data.importPortfolios[0].importStatus === errorStatus) {
-    let errorMessage = "Bad request: \n";
-    Object.entries(apiResponse.data.importPortfolios[0]).forEach(
-      ([key, value]) => {
-        if (value.includes("ERROR") && key !== "importStatus") {
-          errorMessage += `${key}: ${value}; \n`;
-        }
-      }
-    );
-    throw new Error(errorMessage);
+  if (!apiResponse.data || !apiResponse.data.importPortfolioMonthlyInvestments) {
+    console.log("Test")
+    throw new Error("Error while setting monthly investments");
   }
 };
