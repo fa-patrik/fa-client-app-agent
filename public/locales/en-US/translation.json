@@ -325,7 +325,7 @@
         "amountInputBelowMinError": "Below min. amount",
         "amountInputPlaceholder": "200",
         "minDisclaimer": "Min. {{amount}}",
-        "distributeMore": "You need to distribute the remaining {{diffAmountFormatted}} ({{diffPercentageFormatted}}) amount.",
+        "distributeMore": "You need to distribute the remaining {{diffAmountFormatted}} ({{diffPercentageFormatted}}%) amount.",
         "distributeLess": "You have distributed more than the total amount.",
         "distributeOk": "You distributed the whole amount.",
         "removeDialogTitle": "Remove security?",
