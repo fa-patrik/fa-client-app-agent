@@ -10,6 +10,7 @@ import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import SelectGrid from "components/SelectGrid/SelectGrid";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import numbro from "numbro";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
 import SecurityDistributionTable from "./SecurityDistributionTable";
@@ -35,6 +36,8 @@ const StepFive = () => {
   const { impersonating } = useKeycloak();
   const { wizardData, setWizardData } = useWizard();
   const { t, i18n } = useModifiedTranslation();
+  numbro.setLanguage(i18n.language);
+
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { setMonthlyInvestments } = useSetMonthlyInvestments();
   const [loadingFinish, setLoadingFinish] = useState(false);
@@ -102,33 +105,36 @@ const StepFive = () => {
     setLoadingFinish(true);
     const selectedPortfolioShortName =
       selectedPortfolioOption?.details?.shortName;
-    const monthlyInvestmentProfile: PortfolioMonthlyInvestmentsDTOInput | undefined =
-    selectedSecurities?.reduce(
-        (prev, curr: TradableSecurity) => {
-            //populate new row in the profile
-            prev.rows.push({
-              date: Number(selectedDate.id),
-              selectedMonths: Object.keys(selectedMonths).reduce((prev,currMonthNr) =>{
-                if(selectedMonths[currMonthNr]) prev.push(Number(currMonthNr) + 1)
-                return prev
-              },[] as number[] ),
-              security: curr.securityCode,
-              amount: amountDistribution?.[curr.id] || 0,
-            });
-          return prev;
-        },
-        {
-          portfolio: selectedPortfolioShortName,
-          enableInPfCurrency: ENABLE_IN_PF_CURRENCY,
-          rows: [],
-        } as PortfolioMonthlyInvestmentsDTOInput
-      )
+    const monthlyInvestmentProfile:
+      | PortfolioMonthlyInvestmentsDTOInput
+      | undefined = selectedSecurities?.reduce(
+      (prev, curr: TradableSecurity) => {
+        //populate new row in the profile
+        prev.rows.push({
+          date: Number(selectedDate.id),
+          selectedMonths: Object.keys(selectedMonths).reduce(
+            (prev, currMonthNr) => {
+              if (selectedMonths[currMonthNr])
+                prev.push(Number(currMonthNr) + 1);
+              return prev;
+            },
+            [] as number[]
+          ),
+          security: curr.securityCode,
+          amount: amountDistribution?.[curr.id] || 0,
+        });
+        return prev;
+      },
+      {
+        portfolio: selectedPortfolioShortName,
+        enableInPfCurrency: ENABLE_IN_PF_CURRENCY,
+        rows: [],
+      } as PortfolioMonthlyInvestmentsDTOInput
+    );
 
     //send mutation to FA Back
     if (selectedPortfolioShortName && monthlyInvestmentProfile) {
-      await setMonthlyInvestments(
-        monthlyInvestmentProfile
-      );
+      await setMonthlyInvestments(monthlyInvestmentProfile);
     }
     //close the open dialog and go back to step 0
     setLoadingFinish(false);
@@ -155,7 +161,9 @@ const StepFive = () => {
     <div className="flex flex-col gap-y-3">
       <Card>
         <div className="flex flex-col gap-y-3 p-2 select-none">
-          <p className="mx-auto text-lg font-bold">{t("wizards.monthlyInvestments.stepFive.summaryTitle")}</p>
+          <p className="mx-auto text-lg font-bold">
+            {t("wizards.monthlyInvestments.stepFive.summaryTitle")}
+          </p>
           <ul className="flex flex-col gap-y-2 w-full text-sm">
             <li className="flex">
               <p className="w-1/2">Portfolio</p>
@@ -185,7 +193,11 @@ const StepFive = () => {
             </li>
           </ul>
           <hr className="w-full border-1" />
-          <p>{t("wizards.monthlyInvestments.stepFive.securityDistributionTableTitle")}</p>
+          <p>
+            {t(
+              "wizards.monthlyInvestments.stepFive.securityDistributionTableTitle"
+            )}
+          </p>
           <div className="overflow-x-auto w-full">
             <SecurityDistributionTable
               totalAmount={wizardData.data.amountToInvest}
@@ -199,15 +211,19 @@ const StepFive = () => {
           <hr className="w-full border-1" />
           <ul className="flex flex-col gap-y-2 w-full text-sm">
             <li className="flex">
-              <p className="w-1/2">{t("wizards.monthlyInvestments.stepFive.buyDate")}</p>
+              <p className="w-1/2">
+                {t("wizards.monthlyInvestments.stepFive.buyDate")}
+              </p>
               <p id={`selectedDate`} className="w-1/2 font-bold text-right">
-              {t("wizards.monthlyInvestments.stepFive.selectedBuyDate",{
-                date: Number(selectedDate.id || 0)
-              })}
+                {t("wizards.monthlyInvestments.stepFive.selectedBuyDate", {
+                  date: numbro(Number(selectedDate.id || 0)).format("0o"),
+                })}
               </p>
             </li>
           </ul>
-          <p>{t("wizards.monthlyInvestments.stepFive.monthsSelectedGridTitle")}</p>
+          <p>
+            {t("wizards.monthlyInvestments.stepFive.monthsSelectedGridTitle")}
+          </p>
           <div className="flex justify-start w-full">
             <SelectGrid
               id="selectableMonthsGrid"
@@ -222,9 +238,15 @@ const StepFive = () => {
       </Card>
       <ConfirmDialog
         title={t("wizards.monthlyInvestments.stepFive.confirmDialogTitle")}
-        description={t("wizards.monthlyInvestments.stepFive.confirmDialogDescription")}
-        confirmButtonText={t("wizards.monthlyInvestments.stepFive.confirmDialogConfirmButtonLabel")}
-        cancelButtonText={t("wizards.monthlyInvestments.stepFive.confirmDialogCancelButtonLabel")}
+        description={t(
+          "wizards.monthlyInvestments.stepFive.confirmDialogDescription"
+        )}
+        confirmButtonText={t(
+          "wizards.monthlyInvestments.stepFive.confirmDialogConfirmButtonLabel"
+        )}
+        cancelButtonText={t(
+          "wizards.monthlyInvestments.stepFive.confirmDialogCancelButtonLabel"
+        )}
         onConfirm={async () => await handleFinishConfirm()}
         isOpen={confirmDialogOpen}
         setIsOpen={setConfirmDialogOpen}

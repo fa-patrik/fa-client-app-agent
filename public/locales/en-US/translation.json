@@ -17,7 +17,7 @@
       "securityUrl1ColumnHeader": "KIID",
       "detailsHeader": "Details",
       "detailsButtonLabel": "Details",
-      "deselectAllButtonLabel": "Deselect all"
+      "deselectAllButtonLabel": "Clear all"
     },
     "securityDistributionTable":{
       "securityColumHeader": "Security",
@@ -350,9 +350,9 @@
         "yearlyAmount": "Yearly amount",
         "securityDistributionTableTitle": "Investment distribution",
         "buyDate": "Buy date",
-        "selectedBuyDate": "{{date}}. day of month",
+        "selectedBuyDate": "{{date}} day of month",
         "monthsSelectedGridTitle": "Months",
-        "confirmDialogTitle": "Confirm your new monthly investment",
+        "confirmDialogTitle": "Confirm your monthly investment",
         "confirmDialogDescription": "Do you want to save your monthly investment plan?",
         "confirmDialogCancelButtonLabel": "Cancel",
         "confirmDialogConfirmButtonLabel": "Confirm"
