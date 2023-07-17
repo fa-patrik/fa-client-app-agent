@@ -5,10 +5,12 @@ interface CardProps {
   children: ReactNode;
   header?: ReactNode;
   onClick?: () => void;
+  id?: string;
 }
 
-export const Card = ({ children, header, onClick }: CardProps) => (
+export const Card = ({ children, header, onClick, id }: CardProps) => (
   <div
+    id={id}
     className={classNames(
       "flex overflow-hidden flex-col w-full h-full bg-white rounded-lg border shadow-md",
       {

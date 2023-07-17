@@ -2,7 +2,14 @@ import { FunctionComponent, ComponentPropsWithoutRef, SVGProps } from "react";
 import { ReactComponent as Spinner } from "assets/spinner.svg";
 import classNames from "classnames";
 
-type Variant = "Primary" | "Dark" | "Secondary" | "Red";
+export type Variant =
+  | "Primary"
+  | "Dark"
+  | "Secondary"
+  | "Red"
+  | "Delete"
+  | "Transparent"
+  | "Success";
 type Size = "md" | "xs";
 
 interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
@@ -33,6 +40,8 @@ export const Button = ({
         "bg-primary-600 hover:bg-primary-800 text-white fill-white":
           variant === "Primary",
         "bg-red-600 hover:bg-red-800 text-white fill-white": variant === "Red",
+        "bg-white border-2 border-red-600 hover:bg-red-100 text-red-600 fill-red-600 leading-tight":
+          variant === "Delete",
         "bg-white border-2 border-primary-600 hover:bg-primary-100 text-primary-600 fill-primary-600 leading-tight":
           variant === "Secondary",
         "bg-gray-700 hover:bg-gray-800 text-white fill-white":
@@ -40,9 +49,18 @@ export const Button = ({
         "w-full": isFullWidth,
         "text-sm font-medium py-2.5 px-5": size === "md",
         "text-xs font-medium py-1 px-2": size === "xs",
-        "bg-primary-600/50 hover:bg-primary-600/50 cursor-not-allowed": variant === "Primary" && disabled,
-        "bg-red-600/50 hover:bg-red-600/50 cursor-not-allowed": variant === "Red" && disabled,
-        "bg-gray-700/50 hover:bg-gray-700/50 cursor-not-allowed": variant === "Dark" && disabled
+        "bg-primary-600/50 hover:bg-primary-600/50 cursor-not-allowed":
+          variant === "Primary" && disabled,
+        "bg-primary-100/30 border-primary-600/10 text-primary-600/30 hover:bg-primary-100/20 cursor-not-allowed":
+          variant === "Secondary" && disabled,
+        "bg-primary-100/30 border-2 border-red-600/10 hover:bg-red-100/20 text-red-600/30 cursor-not-allowed":
+          variant === "Delete" && disabled,
+        "bg-red-600/50 hover:bg-red-600/50 cursor-not-allowed":
+          variant === "Red" && disabled,
+        "bg-gray-700/50 hover:bg-gray-700/50 cursor-not-allowed":
+          variant === "Dark" && disabled,
+        "text-gray-300": variant === "Transparent" && disabled,
+        "bg-green-400 text-white": variant === "Success",
       }
     )}
   >

@@ -5,6 +5,7 @@ import {
   ForwardRefExoticComponent,
   RefAttributes,
   FC,
+  Ref,
 } from "react";
 import { Tab } from "@headlessui/react";
 import classNames from "classnames";
@@ -20,7 +21,11 @@ type NavTabType = typeof Tab & {
     ComponentProps<FC> & RefAttributes<HTMLElement>
   >;
 };
-const NavTab: NavTabType = (props, ref) => (
+
+const NavTab = (
+  props: ComponentProps<FC>,
+  ref: Ref<HTMLElement> | undefined
+) => (
   <Tab
     className={({ selected }) =>
       classNames("p-2 whitespace-nowrap text-base ", {
@@ -32,8 +37,9 @@ const NavTab: NavTabType = (props, ref) => (
     {...props}
   />
 );
+
 NavTab.displayName = "NavTab";
-NavTab.NavTab = forwardRef(NavTab);
+NavTab.NavTab = forwardRef(NavTab) as NavTabType["NavTab"];
 NavTab.NavTab.displayName = "NavTab.NavTab";
 
 NavTab.Group = Tab.Group;

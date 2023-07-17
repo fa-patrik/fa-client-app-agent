@@ -1,10 +1,16 @@
-import { ElementType as ReactElementType, Fragment, ReactNode } from "react";
+import {
+  ElementType as ReactElementType,
+  Fragment,
+  ReactNode,
+  useState,
+} from "react";
 import { Menu, Transition } from "@headlessui/react";
 import {
   Process,
   useGetContactProcesses,
 } from "api/flowable/useGetContactProcesses";
 import { Representee, useGetContactInfo } from "api/initial/useGetContactInfo";
+import { ReactComponent as CalendarIcon } from "assets/calendar-outlined.svg";
 import { ReactComponent as CheckIcon } from "assets/check.svg";
 import { ReactComponent as DepositIcon } from "assets/deposit.svg";
 import { ReactComponent as ProcessIcon } from "assets/external-link.svg";
@@ -13,6 +19,7 @@ import { ReactComponent as UserIcon } from "assets/user-circle.svg";
 import { ReactComponent as MenuIcon } from "assets/view-list.svg";
 import { ReactComponent as WithdrawalIcon } from "assets/withdrawal.svg";
 import classNames from "classnames";
+import Wizard from "components/Wizard/Wizard";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import i18n from "i18next";
 import {
@@ -23,6 +30,17 @@ import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate, To, NavigateOptions } from "react-router";
 import { keycloakService } from "services/keycloakService";
 import { useCanDeposit, useCanWithdraw } from "services/permissions/money";
+import {
+  canPortfolioMonthlyInvest,
+  PermissionMode,
+  usePermission,
+} from "services/permissions/usePermission";
+import StepFive from "wizards/monthlyInvestments/StepFive/StepFive";
+import StepFour from "wizards/monthlyInvestments/StepFour/StepFour";
+import StepOne from "wizards/monthlyInvestments/StepOne/StepOne";
+import StepThree from "wizards/monthlyInvestments/StepThree/StepThree";
+import StepTwo from "wizards/monthlyInvestments/StepTwo/StepTwo";
+import StepZero from "wizards/monthlyInvestments/StepZero/StepZero";
 import { useModal } from "../Modal/useModal";
 import { DepositModalContent } from "../MoneyModals/DepositModalContent/DepositModalContent";
 import { WithdrawModalContent } from "../MoneyModals/WithdrawModalContent/WithdrawModalContent";
@@ -31,6 +49,7 @@ interface MenuActions {
   logout: () => void;
   deposit: () => void;
   withdraw: () => void;
+  monthlyInvestments: () => void;
   process: (to: To, options?: NavigateOptions) => void;
   setSelectedContact: (contact: SelectedContact) => void;
 }
@@ -40,6 +59,7 @@ const getMenuItems = (
   hasLinkedContact: boolean,
   canDeposit: boolean,
   canWithdraw: boolean,
+  canMonthlyInvest: boolean,
   processes: Process[],
   representees: Representee[],
   contactData: SelectedContact,
@@ -76,7 +96,8 @@ const getMenuItems = (
             });
           },
           Icon: UserIcon,
-          selected: representee?.id === selectedContactId,
+          selected:
+            representee?.id?.toString() === selectedContactId?.toString(),
         }))
       : []),
     "separator",
@@ -96,6 +117,16 @@ const getMenuItems = (
             label: i18n.t("userMenu.withdraw"),
             action: menuActions.withdraw,
             Icon: WithdrawalIcon,
+          },
+        ]
+      : []),
+    "separator",
+    ...(canMonthlyInvest
+      ? [
+          {
+            label: i18n.t("Monthly investments"),
+            action: menuActions.monthlyInvestments,
+            Icon: CalendarIcon,
           },
         ]
       : []),
@@ -125,6 +156,10 @@ export const UserMenu = () => {
   const { linkedContact } = useKeycloak();
   const navigate = useNavigate();
   const { data: processes = [] } = useGetContactProcesses();
+  const canMonthlyInvest = usePermission(
+    PermissionMode.ANY,
+    canPortfolioMonthlyInvest
+  );
   const canDeposit = useCanDeposit();
   const canWithdraw = useCanWithdraw();
   const { data: contactData, loading } = useGetContactInfo();
@@ -141,10 +176,13 @@ export const UserMenu = () => {
     contentProps: withdrawModalContentProps,
   } = useModal();
 
+  const [wizardOpen, setWizardOpen] = useState(false);
+
   const menuActions = {
     logout: () => keycloakService.onAuthLogout(),
     deposit: () => onDepositModalOpen(),
     withdraw: () => onWithdrawModalOpen(),
+    monthlyInvestments: () => setWizardOpen(true),
     process: (to: To, options?: NavigateOptions) => navigate(to, options),
     setSelectedContact: (contact: SelectedContact) => {
       setSelectedContact(contact);
@@ -177,12 +215,13 @@ export const UserMenu = () => {
               !!linkedContact,
               canDeposit,
               canWithdraw,
+              canMonthlyInvest,
               readonly ? [] : processes,
               contactData?.representees || [],
               {
                 id: contactData?.contactId,
                 contactId: contactData?._contactId,
-                userName: contactData?.name
+                userName: contactData?.name,
               },
               selectedContactId
             ).map((item, index) =>
@@ -204,6 +243,40 @@ export const UserMenu = () => {
       >
         <WithdrawModalContent {...withdrawModalContentProps} />
       </Modal>
+      {wizardOpen && ( //only mounted when needed
+        <Wizard
+          title={t("wizards.monthlyInvestments.title")}
+          isOpen={wizardOpen}
+          setIsOpen={setWizardOpen}
+          firstStepIsAnIntro
+          steps={[
+            {
+              label: t("wizards.monthlyInvestments.stepZero.stepTitle"),
+              component: <StepZero />,
+            },
+            {
+              label: t("wizards.monthlyInvestments.stepOne.stepTitle"),
+              component: <StepOne />,
+            },
+            {
+              label: t("wizards.monthlyInvestments.stepTwo.stepTitle"),
+              component: <StepTwo />,
+            },
+            {
+              label: t("wizards.monthlyInvestments.stepThree.stepTitle"),
+              component: <StepThree />,
+            },
+            {
+              label: t("wizards.monthlyInvestments.stepFour.stepTitle"),
+              component: <StepFour />,
+            },
+            {
+              label: t("wizards.monthlyInvestments.stepFive.stepTitle"),
+              component: <StepFive />,
+            },
+          ]}
+        />
+      )}
     </>
   );
 };

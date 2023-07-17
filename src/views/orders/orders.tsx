@@ -1,9 +1,16 @@
+import { useMemo, useState } from "react";
 import { TradeOrder } from "api/orders/types";
 import { QueryData } from "api/types";
-import { Card, DatePicker, QueryLoadingWrapper } from "components";
+import {
+  Card,
+  DatePicker,
+  QueryLoadingWrapper,
+  TransactionsFilter,
+} from "components";
 import { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { OrdersContainer } from "./components/OrdersContainer";
+import { isOrderStatusToDisplayType } from "./components/useGroupedTradeOrdersByStatus";
 
 interface OrdersProps extends QueryData<(TradeOrder | LocalOrder)[]> {
   startDate: Date;
@@ -17,16 +24,27 @@ export const Orders = ({
   setStartDate,
   endDate,
   setEndDate,
-  data,
+  data: transactionsData,
   loading,
   error,
 }: OrdersProps) => {
   const { t } = useModifiedTranslation();
+  const [filteredTransactionData, setFilteredTransactionData] = useState<
+    TradeOrder[] | undefined
+  >(undefined);
+
+  const transactionsDataFilteredBySpecifiedOrderStatuses = useMemo(() => {
+    if (!transactionsData) return [];
+    return transactionsData.filter((transaction) =>
+      isOrderStatusToDisplayType(transaction.orderStatus)
+    );
+  }, [transactionsData]);
+
   return (
     <div className="flex flex-col gap-4">
       <Card>
-        <div className="flex gap-2 p-2 text-normal">
-          <div className="md:w-48 grow md:grow-0">
+        <div className="flex flex-wrap gap-2 p-2 w-full text-normal">
+          <div className="sm:w-48 grow sm:grow-0">
             <DatePicker
               label={t("transactionsPage.datePickerFromLabel")}
               value={startDate}
@@ -34,7 +52,7 @@ export const Orders = ({
               maxDate={endDate}
             />
           </div>
-          <div className="md:w-48 grow md:grow-0">
+          <div className="sm:w-48 grow sm:grow-0">
             <DatePicker
               label={t("transactionsPage.datePickerFromTo")}
               value={endDate}
@@ -42,8 +60,18 @@ export const Orders = ({
               minDate={startDate}
             />
           </div>
+          <TransactionsFilter
+            transactionsData={
+              transactionsDataFilteredBySpecifiedOrderStatuses || []
+            }
+            filterHeader={t("ordersPage.transactionsFilterTitle")}
+            onFilter={(filteredTransactionData) => {
+              setFilteredTransactionData(filteredTransactionData);
+            }}
+          />
         </div>
       </Card>
+
       <QueryLoadingWrapper
         loading={loading}
         error={error}
@@ -51,7 +79,7 @@ export const Orders = ({
           loading
             ? undefined
             : {
-                orders: data,
+                orders: filteredTransactionData as TradeOrder[],
                 startDate,
                 endDate,
               }

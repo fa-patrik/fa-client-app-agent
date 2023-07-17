@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
-import { SecurityPosition } from "api/overview/types";
+import { SecurityData } from "api/overview/types";
 import { Card, GainLoseColoring } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate } from "react-router";
 
 interface ListedSecuritiesCardProps {
-  securities: SecurityPosition[];
+  securities: SecurityData[];
   label: ReactNode;
   currency: string;
 }
@@ -25,21 +25,20 @@ export const ListedSecuritiesCard = ({
       </div>
       <div className="flex flex-col px-2 divide-y">
         {securities.map((security) => {
-          const {
-            security: { id: securityId, name },
-            valueChangeAbsolute,
-          } = security;
+          const valueChange =
+            security.firstAnalysis.marketValue -
+            security.firstAnalysis.tradeAmount;
           return (
             <div
-              key={securityId}
+              key={security.security.id}
               className="flex justify-between items-center py-2 cursor-pointer"
-              onClick={() => navigate(`holdings/${securityId}`)}
+              onClick={() => navigate(`holdings/${security.security.id}`)}
             >
-              <div className="text-base font-normal">{name}</div>
+              <div className="text-base font-normal">{security.name}</div>
               <div className="whitespace-nowrap">
-                <GainLoseColoring value={valueChangeAbsolute}>
+                <GainLoseColoring value={valueChange}>
                   {t("numberWithCurrency", {
-                    value: valueChangeAbsolute,
+                    value: valueChange,
                     currency,
                     formatParams: {
                       value: { signDisplay: "always" },

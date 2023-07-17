@@ -1,0 +1,169 @@
+import { useEffect, useState } from "react";
+import { PortfolioWithProfileAndFigures, useGetPortfoliosWithProfileAndFigures } from "api/generic/useGetPortfoliosWithProfileAndFigures";
+import { Button, Card, ErrorMessage, Input, LoadingIndicator, PortfolioSelect } from "components";
+import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
+import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useWizard } from "providers/WizardProvider";
+import { canPortfolioOptionMonthlyInvest } from "services/permissions/usePermission";
+
+//min units of money to invest
+const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MINAMOUNT";
+
+/**
+ * Step one of the monthly investments process.
+ * The user selects the securities to invest into.
+ */
+const StepOne = () => {
+  const { wizardData, setWizardData } = useWizard();
+  const {t} = useModifiedTranslation()
+  const {data: portfolioData, error:errorGettingPortfolioData, refetch, networkStatus} = useGetPortfoliosWithProfileAndFigures()
+  const { portfolioOptions } = useFilteredPortfolioSelect(
+    canPortfolioOptionMonthlyInvest
+  );
+  const [selectedPortfolioOption, setSelectedPortfolioOption] =
+    useState<PortfolioOption>(
+      wizardData?.data?.selectedPortfolioOption || portfolioOptions[0]
+    );
+
+  const [portfolio, setPortfolio] = useState<PortfolioWithProfileAndFigures | undefined>(() => portfolioData?.portfolios?.find(p => p.id === selectedPortfolioOption.id))
+    
+  const minAmount =
+    portfolio?.figuresAsObject?.latestValues[
+      PF_KEYFIGURE_CODE_MIN_AMOUNT
+    ]?.value as number;
+
+  const portfolioCurrencyCode =
+    portfolio?.currency.securityCode;
+
+  const [inputValue, setInputValue] = useState(() => {
+    if (minAmount && wizardData?.data?.amountToInvest < minAmount) {
+      return minAmount;
+    }
+    return wizardData?.data?.amountToInvest || 100;
+  });
+  const [inputError, setInputError] = useState("");
+
+  useEffect(() => {
+    const selectedPortfolio = portfolioData?.portfolios?.find(p => p.id === selectedPortfolioOption.id)
+    setPortfolio(() => selectedPortfolio)
+  },[portfolioData?.portfolios, selectedPortfolioOption])
+
+  //set portfolio to wizard state
+  useEffect(() => {
+    setWizardData((prevState) => ({
+      ...prevState,
+      data: {
+        ...prevState.data,
+        selectedPortfolioOption: selectedPortfolioOption,
+      },
+    }));
+  }, [selectedPortfolioOption, setWizardData]);
+
+  //validate written input and set it to the wizard state
+  useEffect(() => {
+    const inputAsNumber = Number(inputValue);
+    if (!inputAsNumber) {
+      setInputError(" ");
+      setWizardData((prevState) => ({ ...prevState, nextDisabled: true }));
+      return;
+    }
+
+    if (minAmount && inputAsNumber < minAmount) {
+      setInputError(t("wizards.monthlyInvestments.stepOne.amountInputError"));
+      setWizardData((prevState) => ({ ...prevState, nextDisabled: true }));
+      return;
+    }
+
+    setWizardData((prevState) => ({
+      ...prevState,
+      //enable next on correct input
+      nextDisabled: false,
+      data: {
+        ...prevState.data,
+        amountToInvest: inputAsNumber,
+      },
+    }));
+    setInputError("");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputValue, minAmount]);
+
+  useEffect(() => {
+    setWizardData((prevState) => ({
+      ...prevState,
+      data: {
+        ...prevState.data,
+        selectedPortfolio: portfolio,
+      },
+    }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [portfolio]);
+
+  /** Ensures input is a positive integer */
+  const handleInput = (event: React.FormEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
+    if (target instanceof HTMLInputElement) {
+      const newValue = target.value.replace(/[^0-9]/g, ""); // remove non-digits
+      setInputValue(newValue);
+    }
+  };
+
+  /** Ensures pasted input is a positive integer */
+  const handlePaste = (event: React.ClipboardEvent) => {
+    event.preventDefault();
+    const text = event.clipboardData.getData("text");
+    const value = text.replace(/[^0-9]/g, ""); // remove non-digits
+    setInputValue(value);
+  };
+
+  return (
+    <div className="flex flex-col gap-y-3">
+      {errorGettingPortfolioData  ? (
+            <ErrorMessage header={t("messages.noCachedDataInfo")}>
+              {networkStatus === 4 ? (
+                <LoadingIndicator center size="sm" />
+              ): 
+              <Button onClick={() => refetch()} variant="Transparent">
+              <span  className="text-primary-500 underline">{t("wizards.monthlyInvestments.stepOne.refetchDataButtonLabel")}</span>
+              </Button>
+              }
+            </ErrorMessage>
+          ): (
+      <Card>
+        <div className="flex flex-col gap-y-3 p-6">
+          
+          <PortfolioSelect
+            label={t("wizards.monthlyInvestments.stepOne.portfolioInputLabel")}
+            onChange={setSelectedPortfolioOption}
+            portfolioId={selectedPortfolioOption.id}
+            portfolioOptions={portfolioOptions}
+          />
+          <Input
+            error={inputError}
+            type="number"
+            value={inputValue}
+            onChange={(e) => handleInput(e)}
+            onPaste={(e) => handlePaste(e)}
+            className="text-black rounded-lg"
+            label={t("wizards.monthlyInvestments.stepOne.amountInputLabel",{
+              currency: portfolioCurrencyCode
+            })}
+            placeholder={`${minAmount || 100}`}
+          />
+          {minAmount && (
+            <p className="text-sm font-thin">
+              {t("wizards.monthlyInvestments.stepOne.minAmountDisclaimer",{
+                amount: minAmount,
+                currency: portfolioCurrencyCode
+              })}
+            </p>
+          )}
+          
+        </div>
+      </Card>
+    )}
+    </div>
+  );
+};
+
+export default StepOne;

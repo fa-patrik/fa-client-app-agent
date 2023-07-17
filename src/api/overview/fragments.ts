@@ -1,112 +1,68 @@
 import { gql } from "@apollo/client";
 
-const PORTFOLIO_REPORT_FIELDS = gql`
-  fragment PortfolioReportFields on PortfolioReport {
-    marketValue
-    valueChangeAbsolute
-    portfolio {
-      currency {
-        securityCode
-      }
-    }
-  }
-`;
-
-const PORTFOLIO_REPORT_FIELDS_FOR_PORTFOLIO = gql`
-  ${PORTFOLIO_REPORT_FIELDS}
-  fragment PortfolioReportFieldsForPortfolio on PortfolioReport {
-    portfolioId
-    accountBalance
-    ...PortfolioReportFields
-  }
-`;
-
-export const PORTFOLIO_FIELDS = gql`
-  ${PORTFOLIO_REPORT_FIELDS_FOR_PORTFOLIO}
-  fragment PortfolioFields on Portfolio {
-    id
-    name
-    status
-    currency {
-      securityCode
-    }
-    portfolioReport {
-      ...PortfolioReportFieldsForPortfolio
-    }
-  }
-`;
-
-const SECURITY_POSITIONS_FIELDS = gql`
-  fragment SecurityPositionFields on PortfolioReportItem {
-    portfolioId
-    security {
-      id
+export const SECURITY_DATA_FRAGMENT = gql`
+  fragment SecurityData on GrouppedAnalyticsDTO {
+    securities: grouppedAnalytics {
+      code
       name
-    }
-    valueChangeAbsolute
-  }
-`;
-
-// to distinct Contact portfolioReport from Portfolio portfolioReport in Contact version we set portfolioId as portfolio.contact.id
-export const SUMMARY_FIELDS = gql`
-  ${PORTFOLIO_REPORT_FIELDS}
-  fragment SummaryFields on Contact {
-    id
-    name
-    portfolioReport {
-      ...PortfolioReportFields
-      portfolioId: portfolio {
+      security {
         id
-        contact {
-          id
-        }
+        isinCode
+        countryCode
+        currencyCode
+        tagsAsList
+      }
+      firstAnalysis {
+        marketValue
+        tradeAmount
+        amount
+        accruedInterest
+        purchaseTradeAmount
       }
     }
   }
 `;
 
-export const DETAILED_PORTFOLIO_FIELDS = gql`
-  ${PORTFOLIO_REPORT_FIELDS_FOR_PORTFOLIO}
-  ${SECURITY_POSITIONS_FIELDS}
-  fragment DetailedPortfolioFields on Portfolio {
-    id
-    name
-    currency {
-      securityCode
-    }
-    portfolioReport {
-      ...PortfolioReportFieldsForPortfolio
-      securityPositions: portfolioReportItems {
-        ...SecurityPositionFields
+export const SECURITY_TYPE_FRAGMENT = gql`
+  fragment SecurityTypeData on GrouppedAnalyticsDTO {
+    securityTypes: grouppedAnalytics {
+      code
+      name
+      firstAnalysis {
+        marketValue
+        tradeAmount
+        shareOfTotal
       }
     }
-    analytics(
-      parameters: {
-        paramsSet: {
-          key: "holdingsByType"
-          timePeriodCodes: "DAYS-1"
-          grouppedByProperties: [TYPE]
-          includeData: false
-          includeChildren: true
-          drilldownEnabled: false
-          limit: 0
-          locale: $locale
-        }
-        includeDrilldownPositions: false
+  }
+`;
+
+export const SECURITY_TYPE_WITH_SECURITIES_FRAGMENT = gql`
+  fragment SecurityTypeWithSecuritiesData on GrouppedAnalyticsDTO {
+    securityTypes: grouppedAnalytics {
+      code
+      name
+      firstAnalysis {
+        marketValue
+        tradeAmount
+        shareOfTotal
       }
-    ) {
-      allocationTopLevel: grouppedAnalytics(key: "holdingsByType") {
-        portfolio {
-          id
-        }
-        allocationByType: grouppedAnalytics {
-          code
-          name
-          figures: firstAnalysis {
-            shareOfTotal
-          }
-        }
+      ...SecurityData
+    }
+  }
+`;
+
+export const PORTFOLIO_DATA_FRAGMENT = gql`
+  fragment PortfolioData on GrouppedAnalyticsDTO {
+    parentPortfolios: grouppedAnalytics {
+      portfolio {
+        id
       }
+      firstAnalysis {
+        marketValue
+        tradeAmount
+      }
+      ...SecurityTypeWithSecuritiesData
     }
   }
 `;

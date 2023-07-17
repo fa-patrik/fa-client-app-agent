@@ -5,8 +5,10 @@ import { ReactComponent as ChevronUp } from "assets/chevron-up.svg";
 import { Button, DownloadableDocument, Grid } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate } from "react-router";
+import { addProtocolToUrl } from "utils/url";
 import { dateFromYYYYMMDD } from "../../../utils/date";
 import { NameWithFlag } from "../../holdings/components/NameWithFlag";
+import { DelayRenderingTillVisible } from "./DelayRenderingTillVisible";
 import {
   TradableSecuritiesListSized,
   TradableSecuritySized,
@@ -28,11 +30,16 @@ export const TradableSecuritiesListMd = ({
         <span>&nbsp;</span>
       </Grid.Header>
       {securities.map((security) => (
-        <TradableSecurityMd
-          {...security}
+        <DelayRenderingTillVisible
           key={security.id}
-          onBuyModalOpen={onBuyModalOpen}
-        />
+          placeholderClassName="h-10"
+        >
+          <TradableSecurityMd
+            {...security}
+            key={security.id}
+            onBuyModalOpen={onBuyModalOpen}
+          />
+        </DelayRenderingTillVisible>
       ))}
     </div>
   );
@@ -53,6 +60,7 @@ const TradableSecurityMd = (security: TradableSecuritySized) => {
   const { t } = useModifiedTranslation();
   const navigate = useNavigate();
   const [expanded, toggleExpanded] = useReducer((state) => !state, false);
+
   return (
     <>
       <Grid.Row key={id} className="py-2 border-t" onClick={toggleExpanded}>
@@ -93,13 +101,16 @@ const TradableSecurityMd = (security: TradableSecuritySized) => {
         <div className="text-base font-light">{isinCode}</div>
         <div className="mx-auto ">
           {url2 && (
-            <DownloadableDocument url={url2} label={t("tradingList.kiid")} />
+            <DownloadableDocument
+              url={addProtocolToUrl(url2)}
+              label={t("tradingList.kiid")}
+            />
           )}
         </div>
         <div className="mx-auto">
           {url && (
             <DownloadableDocument
-              url={url}
+              url={addProtocolToUrl(url)}
               label={t("tradingList.prospectus")}
             />
           )}

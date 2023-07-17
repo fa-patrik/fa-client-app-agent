@@ -1,17 +1,20 @@
-import { BaseReport } from "api/overview/types";
 import { GainLoseColoring } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { DataCard } from "./DataCard";
 
-export const TotalSummary = ({
-  portfolio: {
-    currency: { securityCode },
-  },
-  marketValue,
-  valueChangeAbsolute,
-}: BaseReport) => {
-  const { t } = useModifiedTranslation();
+interface TotalSummaryProps {
+  currencyCode: string;
+  marketValue: number;
+  tradeAmount: number;
+}
 
+export const TotalSummary = ({
+  currencyCode,
+  marketValue,
+  tradeAmount,
+}: TotalSummaryProps) => {
+  const { t } = useModifiedTranslation();
+  const valueChange = marketValue - tradeAmount;
   return (
     <>
       <DataCard
@@ -19,17 +22,17 @@ export const TotalSummary = ({
         label={t("portfolioSummary.currentMarketValue")}
         value={t("numberWithCurrencyRounded", {
           value: marketValue,
-          currency: securityCode,
+          currency: currencyCode,
         })}
       />
       <DataCard
         colorScheme="black"
         label={t("portfolioSummary.unrealizedProfits")}
         value={
-          <GainLoseColoring value={valueChangeAbsolute}>
+          <GainLoseColoring value={valueChange}>
             {t("numberWithCurrencyRounded", {
-              value: valueChangeAbsolute,
-              currency: securityCode,
+              value: valueChange,
+              currency: currencyCode,
               formatParams: {
                 value: { signDisplay: "always" },
               },

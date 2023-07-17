@@ -1,7 +1,18 @@
 import { useMemo } from "react";
-import { SecurityPosition } from "api/overview/types";
+import { SecurityTypeCode } from "api/holdings/types";
+import {
+  SecurityData,
+  SecurityTypeDataWithSecurityData,
+} from "api/overview/types";
 
-export const useSecuritiesSummary = (securities: SecurityPosition[]) => {
+export const useSecuritiesSummary = (
+  securityTypes: SecurityTypeDataWithSecurityData[] | undefined
+) => {
+  const securities = securityTypes?.reduce((prev, currSecurityTypeData) => {
+    if (currSecurityTypeData.code !== SecurityTypeCode.CURRENCY)
+      prev.push(...currSecurityTypeData.securities);
+    return prev;
+  }, [] as SecurityData[]);
   const topSecurities = useMemo(() => {
     return getTopSecurities(securities);
   }, [securities]);
@@ -13,16 +24,28 @@ export const useSecuritiesSummary = (securities: SecurityPosition[]) => {
   return { topSecurities, worstSecurities };
 };
 
-const getTopSecurities = (positions: SecurityPosition[]) =>
-  [...positions]
+const getTopSecurities = (positions: SecurityData[] | undefined) => {
+  if (!positions?.length) return [];
+  return [...positions]
     .sort(function (a, b) {
-      return b.valueChangeAbsolute - a.valueChangeAbsolute;
+      const valueChangeA =
+        a.firstAnalysis.marketValue - a.firstAnalysis.tradeAmount;
+      const valueChangeB =
+        b.firstAnalysis.marketValue - b.firstAnalysis.tradeAmount;
+      return valueChangeB - valueChangeA;
     })
     .slice(0, 3);
+};
 
-const getWorstSecurities = (positions: SecurityPosition[]) =>
-  [...positions]
+const getWorstSecurities = (positions: SecurityData[] | undefined) => {
+  if (!positions?.length) return [];
+  return [...positions]
     .sort(function (a, b) {
-      return a.valueChangeAbsolute - b.valueChangeAbsolute;
+      const valueChangeA =
+        a.firstAnalysis.marketValue - a.firstAnalysis.tradeAmount;
+      const valueChangeB =
+        b.firstAnalysis.marketValue - b.firstAnalysis.tradeAmount;
+      return valueChangeA - valueChangeB;
     })
     .slice(0, 3);
+};

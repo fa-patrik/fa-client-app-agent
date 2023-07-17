@@ -1,70 +1,68 @@
-export interface BaseReport {
-  marketValue: number;
-  valueChangeAbsolute: number;
-  accountBalance: number;
-  portfolio: {
-    currency: {
-      securityCode: string;
-    };
-  };
-}
-
-interface Summary<TReport extends BaseReport = BaseReport> {
-  id: number;
-  name: string;
-  portfolioReport: TReport;
-  isinCode: string;
-}
-
-export interface SecurityPosition {
-  valueChangeAbsolute: number;
-  amount: number;
-  security: {
-    id: number;
-    name: string;
-  };
-}
-
-interface DetailedReport extends BaseReport {
-  securityPositions: SecurityPosition[];
-}
-
-type DetailedSummary = Summary<DetailedReport>;
-
-interface Portfolio extends Summary {
-  status: string;
-  currency: {
-    securityCode: string;
-  };
-}
-
-export interface AllocationByType {
+export interface SecurityTypeData {
   code: string;
   name: string;
-  figures: {
+  firstAnalysis: {
+    marketValue: number;
+    tradeAmount: number;
     shareOfTotal: number;
+    [key: string]: number;
   };
 }
 
-export interface DetailedPortfolio extends DetailedSummary {
-  currency: {
-    securityCode: string;
+export interface SecurityData {
+  security: {
+    id: number;
+    isinCode: string;
+    countryCode: string;
+    currencyCode: string;
+    tagsAsList: string[];
   };
-  analytics: {
-    allocationTopLevel: {
-      allocationByType: AllocationByType[];
+  code: string;
+  name: string;
+  firstAnalysis: {
+    marketValue: number;
+    tradeAmount: number;
+    amount: number;
+    accruedInterest: number;
+    purchaseTradeAmount: number;
+    [key: string]: number;
+  };
+}
+
+export interface SecurityTypeDataWithSecurityData extends SecurityTypeData {
+  securities: SecurityData[];
+}
+
+export interface PortfolioData {
+  portfolio: {
+    id: number;
+  };
+  firstAnalysis: {
+    marketValue: number;
+    tradeAmount: number;
+    [key: string]: number;
+  };
+  securityTypes: SecurityTypeDataWithSecurityData[];
+}
+
+export interface ContactOverviewQuery {
+  contact: {
+    id: number;
+    analytics: {
+      contact: {
+        firstAnalysis: {
+          marketValue: number;
+          tradeAmount: number;
+          [key: string]: number;
+        };
+        parentPortfolios: PortfolioData[];
+      };
     };
   };
 }
 
-export interface AllPortfolios extends DetailedSummary {
-  portfolios: Portfolio[];
-}
-
-export interface AllPortfoliosQuery {
-  contact: AllPortfolios;
-}
-
-export interface PortfolioQuery {
-  portfolio: DetailedPortfolio;
+export interface PortfolioOverviewQuery {
+  analytics: {
+    grouppedAnalytics: PortfolioData;
+  };
 }

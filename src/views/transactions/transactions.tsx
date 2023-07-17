@@ -1,10 +1,16 @@
-import { Transaction as TransactionType } from "api/transactions/types";
+import { useState } from "react";
+import { Transaction } from "api/transactions/types";
 import { QueryData } from "api/types";
-import { Card, DatePicker, QueryLoadingWrapper } from "components";
+import {
+  Card,
+  DatePicker,
+  QueryLoadingWrapper,
+  TransactionsFilter,
+} from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { TransactionsContainer } from "./components/TransactionsContainer";
 
-interface TransactionsProps extends QueryData<TransactionType[]> {
+interface TransactionsProps extends QueryData<Transaction[]> {
   startDate: Date;
   setStartDate: (newDate: Date) => void;
   endDate: Date;
@@ -16,16 +22,20 @@ export const Transactions = ({
   setStartDate,
   endDate,
   setEndDate,
-  data,
+  data: transactionsData,
   loading,
   error,
 }: TransactionsProps) => {
   const { t } = useModifiedTranslation();
+  const [filteredTransactionData, setFilteredTransactionData] = useState<
+    Transaction[] | undefined
+  >(undefined);
+
   return (
     <div className="flex flex-col gap-4">
       <Card>
-        <div className="flex gap-2 p-2 text-normal">
-          <div className="md:w-48 grow md:grow-0">
+        <div className="flex flex-wrap gap-2 p-2 w-full text-normal">
+          <div className="sm:w-48 grow sm:grow-0">
             <DatePicker
               label={t("transactionsPage.datePickerFromLabel")}
               value={startDate}
@@ -33,7 +43,7 @@ export const Transactions = ({
               maxDate={endDate}
             />
           </div>
-          <div className="md:w-48 grow md:grow-0">
+          <div className="sm:w-48 grow sm:grow-0">
             <DatePicker
               label={t("transactionsPage.datePickerFromTo")}
               value={endDate}
@@ -41,6 +51,15 @@ export const Transactions = ({
               minDate={startDate}
             />
           </div>
+          <TransactionsFilter
+            transactionsData={transactionsData || []}
+            filterHeader={t("transactionsPage.transactionsFilterTitle")}
+            onFilter={(filteredTransactionData) =>
+              setFilteredTransactionData(
+                filteredTransactionData as Transaction[]
+              )
+            }
+          />
         </div>
       </Card>
       <QueryLoadingWrapper
@@ -50,7 +69,7 @@ export const Transactions = ({
           loading
             ? undefined
             : {
-                transactions: data,
+                transactions: filteredTransactionData as Transaction[],
                 startDate,
                 endDate,
               }

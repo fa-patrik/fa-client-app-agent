@@ -1,58 +1,3 @@
-export interface AllocationBySecurity {
-  code: string;
-  name: string;
-  security: {
-    id: number;
-    isinCode: string;
-    countryCode: string;
-    currencyCode: string;
-    tagsAsList: string[];
-  };
-  figures: {
-    marketValue: number;
-    tradeAmount: number;
-    fxRate: number;
-    amount: number;
-    purchaseTradeAmount: number;
-  };
-}
-
-export interface AllocationByType {
-  code: SecurityTypeCode;
-  name: string;
-  figures: {
-    marketValue: number;
-    tradeAmount: number;
-  };
-  allocationsBySecurity: AllocationBySecurity[];
-}
-
-export interface AllPortfoliosHoldingsQuery {
-  contact: {
-    analytics: {
-      allocationTopLevel: {
-        portfolio: {
-          currencyCode: string;
-        };
-        allocationByType: AllocationByType[];
-      };
-    };
-  };
-}
-
-export interface PortfolioHoldingsQuery {
-  portfolio: {
-    analytics: {
-      allocationTopLevel: {
-        portfolio: {
-          currencyCode: string;
-        };
-        allocationByType: AllocationByType[];
-      };
-    };
-  };
-}
-
 export interface MarketHistoryDataPoint {
   price: number;
   date: string;
@@ -101,6 +46,11 @@ export interface SecurityDetailsPosition {
   fxRate: number;
   // misnamed on backend, should be tagsAsList
   tagsAsSet: string[];
+  documents: {
+    fileName: string;
+    identifier: string;
+    mimeType: string;
+  }[];
 }
 
 export interface SecurityDetailsQuery {
@@ -120,20 +70,9 @@ export interface HoldingPosition {
     id: number;
   };
   amount: number;
-  accruedInterest: number;
   purchaseTradeAmount: number;
   marketValue: number;
-  valueChangeAbsolute: number;
-  valueChangeRelative: number;
   marketFxRate: number;
-}
-
-export interface AllPortfoliosHoldingDetailsQuery {
-  contact: {
-    portfolioReport: {
-      holdingPositions: HoldingPosition[];
-    };
-  };
 }
 
 export interface PortfolioHoldingDetailsQuery {

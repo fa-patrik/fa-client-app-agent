@@ -1,5 +1,4 @@
 import { gql, useQuery } from "@apollo/client";
-import { getFetchPolicyOptions } from "api/utils";
 
 const SECURITY_DETAILS_QUERY = gql`
   query GetSecurityPerformance($securityId: Long) {
@@ -42,7 +41,6 @@ export const useGetPerformance = (securityId: string | undefined) => {
       variables: {
         securityId: securityId,
       },
-      ...getFetchPolicyOptions(`useGetPerformance.${securityId}`),
     }
   );
 

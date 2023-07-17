@@ -5,7 +5,7 @@ import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate } from "react-router";
 import { getGridColsClass } from "utils/tailwindClasses";
-import { tradableTag } from "../../../services/permissions/trade";
+import { tradableTag } from "../../../services/permissions/usePermission";
 import { GroupedHoldings, HoldingProps } from "./HoldingsGroupedByType";
 import { NameWithFlag } from "./NameWithFlag";
 
@@ -72,7 +72,7 @@ const HoldingLg = ({
   name,
   code,
   security,
-  figures: { marketValue, tradeAmount, amount, purchaseTradeAmount },
+  firstAnalysis: { marketValue, tradeAmount, amount, purchaseTradeAmount },
   onClick,
   showFlag,
   currency,

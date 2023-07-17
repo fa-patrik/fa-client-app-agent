@@ -1,4 +1,5 @@
-import { HoldingPosition, SecurityDetailsPosition } from "api/holdings/types";
+import { SecurityDetailsPosition } from "api/holdings/types";
+import { SecurityData } from "api/overview/types";
 import { ReactComponent as MinusCircle } from "assets/minus-circle.svg";
 import { ReactComponent as PlusCircle } from "assets/plus-circle.svg";
 import {
@@ -14,7 +15,11 @@ import { SellModalInitialData } from "components/TradingModals/SellModalContent/
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
 import { useNavigate } from "react-router-dom";
-import { tradableTag, useCanTrade } from "services/permissions/trade";
+import {
+  canPortfolioTrade,
+  usePermission,
+  tradableTag,
+} from "services/permissions/usePermission";
 import { getNameFromBackendTranslations } from "utils/transactions";
 import { addProtocolToUrl } from "utils/url";
 import { DataRow } from "./components/DataRow";
@@ -26,7 +31,7 @@ import { PerformanceRows } from "./components/PerformanceRows";
 
 interface HoldingDetailsProps {
   data: {
-    holding?: Omit<HoldingPosition, "security">;
+    holding?: SecurityData;
     security: SecurityDetailsPosition;
   };
 }
@@ -43,11 +48,12 @@ export const HoldingDetails = ({
     url,
     url2,
     tagsAsSet,
+    documents,
   } = security;
   const navigate = useNavigate();
   const { i18n, t } = useModifiedTranslation();
 
-  const canTrade = useCanTrade()
+  const canTrade = usePermission(undefined, canPortfolioTrade);
   const isTradable = tagsAsSet.includes(tradableTag);
 
   const {
@@ -121,6 +127,13 @@ export const HoldingDetails = ({
                       url={addProtocolToUrl(url2)}
                     />
                   )}
+                  {documents?.map(({ fileName, identifier }) => (
+                    <DocumentRow
+                      key={identifier}
+                      label={fileName}
+                      documentIdentifier={identifier}
+                    />
+                  ))}
                 </div>
               </Card>
               {isTradable && canTrade && (
@@ -154,7 +167,7 @@ export const HoldingDetails = ({
                   >
                     <SellModalContent {...sellModalContentProps} />
                   </Modal>
-                  </>
+                </>
               )}
             </div>
           </div>
