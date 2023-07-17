@@ -2,7 +2,9 @@ import { Button, DownloadableDocument, Grid } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate } from "react-router";
 import { dateFromYYYYMMDD } from "utils/date";
+import { addProtocolToUrl } from "utils/url";
 import { NameWithFlag } from "../../holdings/components/NameWithFlag";
+import { DelayRenderingTillVisible } from "./DelayRenderingTillVisible";
 import {
   TradableSecuritiesListSized,
   TradableSecuritySized,
@@ -26,11 +28,16 @@ export const TradableSecuritiesListXl = ({
         <span>&nbsp;</span>
       </Grid.Header>
       {securities.map((security) => (
-        <TradableSecurityMd
-          {...security}
+        <DelayRenderingTillVisible
           key={security.id}
-          onBuyModalOpen={onBuyModalOpen}
-        />
+          placeholderClassName="h-11"
+        >
+          <TradableSecurityMd
+            {...security}
+            key={security.id}
+            onBuyModalOpen={onBuyModalOpen}
+          />
+        </DelayRenderingTillVisible>
       ))}
     </div>
   );
@@ -69,8 +76,20 @@ const TradableSecurityMd = (security: TradableSecuritySized) => {
           {latestMarketData &&
             t("date", { date: dateFromYYYYMMDD(latestMarketData.date) })}
         </div>
-        <div>{url ? <DownloadableDocument url={url} label="" /> : "-"}</div>
-        <div>{url2 ? <DownloadableDocument url={url2} label="" /> : "-"}</div>
+        <div>
+          {url ? (
+            <DownloadableDocument url={addProtocolToUrl(url)} label="" />
+          ) : (
+            "-"
+          )}
+        </div>
+        <div>
+          {url2 ? (
+            <DownloadableDocument url={addProtocolToUrl(url2)} label="" />
+          ) : (
+            "-"
+          )}
+        </div>
         <div className="flex gap-2 justify-end items-start pl-4">
           <Button
             isFullWidth

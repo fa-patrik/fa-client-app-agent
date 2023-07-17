@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useGetTradebleSecurities } from "api/trading/useGetTradebleSecurities";
-import { Card, Input, QueryLoadingWrapper, Select } from "components";
+import { Card, Input, QueryLoadingWrapper, ComboBox } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useStateWithDebounceCallback } from "hooks/useStateWithDebounceCallback";
 import { TradableSecuritiesList } from "./components/TradableSecuritiesList";
@@ -29,7 +29,7 @@ export const TradingView = () => {
             />
           </div>
           <div className="md:w-48">
-            <Select
+            <ComboBox
               value={filters.country}
               onChange={(newValue) => setFilters({ country: newValue })}
               options={filterOptions.country}
@@ -37,7 +37,7 @@ export const TradingView = () => {
             />
           </div>
           <div className="md:w-48">
-            <Select
+            <ComboBox
               value={filters.type}
               onChange={(newValue) => setFilters({ type: newValue })}
               options={filterOptions.type}

@@ -30,7 +30,7 @@ interface PortfolioTransactionsQuery {
   };
 }
 
-export const useGetBuyData = (portfolioId: string | undefined) => {
+export const useGetBuyData = (portfolioId: number | undefined) => {
   const { loading, error, data } = useQuery<PortfolioTransactionsQuery>(
     TRANSACTIONS_QUERY,
     {

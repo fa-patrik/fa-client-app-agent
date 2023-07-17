@@ -18,11 +18,9 @@ export enum TimePeriodForGraph {
 }
 
 export interface PerformanceQuery {
-  portfolio: {
-    graph: {
-      dailyValues: {
-        dailyValue: DailyValue[];
-      };
+  graph: {
+    dailyValues: {
+      dailyValue: DailyValue[];
     };
   };
 }
@@ -31,4 +29,22 @@ export interface DailyValue {
   date: string;
   indexedValue: number;
   benchmarkIndexedValue: number;
+}
+
+export interface PerformanceBySecurityQuery {
+  analytics: {
+    grouppedAnalytics: {
+      grouppedAnalytics: [
+        {
+          code: string;
+          grouppedAnalyticsTimePeriod: [
+            {
+              timePeriodCode: string;
+              performance: number;
+            }
+          ];
+        }
+      ];
+    };
+  };
 }

@@ -1,17 +1,18 @@
 import { gql, QueryHookOptions, useQuery } from "@apollo/client";
+import { useGetSubPortfolioIds } from "api/generic/useGetSubPortfolioIds";
 import { useGlobalDateRange } from "hooks/useGlobalDateRange";
 import { toShortISOString } from "utils/date";
 import { TRANSACTION_FIELDS } from "./fragments";
-import { PortfolioTransactionsQuery } from "./types";
+import { PortfolioTransactionsQuery, Transaction } from "./types";
 
 const TRANSACTIONS_QUERY = gql`
   ${TRANSACTION_FIELDS}
   query GetPortfolioTransactions(
     $startDate: String
     $endDate: String
-    $portfolioId: Long
+    $portfolioIds: [String]
   ) {
-    portfolio(id: $portfolioId) {
+    portfolios(ids: $portfolioIds) {
       id
       transactions(startDate: $startDate, endDate: $endDate) {
         ...TransactionsFields
@@ -21,9 +22,10 @@ const TRANSACTIONS_QUERY = gql`
 `;
 
 export const useGetPortfolioTransactions = (
-  portfolioId: string | undefined,
+  portfolioId: number | undefined,
   options?: QueryHookOptions
 ) => {
+  const portfolioIds = useGetSubPortfolioIds(portfolioId);
   const dateRangeProps = useGlobalDateRange();
   const { startDate, endDate } = dateRangeProps;
 
@@ -33,7 +35,7 @@ export const useGetPortfolioTransactions = (
       variables: {
         startDate: toShortISOString(startDate),
         endDate: toShortISOString(endDate),
-        portfolioId,
+        portfolioIds: portfolioIds,
       },
       fetchPolicy: "cache-and-network",
       ...options,
@@ -43,7 +45,10 @@ export const useGetPortfolioTransactions = (
   return {
     loading,
     error,
-    data: data?.portfolio.transactions,
+    data: data?.portfolios.reduce((prev, curr) => {
+      if (curr.transactions?.length) prev.push(...curr.transactions);
+      return prev;
+    }, [] as Transaction[]),
     ...dateRangeProps,
   };
 };

@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { DetailedPortfolio } from "api/overview/types";
-import { useGetPortfolio } from "api/overview/useGetPortfolio";
+import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
+import { SecurityTypeCode } from "api/holdings/types";
+import { PortfolioData } from "api/overview/types";
+import { useGetPortfolioOverviewSmart } from "api/overview/useGetPortfolioOverviewSmart";
 import { TimePeriodForGraph } from "api/performance/types";
 import { useGetPerformance } from "api/performance/useGetPerformance";
 import { ReactComponent as Spinner } from "assets/spinner.svg";
@@ -49,8 +51,8 @@ export const chartRangeOptions = [
 
 export const OverviewView = () => {
   const { portfolioId } = useParams();
-  const queryData = useGetPortfolio(portfolioId);
-
+  const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
+  const queryData = useGetPortfolioOverviewSmart(portfolioIdAsNr);
   return <QueryLoadingWrapper {...queryData} SuccessComponent={Overview} />;
 };
 
@@ -60,27 +62,24 @@ const defaultDateFormatting = {
 };
 
 interface OverviewProps {
-  data: DetailedPortfolio;
+  data: PortfolioData | undefined;
 }
 
 const Overview = ({ data }: OverviewProps) => {
+  const { portfolioId } = useParams();
+  const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
   const { t } = useModifiedTranslation();
+  const { data: portfolioData } =
+    useGetPortfolioBasicFieldsById(portfolioIdAsNr);
 
-  const {
-    portfolioReport: {
-      portfolio: {
-        currency: { securityCode },
-      },
-    },
-  } = data;
+  //assumption that all portfolios have same currency, so we use currency from first one
+  const currencyCode = portfolioData?.currency?.securityCode || "";
 
   const { topSecurities, worstSecurities } = useSecuritiesSummary(
-    data.portfolioReport.securityPositions
+    data?.securityTypes
   );
 
-  const { portfolioId } = useParams<{ portfolioId: string }>();
-
-  const chartData = useGetChartData(data);
+  const chartData = useGetChartData(data?.securityTypes);
 
   const [timeValue, setTimeValue] = useState<Option>({
     id: TimePeriodForGraph["DAYS-7"],
@@ -99,21 +98,39 @@ const Overview = ({ data }: OverviewProps) => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
       <div className="grid md:grid-cols-3 md:col-span-2 gap-4">
         {breakPortfolioInfoCard ? (
-          <PortfolioSummary {...data.portfolioReport} />
+          <PortfolioSummary
+            currencyCode={currencyCode}
+            accountBalance={
+              data?.securityTypes?.find(
+                (type) => type.code === SecurityTypeCode.CURRENCY
+              )?.firstAnalysis?.marketValue
+            }
+            tradeAmount={data?.firstAnalysis?.tradeAmount}
+            marketValue={data?.firstAnalysis?.marketValue}
+          />
         ) : (
-          <PortfolioInfoCard {...data.portfolioReport} name={data.name} />
+          <PortfolioInfoCard
+            currentBalance={
+              data?.securityTypes?.find(
+                (type) => type.code === SecurityTypeCode.CURRENCY
+              )?.firstAnalysis?.marketValue
+            }
+            currencyCode={currencyCode}
+            tradeAmount={data?.firstAnalysis?.tradeAmount}
+            marketValue={data?.firstAnalysis?.marketValue}
+          />
         )}
       </div>
       <div className="grid gap-4">
         <ListedSecuritiesCard
           label={t("overviewPage.top3Holdings")}
           securities={topSecurities}
-          currency={securityCode}
+          currency={currencyCode}
         />
         <ListedSecuritiesCard
           label={t("overviewPage.worst3Holdings")}
           securities={worstSecurities}
-          currency={securityCode}
+          currency={currencyCode}
         />
       </div>
       <div>
@@ -166,15 +183,6 @@ const Overview = ({ data }: OverviewProps) => {
               options={chartRangeOptions}
             />
           </div>
-          {/* <ButtonGroup
-            buttons={Object.values(TimePeriodForGraph).map((time) => ({
-              label: getButtonName(time),
-              onClick: () => {
-                setTimeValue(time);
-              },
-            }))}
-            isLoading={loading}
-          /> */}
         </Card>
       </div>
     </div>

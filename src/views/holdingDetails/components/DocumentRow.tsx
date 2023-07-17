@@ -3,7 +3,8 @@ import { DownloadableDocument } from "components";
 
 interface DocumentRowProps extends HTMLAttributes<HTMLAnchorElement> {
   label: string;
-  url: string;
+  url?: string;
+  documentIdentifier?: string;
 }
 
 export const DocumentRow = (props: DocumentRowProps) => (

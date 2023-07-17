@@ -1,13 +1,9 @@
+import { useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { fallbackLanguage } from "i18n";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { CancelOrderPermissionGroup } from "services/permissions/cancelOrder";
-import {
-  DepositPermissionGroup,
-  WithdrawalPermissionGroup,
-} from "services/permissions/money";
-import { TradePermissionGroup } from "services/permissions/trade";
 
+//with 1 sub portfolio depth
 export const PORTFOLIO_BASIC_FIELDS = gql`
   fragment PortfolioBasicFields on Portfolio {
     id
@@ -21,9 +17,26 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
       id
       code
     }
+    parentPortfolios {
+      id
+    }
+    portfolios {
+      id
+      name
+      status
+      shortName
+      currency {
+        securityCode
+      }
+      portfolioGroups {
+        id
+        code
+      }
+    }
   }
 `;
 
+//maximum of 2 sub portfolio depth
 export const CONTACT_INFO_QUERY = gql`
   ${PORTFOLIO_BASIC_FIELDS}
   query GetContactInfo($contactId: Long) {
@@ -65,12 +78,17 @@ export enum PortfolioStatus {
   Closed = "C",
 }
 
-interface PortfolioGroup {
-  code:
-    | typeof TradePermissionGroup
-    | typeof DepositPermissionGroup
-    | typeof WithdrawalPermissionGroup
-    | typeof CancelOrderPermissionGroup;
+export enum PortfolioGroups {
+  CANCEL_ORDER = "CP_CANCEL",
+  DEPOSIT = "CP_DEPOSIT",
+  WITHDRAW = "CP_WITHDRAWAL",
+  TRADE = "CP_TRADING",
+  HIDE = "CP_HIDE_PF",
+  MONTHLY_INVESTMENTS = "CP_MONTHLYINVESTMENTS",
+}
+
+export interface PortfolioGroup {
+  code: PortfolioGroups;
 }
 
 export interface Representee {
@@ -81,7 +99,7 @@ export interface Representee {
   representees: [];
 }
 
-interface AssetManagerPortfolios {
+export interface AssetManagerPortfolios {
   primaryContact: {
     contactId: string;
     name: string;
@@ -93,13 +111,17 @@ export interface Portfolio {
   name: string;
   status: string;
   shortName: string;
+  parentPortfolios: {
+    id: number;
+  }[];
+  portfolios: Portfolio[]; //sub portfolios
   currency: {
     securityCode: string;
   };
   portfolioGroups: PortfolioGroup[];
 }
 
-interface ContactInfoQuery {
+export interface ContactInfoQuery {
   contact?: {
     id: number;
     contactId: string;
@@ -113,13 +135,9 @@ interface ContactInfoQuery {
   };
 }
 
-export const useGetContactInfo = (
-  callAPI = false,
-  id?: string | number,
-  queryWithRepresentees?: boolean
-) => {
+export const useGetContactInfo = (callAPI = false, id?: string | number) => {
   const { linkedContact } = useKeycloak();
-  const { loading, error, data } = useQuery<ContactInfoQuery>(
+  const { loading, error, data, refetch } = useQuery<ContactInfoQuery>(
     CONTACT_INFO_QUERY,
     {
       variables: {
@@ -128,6 +146,13 @@ export const useGetContactInfo = (
       fetchPolicy: callAPI ? "cache-and-network" : "cache-first",
     }
   );
+  const activeAndPassivePortfolios = useMemo(
+    () =>
+      !data?.contact?.portfolios?.length
+        ? []
+        : removeClosed(data?.contact?.portfolios),
+    [data?.contact?.portfolios]
+  );
 
   return {
     loading: loading,
@@ -135,10 +160,7 @@ export const useGetContactInfo = (
     data: data && {
       contactId: data.contact?.id,
       _contactId: data.contact?.contactId,
-      portfolios:
-        data.contact?.portfolios?.filter(
-          (portfolio) => portfolio.status !== PortfolioStatus.Closed
-        ) || [],
+      portfolios: activeAndPassivePortfolios,
       locale: data.contact?.language?.locale || fallbackLanguage,
       // all contact portfolios have same currency
       portfoliosCurrency:
@@ -147,5 +169,25 @@ export const useGetContactInfo = (
       assetManagerPortfolios: data?.contact?.assetManagerPortfolios,
       name: data.contact?.name,
     },
+    refetch,
   };
+};
+
+/**
+ * Removes closed portfolios (recursively on all sub portfolios as well).
+ * @param portfolios Raw portfolio data from FA
+ * @returns active/pending portfolios
+ */
+export const removeClosed = (portfolios: Portfolio[]) => {
+  const result = [] as Portfolio[];
+  portfolios?.forEach((portfolio) => {
+    if (portfolio.status !== PortfolioStatus.Closed) {
+      const portfolios = removeClosed(portfolio.portfolios);
+      result.push({
+        ...portfolio,
+        portfolios,
+      });
+    }
+  });
+  return result;
 };

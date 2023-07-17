@@ -14,7 +14,7 @@ const ORDER_STATUSES_TO_DISPLAY = [
 
 type OrderStatusToDisplayType = typeof ORDER_STATUSES_TO_DISPLAY[number];
 
-const isOrderStatusToDisplayType = (
+export const isOrderStatusToDisplayType = (
   status: string
 ): status is OrderStatusToDisplayType => {
   return (ORDER_STATUSES_TO_DISPLAY as readonly string[]).includes(status);

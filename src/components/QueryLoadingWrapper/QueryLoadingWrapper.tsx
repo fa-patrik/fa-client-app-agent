@@ -6,7 +6,10 @@ import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
 import { LoadingIndicator } from "../LoadingIndicator/LoadingIndicator";
 
 export interface QueryLoadingWrapperProps<T> extends QueryData<T> {
-  SuccessComponent: (props: { data: T }) => JSX.Element;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  SuccessComponent: (props: any) => JSX.Element; // Let SuccessComponent accept any props
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  successComponentProps?: any; // New prop for SuccessComponent's props
 }
 
 const QUERY_ERROR_TOAST_ID = "QUERY_ERROR_TOAST_ID";
@@ -16,6 +19,7 @@ export const QueryLoadingWrapper = <TData,>({
   error,
   data,
   SuccessComponent,
+  successComponentProps,
 }: QueryLoadingWrapperProps<TData>) => {
   const { t } = useModifiedTranslation();
   if (error) {
@@ -24,10 +28,10 @@ export const QueryLoadingWrapper = <TData,>({
     });
   }
   if (data) {
-    return <SuccessComponent data={data} />;
+    return <SuccessComponent data={data} {...successComponentProps} />;
   }
   // when offline and do not have cached data returns data === undefined, no error and not loading
-  if (!loading || (error && !data)) {
+  if (error && !data) {
     return (
       <Card>
         <ErrorMessage header={t("messages.noCachedData")}>
@@ -35,8 +39,6 @@ export const QueryLoadingWrapper = <TData,>({
         </ErrorMessage>
       </Card>
     );
-
-    //<div className="min-h-[400px]">No cached data</div>;
   }
   return <LoadingIndicator center />;
 };

@@ -1,4 +1,7 @@
-import { AllocationBySecurity, AllocationByType } from "api/holdings/types";
+import {
+  SecurityData,
+  SecurityTypeDataWithSecurityData,
+} from "api/overview/types";
 import { Card, GainLoseColoring } from "components";
 import { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
 import { SellModalInitialData } from "components/TradingModals/SellModalContent/SellModalContent";
@@ -13,19 +16,19 @@ interface TradeProps {
   onSellModalOpen: (initialData?: SellModalInitialData) => void;
 }
 
-interface HoldingsGroupedByTypeProps extends AllocationByType {
+interface HoldingsGroupedByTypeProps extends SecurityTypeDataWithSecurityData {
   currency: string;
   tradeProps: TradeProps;
 }
 
 export interface GroupedHoldings {
-  securities: AllocationBySecurity[];
+  securities: SecurityData[];
   groupCode: string;
   currency: string;
   tradeProps: TradeProps;
 }
 
-export interface HoldingProps extends AllocationBySecurity {
+export interface HoldingProps extends SecurityData {
   onClick?: () => void;
   showFlag: boolean;
   currency: string;
@@ -34,8 +37,11 @@ export interface HoldingProps extends AllocationBySecurity {
 
 export const HoldingsGroupedByType = ({
   name,
-  figures: { marketValue: groupMarketValue, tradeAmount: groupTradeAmount },
-  allocationsBySecurity,
+  firstAnalysis: {
+    marketValue: groupMarketValue,
+    tradeAmount: groupTradeAmount,
+  },
+  securities,
   currency,
   code: groupCode,
   tradeProps,
@@ -58,7 +64,7 @@ export const HoldingsGroupedByType = ({
       }
     >
       <HoldingsList
-        securities={allocationsBySecurity}
+        securities={securities}
         groupCode={groupCode}
         currency={currency}
         tradeProps={tradeProps}

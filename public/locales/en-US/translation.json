@@ -5,7 +5,24 @@
   "dateCustom": "{{date, datetime}}",
   "component": {
     "select": {
-      "placeholder": "Please select"
+      "placeholder": "Please select",
+      "dialogTitle": "Information",
+      "dialogCloseButtonLabel": "Close"
+    },
+    "tradableSecuritiesTable": {
+      "securityColumnHeader": "Security",
+      "1yrTwrColumnHeader": "1 year %",
+      "feeColumnHeader": "Fee",
+      "minTradeAmountColumnHeader": "Min. trade amount",
+      "securityUrl1ColumnHeader": "KIID",
+      "detailsHeader": "Details",
+      "detailsButtonLabel": "Details",
+      "deselectAllButtonLabel": "Clear all"
+    },
+    "securityDistributionTable":{
+      "securityColumHeader": "Security",
+      "percentageColumnHeader": "%",
+      "amountColumnHeader": "Amount"
     }
   },
   "userMenu": {
@@ -33,7 +50,8 @@
   },
   "portfolioSummary": {
     "currentMarketValue": "Current market value",
-    "availableCash": "Available cash",
+    "currentBalance": "Current balance",
+    "currentBalanceTooltip": "Realized, unsettled trades have been taken into account.",
     "unrealizedProfits": "Unrealised profits"
   },
   "overviewPage": {
@@ -89,7 +107,8 @@
     "depositStatus": "Deposit",
     "withdrawStatus": "Withdrawal",
     "downloadFileButtonLabel": "Download order note",
-    "cancelOrder": "Cancel the order"
+    "cancelOrder": "Cancel the order",
+    "transactionsFilterTitle": "Filter orders by:"
   },
   "transactionsPage": {
     "header": "Transaction",
@@ -117,7 +136,8 @@
     "noTransactions": "No transactions are available\n for this period",
     "noTransactionsInfo": "Try filtering with other dates",
     "downloadFileButtonLabel": "Download transaction confirmation",
-    "cancelOrderButtonLabel": "Cancel order"
+    "cancelOrderButtonLabel": "Cancel order",
+    "transactionsFilterTitle": "Filter transactions by:"
   },
   "documentsPage": {
     "type": {
@@ -246,5 +266,97 @@
     "orderCancelFailed": "Order could not be cancelled.",
     "orderCancelSuccess": "Order cancelled.",
     "orderAlreadyCancelled": "Order has already been cancelled."
+  },
+  "transactionFilter": {
+    "transactionType": "Type",
+    "securityName": "Security",
+    "resetFilter": "Clear filter"
+  },
+  "wizards":{
+    "backButtonLabel": "Back",
+    "nextButtonLabel": "Next",
+    "finishButtonLabel": "Finish",
+    "exitWizardDialogTitle": "Are you sure that you want to exit?",
+    "exitWizardDialogDescription": "You will lose your progress.",
+    "exitWizardDialogConfirmButtonLabel": "Exit",
+    "exitWizardDialogConfirmCancelLabel": "Cancel",
+    "monthlyInvestments":{
+      "title": "Monthly investments",
+      "stepZero":{
+        "stepTitle": "Overview of existing plans",
+        "noPlansLabel": "You do not have any monthly investment plans",
+        "amount": "Amount",
+        "addNewPlanButtonLabel": "Add new plan",
+        "refreshingDataButtonLabel": "Refreshing data",
+        "selectPortfolioInputLabel": "Portfolio",
+        "deletePlanButtonLabel": "Delete",
+        "deleteDialogTitle": "Delete monthly investment plan?",
+        "deleteDialogDescription": "This will delete the plan.",
+        "deleteDialogCancelButtonLabel": "Cancel",
+        "deleteDialogConfirmButtonLabel": "Delete"
+      },
+      "stepOne": {
+        "stepTitle": "Select portfolio and amount to invest",
+        "amountInputLabel": "Amount in {{currency}}",
+        "amountInputError": "Value is below the minimum amount",
+        "minAmountDisclaimer": "Min. {{amount}} {{currency}}",
+        "portfolioInputLabel": "Portfolio",
+        "refetchDataButtonLabel": "Attempt reload"
+      },
+      "stepTwo": {
+        "stepTitle": "Select securities",
+        "securityNameIsinInputLabel": "Security name / ISIN",
+        "countryFilterInputLabel": "Country",
+        "typeFilterInputLabel": "Type",
+        "displayFilterButtonLabel": "Show filters ({{n}}) applied",
+        "hideFilterButtonLabel": "Hide filters",
+        "clearFiltersButtonLabel": "Clear all"
+      },
+      "stepThree": {
+        "stepTitle": "Distribute your investments",
+        "distributeButtonLabel": "Distribute evenly",
+        "amountLabel": "Investment amount",
+        "percentageInputLabel": "Percentage",
+        "percentageInputPlaceholder": "% 50",
+        "percentageInputBelowError": "Below 0%",
+        "percentageInputOverError": "Over 100%",
+        "amountInputLabel": "Amount in {{currency}}",
+        "amountInputBelowError": "Below 0",
+        "amountInputBelowMinError": "Below min. amount",
+        "amountInputPlaceholder": "200",
+        "minDisclaimer": "Min. {{amount}}",
+        "distributeMore": "You need to distribute the remaining {{diffAmountFormatted}} ({{diffPercentageFormatted}}%) amount.",
+        "distributeLess": "You have distributed more than the total amount.",
+        "distributeOk": "You distributed the whole amount.",
+        "removeDialogTitle": "Remove security?",
+        "removeDialogDescription": "Do you want to remove the security from your selection?",
+        "removeDialogCancelButton": "Cancel",
+        "removeDialogConfirmButton": "Remove"
+      },
+      "stepFour": {
+        "stepTitle": "Select when to invest",
+        "buyDateInputLabel": "Buy date",
+        "selectAllMonthsToggleLabel": "Select all months",
+        "deselectAllMonthsToggleLabel": "Deselect all months",
+        "totalInvestmentsPerYear": "Investment per year",
+        "buyDateDialogTitle": "Information",
+        "buyDateDialogDescription": "If the day is missing in a month (for example, the 31st), the last day of the month is used."
+      },
+      "stepFive": {
+        "stepTitle": "Confirm your choices",
+        "summaryTitle": "Summary",
+        "portfolio": "Portfolio",
+        "amount": "Amount",
+        "yearlyAmount": "Yearly amount",
+        "securityDistributionTableTitle": "Investment distribution",
+        "buyDate": "Buy date",
+        "selectedBuyDate": "{{date}} day of month",
+        "monthsSelectedGridTitle": "Months",
+        "confirmDialogTitle": "Confirm your monthly investment",
+        "confirmDialogDescription": "Do you want to save your monthly investment plan?",
+        "confirmDialogCancelButtonLabel": "Cancel",
+        "confirmDialogConfirmButtonLabel": "Confirm"
+      }
+    }
   }
 }

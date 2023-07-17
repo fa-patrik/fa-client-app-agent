@@ -1,4 +1,15 @@
-import { AllocationByType } from "api/holdings/types";
+import { useMemo } from "react";
+import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
+import {
+  ContactOverviewQuery,
+  PortfolioData,
+  SecurityData,
+  SecurityTypeDataWithSecurityData,
+} from "api/overview/types";
+import {
+  canPortfolioTrade,
+  usePermission,
+} from "services/permissions/usePermission";
 import { useModal } from "../../components/Modal/useModal";
 import {
   BuyModalContent,
@@ -9,21 +20,107 @@ import {
   SellModalInitialData,
 } from "../../components/TradingModals/SellModalContent/SellModalContent";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
-import { useCanTrade } from "../../services/permissions/trade";
 import { HoldingsGroupedByType } from "./components/HoldingsGroupedByType";
 import { NoHoldings } from "./components/NoHoldings";
 
-export interface HoldingsContainerProps {
-  data: {
-    allocationByType: AllocationByType[];
-    currency: string;
-  };
+/**
+ * Aggregate data from multiple portfolios.
+ * This function will iterate through all portfolios, aggregate the properties of the firstAnalysis objects and return a data structure that contains unique security types and their aggregated data.
+ *
+ * @param {PortfolioData[]} portfolios - An array of portfolios to aggregate data from.
+ *
+ * @returns {Record<string, SecurityTypeDataWithSecurityData>} An object where the keys are security type codes and the values are aggregated data for each security type.
+ */
+export function aggregatePortfolioData(
+  portfolios: PortfolioData[] | undefined
+): Record<string, SecurityTypeDataWithSecurityData> {
+  const aggregatedData: Record<string, SecurityTypeDataWithSecurityData> = {};
+  if (!portfolios?.length) return aggregatedData;
+  function addSecurityType(securityType: SecurityTypeDataWithSecurityData) {
+    try {
+      if (!aggregatedData[securityType.code]) {
+        // Deep copy
+        aggregatedData[securityType.code] = {
+          ...securityType,
+          firstAnalysis: { ...securityType.firstAnalysis },
+          securities: [],
+        };
+      } else {
+        const aggregatedSecurityType =
+          aggregatedData[securityType.code].firstAnalysis;
+        for (const prop in securityType.firstAnalysis) {
+          if (typeof securityType.firstAnalysis[prop] === "number") {
+            aggregatedSecurityType[prop] += securityType.firstAnalysis[prop];
+          }
+        }
+      }
+    } catch (err) {
+      console.error(`Error adding security type data.`);
+    }
+  }
+
+  function addSecurityData(
+    securityTypeCode: string,
+    securityData: SecurityData
+  ) {
+    try {
+      const securityType = aggregatedData[securityTypeCode];
+      const existingSecurity = securityType.securities.find(
+        (s) => s.code === securityData.code
+      );
+      if (!existingSecurity) {
+        // Deep copy
+        securityType.securities.push({
+          ...securityData,
+          firstAnalysis: { ...securityData.firstAnalysis },
+        });
+      } else {
+        for (const prop in securityData.firstAnalysis) {
+          if (typeof securityType.firstAnalysis[prop] === "number") {
+            existingSecurity.firstAnalysis[prop] +=
+              securityData.firstAnalysis[prop];
+          }
+        }
+      }
+    } catch (err) {
+      console.error(`Error adding security data.`);
+    }
+  }
+
+  try {
+    portfolios.forEach((portfolio) => {
+      portfolio.securityTypes.forEach((securityType) => {
+        addSecurityType(securityType);
+        securityType.securities.forEach((securityData) => {
+          addSecurityData(securityType.code, securityData);
+        });
+      });
+    });
+  } catch (err) {
+    console.error(`Error processing portfolios.`);
+  }
+
+  return aggregatedData;
 }
 
-export const Holdings = ({
-  data: { allocationByType, currency },
-}: HoldingsContainerProps) => {
-  const canTrade = useCanTrade();
+interface ContactHoldingsProps {
+  data: ContactOverviewQuery | undefined;
+}
+
+export const Holdings = ({ data }: ContactHoldingsProps) => {
+  const canTrade = usePermission(undefined, canPortfolioTrade);
+  const contactData = data?.contact;
+  const { data: portfolioData } = useGetPortfolioBasicFieldsById(
+    contactData?.analytics?.contact?.parentPortfolios?.[0]?.portfolio?.id
+  );
+  const currencyCode = portfolioData?.currency.securityCode || "EUR";
+  const aggregatedData = useMemo(
+    () =>
+      aggregatePortfolioData(contactData?.analytics?.contact?.parentPortfolios),
+    [contactData?.analytics?.contact?.parentPortfolios]
+  );
+  const securityTypes = aggregatedData ? Object.values(aggregatedData) : [];
+
   const { t } = useModifiedTranslation();
   const {
     Modal,
@@ -38,16 +135,16 @@ export const Holdings = ({
     contentProps: sellModalContentProps,
   } = useModal<SellModalInitialData>();
 
-  if (allocationByType.length === 0) {
+  if (securityTypes.length === 0) {
     return <NoHoldings />;
   }
   return (
     <>
       <div className="flex flex-col gap-4">
-        {allocationByType.map((group) => (
+        {securityTypes.map((group) => (
           <HoldingsGroupedByType
             key={group.code}
-            currency={currency}
+            currency={currencyCode}
             tradeProps={{
               canTrade,
               onBuyModalOpen,

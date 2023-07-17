@@ -1,35 +1,39 @@
-import { BaseReport } from "api/overview/types";
 import { GainLoseColoring } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { DataCard } from "../../../overview/components/DataCard";
 
-export const PortfolioSummary = ({
-  portfolio: {
-    currency: { securityCode },
-  },
-  marketValue,
-  valueChangeAbsolute,
-  accountBalance,
-}: BaseReport) => {
-  const { t } = useModifiedTranslation();
+interface PortfolioSummaryProps {
+  currencyCode: string | undefined;
+  marketValue: number | undefined;
+  tradeAmount: number | undefined;
+  accountBalance: number | undefined;
+}
 
+export const PortfolioSummary = ({
+  currencyCode,
+  marketValue = 0,
+  tradeAmount = 0,
+  accountBalance = 0,
+}: PortfolioSummaryProps) => {
+  const { t } = useModifiedTranslation();
+  const valueChange = marketValue - tradeAmount;
   return (
     <>
       <DataCard
         label={t("portfolioSummary.currentMarketValue")}
         value={t("numberWithCurrencyRounded", {
           value: marketValue,
-          currency: securityCode,
+          currency: currencyCode,
           maximumFractionDigits: 0,
         })}
       />
       <DataCard
         label={t("portfolioSummary.unrealizedProfits")}
         value={
-          <GainLoseColoring value={valueChangeAbsolute}>
+          <GainLoseColoring value={valueChange}>
             {t("numberWithCurrencyRounded", {
-              value: valueChangeAbsolute,
-              currency: securityCode,
+              value: valueChange,
+              currency: currencyCode,
               formatParams: {
                 value: { signDisplay: "always" },
               },
@@ -38,10 +42,11 @@ export const PortfolioSummary = ({
         }
       />
       <DataCard
-        label={t("portfolioSummary.availableCash")}
+        label={t("portfolioSummary.currentBalance")}
+        toolTipContent={t("portfolioSummary.currentBalanceTooltip")}
         value={t("numberWithCurrencyRounded", {
           value: accountBalance,
-          currency: securityCode,
+          currency: currencyCode,
         })}
       />
     </>

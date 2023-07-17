@@ -1,6 +1,6 @@
 import { MutableRefObject, useState, useEffect } from "react";
 import { SecurityTypeCode, SecurityTradeType } from "api/holdings/types";
-import { useGetPortfolioHoldingDetails } from "api/holdings/useGetPortfolioHoldingDetails";
+import { useGetPortfolioHoldingFromPfReport } from "api/holdings/useGetPortfolioHoldingFromPfReport";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { ExecutionMethod, useTrade } from "api/trading/useTrade";
 import {
@@ -14,6 +14,7 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { round } from "utils/number";
+import { addProtocolToUrl } from "utils/url";
 import { useGetSecurityDetails } from "../../../api/holdings/useGetSecurityDetails";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 import { useTradeAmountInput } from "./useTradeAmountInput";
@@ -115,13 +116,15 @@ export const SellModalContent = ({
   const { portfolioId, setPortfolioId, portfolioOptions } =
     useTradablePortfolioSelect();
 
+  const selectedPortfolioId = portfolioId;
   const {
     loading,
     data: { marketValue = 0, marketFxRate = 1, amount: units = 0 } = {},
-  } = useGetPortfolioHoldingDetails(
-    portfolioId?.toString(),
+  } = useGetPortfolioHoldingFromPfReport(
+    selectedPortfolioId,
     securityId.toString()
   );
+
   const currentAmount = getCurrentAmount(
     isTradeInUnits,
     units,
@@ -167,7 +170,10 @@ export const SellModalContent = ({
       </LabeledDiv>
       {url2 && (
         <div className="w-fit">
-          <DownloadableDocument url={url2} label={t("tradingModal.kiid")} />
+          <DownloadableDocument
+            url={addProtocolToUrl(url2)}
+            label={t("tradingModal.kiid")}
+          />
         </div>
       )}
       <PortfolioSelect
