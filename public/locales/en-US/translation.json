@@ -89,7 +89,15 @@
     "performance3Y": "3Y performance",
     "performance5Y": "5Y performance",
     "buy": "BUY",
-    "sell": "SELL"
+    "sell": "SELL",
+    "excelFileName": "Holdings",
+    "excelSheetName": "Holdings",
+    "excelCol1Header": "Name",
+    "excelCol2Header": "ISIN / Account number",
+    "excelCol3Header": "Units",
+    "excelCol4Header": "Purchase value",
+    "excelCol5Header": "Market value",
+    "excelCol6Header": "Unrealised profits"
   },
   "ordersPage": {
     "header": "Order",
@@ -137,7 +145,14 @@
     "noTransactionsInfo": "Try filtering with other dates",
     "downloadFileButtonLabel": "Download transaction confirmation",
     "cancelOrderButtonLabel": "Cancel order",
-    "transactionsFilterTitle": "Filter transactions by:"
+    "transactionsFilterTitle": "Filter transactions by:",
+    "excelFileName": "Transactions",
+    "excelSheetName": "Transactions",
+    "excelCol1Header": "Security",
+    "excelCol2Header": "Transaction date",
+    "excelCol3Header": "Units",
+    "excelCol4Header": "Type",
+    "excelCol5Header": "Trade amount"
   },
   "documentsPage": {
     "type": {
