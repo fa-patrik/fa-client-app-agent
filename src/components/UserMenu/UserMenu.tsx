@@ -245,33 +245,33 @@ export const UserMenu = () => {
       </Modal>
       {wizardOpen && ( //only mounted when needed
         <Wizard
-          title="Monthly investments"
+          title={t("wizards.monthlyInvestments.title")}
           isOpen={wizardOpen}
           setIsOpen={setWizardOpen}
           firstStepIsAnIntro
           steps={[
             {
-              label: "Overview",
+              label: t("wizards.monthlyInvestments.stepZero.stepTitle"),
               component: <StepZero />,
             },
             {
-              label: "Select portfolio and amount to invest",
+              label: t("wizards.monthlyInvestments.stepOne.stepTitle"),
               component: <StepOne />,
             },
             {
-              label: "Select securities",
+              label: t("wizards.monthlyInvestments.stepTwo.stepTitle"),
               component: <StepTwo />,
             },
             {
-              label: "Distribute your investment",
+              label: t("wizards.monthlyInvestments.stepThree.stepTitle"),
               component: <StepThree />,
             },
             {
-              label: "Select when to invest",
+              label: t("wizards.monthlyInvestments.stepFour.stepTitle"),
               component: <StepFour />,
             },
             {
-              label: "Confirm you choices",
+              label: t("wizards.monthlyInvestments.stepFive.stepTitle"),
               component: <StepFive />,
             },
           ]}

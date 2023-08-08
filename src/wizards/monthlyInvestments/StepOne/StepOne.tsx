@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { Card, Input, PortfolioSelect } from "components";
+import { PortfolioWithProfileAndFigures, useGetPortfoliosWithProfileAndFigures } from "api/generic/useGetPortfoliosWithProfileAndFigures";
+import { Button, Card, ErrorMessage, Input, LoadingIndicator, PortfolioSelect } from "components";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
+import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { canPortfolioOptionMonthlyInvest } from "services/permissions/usePermission";
 
 //min units of money to invest
-const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MIN_AMOUNT";
+const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MINAMOUNT";
 
 /**
  * Step one of the monthly investments process.
@@ -14,6 +16,8 @@ const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MIN_AMOUNT";
  */
 const StepOne = () => {
   const { wizardData, setWizardData } = useWizard();
+  const {t} = useModifiedTranslation()
+  const {data: portfolioData, error:errorGettingPortfolioData, refetch, networkStatus} = useGetPortfoliosWithProfileAndFigures()
   const { portfolioOptions } = useFilteredPortfolioSelect(
     canPortfolioOptionMonthlyInvest
   );
@@ -21,13 +25,16 @@ const StepOne = () => {
     useState<PortfolioOption>(
       wizardData?.data?.selectedPortfolioOption || portfolioOptions[0]
     );
+
+  const [portfolio, setPortfolio] = useState<PortfolioWithProfileAndFigures | undefined>(() => portfolioData?.portfolios?.find(p => p.id === selectedPortfolioOption.id))
+    
   const minAmount =
-    selectedPortfolioOption.details?.figuresAsObject?.latestValues[
+    portfolio?.figuresAsObject?.latestValues[
       PF_KEYFIGURE_CODE_MIN_AMOUNT
-    ]?.value;
+    ]?.value as number;
 
   const portfolioCurrencyCode =
-    selectedPortfolioOption.details?.currency.securityCode;
+    portfolio?.currency.securityCode;
 
   const [inputValue, setInputValue] = useState(() => {
     if (minAmount && wizardData?.data?.amountToInvest < minAmount) {
@@ -36,6 +43,11 @@ const StepOne = () => {
     return wizardData?.data?.amountToInvest || 100;
   });
   const [inputError, setInputError] = useState("");
+
+  useEffect(() => {
+    const selectedPortfolio = portfolioData?.portfolios?.find(p => p.id === selectedPortfolioOption.id)
+    setPortfolio(() => selectedPortfolio)
+  },[portfolioData?.portfolios, selectedPortfolioOption])
 
   //set portfolio to wizard state
   useEffect(() => {
@@ -58,7 +70,7 @@ const StepOne = () => {
     }
 
     if (minAmount && inputAsNumber < minAmount) {
-      setInputError("Value is below the minimum amount");
+      setInputError(t("wizards.monthlyInvestments.stepOne.amountInputError"));
       setWizardData((prevState) => ({ ...prevState, nextDisabled: true }));
       return;
     }
@@ -73,17 +85,19 @@ const StepOne = () => {
       },
     }));
     setInputError("");
-  }, [inputValue, setWizardData, minAmount]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputValue, minAmount]);
 
   useEffect(() => {
     setWizardData((prevState) => ({
       ...prevState,
       data: {
         ...prevState.data,
-        selectedPortfolio: selectedPortfolioOption.details,
+        selectedPortfolio: portfolio,
       },
     }));
-  }, [selectedPortfolioOption, setWizardData]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [portfolio]);
 
   /** Ensures input is a positive integer */
   const handleInput = (event: React.FormEvent<HTMLInputElement>) => {
@@ -104,11 +118,22 @@ const StepOne = () => {
 
   return (
     <div className="flex flex-col gap-y-3">
+      {errorGettingPortfolioData  ? (
+            <ErrorMessage header={t("messages.noCachedDataInfo")}>
+              {networkStatus === 4 ? (
+                <LoadingIndicator center size="sm" />
+              ): 
+              <Button onClick={() => refetch()} variant="Transparent">
+              <span  className="text-primary-500 underline">{t("wizards.monthlyInvestments.stepOne.refetchDataButtonLabel")}</span>
+              </Button>
+              }
+            </ErrorMessage>
+          ): (
       <Card>
         <div className="flex flex-col gap-y-3 p-6">
-          <p className="mx-auto text-lg font-bold">Portfolio selection</p>
+          
           <PortfolioSelect
-            label="Select portfolio"
+            label={t("wizards.monthlyInvestments.stepOne.portfolioInputLabel")}
             onChange={setSelectedPortfolioOption}
             portfolioId={selectedPortfolioOption.id}
             portfolioOptions={portfolioOptions}
@@ -120,16 +145,23 @@ const StepOne = () => {
             onChange={(e) => handleInput(e)}
             onPaste={(e) => handlePaste(e)}
             className="text-black rounded-lg"
-            label={`Amount in ${portfolioCurrencyCode}`}
+            label={t("wizards.monthlyInvestments.stepOne.amountInputLabel",{
+              currency: portfolioCurrencyCode
+            })}
             placeholder={`${minAmount || 100}`}
           />
           {minAmount && (
             <p className="text-sm font-thin">
-              Min. {minAmount} {portfolioCurrencyCode}
+              {t("wizards.monthlyInvestments.stepOne.minAmountDisclaimer",{
+                amount: minAmount,
+                currency: portfolioCurrencyCode
+              })}
             </p>
           )}
+          
         </div>
       </Card>
+    )}
     </div>
   );
 };

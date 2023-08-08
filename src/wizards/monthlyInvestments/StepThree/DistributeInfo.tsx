@@ -19,7 +19,8 @@ const DistributeInfo = ({
   diffAmount,
   diffPercentage,
 }: DistributeInfoProps) => {
-  const { i18n } = useModifiedTranslation();
+  const { i18n, t } = useModifiedTranslation();
+
   const diffAmountFormatted = diffAmount.toLocaleString(i18n.language, {
     style: "decimal",
     maximumFractionDigits: 2,
@@ -46,19 +47,26 @@ const DistributeInfo = ({
       {diffAmount > 0 ? (
         <>
           <GlassHourIcon />
-          <p className="text-xs">{`You need to distribute the remaining ${diffAmountFormatted} (${diffPercentageFormatted}%) amount.`}</p>
+          <p className="text-xs">
+            {t("wizards.monthlyInvestments.stepThree.distributeMore", {
+              diffAmountFormatted,
+              diffPercentageFormatted,
+            })}
+          </p>
         </>
       ) : diffAmount < 0 ? (
         <>
           <CloseIcon />
           <p className="text-xs">
-            {`You have distributed more than the total amount.`}
+            {t("wizards.monthlyInvestments.stepThree.distributeLess")}
           </p>
         </>
       ) : (
         <>
           <CheckIcon />
-          <p className="text-xs">{"You have distributed the total amount."}</p>
+          <p className="text-xs">
+            {t("wizards.monthlyInvestments.stepThree.distributeOk")}
+          </p>
         </>
       )}
     </div>

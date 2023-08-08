@@ -53,6 +53,8 @@ export const Button = ({
           variant === "Primary" && disabled,
         "bg-primary-100/30 border-primary-600/10 text-primary-600/30 hover:bg-primary-100/20 cursor-not-allowed":
           variant === "Secondary" && disabled,
+        "bg-primary-100/30 border-2 border-red-600/10 hover:bg-red-100/20 text-red-600/30 cursor-not-allowed":
+          variant === "Delete" && disabled,
         "bg-red-600/50 hover:bg-red-600/50 cursor-not-allowed":
           variant === "Red" && disabled,
         "bg-gray-700/50 hover:bg-gray-700/50 cursor-not-allowed":

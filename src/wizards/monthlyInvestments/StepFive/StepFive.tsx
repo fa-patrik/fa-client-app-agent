@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import {
-  MonthlyInvestmentsProfile,
-  monthlyInvestmentsProfileToImportString,
-  SUPPORTED_ROWS_MONTHLY_INVESTMENTS,
+  PortfolioMonthlyInvestmentsDTOInput,
   useSetMonthlyInvestments,
 } from "api/trading/useSetMonthlyInvestments";
 import { Card } from "components";
@@ -13,6 +10,7 @@ import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import SelectGrid from "components/SelectGrid/SelectGrid";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import numbro from "numbro";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
 import SecurityDistributionTable from "./SecurityDistributionTable";
@@ -35,10 +33,11 @@ const months = Array(12)
  * An API request is made to FA Back.
  */
 const StepFive = () => {
-  const { refetch: refetchContactInfo } = useGetContactInfo();
   const { impersonating } = useKeycloak();
   const { wizardData, setWizardData } = useWizard();
-  const { i18n } = useModifiedTranslation();
+  const { t, i18n } = useModifiedTranslation();
+  numbro.setLanguage(i18n.language);
+
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { setMonthlyInvestments } = useSetMonthlyInvestments();
   const [loadingFinish, setLoadingFinish] = useState(false);
@@ -104,62 +103,38 @@ const StepFive = () => {
     //However, the user might have had SUPPORTED_ROWS_MONTHLY_INVESTMENTS securities there previously.
     //We need to reset the rows that will not be populated. Otherwise, they will stay the same.
     setLoadingFinish(true);
-    const selectedSecuritiesPadded = selectedSecurities?.concat(
-      new Array(
-        Math.max(
-          0,
-          SUPPORTED_ROWS_MONTHLY_INVESTMENTS - selectedSecurities.length
-        )
-      ).fill(undefined)
-    );
-    const monthlyInvestmentProfile: MonthlyInvestmentsProfile =
-      selectedSecuritiesPadded?.reduce(
-        (prev, curr: TradableSecurity | undefined) => {
-          if (!curr) {
-            //reset old rows in the profile
-            prev.rows.push({
-              date: 0,
-              selectedMonths: months.reduce((prev, curr) => {
-                prev[curr] = false;
-                return prev;
-              }, {} as Record<string, boolean>),
-              security: "",
-              amount: 0,
-            });
-          } else {
-            //populate new row in the profile
-            prev.rows.push({
-              date: Number(selectedDate.id),
-              selectedMonths: selectedMonths,
-              security: curr.securityCode,
-              amount: amountDistribution?.[curr.id] || 0,
-            });
-          }
-          return prev;
-        },
-        {
-          enableInPfCurrency: ENABLE_IN_PF_CURRENCY,
-          rows: [],
-        } as MonthlyInvestmentsProfile
-      ) ||
-      ({
-        enableInPfCurrency: ENABLE_IN_PF_CURRENCY,
-        rows: [],
-      } as MonthlyInvestmentsProfile);
-
     const selectedPortfolioShortName =
       selectedPortfolioOption?.details?.shortName;
+    const monthlyInvestmentProfile:
+      | PortfolioMonthlyInvestmentsDTOInput
+      | undefined = selectedSecurities?.reduce(
+      (prev, curr: TradableSecurity) => {
+        //populate new row in the profile
+        prev.rows.push({
+          date: Number(selectedDate.id),
+          selectedMonths: Object.keys(selectedMonths).reduce(
+            (prev, currMonthNr) => {
+              if (selectedMonths[currMonthNr])
+                prev.push(Number(currMonthNr) + 1);
+              return prev;
+            },
+            [] as number[]
+          ),
+          security: curr.securityCode,
+          amount: amountDistribution?.[curr.id] || 0,
+        });
+        return prev;
+      },
+      {
+        portfolio: selectedPortfolioShortName,
+        enableInPfCurrency: ENABLE_IN_PF_CURRENCY,
+        rows: [],
+      } as PortfolioMonthlyInvestmentsDTOInput
+    );
 
-    const monthlyInvestmentProfileAsImportString =
-      monthlyInvestmentsProfileToImportString(monthlyInvestmentProfile);
     //send mutation to FA Back
-    if (selectedPortfolioShortName && monthlyInvestmentProfileAsImportString) {
-      await setMonthlyInvestments(
-        selectedPortfolioShortName,
-        monthlyInvestmentProfileAsImportString
-      );
-      //refetch the contact info, containing the profiles
-      await refetchContactInfo();
+    if (selectedPortfolioShortName && monthlyInvestmentProfile) {
+      await setMonthlyInvestments(monthlyInvestmentProfile);
     }
     //close the open dialog and go back to step 0
     setLoadingFinish(false);
@@ -186,7 +161,9 @@ const StepFive = () => {
     <div className="flex flex-col gap-y-3">
       <Card>
         <div className="flex flex-col gap-y-3 p-2 select-none">
-          <p className="mx-auto text-lg font-bold">Summary</p>
+          <p className="mx-auto text-lg font-bold">
+            {t("wizards.monthlyInvestments.stepFive.summaryTitle")}
+          </p>
           <ul className="flex flex-col gap-y-2 w-full text-sm">
             <li className="flex">
               <p className="w-1/2">Portfolio</p>
@@ -195,7 +172,7 @@ const StepFive = () => {
               </p>
             </li>
             <li className="flex justify-between">
-              <p>Amount</p>
+              <p>{t("wizards.monthlyInvestments.stepFive.amount")}</p>
               <p id="amountToInvest" className="font-bold">
                 {amountToInvest?.toLocaleString(i18n.language, {
                   style: "currency",
@@ -205,7 +182,7 @@ const StepFive = () => {
               </p>
             </li>
             <li className="flex justify-between">
-              <p>Yearly amount</p>
+              <p>{t("wizards.monthlyInvestments.stepFive.yearlyAmount")}</p>
               <p id="yearlyAmount" className="font-bold">
                 {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
                   style: "currency",
@@ -216,7 +193,11 @@ const StepFive = () => {
             </li>
           </ul>
           <hr className="w-full border-1" />
-          <p>Investment distribution</p>
+          <p>
+            {t(
+              "wizards.monthlyInvestments.stepFive.securityDistributionTableTitle"
+            )}
+          </p>
           <div className="overflow-x-auto w-full">
             <SecurityDistributionTable
               totalAmount={wizardData.data.amountToInvest}
@@ -230,13 +211,19 @@ const StepFive = () => {
           <hr className="w-full border-1" />
           <ul className="flex flex-col gap-y-2 w-full text-sm">
             <li className="flex">
-              <p className="w-1/2">Buy date</p>
+              <p className="w-1/2">
+                {t("wizards.monthlyInvestments.stepFive.buyDate")}
+              </p>
               <p id={`selectedDate`} className="w-1/2 font-bold text-right">
-                {Number(selectedDate.id || 0)}. day of month
+                {t("wizards.monthlyInvestments.stepFive.selectedBuyDate", {
+                  date: numbro(Number(selectedDate.id || 0)).format("0o"),
+                })}
               </p>
             </li>
           </ul>
-          <p>Months selected</p>
+          <p>
+            {t("wizards.monthlyInvestments.stepFive.monthsSelectedGridTitle")}
+          </p>
           <div className="flex justify-start w-full">
             <SelectGrid
               id="selectableMonthsGrid"
@@ -250,10 +237,16 @@ const StepFive = () => {
         </div>
       </Card>
       <ConfirmDialog
-        title="Confirm your new monthly investment?"
-        description={`This will create a new or update an existing monthly investment plan.`}
-        confirmButtonText="Confirm"
-        cancelButtonText="Cancel"
+        title={t("wizards.monthlyInvestments.stepFive.confirmDialogTitle")}
+        description={t(
+          "wizards.monthlyInvestments.stepFive.confirmDialogDescription"
+        )}
+        confirmButtonText={t(
+          "wizards.monthlyInvestments.stepFive.confirmDialogConfirmButtonLabel"
+        )}
+        cancelButtonText={t(
+          "wizards.monthlyInvestments.stepFive.confirmDialogCancelButtonLabel"
+        )}
         onConfirm={async () => await handleFinishConfirm()}
         isOpen={confirmDialogOpen}
         setIsOpen={setConfirmDialogOpen}

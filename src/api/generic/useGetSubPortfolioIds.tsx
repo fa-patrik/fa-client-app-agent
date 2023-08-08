@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Portfolio, useGetContactInfo } from "api/initial/useGetContactInfo";
 
-const getSubPortfolioIds = (portfolio: Portfolio | undefined) => {
+export const getSubPortfolioIds = (portfolio: Portfolio | undefined) => {
   if (!portfolio) return [];
   return portfolio?.portfolios?.reduce((prev, currSubPortfolio) => {
     prev.push(currSubPortfolio.id);

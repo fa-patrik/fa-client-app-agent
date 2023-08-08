@@ -70,6 +70,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
     }
   };
 
+  const {t} = useModifiedTranslation()
   return (
     <li id={`securityDistributionCard-${security.id}`}>
       <Card>
@@ -99,9 +100,9 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
           <div className="flex flex-col gap-y-1 items-end">
             <div className="flex flex-row gap-x-2">
               <Input
-                label="Percentage"
+                label={t("wizards.monthlyInvestments.stepThree.percentageInputLabel")}
                 type="number"
-                placeholder="% 50"
+                placeholder={t("wizards.monthlyInvestments.stepThree.percentageInputPlaceholder")}
                 className="w-20 "
                 value={round(percentageInputs[security.id])}
                 onChange={(event) =>
@@ -112,14 +113,16 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                 }
                 error={
                   (percentageInputs[security.id] || 0) < 0
-                    ? "Below 0%"
+                    ? t("wizards.monthlyInvestments.stepThree.percentageInputBelowError")
                     : (percentageInputs[security.id] || 0) > 100
-                    ? "Above 100%"
+                    ? t("wizards.monthlyInvestments.stepThree.percentageInputOverError")
                     : undefined
                 }
               />
               <Input
-                label={`Amount in ${portfolioCurrencyCode}`}
+                label={t("wizards.monthlyInvestments.stepThree.amountInputLabel",{
+                  currency: portfolioCurrencyCode
+                })}
                 type="number"
                 placeholder="200"
                 className="w-40"
@@ -130,21 +133,23 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                 onPaste={(event) => handlePaste(event, security.id, "absolute")}
                 error={
                   (amountInputs[security.id] || 0) < 0
-                    ? "Below 0"
+                    ? t("wizards.monthlyInvestments.stepThree.amountInputBelowError")
                     : minTradeAmountInPfCurrency &&
                       (amountInputs[security.id] || 0) <
                         minTradeAmountInPfCurrency
-                    ? "Below min. amount"
+                    ? t("wizards.monthlyInvestments.stepThree.amountInputBelowMinError")
                     : undefined
                 }
               />
             </div>
             <p className="text-sm font-thin">
-              Min.{" "}
-              {security.minTradeAmount.toLocaleString(i18n.language, {
-                style: "currency",
-                currency: security.currency.securityCode,
+              {t("wizards.monthlyInvestments.stepThree.minDisclaimer",{
+                amount: security.minTradeAmount.toLocaleString(i18n.language, {
+                  style: "currency",
+                  currency: security.currency.securityCode,
+                })
               })}
+              {}
             </p>
           </div>
         </div>

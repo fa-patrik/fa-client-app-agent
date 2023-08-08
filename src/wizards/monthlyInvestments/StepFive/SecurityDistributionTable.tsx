@@ -23,7 +23,7 @@ const SecurityDistributionTable = ({
 }: SecurityDistributionTableProps) => {
   const isSm = useMatchesBreakpoint("sm");
   const isLargeScreen = isSm;
-  const { i18n } = useModifiedTranslation();
+  const {t,i18n } = useModifiedTranslation();
   const truncateName = (name: string) => {
     if (name.length > SECURITY_NAME_MAX_LENGTH && !isLargeScreen) {
       return name.substring(0, SECURITY_NAME_MAX_LENGTH) + ".";
@@ -35,9 +35,9 @@ const SecurityDistributionTable = ({
     <table id={id || "securityDistributionTable"} className="w-full table-auto">
       <thead>
         <tr>
-          <th className="p-1 text-sm font-normal text-left">Security</th>
-          <th className="p-1 text-sm font-normal text-right">%</th>
-          <th className="p-1 text-sm font-normal text-right">Amount</th>
+          <th className="p-1 text-sm font-normal text-left">{t("component.securityDistributionTable.securityColumHeader")}</th>
+          <th className="p-1 text-sm font-normal text-right">{t("component.securityDistributionTable.percentageColumnHeader")}</th>
+          <th className="p-1 text-sm font-normal text-right">{t("component.securityDistributionTable.amountColumnHeader")}</th>
         </tr>
       </thead>
       <tbody>

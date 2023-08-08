@@ -166,9 +166,9 @@ export const ComboBox = <TOption extends Option>({
       </Combobox>
       {tooltipContent && (
         <ConfirmDialog
-          title="Information"
+          title={t("component.select.dialogTitle")}
           description={tooltipContent}
-          cancelButtonText="Close"
+          cancelButtonText={t("component.select.dialogCloseButtonLabel")}
           isOpen={confirmDialogOpen}
           setIsOpen={setConfirmDialogOpen}
         />

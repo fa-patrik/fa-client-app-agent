@@ -3,6 +3,7 @@ import {
   TradableSecurity,
   useGetTradebleSecurities,
 } from "api/trading/useGetTradebleSecurities";
+import { SUPPORTED_ROWS_MONTHLY_INVESTMENTS } from "api/trading/useSetMonthlyInvestments";
 import { Card, ComboBox, Input, QueryLoadingWrapper } from "components";
 import { Option } from "components/ComboBox/ComboBox";
 import TradableSecurityTable from "components/Table/TradableSecurityTable/TradableSecurityTable";
@@ -109,7 +110,7 @@ const StepTwo = () => {
   //and enable/disable next and back buttons
   useEffect(() => {
     const disableNext =
-      selectedSecurities.length === 0 || selectedSecurities.length > 15;
+      selectedSecurities.length === 0 || selectedSecurities.length > SUPPORTED_ROWS_MONTHLY_INVESTMENTS;
     const disableBack = false;
 
     if (selectedSecurities.length > 15 && !displayedMaxNrSecuritiesWarning) {
@@ -141,7 +142,7 @@ const StepTwo = () => {
             <Input
               id="nameIsinInput"
               className=" text-black rounded-lg"
-              label={"Security name / ISIN"}
+              label={t("wizards.monthlyInvestments.stepTwo.securityNameIsinInputLabel")}
               value={inputNameOrIsin}
               onChange={(event) =>
                 setInputNameOrIsin(event.currentTarget.value)
@@ -156,7 +157,7 @@ const StepTwo = () => {
                   value={selectedCountry}
                   onChange={(country) => setSelectedCountry(country)}
                   options={filterOptions.country}
-                  label={t("tradingList.filters.country")}
+                  label={t("wizards.monthlyInvestments.stepTwo.countryFilterInputLabel")}
                 />
               </div>
               <div className="md:w-48">
@@ -165,7 +166,7 @@ const StepTwo = () => {
                   value={selectedType}
                   onChange={(type) => setSelectedType(type)}
                   options={filterOptions.type}
-                  label={"Type"}
+                  label={t("wizards.monthlyInvestments.stepTwo.typeFilterInputLabel")}
                 />
               </div>
             </>
@@ -178,8 +179,10 @@ const StepTwo = () => {
             onClick={() => setDisplayCategoryFilter(!displayCategoryFilter)}
           >
             {!displayCategoryFilter
-              ? `Display filters (${nrOfFiltersApplied} applied)`
-              : "Hide filters"}
+              ? t("wizards.monthlyInvestments.stepTwo.displayFilterButtonLabel",{
+                n: nrOfFiltersApplied
+              })
+              : t("wizards.monthlyInvestments.stepTwo.hideFilterButtonLabel")}
           </button>
           {selectedCountry?.id || selectedType?.id || inputNameOrIsin ? (
             <button
@@ -190,7 +193,7 @@ const StepTwo = () => {
                 setSelectedType(filters.type);
               }}
             >
-              Clear filters
+              {t("wizards.monthlyInvestments.stepTwo.clearFiltersButtonLabel")}
             </button>
           ) : null}
         </div>

@@ -47,6 +47,7 @@ function distributeTradeAmount(total: number, numSecurities: number): number[] {
  * The user allocates money to each selected security.
  */
 const StepThree = () => {
+  const {t} = useModifiedTranslation()
   const { wizardData, setWizardData } = useWizard();
   const portfolioCurrencyCode =
     wizardData.data.selectedPortfolio?.currency?.securityCode;
@@ -245,7 +246,6 @@ const StepThree = () => {
     <div className="flex flex-col gap-y-3">
       <Card id="investmentDistributionCard">
         <div className="flex flex-col gap-y-3 p-6">
-          <p className="mx-auto text-lg font-bold">Investment distribution</p>
           <div className="flex gap-x-2 justify-between">
             <LabeledDiv id="investmentAmount" label="Investment amount">
               {wizardData?.data?.amountToInvest.toLocaleString(i18n.language, {
@@ -259,7 +259,7 @@ const StepThree = () => {
               variant="Secondary"
               size="xs"
             >
-              Distribute evenly
+              {t("wizards.monthlyInvestments.stepThree.distributeButtonLabel")}
             </Button>
           </div>
           <DistributeInfo
@@ -279,10 +279,10 @@ const StepThree = () => {
         portfolioCurrencyCode={portfolioCurrencyCode}
       />
       <ConfirmDialog
-        title="Are you sure?"
-        description={`This will remove the security from your selection.`}
-        confirmButtonText="Remove"
-        cancelButtonText="Cancel"
+        title={t("wizards.monthlyInvestments.stepThree.removeDialogTitle")}
+        description={t("wizards.monthlyInvestments.stepThree.removeDialogDescription")}
+        confirmButtonText={t("wizards.monthlyInvestments.stepThree.removeDialogConfirmButton")}
+        cancelButtonText={t("wizards.monthlyInvestments.stepThree.removeDialogCancelButton")}
         onConfirm={() => removeSecurity()}
         isOpen={confirmDialogOpen}
         setIsOpen={setConfirmDialogOpen}
