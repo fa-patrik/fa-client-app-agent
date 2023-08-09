@@ -42,9 +42,14 @@ const HoldingsExcelExportButton = ({
   const excelExportRows = holdingsByType?.reduce((prev, currType) => {
     const rows = currType.securities.reduce((prev, currHolding) => {
       //holding
+      //no isin comes back as " "
+      const isinCode = currHolding.security.isinCode;
+      const code = currHolding.code;
+      const codeToDisplay =
+        isinCode && isinCode !== " " ? isinCode : code ?? "-";
       const row = [
         currHolding.name,
-        currHolding.code,
+        codeToDisplay,
         currHolding.firstAnalysis.amount,
         currHolding.firstAnalysis.purchaseTradeAmount,
         currHolding.firstAnalysis.marketValue,
