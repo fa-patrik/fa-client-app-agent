@@ -61,6 +61,7 @@ const HoldingsExcelExportButton = ({
   return (
     <div className="fixed right-4 bottom-4">
       <Button
+        id="excelExportButton"
         size="xs"
         LeftIcon={DocumentDownloadIcon}
         disabled={!holdingsByType?.length || excelLoading}
