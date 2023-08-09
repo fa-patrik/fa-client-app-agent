@@ -10,6 +10,7 @@ import {
 import { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { OrdersContainer } from "./components/OrdersContainer";
+import OrdersExcelExportButton from "./components/OrdersExcelExportButton";
 import { isOrderStatusToDisplayType } from "./components/useGroupedTradeOrdersByStatus";
 
 interface OrdersProps extends QueryData<(TradeOrder | LocalOrder)[]> {
@@ -42,6 +43,12 @@ export const Orders = ({
 
   return (
     <div className="flex flex-col gap-4">
+      <OrdersExcelExportButton
+        orders={filteredTransactionData}
+        startDate={startDate}
+        endDate={endDate}
+        loading={loading}
+      />
       <Card>
         <div className="flex flex-wrap gap-2 p-2 w-full text-normal">
           <div className="sm:w-48 grow sm:grow-0">

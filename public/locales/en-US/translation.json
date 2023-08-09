@@ -97,7 +97,8 @@
     "excelCol3Header": "Units",
     "excelCol4Header": "Purchase value",
     "excelCol5Header": "Market value",
-    "excelCol6Header": "Unrealised profits"
+    "excelCol6Header": "Unrealised profits",
+    "excelExportButtonLabel": "Download Excel"
   },
   "ordersPage": {
     "header": "Order",
@@ -116,7 +117,15 @@
     "withdrawStatus": "Withdrawal",
     "downloadFileButtonLabel": "Download order note",
     "cancelOrder": "Cancel the order",
-    "transactionsFilterTitle": "Filter orders by:"
+    "transactionsFilterTitle": "Filter orders by:",
+    "excelFileName": "Orders",
+    "excelSheetName": "Orders",
+    "excelCol1Header": "Security",
+    "excelCol2Header": "Transaction date",
+    "excelCol3Header": "Units",
+    "excelCol4Header": "Type",
+    "excelCol5Header": "Trade amount",
+    "excelExportButtonLabel": "Download Excel"
   },
   "transactionsPage": {
     "header": "Transaction",
@@ -152,7 +161,8 @@
     "excelCol2Header": "Transaction date",
     "excelCol3Header": "Units",
     "excelCol4Header": "Type",
-    "excelCol5Header": "Trade amount"
+    "excelCol5Header": "Trade amount",
+    "excelExportButtonLabel": "Download Excel"
   },
   "documentsPage": {
     "type": {

@@ -6,9 +6,6 @@ import {
   SecurityData,
   SecurityTypeDataWithSecurityData,
 } from "api/overview/types";
-import { ReactComponent as DocumentDownloadIcon } from "assets/document-download.svg";
-import { Button } from "components";
-import useExcelDownloader from "hooks/useExcelDownloader";
 import {
   canPortfolioTrade,
   usePermission,
@@ -23,6 +20,7 @@ import {
   SellModalInitialData,
 } from "../../components/TradingModals/SellModalContent/SellModalContent";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
+import HoldingsExcelExportButton from "./components/HoldingsExcelExportButton";
 import { HoldingsGroupedByType } from "./components/HoldingsGroupedByType";
 import { NoHoldings } from "./components/NoHoldings";
 
@@ -111,7 +109,7 @@ interface ContactHoldingsProps {
 }
 
 export const Holdings = ({ data }: ContactHoldingsProps) => {
-  const { t, i18n } = useModifiedTranslation();
+  const { t } = useModifiedTranslation();
   const canTrade = usePermission(undefined, canPortfolioTrade);
   const contactData = data?.contact;
   const { data: portfolioData } = useGetPortfolioBasicFieldsById(
@@ -138,38 +136,6 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
     contentProps: sellModalContentProps,
   } = useModal<SellModalInitialData>();
 
-  //Excel export stuff
-  const excelFileName = `${t("holdingsPage.excelFileName")} ${new Date().toLocaleDateString(i18n.language, {dateStyle: "long"})}.xlsx`
-  const excelSheetName = t("holdingsPage.excelSheetName")
-  const { downloadExcel, loading } = useExcelDownloader(excelFileName, excelSheetName);
-  const excelExportHeaders = [
-    t("holdingsPage.excelCol1Header"),
-    t("holdingsPage.excelCol2Header"),
-    t("holdingsPage.excelCol3Header"),
-    t("holdingsPage.excelCol4Header"),
-    t("holdingsPage.excelCol5Header"),
-    t("holdingsPage.excelCol6Header"),
-  ];
-  const excelExportRows = securityTypes?.reduce((prev, currSecType) => {
-    //security type
-    //prev.push([currSecType.name,"","",currSecType.firstAnalysis.marketValue,currSecType.firstAnalysis.marketValue-currSecType.firstAnalysis.tradeAmount])
-    const rows = currSecType.securities.reduce((prev, currSec) => {
-      //security
-      const row = [
-        currSec.name,
-        currSec.code,
-        currSec.firstAnalysis.amount,
-        currSec.firstAnalysis.purchaseTradeAmount,
-        currSec.firstAnalysis.marketValue,
-        currSec.firstAnalysis.marketValue - currSec.firstAnalysis.tradeAmount,
-      ];
-      prev.push(row);
-      return prev;
-    }, [] as (string | number)[][]);
-    prev.push(...rows);
-    return prev;
-  }, [] as (string | number)[][]);
-
   if (securityTypes.length === 0) {
     return <NoHoldings />;
   }
@@ -177,17 +143,9 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
   return (
     <>
       <div className="flex flex-col gap-4">
-        <div className="fixed right-4 bottom-4">
-          <Button
-            size="xs"
-            LeftIcon={DocumentDownloadIcon}
-            disabled={loading}
-            isLoading={loading}
-            onClick={() => downloadExcel(excelExportHeaders, excelExportRows)}
-          >
-            Download Excel
-          </Button>
-        </div>
+        {securityTypes.length && (
+          <HoldingsExcelExportButton holdingsByType={securityTypes} />
+        )}
         {securityTypes.map((group) => (
           <HoldingsGroupedByType
             key={group.code}
