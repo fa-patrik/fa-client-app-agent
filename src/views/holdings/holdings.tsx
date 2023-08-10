@@ -6,7 +6,6 @@ import {
   SecurityData,
   SecurityTypeDataWithSecurityData,
 } from "api/overview/types";
-import { ReactComponent as MenuIcon } from "assets/view-list.svg";
 import {
   canPortfolioTrade,
   usePermission,
