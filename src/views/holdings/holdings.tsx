@@ -6,6 +6,7 @@ import {
   SecurityData,
   SecurityTypeDataWithSecurityData,
 } from "api/overview/types";
+import { ReactComponent as MenuIcon } from "assets/view-list.svg";
 import {
   canPortfolioTrade,
   usePermission,
@@ -143,8 +144,10 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
   return (
     <>
       <div className="flex flex-col gap-4">
-        {securityTypes.length && (
-          <HoldingsExcelExportButton holdingsByType={securityTypes} />
+        {!!securityTypes?.length && (
+          <div className="ml-auto">
+            <HoldingsExcelExportButton holdingsByType={securityTypes} />
+          </div>
         )}
         {securityTypes.map((group) => (
           <HoldingsGroupedByType
@@ -159,6 +162,7 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
           />
         ))}
       </div>
+
       {canTrade && (
         <>
           <Modal {...buyModalProps} header={t("tradingModal.buyModalHeader")}>

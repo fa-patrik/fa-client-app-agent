@@ -67,18 +67,16 @@ const TransactionsExcelExportButton = ({
     }, [] as (string | number)[][]) || [];
 
   return (
-    <div className="fixed right-4 bottom-4">
-      <Button
-        id="excelExportButton"
-        size="xs"
-        LeftIcon={DocumentDownloadIcon}
-        disabled={!transactions?.length || loading || excelLoading}
-        isLoading={excelLoading}
-        onClick={() => downloadExcel(excelExportHeaders, excelExportRows)}
-      >
-        {t("transactionsPage.excelExportButtonLabel")}
-      </Button>
-    </div>
+    <Button
+      id="excelExportButton"
+      size="xs"
+      LeftIcon={DocumentDownloadIcon}
+      disabled={!transactions?.length || loading || excelLoading}
+      isLoading={excelLoading}
+      onClick={() => downloadExcel(excelExportHeaders, excelExportRows)}
+    >
+      {t("transactionsPage.excelExportButtonLabel")}
+    </Button>
   );
 };
 export default TransactionsExcelExportButton;

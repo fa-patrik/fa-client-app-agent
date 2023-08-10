@@ -98,7 +98,7 @@
     "excelCol4Header": "Purchase value",
     "excelCol5Header": "Market value",
     "excelCol6Header": "Unrealised profits",
-    "excelExportButtonLabel": "Download Excel"
+    "excelExportButtonLabel": "Export XLSX"
   },
   "ordersPage": {
     "header": "Order",
@@ -125,7 +125,7 @@
     "excelCol3Header": "Units",
     "excelCol4Header": "Type",
     "excelCol5Header": "Trade amount",
-    "excelExportButtonLabel": "Download Excel"
+    "excelExportButtonLabel": "Export XLSX"
   },
   "transactionsPage": {
     "header": "Transaction",
@@ -162,7 +162,7 @@
     "excelCol3Header": "Units",
     "excelCol4Header": "Type",
     "excelCol5Header": "Trade amount",
-    "excelExportButtonLabel": "Download Excel"
+    "excelExportButtonLabel": "Export XLSX"
   },
   "documentsPage": {
     "type": {

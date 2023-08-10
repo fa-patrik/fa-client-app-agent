@@ -34,12 +34,14 @@ export const Transactions = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <TransactionsExcelExportButton
-        transactions={filteredTransactionData}
-        startDate={startDate}
-        endDate={endDate}
-        loading={loading}
-      />
+      <div className="ml-auto">
+        <TransactionsExcelExportButton
+          transactions={filteredTransactionData}
+          startDate={startDate}
+          endDate={endDate}
+          loading={loading}
+        />
+      </div>
       <Card>
         <div className="flex flex-wrap gap-2 p-2 w-full text-normal">
           <div className="sm:w-48 grow sm:grow-0">
@@ -69,6 +71,7 @@ export const Transactions = ({
           />
         </div>
       </Card>
+
       <QueryLoadingWrapper
         loading={loading}
         error={error}

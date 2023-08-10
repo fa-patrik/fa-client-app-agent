@@ -43,12 +43,14 @@ export const Orders = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <OrdersExcelExportButton
-        orders={filteredTransactionData}
-        startDate={startDate}
-        endDate={endDate}
-        loading={loading}
-      />
+      <div className="ml-auto">
+        <OrdersExcelExportButton
+          orders={filteredTransactionData}
+          startDate={startDate}
+          endDate={endDate}
+          loading={loading}
+        />
+      </div>
       <Card>
         <div className="flex flex-wrap gap-2 p-2 w-full text-normal">
           <div className="sm:w-48 grow sm:grow-0">

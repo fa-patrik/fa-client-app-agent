@@ -64,18 +64,16 @@ const HoldingsExcelExportButton = ({
   }, [] as (string | number)[][]);
 
   return (
-    <div className="fixed right-4 bottom-4">
-      <Button
-        id="excelExportButton"
-        size="xs"
-        LeftIcon={DocumentDownloadIcon}
-        disabled={!holdingsByType?.length || excelLoading}
-        isLoading={excelLoading}
-        onClick={() => downloadExcel(excelExportHeaders, excelExportRows)}
-      >
-        {t("holdingsPage.excelExportButtonLabel")}
-      </Button>
-    </div>
+    <Button
+      id="excelExportButton"
+      size="xs"
+      LeftIcon={DocumentDownloadIcon}
+      disabled={!holdingsByType?.length || excelLoading}
+      isLoading={excelLoading}
+      onClick={() => downloadExcel(excelExportHeaders, excelExportRows)}
+    >
+      {t("holdingsPage.excelExportButtonLabel")}
+    </Button>
   );
 };
 export default HoldingsExcelExportButton;

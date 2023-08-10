@@ -67,18 +67,16 @@ const OrdersExcelExportButton = ({
     }, [] as (string | number | undefined)[][]) || [];
 
   return (
-    <div className="fixed right-4 bottom-4">
-      <Button
-        id="excelExportButton"
-        size="xs"
-        LeftIcon={DocumentDownloadIcon}
-        disabled={!orders?.length || loading || excelLoading}
-        isLoading={excelLoading}
-        onClick={() => downloadExcel(excelExportHeaders, excelExportRows)}
-      >
-        {t("ordersPage.excelExportButtonLabel")}
-      </Button>
-    </div>
+    <Button
+      id="excelExportButton"
+      size="xs"
+      LeftIcon={DocumentDownloadIcon}
+      disabled={!orders?.length || loading || excelLoading}
+      isLoading={excelLoading}
+      onClick={() => downloadExcel(excelExportHeaders, excelExportRows)}
+    >
+      {t("ordersPage.excelExportButtonLabel")}
+    </Button>
   );
 };
 export default OrdersExcelExportButton;
