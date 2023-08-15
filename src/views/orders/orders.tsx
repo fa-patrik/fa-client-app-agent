@@ -8,6 +8,7 @@ import {
   TransactionsFilter,
 } from "components";
 import { LocalOrder } from "hooks/useLocalTradeStorageState";
+import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { OrdersContainer } from "./components/OrdersContainer";
 import OrdersExcelExportButton from "./components/OrdersExcelExportButton";
@@ -40,17 +41,10 @@ export const Orders = ({
       isOrderStatusToDisplayType(transaction.orderStatus)
     );
   }, [transactionsData]);
+  const isLargeScreen = useMatchesBreakpoint("sm");
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="ml-auto">
-        <OrdersExcelExportButton
-          orders={filteredTransactionData}
-          startDate={startDate}
-          endDate={endDate}
-          loading={loading}
-        />
-      </div>
       <Card>
         <div className="flex flex-wrap gap-2 p-2 w-full text-normal">
           <div className="sm:w-48 grow sm:grow-0">
@@ -80,6 +74,16 @@ export const Orders = ({
           />
         </div>
       </Card>
+      {isLargeScreen && (
+        <div className="ml-auto">
+          <OrdersExcelExportButton
+            orders={filteredTransactionData}
+            startDate={startDate}
+            endDate={endDate}
+            loading={loading}
+          />
+        </div>
+      )}
 
       <QueryLoadingWrapper
         loading={loading}

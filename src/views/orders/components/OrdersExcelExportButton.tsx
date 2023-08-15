@@ -1,6 +1,6 @@
 import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { TradeOrder } from "api/orders/types";
-import { ReactComponent as DocumentDownloadIcon } from "assets/document-download.svg";
+import { ReactComponent as DocumentDownloadIcon } from "assets/file-excel-regular.svg";
 import { Button } from "components";
 import useExcelDownloader from "hooks/useExcelDownloader";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -69,7 +69,7 @@ const OrdersExcelExportButton = ({
   return (
     <Button
       id="excelExportButton"
-      size="xs"
+      variant="Dark"
       LeftIcon={DocumentDownloadIcon}
       disabled={!orders?.length || loading || excelLoading}
       isLoading={excelLoading}

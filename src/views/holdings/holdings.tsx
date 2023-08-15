@@ -6,6 +6,7 @@ import {
   SecurityData,
   SecurityTypeDataWithSecurityData,
 } from "api/overview/types";
+import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import {
   canPortfolioTrade,
   usePermission,
@@ -110,6 +111,7 @@ interface ContactHoldingsProps {
 
 export const Holdings = ({ data }: ContactHoldingsProps) => {
   const { t } = useModifiedTranslation();
+  const isLargeScreen = useMatchesBreakpoint("sm");
   const canTrade = usePermission(undefined, canPortfolioTrade);
   const contactData = data?.contact;
   const { data: portfolioData } = useGetPortfolioBasicFieldsById(
@@ -143,7 +145,7 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
   return (
     <>
       <div className="flex flex-col gap-4">
-        {!!securityTypes?.length && (
+        {!!securityTypes?.length && isLargeScreen && (
           <div className="ml-auto">
             <HoldingsExcelExportButton holdingsByType={securityTypes} />
           </div>

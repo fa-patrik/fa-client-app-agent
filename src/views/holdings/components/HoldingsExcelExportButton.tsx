@@ -1,6 +1,6 @@
 import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { SecurityTypeDataWithSecurityData } from "api/overview/types";
-import { ReactComponent as DocumentDownloadIcon } from "assets/document-download.svg";
+import { ReactComponent as DocumentDownloadIcon } from "assets/file-excel-regular.svg";
 import { Button } from "components";
 import useExcelDownloader from "hooks/useExcelDownloader";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -66,7 +66,7 @@ const HoldingsExcelExportButton = ({
   return (
     <Button
       id="excelExportButton"
-      size="xs"
+      variant="Dark"
       LeftIcon={DocumentDownloadIcon}
       disabled={!holdingsByType?.length || excelLoading}
       isLoading={excelLoading}
