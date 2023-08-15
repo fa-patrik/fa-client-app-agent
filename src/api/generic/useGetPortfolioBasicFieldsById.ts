@@ -1,4 +1,4 @@
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { gql, useApolloClient, useQuery } from "@apollo/client";
 import {
   Portfolio,
   PORTFOLIO_BASIC_FIELDS,
@@ -40,24 +40,15 @@ export const useGetPortfolioBasicFieldsById = (
  * Lazy version of useGetPortfolioBasicFieldsById.
  */
 export const useGetPortfolioBasicFieldsByIdLazy = () => {
-  const [performQuery] = useLazyQuery<PortfolioQuery>(PORTFOLIO_QUERY, {
-    fetchPolicy: "cache-first",
-  });
-
-  /**
-   * Gets the portfolio basic fields from apollo cache if it exists there
-   * Or alternatively requests it from FA on cache miss.
-   * @param portfolioId Database id of portfolio to get.
-   * @returns The requested portfolio if found in cache or in FA.
-   */
-  const getPortfolioBasicFieldsById = async (portfolioId: number) => {
-    const response = await performQuery({
-      variables: {
-        portfolioId,
-      },
+  const apolloClient = useApolloClient()
+  const getPortfolioBasicFields = async (portfolioId: number | undefined) => {
+    const response = await apolloClient.query({
+      fetchPolicy: "cache-first",
+      query: PORTFOLIO_QUERY,
+      variables: { portfolioId },
     });
-    return response.data?.portfolio;
-  };
-
-  return { getPortfolioBasicFieldsById };
-};
+    const portfolio: Portfolio | undefined = response?.data?.portfolio
+      return portfolio;
+    };
+    return { getPortfolioBasicFields };
+  } 

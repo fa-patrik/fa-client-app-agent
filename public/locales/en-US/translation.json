@@ -95,9 +95,9 @@
     "excelCol1Header": "Name",
     "excelCol2Header": "ISIN / Account number",
     "excelCol3Header": "Units",
-    "excelCol4Header": "Purchase value",
-    "excelCol5Header": "Market value",
-    "excelCol6Header": "Unrealised profits",
+    "excelCol4Header": "Purchase value ({{currency }})",
+    "excelCol5Header": "Market value ({{currency }})",
+    "excelCol6Header": "Unrealised profits ({{currency }})",
     "excelExportButtonLabel": "Export as XLSX"
   },
   "ordersPage": {
@@ -125,6 +125,7 @@
     "excelCol3Header": "Units",
     "excelCol4Header": "Type",
     "excelCol5Header": "Trade amount",
+    "excelCol6Header": "Currency",
     "excelExportButtonLabel": "Export as XLSX"
   },
   "transactionsPage": {
@@ -162,6 +163,7 @@
     "excelCol3Header": "Units",
     "excelCol4Header": "Type",
     "excelCol5Header": "Trade amount",
+    "excelCol6Header": "Currency",
     "excelExportButtonLabel": "Export as XLSX"
   },
   "documentsPage": {

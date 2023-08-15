@@ -147,7 +147,10 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
       <div className="flex flex-col gap-4">
         {!!securityTypes?.length && isLargeScreen && (
           <div className="ml-auto">
-            <HoldingsExcelExportButton holdingsByType={securityTypes} />
+            <HoldingsExcelExportButton
+              holdingsByType={securityTypes}
+              currencyCode={currencyCode}
+            />
           </div>
         )}
         {securityTypes.map((group) => (

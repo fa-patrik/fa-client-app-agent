@@ -8,10 +8,12 @@ import { useParams } from "react-router-dom";
 
 interface HoldingsExcelExportButtonProps {
   holdingsByType: SecurityTypeDataWithSecurityData[];
+  currencyCode: string;
 }
 
 const HoldingsExcelExportButton = ({
   holdingsByType,
+  currencyCode,
 }: HoldingsExcelExportButtonProps) => {
   const { t, i18n } = useModifiedTranslation();
   const { portfolioId } = useParams();
@@ -35,9 +37,15 @@ const HoldingsExcelExportButton = ({
     t("holdingsPage.excelCol1Header"),
     t("holdingsPage.excelCol2Header"),
     t("holdingsPage.excelCol3Header"),
-    t("holdingsPage.excelCol4Header"),
-    t("holdingsPage.excelCol5Header"),
-    t("holdingsPage.excelCol6Header"),
+    t("holdingsPage.excelCol4Header", {
+      currency: currencyCode,
+    }),
+    t("holdingsPage.excelCol5Header", {
+      currency: currencyCode,
+    }),
+    t("holdingsPage.excelCol6Header", {
+      currency: currencyCode,
+    }),
   ];
   const excelExportRows = holdingsByType?.reduce((prev, currType) => {
     const rows = currType.securities.reduce((prev, currHolding) => {

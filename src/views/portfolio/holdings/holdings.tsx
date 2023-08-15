@@ -54,7 +54,12 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
     <>
       <div className="flex flex-col gap-4">
         {data?.securityTypes?.length && (
-          <HoldingsExcelExportButton holdingsByType={data.securityTypes} />
+          <div className="ml-auto">
+            <HoldingsExcelExportButton
+              holdingsByType={data.securityTypes}
+              currencyCode={currencyCode}
+            />
+          </div>
         )}
         {data?.securityTypes.map((group: SecurityTypeDataWithSecurityData) => (
           <HoldingsGroupedByType

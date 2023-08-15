@@ -1,4 +1,8 @@
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
+import { useEffect, useState } from "react";
+import {
+  useGetPortfolioBasicFieldsById,
+  useGetPortfolioBasicFieldsByIdLazy,
+} from "api/generic/useGetPortfolioBasicFieldsById";
 import { TradeOrder } from "api/orders/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/file-excel-regular.svg";
 import { Button } from "components";
@@ -6,6 +10,9 @@ import useExcelDownloader from "hooks/useExcelDownloader";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import { getNameFromBackendTranslations } from "utils/transactions";
+
+type ExportRow = (string | number | undefined)[][];
+type ExportHeader = string[];
 
 interface OrdersExcelExportButtonProps {
   orders: TradeOrder[] | undefined;
@@ -21,7 +28,8 @@ const OrdersExcelExportButton = ({
   loading,
 }: OrdersExcelExportButtonProps) => {
   const { t, i18n } = useModifiedTranslation();
-
+  const [exportRows, setExportRows] = useState<ExportRow>([]);
+  const { getPortfolioBasicFields } = useGetPortfolioBasicFieldsByIdLazy();
   //Excel export
   const { portfolioId } = useParams();
   const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
@@ -42,29 +50,44 @@ const OrdersExcelExportButton = ({
       ? `${selectedPortfolioName}_${excelSheetName}`
       : excelSheetName
   );
-  const excelExportHeaders = [
+  const excelExportHeaders: ExportHeader = [
     t("ordersPage.excelCol1Header"),
     t("ordersPage.excelCol2Header"),
     t("ordersPage.excelCol3Header"),
     t("ordersPage.excelCol4Header"),
     t("ordersPage.excelCol5Header"),
+    t("ordersPage.excelCol6Header"),
   ];
-  const excelExportRows =
-    orders?.reduce((prev, currOrder) => {
-      const typeTranslated = getNameFromBackendTranslations(
-        currOrder.type.typeName,
-        i18n.language,
-        currOrder.type.typeNamesAsMap
-      );
-      prev.push([
-        currOrder.securityName,
-        currOrder.transactionDate,
-        currOrder.amount,
-        typeTranslated,
-        currOrder.tradeAmountInPortfolioCurrency,
-      ]);
-      return prev;
-    }, [] as (string | number | undefined)[][]) || [];
+
+  useEffect(() => {
+    const getAndSetExportRows = async () => {
+      const rows: ExportRow = [];
+      if (orders?.length) {
+        for (const order of orders) {
+          const typeTranslated = getNameFromBackendTranslations(
+            order.type.typeName,
+            i18n.language,
+            order.type.typeNamesAsMap
+          );
+          //get portfolio data from cache or otherwise FA Back
+          const portfolio = await getPortfolioBasicFields(
+            order.parentPortfolio.id
+          );
+          rows.push([
+            order.securityName,
+            order.transactionDate,
+            order.amount,
+            typeTranslated,
+            order.tradeAmountInPortfolioCurrency,
+            portfolio?.currency?.securityCode,
+          ]);
+        }
+      }
+      setExportRows(() => rows);
+    };
+    getAndSetExportRows();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders]);
 
   return (
     <Button
@@ -73,7 +96,7 @@ const OrdersExcelExportButton = ({
       LeftIcon={DocumentDownloadIcon}
       disabled={!orders?.length || loading || excelLoading}
       isLoading={excelLoading}
-      onClick={() => downloadExcel(excelExportHeaders, excelExportRows)}
+      onClick={() => downloadExcel(excelExportHeaders, exportRows)}
     >
       {t("ordersPage.excelExportButtonLabel")}
     </Button>

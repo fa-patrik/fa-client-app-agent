@@ -1,4 +1,8 @@
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
+import { useEffect, useState } from "react";
+import {
+  useGetPortfolioBasicFieldsById,
+  useGetPortfolioBasicFieldsByIdLazy,
+} from "api/generic/useGetPortfolioBasicFieldsById";
 import { Transaction } from "api/transactions/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/file-excel-regular.svg";
 import { Button } from "components";
@@ -6,6 +10,9 @@ import useExcelDownloader from "hooks/useExcelDownloader";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import { getNameFromBackendTranslations } from "utils/transactions";
+
+type ExportRow = (string | number | undefined)[][];
+type ExportHeader = string[];
 
 interface TransactionsExcelExportButtonProps {
   transactions: Transaction[] | undefined;
@@ -21,7 +28,8 @@ const TransactionsExcelExportButton = ({
   loading,
 }: TransactionsExcelExportButtonProps) => {
   const { t, i18n } = useModifiedTranslation();
-
+  const [exportRows, setExportRows] = useState<ExportRow>([]);
+  const { getPortfolioBasicFields } = useGetPortfolioBasicFieldsByIdLazy();
   //Excel export
   const { portfolioId } = useParams();
   const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
@@ -42,29 +50,44 @@ const TransactionsExcelExportButton = ({
       ? `${selectedPortfolioName}_${excelSheetName}`
       : excelSheetName
   );
-  const excelExportHeaders = [
+  const excelExportHeaders: ExportHeader = [
     t("transactionsPage.excelCol1Header"),
     t("transactionsPage.excelCol2Header"),
     t("transactionsPage.excelCol3Header"),
     t("transactionsPage.excelCol4Header"),
     t("transactionsPage.excelCol5Header"),
+    t("transactionsPage.excelCol6Header"),
   ];
-  const excelExportRows =
-    transactions?.reduce((prev, currTrans) => {
-      const typeTranslated = getNameFromBackendTranslations(
-        currTrans.type.typeName,
-        i18n.language,
-        currTrans.type.typeNamesAsMap
-      );
-      prev.push([
-        currTrans.securityName,
-        currTrans.transactionDate,
-        currTrans.amount,
-        typeTranslated,
-        currTrans.tradeAmountInPortfolioCurrency,
-      ]);
-      return prev;
-    }, [] as (string | number)[][]) || [];
+
+  useEffect(() => {
+    const getAndSetExportRows = async () => {
+      const rows: ExportRow = [];
+      if (transactions?.length) {
+        for (const order of transactions) {
+          const typeTranslated = getNameFromBackendTranslations(
+            order.type.typeName,
+            i18n.language,
+            order.type.typeNamesAsMap
+          );
+          //get portfolio data from cache or otherwise FA Back
+          const portfolio = await getPortfolioBasicFields(
+            order.parentPortfolio.id
+          );
+          rows.push([
+            order.securityName,
+            order.transactionDate,
+            order.amount,
+            typeTranslated,
+            order.tradeAmountInPortfolioCurrency,
+            portfolio?.currency?.securityCode,
+          ]);
+        }
+      }
+      setExportRows(() => rows);
+    };
+    getAndSetExportRows();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions]);
 
   return (
     <Button
@@ -73,7 +96,7 @@ const TransactionsExcelExportButton = ({
       LeftIcon={DocumentDownloadIcon}
       disabled={!transactions?.length || loading || excelLoading}
       isLoading={excelLoading}
-      onClick={() => downloadExcel(excelExportHeaders, excelExportRows)}
+      onClick={() => downloadExcel(excelExportHeaders, exportRows)}
     >
       {t("transactionsPage.excelExportButtonLabel")}
     </Button>
