@@ -19,7 +19,7 @@
       "detailsButtonLabel": "Details",
       "deselectAllButtonLabel": "Clear all"
     },
-    "securityDistributionTable":{
+    "securityDistributionTable": {
       "securityColumHeader": "Security",
       "percentageColumnHeader": "%",
       "amountColumnHeader": "Amount"
@@ -126,7 +126,23 @@
     "excelCol4Header": "Type",
     "excelCol5Header": "Trade amount",
     "excelCol6Header": "Currency",
-    "excelExportButtonLabel": "Export as XLSX"
+    "excelCol7Header": "Status",
+    "excelExportButtonLabel": "Export as XLSX",
+    "orderStatuses": {
+      "-1": "Pending",
+      "1": "Executable",
+      "2": "Executed",
+      "3": "Cancelled",
+      "4": "Open",
+      "5": "Accepted",
+      "6": "In execution",
+      "7": "Executed in the market",
+      "8": "Rejected",
+      "9": "Expired",
+      "10": "Sent to execution",
+      "11": "Settled in market",
+      "12": "Partially executed in the market"
+    }
   },
   "transactionsPage": {
     "header": "Transaction",
@@ -299,7 +315,7 @@
     "securityName": "Security",
     "resetFilter": "Clear filter"
   },
-  "wizards":{
+  "wizards": {
     "backButtonLabel": "Back",
     "nextButtonLabel": "Next",
     "finishButtonLabel": "Finish",
@@ -307,9 +323,9 @@
     "exitWizardDialogDescription": "You will lose your progress.",
     "exitWizardDialogConfirmButtonLabel": "Exit",
     "exitWizardDialogConfirmCancelLabel": "Cancel",
-    "monthlyInvestments":{
+    "monthlyInvestments": {
       "title": "Monthly investments",
-      "stepZero":{
+      "stepZero": {
         "stepTitle": "Overview of existing plans",
         "noPlansLabel": "You do not have any monthly investment plans",
         "amount": "Amount",

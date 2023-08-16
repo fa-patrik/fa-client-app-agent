@@ -57,6 +57,7 @@ const OrdersExcelExportButton = ({
     t("ordersPage.excelCol4Header"),
     t("ordersPage.excelCol5Header"),
     t("ordersPage.excelCol6Header"),
+    t("ordersPage.excelCol7Header"),
   ];
 
   useEffect(() => {
@@ -80,6 +81,7 @@ const OrdersExcelExportButton = ({
             typeTranslated,
             order.tradeAmountInPortfolioCurrency,
             portfolio?.currency?.securityCode,
+            t(`ordersPage.orderStatuses.${order.orderStatus}`),
           ]);
         }
       }
