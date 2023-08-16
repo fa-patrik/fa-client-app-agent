@@ -40,15 +40,20 @@ export const useGetPortfolioBasicFieldsById = (
  * Lazy version of useGetPortfolioBasicFieldsById.
  */
 export const useGetPortfolioBasicFieldsByIdLazy = () => {
-  const apolloClient = useApolloClient()
+  const apolloClient = useApolloClient();
   const getPortfolioBasicFields = async (portfolioId: number | undefined) => {
-    const response = await apolloClient.query({
-      fetchPolicy: "cache-first",
-      query: PORTFOLIO_QUERY,
-      variables: { portfolioId },
-    });
-    const portfolio: Portfolio | undefined = response?.data?.portfolio
+    try {
+      const response = await apolloClient.query({
+        fetchPolicy: "cache-first",
+        query: PORTFOLIO_QUERY,
+        variables: { portfolioId },
+      });
+      const portfolio: Portfolio | undefined = response?.data?.portfolio;
       return portfolio;
-    };
-    return { getPortfolioBasicFields };
-  } 
+    } catch (error) {
+      console.error(error);
+      return undefined;
+    }
+  };
+  return { getPortfolioBasicFields };
+};
