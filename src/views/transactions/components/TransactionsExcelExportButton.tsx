@@ -63,22 +63,22 @@ const TransactionsExcelExportButton = ({
     const getAndSetExportRows = async () => {
       const rows: ExportRow = [];
       if (transactions?.length) {
-        for (const order of transactions) {
+        for (const transaction of transactions) {
           const typeTranslated = getNameFromBackendTranslations(
-            order.type.typeName,
+            transaction.type.typeName,
             i18n.language,
-            order.type.typeNamesAsMap
+            transaction.type.typeNamesAsMap
           );
           //get portfolio data from cache or otherwise FA Back
           const portfolio = await getPortfolioBasicFields(
-            order.parentPortfolio.id
+            transaction.parentPortfolio.id
           );
           rows.push([
-            order.securityName,
-            order.transactionDate,
-            order.amount,
+            transaction.securityName,
+            transaction.transactionDate,
+            transaction.amount,
             typeTranslated,
-            order.tradeAmountInPortfolioCurrency,
+            transaction.tradeAmountInPortfolioCurrency,
             portfolio?.currency?.securityCode,
           ]);
         }
