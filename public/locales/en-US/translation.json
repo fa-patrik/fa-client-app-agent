@@ -19,7 +19,7 @@
       "detailsButtonLabel": "Details",
       "deselectAllButtonLabel": "Clear all"
     },
-    "securityDistributionTable":{
+    "securityDistributionTable": {
       "securityColumHeader": "Security",
       "percentageColumnHeader": "%",
       "amountColumnHeader": "Amount"
@@ -89,7 +89,16 @@
     "performance3Y": "3Y performance",
     "performance5Y": "5Y performance",
     "buy": "BUY",
-    "sell": "SELL"
+    "sell": "SELL",
+    "excelFileName": "Holdings",
+    "excelSheetName": "Holdings",
+    "excelCol1Header": "Name",
+    "excelCol2Header": "ISIN / Account number",
+    "excelCol3Header": "Units",
+    "excelCol4Header": "Purchase value ({{currency }})",
+    "excelCol5Header": "Market value ({{currency }})",
+    "excelCol6Header": "Unrealised profits ({{currency }})",
+    "excelExportButtonLabel": "Export as XLSX"
   },
   "ordersPage": {
     "header": "Order",
@@ -108,7 +117,32 @@
     "withdrawStatus": "Withdrawal",
     "downloadFileButtonLabel": "Download order note",
     "cancelOrder": "Cancel the order",
-    "transactionsFilterTitle": "Filter orders by:"
+    "transactionsFilterTitle": "Filter orders by:",
+    "excelFileName": "Orders",
+    "excelSheetName": "Orders",
+    "excelCol1Header": "Security",
+    "excelCol2Header": "Transaction date",
+    "excelCol3Header": "Units",
+    "excelCol4Header": "Type",
+    "excelCol5Header": "Trade amount",
+    "excelCol6Header": "Currency",
+    "excelCol7Header": "Status",
+    "excelExportButtonLabel": "Export as XLSX",
+    "orderStatuses": {
+      "-1": "Pending",
+      "1": "Executable",
+      "2": "Executed",
+      "3": "Cancelled",
+      "4": "Open",
+      "5": "Accepted",
+      "6": "In execution",
+      "7": "Executed in the market",
+      "8": "Rejected",
+      "9": "Expired",
+      "10": "Sent to execution",
+      "11": "Settled in market",
+      "12": "Partially executed in the market"
+    }
   },
   "transactionsPage": {
     "header": "Transaction",
@@ -137,7 +171,16 @@
     "noTransactionsInfo": "Try filtering with other dates",
     "downloadFileButtonLabel": "Download transaction confirmation",
     "cancelOrderButtonLabel": "Cancel order",
-    "transactionsFilterTitle": "Filter transactions by:"
+    "transactionsFilterTitle": "Filter transactions by:",
+    "excelFileName": "Transactions",
+    "excelSheetName": "Transactions",
+    "excelCol1Header": "Security",
+    "excelCol2Header": "Transaction date",
+    "excelCol3Header": "Units",
+    "excelCol4Header": "Type",
+    "excelCol5Header": "Trade amount",
+    "excelCol6Header": "Currency",
+    "excelExportButtonLabel": "Export as XLSX"
   },
   "documentsPage": {
     "type": {
@@ -272,7 +315,7 @@
     "securityName": "Security",
     "resetFilter": "Clear filter"
   },
-  "wizards":{
+  "wizards": {
     "backButtonLabel": "Back",
     "nextButtonLabel": "Next",
     "finishButtonLabel": "Finish",
@@ -280,9 +323,9 @@
     "exitWizardDialogDescription": "You will lose your progress.",
     "exitWizardDialogConfirmButtonLabel": "Exit",
     "exitWizardDialogConfirmCancelLabel": "Cancel",
-    "monthlyInvestments":{
+    "monthlyInvestments": {
       "title": "Monthly investments",
-      "stepZero":{
+      "stepZero": {
         "stepTitle": "Overview of existing plans",
         "noPlansLabel": "You do not have any monthly investment plans",
         "amount": "Amount",

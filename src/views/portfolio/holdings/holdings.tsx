@@ -9,6 +9,7 @@ import {
   canPortfolioTrade,
   usePermission,
 } from "services/permissions/usePermission";
+import HoldingsExcelExportButton from "views/holdings/components/HoldingsExcelExportButton";
 import { useModal } from "../../../components/Modal/useModal";
 import {
   BuyModalContent,
@@ -45,12 +46,21 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
   const { data: portfolioData } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
   const currencyCode = portfolioData?.currency.securityCode || "";
+
   if (data?.securityTypes.length === 0) {
     return <NoHoldings />;
   }
   return (
     <>
       <div className="flex flex-col gap-4">
+        {data?.securityTypes?.length && (
+          <div className="ml-auto">
+            <HoldingsExcelExportButton
+              holdingsByType={data.securityTypes}
+              currencyCode={currencyCode}
+            />
+          </div>
+        )}
         {data?.securityTypes.map((group: SecurityTypeDataWithSecurityData) => (
           <HoldingsGroupedByType
             key={group.code}
