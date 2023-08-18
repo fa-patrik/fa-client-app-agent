@@ -3,6 +3,7 @@ import {
   PortfolioData,
   SecurityTypeDataWithSecurityData,
 } from "api/overview/types";
+import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import {
@@ -27,6 +28,7 @@ interface PortfolioHoldingsViewProps {
 }
 
 export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
+  const isLargeScreen = useMatchesBreakpoint("sm");
   const canTrade = usePermission(undefined, canPortfolioTrade);
   const { t } = useModifiedTranslation();
   const {
@@ -53,7 +55,7 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
   return (
     <>
       <div className="flex flex-col gap-4">
-        {data?.securityTypes?.length && (
+        {data?.securityTypes?.length && isLargeScreen && (
           <div className="ml-auto">
             <HoldingsExcelExportButton
               holdingsByType={data.securityTypes}
