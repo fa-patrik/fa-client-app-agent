@@ -57,6 +57,7 @@ const TransactionsExcelExportButton = ({
     t("transactionsPage.excelCol4Header"),
     t("transactionsPage.excelCol5Header"),
     t("transactionsPage.excelCol6Header"),
+    t("transactionsPage.excelCol7Header"),
   ];
 
   useEffect(() => {
@@ -75,6 +76,7 @@ const TransactionsExcelExportButton = ({
           );
           rows.push([
             transaction.securityName,
+            portfolio?.name,
             transaction.transactionDate,
             transaction.amount,
             typeTranslated,
