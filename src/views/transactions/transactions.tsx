@@ -7,8 +7,10 @@ import {
   QueryLoadingWrapper,
   TransactionsFilter,
 } from "components";
+import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { TransactionsContainer } from "./components/TransactionsContainer";
+import TransactionsExcelExportButton from "./components/TransactionsExcelExportButton";
 
 interface TransactionsProps extends QueryData<Transaction[]> {
   startDate: Date;
@@ -27,6 +29,7 @@ export const Transactions = ({
   error,
 }: TransactionsProps) => {
   const { t } = useModifiedTranslation();
+  const isLargeScreen = useMatchesBreakpoint("sm");
   const [filteredTransactionData, setFilteredTransactionData] = useState<
     Transaction[] | undefined
   >(undefined);
@@ -62,6 +65,16 @@ export const Transactions = ({
           />
         </div>
       </Card>
+      {isLargeScreen && (
+        <div className="ml-auto">
+          <TransactionsExcelExportButton
+            transactions={filteredTransactionData}
+            startDate={startDate}
+            endDate={endDate}
+            loading={loading}
+          />
+        </div>
+      )}
       <QueryLoadingWrapper
         loading={loading}
         error={error}

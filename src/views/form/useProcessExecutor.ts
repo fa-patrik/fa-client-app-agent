@@ -11,22 +11,22 @@ import { useParams } from "react-router-dom";
 type FormDefinition = Record<string, unknown>;
 
 export interface Attachment {
-  url: string;
+  base64: string;
   name: string;
 }
 
 type ProcessStateType =
   | {
-    formDefinition: FormDefinition | undefined;
-    initialData: Record<string, unknown>;
-    attachments: Attachment[];
-    taskId: string;
-    processInstanceId: string;
-    executorState: "READY" | "SUBMITTING" | "SUBMIT_ERROR";
-  }
+      formDefinition: FormDefinition | undefined;
+      initialData: Record<string, unknown>;
+      attachments: Attachment[];
+      taskId: string;
+      processInstanceId: string;
+      executorState: "READY" | "SUBMITTING" | "SUBMIT_ERROR";
+    }
   | {
-    executorState: "LOADING" | "PROCESS_ERROR";
-  };
+      executorState: "LOADING" | "PROCESS_ERROR";
+    };
 
 type StateActionType =
   | { type: "UPDATE_DATA"; payload: Partial<ProcessStateType> }
@@ -71,8 +71,11 @@ const processStateReducer = (
 };
 
 const attachmentsObjectToList = (
-  attachments: Record<string, Attachment> | undefined
-) => (attachments ? Object.values(attachments) : []);
+  attachments: Record<string, string> | undefined
+) =>
+  attachments 
+    ? Object.entries(attachments).map(([name, base64]) => ({ name, base64 }))
+    : [] as Attachment[];
 
 export const useProcessExecutor = () => {
   const { userProfile } = useKeycloak();
@@ -111,7 +114,7 @@ export const useProcessExecutor = () => {
 
         if (processFinished) {
           navigate("/");
-          window.location.reload() //reloads keycloak
+          window.location.reload(); //reloads keycloak
         }
       } catch (error) {
         dispatchProcessStateAction({

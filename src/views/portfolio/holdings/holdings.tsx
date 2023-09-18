@@ -3,12 +3,14 @@ import {
   PortfolioData,
   SecurityTypeDataWithSecurityData,
 } from "api/overview/types";
+import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import {
   canPortfolioTrade,
   usePermission,
 } from "services/permissions/usePermission";
+import HoldingsExcelExportButton from "views/holdings/components/HoldingsExcelExportButton";
 import { useModal } from "../../../components/Modal/useModal";
 import {
   BuyModalContent,
@@ -26,6 +28,7 @@ interface PortfolioHoldingsViewProps {
 }
 
 export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
+  const isLargeScreen = useMatchesBreakpoint("sm");
   const canTrade = usePermission(undefined, canPortfolioTrade);
   const { t } = useModifiedTranslation();
   const {
@@ -45,12 +48,21 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
   const { data: portfolioData } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
   const currencyCode = portfolioData?.currency.securityCode || "";
+
   if (data?.securityTypes.length === 0) {
     return <NoHoldings />;
   }
   return (
     <>
       <div className="flex flex-col gap-4">
+        {data?.securityTypes?.length && isLargeScreen && (
+          <div className="ml-auto">
+            <HoldingsExcelExportButton
+              holdingsByType={data.securityTypes}
+              currencyCode={currencyCode}
+            />
+          </div>
+        )}
         {data?.securityTypes.map((group: SecurityTypeDataWithSecurityData) => (
           <HoldingsGroupedByType
             key={group.code}
