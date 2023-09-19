@@ -14,6 +14,13 @@ import { registerRoute } from "workbox-routing";
 import { SWROnInitThenCacheFirst } from "workbox/SWROnInitThenCacheFirst";
 import { resetVariables } from "./workbox/init";
 
+/**
+ * Should not be intercepted by the app
+ * since keycloak server can be hosted
+ * here.
+ */
+const KEYCLOAK_PATH = "/auth/";
+
 declare const self: ServiceWorkerGlobalScope;
 
 clientsClaim();
@@ -36,8 +43,11 @@ registerRoute(
       return false;
     }
 
-    // If this is a URL that starts with /_, skip.
-    if (url.pathname.startsWith("/_")) {
+    // If this is a URL that starts with /_ or /auth/, skip.
+    if (
+      url.pathname.startsWith("/_") ||
+      url.pathname.startsWith(KEYCLOAK_PATH)
+    ) {
       return false;
     }
 

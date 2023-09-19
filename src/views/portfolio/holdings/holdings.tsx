@@ -48,7 +48,6 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
   const { data: portfolioData } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
   const currencyCode = portfolioData?.currency.securityCode || "";
-
   if (data?.securityTypes.length === 0) {
     return <NoHoldings />;
   }

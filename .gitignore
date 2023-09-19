@@ -76,4 +76,4 @@ yarn-error.log*
 /.vscode
 
 # Jest-junit reports
-test-reports 
+test-reports
