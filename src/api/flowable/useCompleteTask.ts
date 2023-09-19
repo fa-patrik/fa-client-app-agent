@@ -1,5 +1,4 @@
 import { useMutation, gql } from "@apollo/client";
-import { Attachment } from "../../views/form/useProcessExecutor";
 
 const COMPLETE_TASK = gql`
   mutation ($taskId: String, $processInstanceId: String, $data: String) {
@@ -21,7 +20,7 @@ export interface TaskResponse {
   taskId: string;
   processInstanceId: string;
   data?: {
-    attachments?: Record<string, Attachment>;
+    attachments?: Record<string, string>;
   };
 }
 

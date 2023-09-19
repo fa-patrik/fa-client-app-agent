@@ -6,6 +6,7 @@ import {
   SecurityData,
   SecurityTypeDataWithSecurityData,
 } from "api/overview/types";
+import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import {
   canPortfolioTrade,
   usePermission,
@@ -20,6 +21,7 @@ import {
   SellModalInitialData,
 } from "../../components/TradingModals/SellModalContent/SellModalContent";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
+import HoldingsExcelExportButton from "./components/HoldingsExcelExportButton";
 import { HoldingsGroupedByType } from "./components/HoldingsGroupedByType";
 import { NoHoldings } from "./components/NoHoldings";
 
@@ -108,6 +110,8 @@ interface ContactHoldingsProps {
 }
 
 export const Holdings = ({ data }: ContactHoldingsProps) => {
+  const { t } = useModifiedTranslation();
+  const isLargeScreen = useMatchesBreakpoint("sm");
   const canTrade = usePermission(undefined, canPortfolioTrade);
   const contactData = data?.contact;
   const { data: portfolioData } = useGetPortfolioBasicFieldsById(
@@ -121,7 +125,6 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
   );
   const securityTypes = aggregatedData ? Object.values(aggregatedData) : [];
 
-  const { t } = useModifiedTranslation();
   const {
     Modal,
     onOpen: onBuyModalOpen,
@@ -138,9 +141,18 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
   if (securityTypes.length === 0) {
     return <NoHoldings />;
   }
+
   return (
     <>
       <div className="flex flex-col gap-4">
+        {!!securityTypes?.length && isLargeScreen && (
+          <div className="ml-auto">
+            <HoldingsExcelExportButton
+              holdingsByType={securityTypes}
+              currencyCode={currencyCode}
+            />
+          </div>
+        )}
         {securityTypes.map((group) => (
           <HoldingsGroupedByType
             key={group.code}
@@ -154,6 +166,7 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
           />
         ))}
       </div>
+
       {canTrade && (
         <>
           <Modal {...buyModalProps} header={t("tradingModal.buyModalHeader")}>
