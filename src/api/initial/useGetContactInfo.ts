@@ -85,6 +85,7 @@ export enum PortfolioGroups {
   TRADE = "CP_TRADING",
   HIDE = "CP_HIDE_PF",
   MONTHLY_INVESTMENTS = "CP_MONTHLYINVESTMENTS",
+  MONTHLY_SAVINGS = "CP_MONTHLYSAVINGS",
 }
 
 export interface PortfolioGroup {

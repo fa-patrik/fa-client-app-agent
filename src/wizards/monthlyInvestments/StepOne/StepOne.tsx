@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
-import { PortfolioWithProfileAndFigures, useGetPortfoliosWithProfileAndFigures } from "api/generic/useGetPortfoliosWithProfileAndFigures";
-import { Button, Card, ErrorMessage, Input, LoadingIndicator, PortfolioSelect } from "components";
+import {
+  PortfolioWithProfileAndFigures,
+  useGetPortfoliosWithProfileAndFigures,
+} from "api/generic/useGetPortfoliosWithProfileAndFigures";
+import {
+  Button,
+  Card,
+  ErrorMessage,
+  Input,
+  LoadingIndicator,
+  PortfolioSelect,
+} from "components";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -16,8 +26,13 @@ const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MINAMOUNT";
  */
 const StepOne = () => {
   const { wizardData, setWizardData } = useWizard();
-  const {t} = useModifiedTranslation()
-  const {data: portfolioData, error:errorGettingPortfolioData, refetch, networkStatus} = useGetPortfoliosWithProfileAndFigures()
+  const { t } = useModifiedTranslation();
+  const {
+    data: portfolioData,
+    error: errorGettingPortfolioData,
+    refetch,
+    networkStatus,
+  } = useGetPortfoliosWithProfileAndFigures();
   const { portfolioOptions } = useFilteredPortfolioSelect(
     canPortfolioOptionMonthlyInvest
   );
@@ -26,15 +41,17 @@ const StepOne = () => {
       wizardData?.data?.selectedPortfolioOption || portfolioOptions[0]
     );
 
-  const [portfolio, setPortfolio] = useState<PortfolioWithProfileAndFigures | undefined>(() => portfolioData?.portfolios?.find(p => p.id === selectedPortfolioOption.id))
-    
-  const minAmount =
-    portfolio?.figuresAsObject?.latestValues[
-      PF_KEYFIGURE_CODE_MIN_AMOUNT
-    ]?.value as number;
+  const [portfolio, setPortfolio] = useState<
+    PortfolioWithProfileAndFigures | undefined
+  >(() =>
+    portfolioData?.portfolios?.find((p) => p.id === selectedPortfolioOption.id)
+  );
 
-  const portfolioCurrencyCode =
-    portfolio?.currency.securityCode;
+  const minAmount = portfolio?.figuresAsObject?.latestValues[
+    PF_KEYFIGURE_CODE_MIN_AMOUNT
+  ]?.value as number;
+
+  const portfolioCurrencyCode = portfolio?.currency.securityCode;
 
   const [inputValue, setInputValue] = useState(() => {
     if (minAmount && wizardData?.data?.amountToInvest < minAmount) {
@@ -45,9 +62,11 @@ const StepOne = () => {
   const [inputError, setInputError] = useState("");
 
   useEffect(() => {
-    const selectedPortfolio = portfolioData?.portfolios?.find(p => p.id === selectedPortfolioOption.id)
-    setPortfolio(() => selectedPortfolio)
-  },[portfolioData?.portfolios, selectedPortfolioOption])
+    const selectedPortfolio = portfolioData?.portfolios?.find(
+      (p) => p.id === selectedPortfolioOption.id
+    );
+    setPortfolio(() => selectedPortfolio);
+  }, [portfolioData?.portfolios, selectedPortfolioOption]);
 
   //set portfolio to wizard state
   useEffect(() => {
@@ -85,7 +104,7 @@ const StepOne = () => {
       },
     }));
     setInputError("");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue, minAmount]);
 
   useEffect(() => {
@@ -96,7 +115,7 @@ const StepOne = () => {
         selectedPortfolio: portfolio,
       },
     }));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfolio]);
 
   /** Ensures input is a positive integer */
@@ -116,52 +135,64 @@ const StepOne = () => {
     setInputValue(value);
   };
 
-  return (
-    <div className="flex flex-col gap-y-3">
-      {errorGettingPortfolioData  ? (
-            <ErrorMessage header={t("messages.noCachedDataInfo")}>
-              {networkStatus === 4 ? (
-                <LoadingIndicator center size="sm" />
-              ): 
-              <Button onClick={() => refetch()} variant="Transparent">
-              <span  className="text-primary-500 underline">{t("wizards.monthlyInvestments.stepOne.refetchDataButtonLabel")}</span>
-              </Button>
-              }
-            </ErrorMessage>
-          ): (
-      <Card>
-        <div className="flex flex-col gap-y-3 p-6">
-          
-          <PortfolioSelect
-            label={t("wizards.monthlyInvestments.stepOne.portfolioInputLabel")}
-            onChange={setSelectedPortfolioOption}
-            portfolioId={selectedPortfolioOption.id}
-            portfolioOptions={portfolioOptions}
-          />
-          <Input
-            error={inputError}
-            type="number"
-            value={inputValue}
-            onChange={(e) => handleInput(e)}
-            onPaste={(e) => handlePaste(e)}
-            className="text-black rounded-lg"
-            label={t("wizards.monthlyInvestments.stepOne.amountInputLabel",{
-              currency: portfolioCurrencyCode
-            })}
-            placeholder={`${minAmount || 100}`}
-          />
-          {minAmount && (
-            <p className="text-sm font-thin">
-              {t("wizards.monthlyInvestments.stepOne.minAmountDisclaimer",{
-                amount: minAmount,
-                currency: portfolioCurrencyCode
-              })}
-            </p>
+  if (errorGettingPortfolioData)
+    return (
+      <div className="p-4 m-auto w-full h-full">
+        <ErrorMessage header={t("messages.noCachedDataInfo")}>
+          {networkStatus === 4 ? (
+            <LoadingIndicator center size="sm" />
+          ) : (
+            <Button
+              onClick={async () => {
+                await refetch();
+              }}
+              variant="Transparent"
+            >
+              <span className="text-primary-500 underline">
+                {t("wizards.monthlyInvestments.stepOne.refetchDataButtonLabel")}
+              </span>
+            </Button>
           )}
-          
-        </div>
-      </Card>
-    )}
+        </ErrorMessage>
+      </div>
+    );
+
+  return (
+    <div className="p-4 m-auto w-full max-w-sm">
+      <div>
+        <Card>
+          <div className="flex flex-col gap-y-3 p-6">
+            <PortfolioSelect
+              label={t(
+                "wizards.monthlyInvestments.stepOne.portfolioInputLabel"
+              )}
+              onChange={setSelectedPortfolioOption}
+              portfolioId={selectedPortfolioOption.id}
+              portfolioOptions={portfolioOptions}
+            />
+            <Input
+              error={inputError}
+              type="number"
+              value={inputValue}
+              onChange={(e) => handleInput(e)}
+              onPaste={(e) => handlePaste(e)}
+              className="text-black rounded-lg"
+              label={t("wizards.monthlyInvestments.stepOne.amountInputLabel", {
+                currency: portfolioCurrencyCode,
+              })}
+              placeholder={`${minAmount || 100}`}
+            />
+            {minAmount && (
+              <p className="text-sm font-thin">
+                {t("wizards.monthlyInvestments.stepOne.minAmountDisclaimer", {
+                  amount: minAmount,
+                  currency: portfolioCurrencyCode,
+                })}
+              </p>
+            )}
+          </div>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -5,7 +5,6 @@ import {
   useSetMonthlyInvestments,
 } from "api/trading/useSetMonthlyInvestments";
 import { Card } from "components";
-import { Option } from "components/ComboBox/ComboBox";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import SelectGrid from "components/SelectGrid/SelectGrid";
@@ -54,7 +53,7 @@ const StepFive = () => {
 
   const percentageDistribution: Record<string, number> | undefined =
     wizardData.data.percentageDistribution;
-  const selectedDate: Option = wizardData.data.selectedDate;
+  const selectedDate: string = wizardData.data.selectedDate;
   const [selectedMonths, setSelectedMonths] = useState<Record<string, boolean>>(
     wizardData.data.selectedMonths ||
       months.reduce((prev, curr) => {
@@ -111,7 +110,7 @@ const StepFive = () => {
       (prev, curr: TradableSecurity) => {
         //populate new row in the profile
         prev.rows.push({
-          date: Number(selectedDate.id),
+          date: Number(selectedDate),
           selectedMonths: Object.keys(selectedMonths).reduce(
             (prev, currMonthNr) => {
               if (selectedMonths[currMonthNr])
@@ -158,84 +157,85 @@ const StepFive = () => {
     );
 
   return (
-    <div className="flex flex-col gap-y-3">
-      <Card>
-        <div className="flex flex-col gap-y-3 p-2 select-none">
-          <p className="mx-auto text-lg font-bold">
-            {t("wizards.monthlyInvestments.stepFive.summaryTitle")}
-          </p>
-          <ul className="flex flex-col gap-y-2 w-full text-sm">
-            <li className="flex">
-              <p className="w-1/2">Portfolio</p>
-              <p className="w-1/2 font-bold text-right">
-                {selectedPortfolioOption?.details?.name}
-              </p>
-            </li>
-            <li className="flex justify-between">
-              <p>{t("wizards.monthlyInvestments.stepFive.amount")}</p>
-              <p id="amountToInvest" className="font-bold">
-                {amountToInvest?.toLocaleString(i18n.language, {
-                  style: "currency",
-                  currency:
-                    wizardData.data.selectedPortfolio?.currency?.securityCode,
-                })}
-              </p>
-            </li>
-            <li className="flex justify-between">
-              <p>{t("wizards.monthlyInvestments.stepFive.yearlyAmount")}</p>
-              <p id="yearlyAmount" className="font-bold">
-                {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
-                  style: "currency",
-                  currency:
-                    wizardData.data.selectedPortfolio?.currency?.securityCode,
-                })}
-              </p>
-            </li>
-          </ul>
-          <hr className="w-full border-1" />
-          <p>
-            {t(
-              "wizards.monthlyInvestments.stepFive.securityDistributionTableTitle"
-            )}
-          </p>
-          <div className="overflow-x-auto w-full">
-            <SecurityDistributionTable
-              totalAmount={wizardData.data.amountToInvest}
-              securities={selectedSecuritiesSortedByPercentageDistribution}
-              amountDistribution={amountDistribution}
-              portfolioCurrencyCode={
-                wizardData.data.selectedPortfolio?.currency?.securityCode
-              }
-            />
+    <div className="flex overflow-y-auto flex-col gap-y-4 p-4 m-auto w-full max-w-xl">
+      <div>
+        <Card>
+          <div className="flex flex-col gap-y-3 py-3 px-4 select-none">
+            <p className="mx-auto text-lg font-semibold">
+              {t("wizards.monthlyInvestments.stepFive.summaryTitle")}
+            </p>
+            <ul className="flex flex-col gap-y-2 w-full text-sm">
+              <li className="flex">
+                <p className="w-1/2">Portfolio</p>
+                <p className="w-1/2 font-semibold text-right">
+                  {selectedPortfolioOption?.details?.name}
+                </p>
+              </li>
+              <li className="flex justify-between">
+                <p>{t("wizards.monthlyInvestments.stepFive.amount")}</p>
+                <p id="amountToInvest" className="font-semibold">
+                  {amountToInvest?.toLocaleString(i18n.language, {
+                    style: "currency",
+                    currency:
+                      wizardData.data.selectedPortfolio?.currency?.securityCode,
+                  })}
+                </p>
+              </li>
+              <li className="flex justify-between">
+                <p>{t("wizards.monthlyInvestments.stepFive.yearlyAmount")}</p>
+                <p id="yearlyAmount" className="font-semibold">
+                  {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
+                    style: "currency",
+                    currency:
+                      wizardData.data.selectedPortfolio?.currency?.securityCode,
+                  })}
+                </p>
+              </li>
+            </ul>
+            <hr className="w-full border-1" />
+            <div className="overflow-x-auto w-full">
+              <SecurityDistributionTable
+                totalAmount={wizardData.data.amountToInvest}
+                securities={selectedSecuritiesSortedByPercentageDistribution}
+                amountDistribution={amountDistribution}
+                portfolioCurrencyCode={
+                  wizardData.data.selectedPortfolio?.currency?.securityCode
+                }
+              />
+            </div>
+            <hr className="w-full border-1" />
+            <ul className="flex flex-col gap-y-2 w-full text-sm">
+              <li className="flex">
+                <p className="w-1/2">
+                  {t("wizards.monthlyInvestments.stepFive.buyDate")}
+                </p>
+                <p
+                  id={`selectedDate`}
+                  className="w-1/2 font-semibold text-right"
+                >
+                  {t("wizards.monthlyInvestments.stepFive.selectedBuyDate", {
+                    date: numbro(Number(selectedDate || 0)).format("0o"),
+                  })}
+                </p>
+              </li>
+            </ul>
+            <p className="text-sm">
+              {t("wizards.monthlyInvestments.stepFive.monthsSelectedGridTitle")}
+            </p>
+            <div className="w-full">
+              <SelectGrid
+                id="selectableMonthsGrid"
+                disabled
+                selected={selectedMonths}
+                onSelect={setSelectedMonths}
+                selectBoxes={monthsAsString}
+                narrow
+              />
+            </div>
           </div>
-          <hr className="w-full border-1" />
-          <ul className="flex flex-col gap-y-2 w-full text-sm">
-            <li className="flex">
-              <p className="w-1/2">
-                {t("wizards.monthlyInvestments.stepFive.buyDate")}
-              </p>
-              <p id={`selectedDate`} className="w-1/2 font-bold text-right">
-                {t("wizards.monthlyInvestments.stepFive.selectedBuyDate", {
-                  date: numbro(Number(selectedDate.id || 0)).format("0o"),
-                })}
-              </p>
-            </li>
-          </ul>
-          <p>
-            {t("wizards.monthlyInvestments.stepFive.monthsSelectedGridTitle")}
-          </p>
-          <div className="flex justify-start w-full">
-            <SelectGrid
-              id="selectableMonthsGrid"
-              disabled
-              selected={selectedMonths}
-              onSelect={setSelectedMonths}
-              selectBoxes={monthsAsString}
-              narrow
-            />
-          </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
+
       <ConfirmDialog
         title={t("wizards.monthlyInvestments.stepFive.confirmDialogTitle")}
         description={t(

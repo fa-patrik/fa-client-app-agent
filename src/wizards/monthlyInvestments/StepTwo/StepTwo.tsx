@@ -6,10 +6,10 @@ import {
 import { SUPPORTED_ROWS_MONTHLY_INVESTMENTS } from "api/trading/useSetMonthlyInvestments";
 import { Card, ComboBox, Input, QueryLoadingWrapper } from "components";
 import { Option } from "components/ComboBox/ComboBox";
-import TradableSecurityTable from "components/Table/TradableSecurityTable/TradableSecurityTable";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { toast } from "react-toastify";
+import TradableSecurityTable from "wizards/monthlyInvestments/StepTwo/components/TradableSecurityTable";
 
 /**
  * Step two of the monthly investments process.
@@ -110,7 +110,8 @@ const StepTwo = () => {
   //and enable/disable next and back buttons
   useEffect(() => {
     const disableNext =
-      selectedSecurities.length === 0 || selectedSecurities.length > SUPPORTED_ROWS_MONTHLY_INVESTMENTS;
+      selectedSecurities.length === 0 ||
+      selectedSecurities.length > SUPPORTED_ROWS_MONTHLY_INVESTMENTS;
     const disableBack = false;
 
     if (selectedSecurities.length > 15 && !displayedMaxNrSecuritiesWarning) {
@@ -135,79 +136,95 @@ const StepTwo = () => {
   }, [displayedMaxNrSecuritiesWarning, selectedSecurities, setWizardData]);
 
   return (
-    <div className="flex flex-col gap-y-3">
-      <Card>
-        <div className="grid md:flex z-10 grid-cols-2 gap-1 md:gap-x-2 md:items-end p-2 text-normal">
-          <div className="col-span-2 md:w-48">
-            <Input
-              id="nameIsinInput"
-              className=" text-black rounded-lg"
-              label={t("wizards.monthlyInvestments.stepTwo.securityNameIsinInputLabel")}
-              value={inputNameOrIsin}
-              onChange={(event) =>
-                setInputNameOrIsin(event.currentTarget.value)
-              }
-            />
+    <div className="flex overflow-y-auto flex-col gap-y-4 p-4 mx-auto w-full max-w-3xl">
+      <div>
+        <Card>
+          <div className="grid md:flex grid-cols-2 gap-1 md:gap-x-2 md:items-end p-2 text-normal">
+            <div className="col-span-2 md:w-48">
+              <Input
+                id="nameIsinInput"
+                className=" text-black rounded-lg"
+                label={t(
+                  "wizards.monthlyInvestments.stepTwo.securityNameIsinInputLabel"
+                )}
+                value={inputNameOrIsin}
+                onChange={(event) =>
+                  setInputNameOrIsin(event.currentTarget.value)
+                }
+              />
+            </div>
+            {displayCategoryFilter && (
+              <>
+                <div className="z-50 md:w-48">
+                  <ComboBox
+                    id="countrySelection"
+                    value={selectedCountry}
+                    onChange={(country) => setSelectedCountry(country)}
+                    options={filterOptions.country}
+                    label={t(
+                      "wizards.monthlyInvestments.stepTwo.countryFilterInputLabel"
+                    )}
+                  />
+                </div>
+                <div className="z-50 md:w-48">
+                  <ComboBox
+                    id="typeSelection"
+                    value={selectedType}
+                    onChange={(type) => setSelectedType(type)}
+                    options={filterOptions.type}
+                    label={t(
+                      "wizards.monthlyInvestments.stepTwo.typeFilterInputLabel"
+                    )}
+                  />
+                </div>
+              </>
+            )}
           </div>
-          {displayCategoryFilter && (
-            <>
-              <div className="md:w-48">
-                <ComboBox
-                  id="countrySelection"
-                  value={selectedCountry}
-                  onChange={(country) => setSelectedCountry(country)}
-                  options={filterOptions.country}
-                  label={t("wizards.monthlyInvestments.stepTwo.countryFilterInputLabel")}
-                />
-              </div>
-              <div className="md:w-48">
-                <ComboBox
-                  id="typeSelection"
-                  value={selectedType}
-                  onChange={(type) => setSelectedType(type)}
-                  options={filterOptions.type}
-                  label={t("wizards.monthlyInvestments.stepTwo.typeFilterInputLabel")}
-                />
-              </div>
-            </>
-          )}
-        </div>
-        <div className="flex col-span-2 gap-3 p-3">
-          <button
-            id="showFiltersButton"
-            className="text-sm text-primary-500 underline"
-            onClick={() => setDisplayCategoryFilter(!displayCategoryFilter)}
-          >
-            {!displayCategoryFilter
-              ? t("wizards.monthlyInvestments.stepTwo.displayFilterButtonLabel",{
-                n: nrOfFiltersApplied
-              })
-              : t("wizards.monthlyInvestments.stepTwo.hideFilterButtonLabel")}
-          </button>
-          {selectedCountry?.id || selectedType?.id || inputNameOrIsin ? (
+          <div className="flex col-span-2 gap-3 p-3">
             <button
-              id="clearFiltersButton"
+              id="showFiltersButton"
               className="text-sm text-primary-500 underline"
-              onClick={() => {
-                setSelectedCountry(filters.country);
-                setSelectedType(filters.type);
-              }}
+              onClick={() => setDisplayCategoryFilter(!displayCategoryFilter)}
             >
-              {t("wizards.monthlyInvestments.stepTwo.clearFiltersButtonLabel")}
+              {!displayCategoryFilter
+                ? t(
+                    "wizards.monthlyInvestments.stepTwo.displayFilterButtonLabel",
+                    {
+                      n: nrOfFiltersApplied,
+                    }
+                  )
+                : t("wizards.monthlyInvestments.stepTwo.hideFilterButtonLabel")}
             </button>
-          ) : null}
-        </div>
-      </Card>
-      <QueryLoadingWrapper
-        data={securitiesFilteredByCategoryAndInput}
-        loading={loading}
-        error={error}
-        SuccessComponent={TradableSecurityTable}
-        successComponentProps={{
-          onRowSelect: setSelectedSecurities,
-          preSelectedRows: selectedSecurities,
-        }}
-      />
+            {selectedCountry?.id || selectedType?.id || inputNameOrIsin ? (
+              <button
+                id="clearFiltersButton"
+                className="text-sm text-primary-500 underline"
+                onClick={() => {
+                  setSelectedCountry(filters.country);
+                  setSelectedType(filters.type);
+                  setInputNameOrIsin("");
+                }}
+              >
+                {t(
+                  "wizards.monthlyInvestments.stepTwo.clearFiltersButtonLabel"
+                )}
+              </button>
+            ) : null}
+          </div>
+        </Card>
+      </div>
+      <div className="overflow-y-auto h-full rounded-lg shadow-md min-h-[400px]">
+        <QueryLoadingWrapper
+          data={securitiesFilteredByCategoryAndInput}
+          loading={loading}
+          error={error}
+          SuccessComponent={TradableSecurityTable}
+          successComponentProps={{
+            onRowSelect: setSelectedSecurities,
+            preSelectedRows: selectedSecurities,
+          }}
+        />
+      </div>
     </div>
   );
 };

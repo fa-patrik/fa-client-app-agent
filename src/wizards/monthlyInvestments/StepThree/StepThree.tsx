@@ -4,8 +4,8 @@ import { Button, Card, LabeledDiv } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
-import DistributeInfo from "./DistributeInfo";
-import SecurityDistributionList from "./SecurityDistributionList";
+import DistributeInfo from "./components/DistributeInfo";
+import SecurityDistributionList from "./components/SecurityDistributionList";
 
 /**
  * Rounds to 2 decimals.
@@ -47,7 +47,7 @@ function distributeTradeAmount(total: number, numSecurities: number): number[] {
  * The user allocates money to each selected security.
  */
 const StepThree = () => {
-  const {t} = useModifiedTranslation()
+  const { t } = useModifiedTranslation();
   const { wizardData, setWizardData } = useWizard();
   const portfolioCurrencyCode =
     wizardData.data.selectedPortfolio?.currency?.securityCode;
@@ -243,46 +243,63 @@ const StepThree = () => {
   ]);
 
   return (
-    <div className="flex flex-col gap-y-3">
-      <Card id="investmentDistributionCard">
-        <div className="flex flex-col gap-y-3 p-6">
-          <div className="flex gap-x-2 justify-between">
-            <LabeledDiv id="investmentAmount" label="Investment amount">
-              {wizardData?.data?.amountToInvest.toLocaleString(i18n.language, {
-                style: "currency",
-                currency: portfolioCurrencyCode,
-              })}
-            </LabeledDiv>
-            <Button
-              id="distributeEvenlyButton"
-              onClick={distributeEvenly}
-              variant="Secondary"
-              size="xs"
-            >
-              {t("wizards.monthlyInvestments.stepThree.distributeButtonLabel")}
-            </Button>
+    <div className="flex overflow-y-auto flex-col gap-y-4 p-4 m-auto w-full max-w-xl h-full">
+      <div>
+        <Card id="investmentDistributionCard">
+          <div className="flex flex-col gap-y-3 p-6">
+            <div className="flex gap-x-2 justify-between">
+              <LabeledDiv id="investmentAmount" label="Investment amount">
+                {wizardData?.data?.amountToInvest.toLocaleString(
+                  i18n.language,
+                  {
+                    style: "currency",
+                    currency: portfolioCurrencyCode,
+                  }
+                )}
+              </LabeledDiv>
+              <Button
+                id="distributeEvenlyButton"
+                onClick={distributeEvenly}
+                variant="Secondary"
+                size="xs"
+              >
+                {t(
+                  "wizards.monthlyInvestments.stepThree.distributeButtonLabel"
+                )}
+              </Button>
+            </div>
+            <DistributeInfo
+              diffAmount={
+                wizardData.data?.amountToInvest - round(sumOfAmountInputs)
+              }
+              diffPercentage={100 - round(sumOfPercentageInputs)}
+            />
           </div>
-          <DistributeInfo
-            diffAmount={
-              wizardData.data?.amountToInvest - round(sumOfAmountInputs)
-            }
-            diffPercentage={100 - round(sumOfPercentageInputs)}
-          />
-        </div>
-      </Card>
-      <SecurityDistributionList
-        selectedSecurities={wizardData.data.selectedSecurities}
-        handleRemove={handleRemove}
-        setInput={setInput}
-        percentageInputs={percentageInputs}
-        amountInputs={amountInputs}
-        portfolioCurrencyCode={portfolioCurrencyCode}
-      />
+        </Card>
+      </div>
+
+      <div className="h-full min-h-[300px]">
+        <SecurityDistributionList
+          selectedSecurities={wizardData.data.selectedSecurities}
+          handleRemove={handleRemove}
+          setInput={setInput}
+          percentageInputs={percentageInputs}
+          amountInputs={amountInputs}
+          portfolioCurrencyCode={portfolioCurrencyCode}
+        />
+      </div>
+
       <ConfirmDialog
         title={t("wizards.monthlyInvestments.stepThree.removeDialogTitle")}
-        description={t("wizards.monthlyInvestments.stepThree.removeDialogDescription")}
-        confirmButtonText={t("wizards.monthlyInvestments.stepThree.removeDialogConfirmButton")}
-        cancelButtonText={t("wizards.monthlyInvestments.stepThree.removeDialogCancelButton")}
+        description={t(
+          "wizards.monthlyInvestments.stepThree.removeDialogDescription"
+        )}
+        confirmButtonText={t(
+          "wizards.monthlyInvestments.stepThree.removeDialogConfirmButton"
+        )}
+        cancelButtonText={t(
+          "wizards.monthlyInvestments.stepThree.removeDialogCancelButton"
+        )}
         onConfirm={() => removeSecurity()}
         isOpen={confirmDialogOpen}
         setIsOpen={setConfirmDialogOpen}

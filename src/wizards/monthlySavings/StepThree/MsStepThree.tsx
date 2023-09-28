@@ -1,0 +1,200 @@
+import { useEffect, useState } from "react";
+import { CashAccount } from "api/money/useGetPortfoliosAccounts";
+import {
+  PortfolioMonthlySavingsDTOInput,
+  useSetMonthlySavings,
+} from "api/money/useSetMonthlySavings";
+import { Card } from "components";
+import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
+import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import numbro from "numbro";
+import { useKeycloak } from "providers/KeycloakProvider";
+import { useWizard } from "providers/WizardProvider";
+import { SelectMonthsGrid } from "../components/SelectedMonthsGrid";
+
+const months = Array(12)
+  .fill(undefined)
+  .map((_, idx) => {
+    return idx;
+  });
+
+/**
+ * Final step of the monthly savings process.
+ * The user confirms all previous choices.
+ * An API request is made to FA Back.
+ */
+const MsStepThree = () => {
+  const { impersonating } = useKeycloak();
+  const { wizardData, setWizardData } = useWizard();
+  const { t, i18n } = useModifiedTranslation();
+  numbro.setLanguage(i18n.language);
+
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const { setMonthlySavings } = useSetMonthlySavings();
+  const [loadingFinish, setLoadingFinish] = useState(false);
+  const selectedPortfolioOption: PortfolioOption | undefined =
+    wizardData.data.selectedPortfolioOption;
+  const selectedAccount: CashAccount | undefined =
+    wizardData.data.selectedAccount;
+  const amountToSave: number = wizardData.data.amountToSave || 0;
+
+  const selectedDate: string | undefined = wizardData.data.selectedDate;
+  const [selectedMonths] = useState<Record<string, boolean>>(
+    wizardData.data.selectedMonths ||
+      months.reduce((prev, curr) => {
+        prev[curr] = true;
+        return prev;
+      }, {} as Record<string, boolean>)
+  );
+
+  const nrOfMonthsToInvest = Object.values(selectedMonths).reduce(
+    (prev: number, curr) => {
+      if (curr) prev++;
+      return prev;
+    },
+    0
+  );
+
+  const yearlyInvestmentAmount = amountToSave * nrOfMonthsToInvest;
+
+  //when user clicks Finish in the Wizard
+  const handleFinish = () => {
+    setConfirmDialogOpen(true);
+  };
+
+  //attach the finish function to the Wizard
+  useEffect(() => {
+    setWizardData((prevState) => ({
+      ...prevState,
+      onFinish: handleFinish,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * Creates a Monthly Savings Profile
+   * and sends a mutation to FA Back.
+   */
+  const handleFinishConfirm = async () => {
+    setLoadingFinish(true);
+    const selectedPortfolioShortName =
+      selectedPortfolioOption?.details?.shortName;
+    const monthlySavingsProfile: PortfolioMonthlySavingsDTOInput = {
+      enable: true,
+      portfolio: selectedPortfolioShortName ?? "",
+      selectedMonths: Object.keys(selectedMonths).reduce(
+        (prev, currMonthNr) => {
+          if (selectedMonths[currMonthNr]) prev.push(Number(currMonthNr));
+          return prev;
+        },
+        [] as number[]
+      ),
+      amount: amountToSave,
+      date: Number(selectedDate),
+    };
+
+    //send mutation to FA Back
+    if (selectedPortfolioShortName && monthlySavingsProfile) {
+      await setMonthlySavings(monthlySavingsProfile);
+    }
+    //close the open dialog and go back to step 0
+    setLoadingFinish(false);
+    setConfirmDialogOpen(false);
+    wizardData?.onReset?.();
+  };
+
+  return (
+    <div className="p-2 m-auto w-full max-w-md">
+      <Card>
+        <div className="flex flex-col gap-y-3 p-6 select-none">
+          <p className="mx-auto text-lg font-semibold" id="summaryTitle">
+            {t("wizards.monthlySavings.stepThree.summaryTitle")}
+          </p>
+          <ul className="flex flex-col gap-y-2 w-full text-sm">
+            <li className="flex">
+              <p className="w-1/2">
+                {t("wizards.monthlySavings.stepThree.portfolio")}
+              </p>
+              <p
+                className="w-1/2 text-sm font-semibold text-right"
+                id="portfolioName"
+              >
+                {selectedPortfolioOption?.details?.name}
+              </p>
+            </li>
+            <li className="flex">
+              <p className="w-1/2">
+                {t("wizards.monthlySavings.stepThree.account")}
+              </p>
+              <p
+                className="w-1/2 text-sm font-semibold text-right"
+                id="accountNumber"
+              >
+                {selectedAccount?.number}
+              </p>
+            </li>
+            <hr className="w-full border-1" />
+            <li className="flex justify-between">
+              <p>{t("wizards.monthlySavings.stepThree.amount")}</p>
+              <p id="amount" className="text-sm font-semibold">
+                {amountToSave?.toLocaleString(i18n.language, {
+                  style: "currency",
+                  currency:
+                    wizardData.data.selectedPortfolio?.currency?.securityCode,
+                })}
+              </p>
+            </li>
+            <li className="flex justify-between">
+              <p>{t("wizards.monthlySavings.stepThree.yearlyAmount")}</p>
+              <p id="yearlyAmount" className="text-sm font-semibold">
+                {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
+                  style: "currency",
+                  currency:
+                    wizardData.data.selectedPortfolio?.currency?.securityCode,
+                })}
+              </p>
+            </li>
+          </ul>
+
+          <hr className="w-full border-1" />
+          <ul className="flex flex-col gap-y-2 w-full text-sm">
+            <li className="flex">
+              <p className="w-1/2">
+                {t("wizards.monthlySavings.stepThree.paymentDate")}
+              </p>
+              <p id={"date"} className="w-1/2 text-sm font-semibold text-right">
+                {t("wizards.monthlySavings.stepThree.selectedPaymentDate", {
+                  date: numbro(Number(selectedDate)).format("0o"),
+                })}
+              </p>
+            </li>
+          </ul>
+          <p className="text-sm">
+            {t("wizards.monthlySavings.stepThree.monthsSelectedGridTitle")}
+          </p>
+          <SelectMonthsGrid disabled selected={selectedMonths} narrow />
+        </div>
+      </Card>
+      <ConfirmDialog
+        title={t("wizards.monthlySavings.stepThree.confirmDialogTitle")}
+        description={t(
+          "wizards.monthlySavings.stepThree.confirmDialogDescription"
+        )}
+        confirmButtonText={t(
+          "wizards.monthlySavings.stepThree.confirmDialogConfirmButtonLabel"
+        )}
+        cancelButtonText={t(
+          "wizards.monthlySavings.stepThree.confirmDialogCancelButtonLabel"
+        )}
+        onConfirm={async () => await handleFinishConfirm()}
+        isOpen={confirmDialogOpen}
+        setIsOpen={setConfirmDialogOpen}
+        loading={loadingFinish}
+        disabled={impersonating}
+      />
+    </div>
+  );
+};
+
+export default MsStepThree;

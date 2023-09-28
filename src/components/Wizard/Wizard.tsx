@@ -113,74 +113,89 @@ export const Wizard: React.FC<WizardProps> = ({
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-95"
         >
-          <div className="fixed inset-0 z-30 bg-white">
-            <Dialog.Panel className="w-full h-full">
-              <Dialog.Title className="flex justify-between items-center py-1 px-4 mb-2 font-bold bg-gray-200 shadow-md text-md">
-                <div className="flex flex-col">
-                  <div>{title}</div>
-                  <div className="text-sm font-normal">
-                    {steps[wizardData.step].label}
+          <div className="flex fixed inset-0 z-40 w-full h-full select-none">
+            <div
+              id="wizardContainer"
+              className="m-auto w-full md:w-screen lg:w-4/5 xl:w-3/4 max-w-6xl h-full md:h-screen bg-white rounded-lg xl:h-[95%] lg:h-[95%]"
+            >
+              <Dialog.Panel className="relative w-full h-full">
+                <Dialog.Title className="flex absolute top-0 justify-between items-center py-1 px-4 w-full h-14 font-bold bg-gray-100 lg:rounded-t-lg border-b shadow-sm text-md">
+                  <div className="flex flex-col">
+                    <div id="wizardTitle">{title}</div>
+                    <div className="text-sm font-normal" id="wizardStepTitle">
+                      {steps[wizardData.step].label}
+                    </div>
                   </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setConfirmDialogOpen(true)}
-                  className="rounded-lg border-2 border-transparent focus:border-primary-500 cursor-pointer outline-none hover:bg-primary-500/10"
-                >
-                  <CloseIcon className="w-8 h-8" />
-                </button>
-              </Dialog.Title>
-              <div className="overflow-y-auto p-1 md:px-6 pb-36 h-full">
-                {steps[wizardData.step].component}
-              </div>
-              {!hideStepper && (
-                <div className="flex sticky bottom-0 justify-between items-center p-2 text-lg font-bold bg-white shadow-md">
-                  <Button
-                    variant="Secondary"
-                    disabled={wizardData.step === 0 || wizardData.backDisabled}
-                    onClick={prevStep}
+                  <button
+                    id="wizardCloseButton"
+                    type="button"
+                    onClick={() => setConfirmDialogOpen(true)}
                     className="rounded-lg border-2 border-transparent focus:border-primary-500 cursor-pointer outline-none hover:bg-primary-500/10"
                   >
-                    Back
-                  </Button>
-                  <div className="font-normal">
-                    {wizardData.step + (firstStepIsAnIntro ? 0 : 1)}/
-                    {steps.length - (firstStepIsAnIntro ? 1 : 0)}
-                  </div>
-
-                  {wizardData.step === steps.length - 1 ? (
-                    <Button
-                      variant="Success"
-                      onClick={handleFinish}
-                      className="rounded-lg border-2 border-transparent focus:border-primary-500 cursor-pointer outline-none hover:bg-primary-500/10"
-                    >
-                      Finish
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="Primary"
-                      disabled={
-                        wizardData.step === steps.length - 1 ||
-                        wizardData.nextDisabled
-                      }
-                      onClick={nextStep}
-                      className="rounded-lg border-2 border-transparent focus:border-primary-500 cursor-pointer outline-none hover:bg-primary-500/10"
-                    >
-                      Next
-                    </Button>
-                  )}
+                    <CloseIcon className="w-8 h-8" />
+                  </button>
+                </Dialog.Title>
+                <div
+                  className="flex overflow-y-auto py-14 w-full h-full"
+                  id="wizardStepComponentContainer"
+                >
+                  {steps[wizardData.step].component}
                 </div>
-              )}
-            </Dialog.Panel>
-            <ConfirmDialog
-              title="Are you sure that you want to exit?"
-              description={hideStepper ? "" : "You will lose your progress."}
-              confirmButtonText="Exit"
-              cancelButtonText="Cancel"
-              isOpen={confirmDialogOpen}
-              onConfirm={exitWizard}
-              setIsOpen={setConfirmDialogOpen}
-            />
+
+                {!hideStepper && (
+                  <div className="flex absolute bottom-0 justify-between items-center p-2 w-full h-14 text-lg font-bold bg-white lg:rounded-b-lg border-t shadow-2xl">
+                    <Button
+                      id="wizardBackButton"
+                      variant="Secondary"
+                      disabled={
+                        wizardData.step === 0 || wizardData.backDisabled
+                      }
+                      onClick={prevStep}
+                      className="rounded-lg border-2 border-transparent focus:border-primary-500 cursor-pointer outline-none hover:bg-primary-500/10"
+                    >
+                      Back
+                    </Button>
+                    <div className="font-normal" id="wizardStepCount">
+                      {wizardData.step + (firstStepIsAnIntro ? 0 : 1)}/
+                      {steps.length - (firstStepIsAnIntro ? 1 : 0)}
+                    </div>
+
+                    {wizardData.step === steps.length - 1 ? (
+                      <Button
+                        id="wizardFinishButton"
+                        variant="Primary"
+                        onClick={handleFinish}
+                        className="rounded-lg border-2 border-transparent focus:border-primary-500 cursor-pointer outline-none hover:bg-primary-500/10"
+                      >
+                        Finish
+                      </Button>
+                    ) : (
+                      <Button
+                        id="wizardNextButton"
+                        variant="Primary"
+                        disabled={
+                          wizardData.step === steps.length - 1 ||
+                          wizardData.nextDisabled
+                        }
+                        onClick={nextStep}
+                        className="rounded-lg border-2 border-transparent focus:border-primary-500 cursor-pointer outline-none hover:bg-primary-500/10"
+                      >
+                        Next
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </Dialog.Panel>
+              <ConfirmDialog
+                title="Are you sure that you want to exit?"
+                description={hideStepper ? "" : "You will lose your progress."}
+                confirmButtonText="Exit"
+                cancelButtonText="Cancel"
+                isOpen={confirmDialogOpen}
+                onConfirm={exitWizard}
+                setIsOpen={setConfirmDialogOpen}
+              />
+            </div>
           </div>
         </Transition.Child>
       </Dialog>

@@ -10,6 +10,7 @@ export interface PortfolioOption {
 }
 
 interface PortfolioSelectProps {
+  id?: string;
   portfolioOptions: PortfolioOption[];
   portfolioId?: number;
   onChange: (option: PortfolioOption) => void;
@@ -17,6 +18,7 @@ interface PortfolioSelectProps {
 }
 
 export const PortfolioSelect = ({
+  id,
   portfolioOptions,
   portfolioId,
   onChange,
@@ -28,6 +30,7 @@ export const PortfolioSelect = ({
   );
   return (
     <ComboBox
+      id={id}
       value={currentPortfolioOption}
       onChange={onChange}
       options={portfolioOptions}

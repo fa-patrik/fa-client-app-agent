@@ -36,7 +36,7 @@ const DistributeInfo = ({
     <div
       id="distibuteInfo"
       className={classNames(
-        "flex flex-row gap-x-4 items-center py-4 px-6 rounded-lg h-14",
+        "flex flex-row gap-x-4 items-center py-4 px-6 rounded-lg h-14 max-w-sm",
         {
           "bg-primary-200": diffAmount > 0,
           "bg-green-300": diffAmount === 0,

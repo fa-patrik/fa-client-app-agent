@@ -1,40 +1,84 @@
-import { ForwardedRef, forwardRef, HTMLProps } from "react";
+import { ForwardedRef, forwardRef, HTMLProps, useState } from "react";
+import { ReactComponent as InfoIcon } from "assets/information-circle.svg";
 import classNames from "classnames";
+import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
+import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 export interface InputProps extends HTMLProps<HTMLInputElement> {
   label: string;
   error?: string;
+  tooltipContent?: string;
+  id?: string;
 }
 
 const InputPlain = (
-  { label, className, error, ...inputAttributes }: InputProps,
+  {
+    label,
+    className,
+    error,
+    tooltipContent,
+    id,
+    ...inputAttributes
+  }: InputProps,
   ref: ForwardedRef<HTMLInputElement>
-) => (
-  <label
-    className={classNames("text-sm font-normal", {
-      "text-red-700": !!error,
-    })}
-  >
-    {label}
-    <input
-      ref={ref}
-      className={classNames(
-        "block p-2 w-full text-sm  bg-gray-50  border border-gray-300 focus:border-primary-400",
-        className,
-        {
-          "text-red-900 placeholder-red-700 bg-red-50 focus:border-red-500 border-red-500 rounded-lg":
-            !!error,
-          "cursor-not-allowed": inputAttributes.disabled,
-          "text-green-400 w-5 h-5 rounded-full":
-            inputAttributes.type === "checkbox",
-          "text-black rounded-lg": inputAttributes.type !== "checkbox",
-        }
-      )}
-      {...inputAttributes}
-    />
+) => {
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const { t } = useModifiedTranslation();
+  return (
+    <>
+      <label
+        className={classNames("text-sm font-normal", {
+          "text-red-700": !!error,
+        })}
+      >
+        <div className="flex gap-x-1 items-center">
+          {label}
+          {tooltipContent && (
+            <>
+              <div
+                id={`${id}-toolTipDialogButton`}
+                className="cursor-help"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfirmDialogOpen(true);
+                }}
+              >
+                <InfoIcon />
+              </div>
+            </>
+          )}
+        </div>
+        <input
+          id={id}
+          ref={ref}
+          className={classNames(
+            "block p-2 w-full text-sm  bg-gray-50  border border-gray-300 focus:border-primary-400",
+            className,
+            {
+              "text-red-900 placeholder-red-700 bg-red-50 focus:border-red-500 border-red-500 rounded-lg":
+                !!error,
+              "cursor-not-allowed": inputAttributes.disabled,
+              "text-green-400 w-5 h-5 rounded-full":
+                inputAttributes.type === "checkbox",
+              "text-black rounded-lg": inputAttributes.type !== "checkbox",
+            }
+          )}
+          {...inputAttributes}
+        />
 
-    {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-  </label>
-);
+        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      </label>
+      {tooltipContent && (
+        <ConfirmDialog
+          title={t("component.select.dialogTitle")}
+          description={tooltipContent}
+          cancelButtonText={t("component.select.dialogCloseButtonLabel")}
+          isOpen={confirmDialogOpen}
+          setIsOpen={setConfirmDialogOpen}
+        />
+      )}
+    </>
+  );
+};
 
 export const Input = forwardRef(InputPlain);

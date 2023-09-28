@@ -17,7 +17,7 @@
       "securityUrl1ColumnHeader": "KIID",
       "detailsHeader": "Details",
       "detailsButtonLabel": "Details",
-      "deselectAllButtonLabel": "Clear all"
+      "deselectAllButtonLabel": "Clear selections"
     },
     "securityDistributionTable": {
       "securityColumHeader": "Security",
@@ -307,10 +307,13 @@
     "noCachedData": "No cached data",
     "authorisationError": "Authorisation server error",
     "refreshPage": "Refresh page",
-    "noCachedDataInfo": "Right now we can't get data from server.\n Come back here later.",
+    "noCachedDataInfo": "Right now we can't get data from the server.\n Come back here later.",
     "orderCancelFailed": "Order could not be cancelled.",
     "orderCancelSuccess": "Order cancelled.",
-    "orderAlreadyCancelled": "Order has already been cancelled."
+    "orderAlreadyCancelled": "Order has already been cancelled.",
+    "monthlySavingsDeletedSuccess": "Deleted monthly savings",
+    "monthlySavingsNewSuccess": "Created new monthly savings",
+    "monthlySavingsFailed": "Error while setting monthly savings"
   },
   "transactionFilter": {
     "transactionType": "Type",
@@ -329,14 +332,14 @@
       "title": "Monthly investments",
       "stepZero": {
         "stepTitle": "Overview of existing plans",
-        "noPlansLabel": "You do not have any monthly investment plans",
+        "noPlansLabel": "You do not have any investment plans",
         "amount": "Amount",
-        "addNewPlanButtonLabel": "Add new plan",
+        "addNewPlanButtonLabel": "Add new investment plan",
         "refreshingDataButtonLabel": "Refreshing data",
         "selectPortfolioInputLabel": "Portfolio",
         "deletePlanButtonLabel": "Delete",
-        "deleteDialogTitle": "Delete monthly investment plan?",
-        "deleteDialogDescription": "This will delete the plan.",
+        "deleteDialogTitle": "Delete investment plan?",
+        "deleteDialogDescription": "This action will permanently delete the selected investment plan. This cannot be undone.",
         "deleteDialogCancelButtonLabel": "Cancel",
         "deleteDialogConfirmButtonLabel": "Delete"
       },
@@ -355,7 +358,7 @@
         "typeFilterInputLabel": "Type",
         "displayFilterButtonLabel": "Show filters ({{n}}) applied",
         "hideFilterButtonLabel": "Hide filters",
-        "clearFiltersButtonLabel": "Clear all"
+        "clearFiltersButtonLabel": "Clear filters"
       },
       "stepThree": {
         "stepTitle": "Distribute your investments",
@@ -370,9 +373,9 @@
         "amountInputBelowMinError": "Below min. amount",
         "amountInputPlaceholder": "200",
         "minDisclaimer": "Min. {{amount}}",
-        "distributeMore": "You need to distribute the remaining {{diffAmountFormatted}} ({{diffPercentageFormatted}}%) amount.",
-        "distributeLess": "You have distributed more than the total amount.",
-        "distributeOk": "You distributed the whole amount.",
+        "distributeMore": "Please distribute the remaining {{diffAmountFormatted}} ({{diffPercentageFormatted}}%) amount.",
+        "distributeLess": "You've allocated more than the available amount. Please adjust.",
+        "distributeOk": "You've successfully distributed the entire amount.",
         "removeDialogTitle": "Remove security?",
         "removeDialogDescription": "Do you want to remove the security from your selection?",
         "removeDialogCancelButton": "Cancel",
@@ -385,7 +388,7 @@
         "deselectAllMonthsToggleLabel": "Deselect all months",
         "totalInvestmentsPerYear": "Investment per year",
         "buyDateDialogTitle": "Information",
-        "buyDateDialogDescription": "If the day is missing in a month (for example, the 31st), the last day of the month is used."
+        "buyDateDialogDescription": "If a chosen date doesn't exist in a month (e.g., the 31st), the investment will occur on the last day of that month."
       },
       "stepFive": {
         "stepTitle": "Confirm your choices",
@@ -397,10 +400,66 @@
         "buyDate": "Buy date",
         "selectedBuyDate": "{{date}} day of month",
         "monthsSelectedGridTitle": "Months",
-        "confirmDialogTitle": "Confirm your monthly investment",
-        "confirmDialogDescription": "Do you want to save your monthly investment plan?",
+        "confirmDialogTitle": "Confirm your new investment plan",
+        "confirmDialogDescription": "Would you like to finalize and save your investment plan?",
         "confirmDialogCancelButtonLabel": "Cancel",
         "confirmDialogConfirmButtonLabel": "Confirm"
+      }
+    },
+    "monthlySavings": {
+      "title": "Monthly savings",
+      "stepZero": {
+        "stepTitle": "Overview of existing savings plans",
+        "noPlansLabel": "You do not have any savings plans",
+        "amount": "Amount",
+        "account": "Debit account",
+        "noAccountWarning": "No account",
+        "paymentDate": "Payment date",
+        "selectedPaymentDate": "{{date}} day of month",
+        "addNewPlanButtonLabel": "Add new savings plan",
+        "refreshingDataButtonLabel": "Refreshing data",
+        "selectPortfolioInputLabel": "Portfolio",
+        "deletePlanButtonLabel": "Delete",
+        "editPlanButtonLabel": "Edit",
+        "deleteDialogTitle": "Delete savings plan?",
+        "deleteDialogDescription": "This action will permanently delete the selected savings plan. This cannot be undone.",
+        "deleteDialogCancelButtonLabel": "Cancel",
+        "deleteDialogConfirmButtonLabel": "Delete"
+      },
+      "stepOne": {
+        "stepTitle": "Select portfolio and amount to save",
+        "noAccountWarningMessage": "There is no eligible debit account linked to your selected portfolio",
+        "noPortfolioWarningMessage": "No eligble portfolio",
+        "amountInputLabel": "Amount in {{currency}}",
+        "amountInputError": "Below minimum amount",
+        "minAmountDisclaimer": "Min.",
+        "portfolioInputLabel": "Portfolio",
+        "linkedAccountLabel": "Debit account",
+        "refetchDataButtonLabel": "Attempt reload"
+      },
+      "stepTwo": {
+        "stepTitle": "Select when to save",
+        "paymentDateInputLabel": "Payment date",
+        "selectAllMonthsToggleLabel": "Select all months",
+        "deselectAllMonthsToggleLabel": "Deselect all months",
+        "totalSavingsPerYear": "Savings per year",
+        "paymentDateDialogTitle": "Information",
+        "paymentDateDialogDescription": "If a chosen date doesn't exist in a month (e.g., the 31st), the deposit will occur on the last day of that month."
+      },
+      "stepThree": {
+        "stepTitle": "Confirm your savings plan",
+        "summaryTitle": "Summary",
+        "portfolio": "Portfolio",
+        "account": "Debit account",
+        "amount": "Amount",
+        "yearlyAmount": "Yearly amount",
+        "paymentDate": "Payment date",
+        "selectedPaymentDate": "{{date}} day of month",
+        "monthsSelectedGridTitle": "Months",
+        "confirmDialogTitle": "Confirm your new savings plan",
+        "confirmDialogDescription": "Would you like to finalize and save your new savings plan?",
+        "confirmDialogCancelButtonLabel": "Cancel",
+        "confirmDialogConfirmButtonLabel": "Save"
       }
     }
   }

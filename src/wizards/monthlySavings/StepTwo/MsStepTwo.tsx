@@ -1,31 +1,22 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Card, Input, LabeledDiv } from "components";
-import SelectGrid from "components/SelectGrid/SelectGrid";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
+import { SelectMonthsGrid } from "../components/SelectedMonthsGrid";
 
 const months = Array(12)
   .fill(undefined)
   .map((_, idx) => {
-    return idx;
+    return idx + 1;
   });
 
 /**
  * Step four of the monthly savings process.
  * The user selects and savings schedule.
  */
-const StepFour = () => {
+const MsStepTwo = () => {
   const { wizardData, setWizardData } = useWizard();
   const { t, i18n } = useModifiedTranslation();
-  const monthsAsString = months.map((dateNr) => {
-    const date = new Date();
-    date.setMonth(dateNr);
-    return {
-      id: `${dateNr}`,
-      label: date.toLocaleString(i18n.language, { month: "long" }),
-    };
-  });
-
   const [selectedDate, setSelectedDate] = useState<string>(
     wizardData.data.selectedDate || "1"
   );
@@ -49,12 +40,12 @@ const StepFour = () => {
     setSelectedDate(newValue);
   };
 
-  const [selectedMonths, setSelectedMonths] = useState<Record<string, boolean>>(
+  const [selectedMonths, setSelectedMonths] = useState<Record<number, boolean>>(
     wizardData.data.selectedMonths ||
       months.reduce((prev, curr) => {
         prev[curr] = true;
         return prev;
-      }, {} as Record<string, boolean>)
+      }, {} as Record<number, boolean>)
   );
 
   useEffect(() => {
@@ -83,8 +74,7 @@ const StepFour = () => {
     0
   );
 
-  const yearlyInvestmentAmount =
-    wizardData.data.amountToInvest * nrOfMonthsToSave;
+  const yearlySavingsAmount = wizardData.data.amountToSave * nrOfMonthsToSave;
 
   return (
     <div className="p-2 m-auto w-full max-w-md">
@@ -92,30 +82,26 @@ const StepFour = () => {
         <div className="flex flex-col gap-y-4 items-center py-6 select-none">
           <Input
             error={inputError}
-            id="buyDateInput"
-            label={t("wizards.monthlyInvestments.stepFour.buyDateInputLabel")}
+            id="dateInput"
+            label={t("wizards.monthlySavings.stepTwo.paymentDateInputLabel")}
             tooltipContent={t(
-              "wizards.monthlyInvestments.stepFour.buyDateDialogDescription"
+              "wizards.monthlySavings.stepTwo.paymentDateDialogDescription"
             )}
             onChange={handleDateInput}
             value={selectedDate}
           />
 
-          <SelectGrid
-            id="selectableMonthsGrid"
+          <SelectMonthsGrid
             selected={selectedMonths}
             onSelect={setSelectedMonths}
-            selectBoxes={monthsAsString}
           />
 
           <LabeledDiv
-            id="totalInvestmentsPerYear"
+            id="totalSavingsPerYear"
             className="font-semibold"
-            label={t(
-              "wizards.monthlyInvestments.stepFour.totalInvestmentsPerYear"
-            )}
+            label={t("wizards.monthlySavings.stepTwo.totalSavingsPerYear")}
           >
-            {yearlyInvestmentAmount.toLocaleString(i18n.language, {
+            {yearlySavingsAmount.toLocaleString(i18n.language, {
               style: "currency",
               currency:
                 wizardData.data.selectedPortfolio?.currency?.securityCode,
@@ -127,4 +113,4 @@ const StepFour = () => {
   );
 };
 
-export default StepFour;
+export default MsStepTwo;

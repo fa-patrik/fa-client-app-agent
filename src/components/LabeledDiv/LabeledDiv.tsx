@@ -7,13 +7,20 @@ interface LabeledDivProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const LabeledDiv = ({
+  id,
   label,
   children,
   className,
   ...rest
 }: LabeledDivProps) => (
-  <div className={classNames(className, "leading-7")} {...rest}>
-    <div className="text-sm font-normal">{label}</div>
+  <div
+    className={classNames(className, "leading-7")}
+    {...rest}
+    id={`${id}-label`}
+  >
+    <div className="text-sm font-normal" id={`${id}-content`}>
+      {label}
+    </div>
     {children}
   </div>
 );

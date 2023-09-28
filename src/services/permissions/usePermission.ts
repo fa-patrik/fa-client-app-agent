@@ -43,6 +43,20 @@ export const canPortfolioOptionMonthlyInvest = (
   );
 };
 
+//Monthly savings
+export const canPortfolioMonthlySave = (portfolio: Portfolio) => {
+  return isPortfolioInGroup(portfolio, PortfolioGroups.MONTHLY_SAVINGS);
+};
+
+export const canPortfolioOptionMonthlySave = (
+  portfolioOption: PortfolioOption
+) => {
+  return isPortfolioOptionInGroup(
+    portfolioOption,
+    PortfolioGroups.MONTHLY_SAVINGS
+  );
+};
+
 //Trading
 export const canPortfolioTrade = (portfolio: Portfolio) => {
   return isPortfolioInGroup(portfolio, PortfolioGroups.TRADE);

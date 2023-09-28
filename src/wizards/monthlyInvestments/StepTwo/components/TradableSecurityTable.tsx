@@ -8,7 +8,6 @@ import { ReactComponent as SortDescIcon } from "assets/sortDesc.svg";
 import classNames from "classnames";
 import {
   Button,
-  Card,
   DownloadableDocument,
   Input,
   LoadingIndicator,
@@ -16,7 +15,7 @@ import {
 import Pagination from "components/Pagination/Pagination";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import SecurityInfoCell from "./SecurityInfoCell";
 
 interface Row {
@@ -58,8 +57,6 @@ const TradableSecurityTable = ({
   onRowSelect,
   preSelectedRows,
 }: TradableSecuritiesTableProps) => {
-  const params = useParams();
-  const contactId = params?.contactDbId;
   const [columnSortedState, setColumnSortedState] = useState<
     Record<string, string>
   >({});
@@ -345,225 +342,243 @@ const TradableSecurityTable = ({
     fetch();
   }, [rowsToDisplay, getPerformanceBySecurity]);
   return (
-    <Card>
-      <table className="overflow-y-auto w-full h-full text-sm text-gray-500 dark:text-gray-400 table-auto select-none">
-        <thead className="sticky top-0 text-xs text-gray-700 dark:text-gray-400 bg-gray-100 dark:bg-gray-700">
-          <tr>
-            {useMemo(
-              () =>
-                columnsAdjustedByViewPort.map((column) => (
-                  <th
-                    onClick={
-                      column.enableSorting && column.sortFn
-                        ? () => column.sortFn(columnSortedState)
-                        : undefined
+    <table className="min-w-full h-full text-sm text-gray-500 rounded-lg border-collapse table-auto select-none">
+      <thead className="sticky top-0 z-10 text-xs text-gray-700 bg-gray-100 rounded-t-lg">
+        <tr>
+          {useMemo(
+            () =>
+              columnsAdjustedByViewPort.map((column) => (
+                <th
+                  onClick={
+                    column.enableSorting && column.sortFn
+                      ? () => column.sortFn(columnSortedState)
+                      : undefined
+                  }
+                  key={column.id}
+                  className={classNames(
+                    "py-3 px-2 truncate whitespace-nowrap select-none border-gray-200",
+                    {
+                      "cursor-pointer": column.enableSorting && column.sortFn,
                     }
-                    key={column.id}
-                    className={classNames(
-                      "py-3 px-2 truncate whitespace-nowrap border-2 select-none",
-                      {
-                        "cursor-pointer": column.enableSorting && column.sortFn,
-                      }
-                    )}
+                  )}
+                >
+                  <div
+                    className={classNames("flex gap-x-1", {
+                      "justify-start": column.align === "left",
+                      "justify-end": column.align === "right",
+                      "justify-center": column.align === "center",
+                    })}
                   >
-                    <div
-                      className={classNames("flex gap-x-1", {
-                        "justify-start": column.align === "left",
-                        "justify-end": column.align === "right",
-                        "justify-center": column.align === "center",
-                      })}
-                    >
-                      {column.name}
-                      {column.enableSorting &&
-                        (columnSortedState[column.id] ===
-                        ColumnSortedState.ASC ? (
-                          <SortAscIcon />
-                        ) : columnSortedState[column.id] ===
-                          ColumnSortedState.DESC ? (
-                          <SortDescIcon />
-                        ) : (
-                          <SortIcon />
-                        ))}
-                    </div>
-                  </th>
-                )),
+                    {column.name}
+                    {column.enableSorting &&
+                      (columnSortedState[column.id] ===
+                      ColumnSortedState.ASC ? (
+                        <SortAscIcon />
+                      ) : columnSortedState[column.id] ===
+                        ColumnSortedState.DESC ? (
+                        <SortDescIcon />
+                      ) : (
+                        <SortIcon />
+                      ))}
+                  </div>
+                </th>
+              )),
 
-              [columnsAdjustedByViewPort, columnSortedState]
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {rowsToDisplay?.map((security) => {
-            const performanceOneYear =
-              performanceData?.[security.securityCode]?.[
-                TimePeriod["YEARS-1"]
-              ] || 0;
-            return (
-              <tr
-                onClick={() =>
-                  setSelectedRows((prevSelected) => {
-                    return {
-                      ...prevSelected,
-                      [security.id]: {
-                        selected: !prevSelected[security.id]?.selected,
-                        data:
-                          prevSelected[security.id]?.data ||
-                          securities.find((sec) => sec.id === security.id),
-                      },
-                    };
-                  })
-                }
-                key={security.id}
-                className="h-20 bg-white dark:bg-gray-800 dark:hover:bg-gray-600 border-b dark:border-gray-700 hover:cursor-pointer"
-              >
-                <td className="flex justify-center items-center w-full h-full">
+            [columnsAdjustedByViewPort, columnSortedState]
+          )}
+        </tr>
+      </thead>
+      <tbody>
+        {rowsToDisplay?.map((security) => {
+          const performanceOneYear =
+            performanceData?.[security.securityCode]?.[TimePeriod["YEARS-1"]] ||
+            0;
+          return (
+            <tr
+              onClick={() =>
+                setSelectedRows((prevSelected) => {
+                  return {
+                    ...prevSelected,
+                    [security.id]: {
+                      selected: !prevSelected[security.id]?.selected,
+                      data:
+                        prevSelected[security.id]?.data ||
+                        securities.find((sec) => sec.id === security.id),
+                    },
+                  };
+                })
+              }
+              key={security.id}
+              className="border-b hover:cursor-pointer"
+            >
+              <td className="p-1">
+                <div className="flex justify-center items-center">
                   <Input
                     label=""
                     type="checkbox"
                     readOnly
                     checked={selectedRows[security.id]?.selected ? true : false}
                   />
-                </td>
-                <td className="p-1">
-                  {/** Security data */}
-                  <SecurityInfoCell
-                    securityId={security.id}
-                    countryCode={security.country?.code}
-                    name={security.name}
-                    typeName={
-                      security.type?.namesAsMap?.[i18n.language] ??
-                      security.type.name
-                    }
-                    isinCode={security.isinCode}
-                  />
-                </td>
-                <td className="p-1">
-                  {/** Security fee */}
-                  <div className="flex justify-end">
-                    {performanceLoading ? (
-                      <LoadingIndicator size="xs" />
-                    ) : (
-                      <span
-                        className={classNames({
-                          "text-red-500": performanceOneYear < 0,
-                          "text-green-400": performanceOneYear > 0,
-                        })}
-                      >
-                        {performanceOneYear.toLocaleString(i18n.language, {
-                          style: "percent",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td className="p-1">
-                  {/** Security value change */}
-                  <div className="flex justify-end">
+                </div>
+              </td>
+              <td className="p-1">
+                {/** Security data */}
+                <SecurityInfoCell
+                  securityId={security.id}
+                  countryCode={security.country?.code}
+                  name={security.name}
+                  typeName={
+                    security.type?.namesAsMap?.[i18n.language] ??
+                    security.type.name
+                  }
+                  isinCode={security.isinCode}
+                />
+              </td>
+              <td className="p-1">
+                {/** Security fee */}
+                <div className="flex justify-end">
+                  {performanceLoading ? (
+                    <LoadingIndicator size="xs" />
+                  ) : (
                     <span
                       className={classNames({
-                        "text-red-500": security.managementFee < 0,
-                        "text-green-400": security.managementFee > 0,
+                        "text-red-500": performanceOneYear < 0,
+                        "text-green-400": performanceOneYear > 0,
                       })}
                     >
-                      {security.managementFee.toLocaleString(i18n.language, {
+                      {performanceOneYear.toLocaleString(i18n.language, {
                         style: "percent",
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </span>
-                  </div>
-                </td>
+                  )}
+                </div>
+              </td>
+              <td className="p-1">
+                {/** Security value change */}
+                <div className="flex justify-end">
+                  <span
+                    className={classNames({
+                      "text-red-500": security.managementFee < 0,
+                      "text-green-400": security.managementFee > 0,
+                    })}
+                  >
+                    {security.managementFee.toLocaleString(i18n.language, {
+                      style: "percent",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+              </td>
 
-                {/**Extra data to render on big screens */}
-                {isLargeScreen && (
-                  <>
-                    <td className="p-1">
-                      {/** Security min trade amount */}
-                      <div className="flex justify-end">
-                        <span>
-                          {security.minTradeAmount.toLocaleString(
-                            i18n.language,
-                            {
-                              style: "currency",
-                              currency: security.currency.securityCode,
-                            }
+              {/**Extra data to render on big screens */}
+              {isLargeScreen && (
+                <>
+                  <td className="p-1">
+                    {/** Security min trade amount */}
+                    <div className="flex justify-end">
+                      <span>
+                        {security.minTradeAmount.toLocaleString(i18n.language, {
+                          style: "currency",
+                          currency: security.currency.securityCode,
+                        })}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="p-1">
+                    {/** Security URL 1 aka. KIID */}
+                    <div
+                      className="flex justify-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DownloadableDocument label="" url={security.url} />
+                    </div>
+                  </td>
+                  <td className="p-1">
+                    {/** Security Details button (navigate to holdings/id)*/}
+                    <div
+                      className="flex justify-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Link
+                        onClick={(e) => e.stopPropagation()}
+                        id={`seurityInfoCell-link-${security.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-lg font-bold text-primary-500 underline"
+                        to={`/holdings/${security.id}`}
+                      >
+                        <Button size="xs" variant="Secondary">
+                          {t(
+                            "component.tradableSecuritiesTable.detailsButtonLabel"
                           )}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="p-1">
-                      {/** Security URL 1 aka. KIID */}
-                      <div
-                        className="flex justify-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <DownloadableDocument label="" url={security.url} />
-                      </div>
-                    </td>
-                    <td className="p-1">
-                      {/** Security Details button (navigate to holdings/id)*/}
-                      <div
-                        className="flex justify-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Link
-                          onClick={(e) => e.stopPropagation()}
-                          id={`seurityInfoCell-link-${security.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-lg font-bold text-primary-500 underline"
-                          to={`${
-                            contactId ? `impersonate/${contactId}` : ""
-                          }/holdings/${security.id}`}
-                        >
-                          <Button size="xs" variant="Secondary">
-                            {t("component.tradableSecuritiesTable.detailsButtonLabel")}
-                          </Button>
-                        </Link>
-                      </div>
-                    </td>
-                  </>
-                )}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <div className="flex justify-between w-full border border-t-gray-200">
-        <div className="p-1">
-          <Button
-            disabled={!Object.values(selectedRows).some((v) => v.selected)}
-            size="xs"
-            onClick={() =>
-              setSelectedRows(() => {
-                return securities?.reduce((prev, curr) => {
-                  prev[curr.id] = {
-                    selected: false,
-                    data: curr,
-                  };
-                  return prev;
-                }, {} as Record<TradableSecurity["id"], Row>);
+                        </Button>
+                      </Link>
+                    </div>
+                  </td>
+                </>
+              )}
+            </tr>
+          );
+        })}
+        {/**  Fill the table with empty rows until page size is met
+         *    Otherwise the table will not size rows properly
+         */}
+        {rowsToDisplay.length + 1 < DEFAULT_PAGE_SIZE
+          ? [...Array(DEFAULT_PAGE_SIZE - rowsToDisplay.length)]
+              .map(() => 0)
+              .map((val, index1) => {
+                return (
+                  <tr key={index1}>
+                    {columnsAdjustedByViewPort.map((val, index2) => {
+                      return (
+                        <td key={`${index1}-${index2}`} className="h-full"></td>
+                      );
+                    })}
+                  </tr>
+                );
               })
-            }
-          >
-            {t("component.tradableSecuritiesTable.deselectAllButtonLabel")}
-          </Button>
-        </div>
-        <Pagination
-          currentPageindex={pageIndex}
-          pageCount={pageCount}
-          setPage={setPageIndex}
-          backLabel=""
-          nextLabel=""
-          onBack={onPageBack}
-          backDisabled={pageIndex === 1}
-          onNext={onPageNext}
-          nextDisabled={pageIndex === pageCount}
-        />
-      </div>
-    </Card>
+          : null}
+      </tbody>
+      <tfoot className="sticky bottom-0 bg-white rounded-b-lg">
+        <tr>
+          <td colSpan={1000}>
+            <div className="flex justify-between items-center px-2 bg-white">
+              <Button
+                disabled={!Object.values(selectedRows).some((v) => v.selected)}
+                size="xs"
+                onClick={() =>
+                  setSelectedRows(() => {
+                    return securities?.reduce((prev, curr) => {
+                      prev[curr.id] = {
+                        selected: false,
+                        data: curr,
+                      };
+                      return prev;
+                    }, {} as Record<TradableSecurity["id"], Row>);
+                  })
+                }
+              >
+                {t("component.tradableSecuritiesTable.deselectAllButtonLabel")}
+              </Button>
+              <Pagination
+                currentPageindex={pageIndex}
+                pageCount={pageCount}
+                setPage={setPageIndex}
+                backLabel=""
+                nextLabel=""
+                onBack={onPageBack}
+                backDisabled={pageIndex === 1}
+                onNext={onPageNext}
+                nextDisabled={pageIndex === pageCount}
+              />
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
   );
 };
 
