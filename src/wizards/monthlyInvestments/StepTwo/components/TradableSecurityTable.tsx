@@ -15,7 +15,7 @@ import {
 import Pagination from "components/Pagination/Pagination";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import SecurityInfoCell from "./SecurityInfoCell";
 
 interface Row {
@@ -60,9 +60,18 @@ const TradableSecurityTable = ({
   const [columnSortedState, setColumnSortedState] = useState<
     Record<string, string>
   >({});
-
+  const location = useLocation();
   const { t, i18n } = useModifiedTranslation();
   const [sortedRows, setSortedRows] = useState<TradableSecurity[]>(securities);
+
+  const getPathToHolding = (holdingId: number) => {
+    const currentPath = location.pathname;
+    const pathParts = currentPath.split("/");
+    // Replace the last part of the path with the path to the holding
+    pathParts[pathParts.length - 1] = `holdings/${holdingId}`;
+    const pathToHoldings = pathParts.join("/");
+    return pathToHoldings;
+  };
 
   const [selectedRows, setSelectedRows] = useState<
     Record<TradableSecurity["id"], Row>
@@ -508,7 +517,7 @@ const TradableSecurityTable = ({
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-lg font-bold text-primary-500 underline"
-                        to={`/holdings/${security.id}`}
+                        to={getPathToHolding(security.id)}
                       >
                         <Button size="xs" variant="Secondary">
                           {t(
