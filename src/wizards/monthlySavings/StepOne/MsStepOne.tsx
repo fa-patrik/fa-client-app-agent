@@ -30,12 +30,14 @@ const MsStepOne = () => {
     refetch: refetchPortfolioData,
     networkStatus,
   } = useGetPortfoliosProfileAndFiguresAndAccounts();
-  const { portfolioOptions } = useFilteredPortfolioSelect(
+  const { portfolioOptions, portfolioId } = useFilteredPortfolioSelect(
     canPortfolioOptionMonthlySave
   );
   const [selectedPortfolioOption, setSelectedPortfolioOption] =
     useState<PortfolioOption>(
-      wizardData?.data?.selectedPortfolioOption || portfolioOptions[0]
+      wizardData?.data?.selectedPortfolioOption ||
+        portfolioOptions.find((o) => o.id === portfolioId) ||
+        portfolioOptions[0]
     );
 
   const [portfolio, setPortfolio] = useState<

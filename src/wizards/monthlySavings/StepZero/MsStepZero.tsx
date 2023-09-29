@@ -12,6 +12,7 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
+import { canPortfolioMonthlySave } from "services/permissions/usePermission";
 import { getDefaultValueAsNumber } from "utils/faBackProfiles/general";
 import {
   MonthlySavings,
@@ -268,6 +269,7 @@ const MsStepZero = () => {
                   <div className="flex justify-between">
                     <Button
                       id={`${portfolio.id}-deleteButton`}
+                      disabled={!canPortfolioMonthlySave(portfolio)}
                       variant="Delete"
                       onClick={() => {
                         setTargetPortfolio(portfolio);
@@ -279,6 +281,7 @@ const MsStepZero = () => {
                       )}
                     </Button>
                     <Button
+                      disabled={!canPortfolioMonthlySave(portfolio)}
                       onClick={() => editMonthlySavingsProfile(portfolio)}
                       id={`${portfolio.id}-editButton`}
                       variant="Secondary"
@@ -317,7 +320,7 @@ const MsStepZero = () => {
   } else {
     return (
       <div className="flex w-full h-full">
-        <div className="m-auto max-w-xs">
+        <div className="m-auto max-w-sm">
           <Badge colorScheme="blue">
             <p className="p-4 m-auto text-lg font-normal">
               {t("wizards.monthlySavings.stepZero.noPlansLabel")}
