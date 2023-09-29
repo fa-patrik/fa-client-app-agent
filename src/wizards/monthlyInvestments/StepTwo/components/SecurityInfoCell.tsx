@@ -1,5 +1,6 @@
 import { CountryFlag } from "components";
-import { Link, useParams } from "react-router-dom";
+import { useKeycloak } from "providers/KeycloakProvider";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 interface SecurityInfoProps {
   countryCode: string | undefined;
@@ -16,8 +17,12 @@ const SecurityInfoCell = ({
   isinCode,
   typeName,
 }: SecurityInfoProps) => {
-  const params = useParams();
-  const contactId = params?.contactDbId;
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const pathParts = currentPath.split("/");
+  // Replace the last part of the path with the path to the holding
+  pathParts[pathParts.length - 1] = `holdings/${securityId}`;
+  const newPath = pathParts.join("/");
 
   return (
     <div
@@ -33,9 +38,7 @@ const SecurityInfoCell = ({
           target="_blank"
           rel="noopener noreferrer"
           className="text-lg font-bold text-primary-500 underline"
-          to={`${
-            contactId ? `impersonate/${contactId}` : ""
-          }/holdings/${securityId}`}
+          to={newPath}
         >
           ↗
         </Link>
