@@ -1,6 +1,5 @@
 import { CountryFlag } from "components";
-import { useKeycloak } from "providers/KeycloakProvider";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface SecurityInfoProps {
   countryCode: string | undefined;
