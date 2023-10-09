@@ -313,7 +313,11 @@
     "orderAlreadyCancelled": "Order has already been cancelled.",
     "monthlySavingsDeletedSuccess": "Deleted monthly savings",
     "monthlySavingsNewSuccess": "Created new monthly savings",
-    "monthlySavingsFailed": "Error while setting monthly savings"
+    "monthlySavingsFailed": "Error while setting monthly savings",
+    "monthlyInvestmentsDeletedSuccess": "Deleted monthly investments",
+    "monthlyInvestmentsNewSuccess": "Created new monthly investments",
+    "monthlyInvestmentsEditSuccess": "Edited monthly investments",
+    "monthlyInvestmentsFailed": "Error while setting monthly investments"
   },
   "transactionFilter": {
     "transactionType": "Type",
@@ -338,6 +342,7 @@
         "refreshingDataButtonLabel": "Refreshing data",
         "selectPortfolioInputLabel": "Portfolio",
         "deletePlanButtonLabel": "Delete",
+        "editPlanButtonLabel": "Edit",
         "deleteDialogTitle": "Delete investment plan?",
         "deleteDialogDescription": "This action will permanently delete the selected investment plan. This cannot be undone.",
         "deleteDialogCancelButtonLabel": "Cancel",
@@ -401,6 +406,7 @@
         "selectedBuyDate": "{{date}} day of month",
         "monthsSelectedGridTitle": "Months",
         "confirmDialogTitle": "Confirm your new investment plan",
+        "confirmEditDialogTitle": "Confirm your edited investment plan",
         "confirmDialogDescription": "Would you like to finalize and save your investment plan?",
         "confirmDialogCancelButtonLabel": "Cancel",
         "confirmDialogConfirmButtonLabel": "Confirm"
@@ -461,6 +467,22 @@
         "confirmDialogCancelButtonLabel": "Cancel",
         "confirmDialogConfirmButtonLabel": "Save"
       }
+    }
+  },
+  "utils": {
+    "months": {
+      "1": "January",
+      "2": "February",
+      "3": "Mars",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
     }
   }
 }

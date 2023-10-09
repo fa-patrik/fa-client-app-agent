@@ -4,6 +4,7 @@ import { Button, Card, LabeledDiv } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
+import { MonthlyInvestmentsWizardState } from "../types";
 import DistributeInfo from "./components/DistributeInfo";
 import SecurityDistributionList from "./components/SecurityDistributionList";
 
@@ -48,23 +49,25 @@ function distributeTradeAmount(total: number, numSecurities: number): number[] {
  */
 const StepThree = () => {
   const { t } = useModifiedTranslation();
-  const { wizardData, setWizardData } = useWizard();
+  const { wizardData, setWizardData } =
+    useWizard<MonthlyInvestmentsWizardState>();
+  const monthlyInvestmentsWizardState = wizardData.data;
   const portfolioCurrencyCode =
-    wizardData.data.selectedPortfolio?.currency?.securityCode;
+    monthlyInvestmentsWizardState.selectedPortfolioOption?.details?.currency
+      ?.securityCode;
   const { i18n } = useModifiedTranslation();
   const [percentageInputs, setPercentageInputs] = useState<
-    Record<string, number | undefined>
-  >(wizardData.data.percentageDistribution || {});
-  const [amountInputs, setAmountInputs] = useState<
-    Record<string, number | undefined>
-  >(wizardData.data.amountDistribution || {});
+    Record<string, number>
+  >(monthlyInvestmentsWizardState.percentageDistribution || {});
+  const [amountInputs, setAmountInputs] = useState<Record<string, number>>(
+    monthlyInvestmentsWizardState.amountDistribution || {}
+  );
   const [securityToRemove, setSecurityToRemove] = useState<
     TradableSecurity | undefined
   >(undefined);
 
   const [sumOfAmountInputs, setSumOfAmountInputs] = useState<number>(() => {
-    const amountDistribution: Record<string, number> =
-      wizardData.data.amountDistribution;
+    const amountDistribution = monthlyInvestmentsWizardState.amountDistribution;
     if (amountDistribution) {
       return Object.values(amountDistribution)?.reduce((prev: number, curr) => {
         if (curr && !isNaN(curr)) prev += curr;
@@ -87,7 +90,7 @@ const StepThree = () => {
     //remove security from selectedSecurities in wizard state
     setWizardData((prevState) => {
       const selectedSecuritiesWithoutSecurityId =
-        prevState.data.selectedSecurities.filter(
+        prevState.data.selectedSecurities?.filter(
           (security: TradableSecurity) => security.id !== securityToRemove?.id
         );
       return {
@@ -111,12 +114,15 @@ const StepThree = () => {
   };
 
   const distributeEvenly = () => {
-    const selectedSecurities: TradableSecurity[] =
-      wizardData.data.selectedSecurities;
+    const selectedSecurities = monthlyInvestmentsWizardState.selectedSecurities;
 
-    const amountToInvest = wizardData.data.amountToInvest;
+    const amountToInvest = monthlyInvestmentsWizardState.amountToInvest;
     const nrOfSelectedSecurities = selectedSecurities?.length;
-    if (nrOfSelectedSecurities > 0) {
+    if (
+      nrOfSelectedSecurities &&
+      nrOfSelectedSecurities > 0 &&
+      amountToInvest
+    ) {
       const distribution = distributeTradeAmount(
         amountToInvest,
         nrOfSelectedSecurities
@@ -152,7 +158,8 @@ const StepThree = () => {
           [securityId]: newNumber,
         }));
         const newPercentage =
-          (newNumber / wizardData.data.amountToInvest) * 100;
+          (newNumber / (monthlyInvestmentsWizardState.amountToInvest || 1)) *
+          100;
         setPercentageInputs((prevState) => ({
           ...prevState,
           [securityId]: newPercentage,
@@ -162,7 +169,9 @@ const StepThree = () => {
           ...prevState,
           [securityId]: newNumber,
         }));
-        const newAbsolute = (newNumber / 100) * wizardData.data.amountToInvest;
+        const newAbsolute =
+          (newNumber / 100) *
+          (monthlyInvestmentsWizardState.amountToInvest || 0);
         setAmountInputs((prevState) => ({
           ...prevState,
           [securityId]: newAbsolute,
@@ -206,9 +215,73 @@ const StepThree = () => {
     }));
   }, [amountInputs, percentageInputs, setWizardData]);
 
+  /**
+   * Checks whether a re-distribution needs to occur based on
+   * the presence and correctness of amount and percentage distributions.
+   * Re-distribution is required if either distribution is missing, if the
+   * total distributed amount doesn't match the amount to invest, or if
+   * there's a discrepancy in the selected securities.
+   * @returns true if need to evenly distribute.
+   */
+  const needToDistribute = () => {
+    const state = monthlyInvestmentsWizardState;
+    const {
+      amountDistribution,
+      percentageDistribution,
+      amountToInvest,
+      selectedSecurities,
+    } = state;
+
+    // Helper function to calculate the total distributed amount
+    const calculateTotalAmountDistributed = () =>
+      Math.round(
+        Object.values(amountDistribution || {}).reduce(
+          (total, value) => total + value,
+          0
+        )
+      );
+
+    // Helper function to check whether distributions are present in state
+    const areDistributionsPresent = () =>
+      amountDistribution && percentageDistribution;
+
+    // Helper function to check whether the count of selected securities matches distribution entries
+    const isSecuritiesCountMatching = () => {
+      const secIdsSelected =
+        selectedSecurities?.map((s) => s.id.toString()) || [];
+      return (
+        Object.keys(amountDistribution || {}).length ===
+          secIdsSelected.length &&
+        Object.keys(percentageDistribution || {}).length ===
+          secIdsSelected.length
+      );
+    };
+
+    // Helper function to check whether all selected securities are present in both distributions
+    const areAllSecuritiesDistributed = () => {
+      const secIdsSelected =
+        selectedSecurities?.map((s) => s.id.toString()) || [];
+      return secIdsSelected.every(
+        (id) =>
+          id in (amountDistribution || {}) &&
+          id in (percentageDistribution || {})
+      );
+    };
+
+    // Main checks triggering re-distribution
+    return (
+      !areDistributionsPresent() ||
+      calculateTotalAmountDistributed() !== amountToInvest ||
+      !isSecuritiesCountMatching() ||
+      !areAllSecuritiesDistributed()
+    );
+  };
+
   //distribute evenly once on mount
   useEffect(() => {
-    distributeEvenly();
+    if (needToDistribute()) {
+      distributeEvenly();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -216,29 +289,32 @@ const StepThree = () => {
   //or any security is below its min trade amount
   useEffect(() => {
     const isAnySelectedSecurityUnderMinAmount =
-      wizardData.data.selectedSecurities?.some((security: TradableSecurity) => {
-        const amountInputOnSecurity = amountInputs[security.id];
-        return (
-          !!amountInputOnSecurity &&
-          amountInputOnSecurity < security.minTradeAmount * security.fxRate
-        );
-      });
+      monthlyInvestmentsWizardState.selectedSecurities?.some(
+        (security: TradableSecurity) => {
+          const amountInputOnSecurity = amountInputs[security.id];
+          return (
+            !!amountInputOnSecurity &&
+            amountInputOnSecurity < security.minTradeAmount * security.fxRate
+          );
+        }
+      );
 
     const disableNext =
-      round(sumOfAmountInputs) !== wizardData.data.amountToInvest ||
+      round(sumOfAmountInputs) !==
+        monthlyInvestmentsWizardState.amountToInvest ||
       isAnySelectedSecurityUnderMinAmount;
 
     const disableBack = false;
     setWizardData((prevState) => ({
       ...prevState,
-      nextDisabled: disableNext,
+      nextDisabled: !!disableNext,
       backDisabled: disableBack,
     }));
   }, [
     sumOfAmountInputs,
     setWizardData,
-    wizardData.data.amountToInvest,
-    wizardData.data.selectedSecurities,
+    monthlyInvestmentsWizardState.amountToInvest,
+    monthlyInvestmentsWizardState.selectedSecurities,
     amountInputs,
   ]);
 
@@ -249,7 +325,7 @@ const StepThree = () => {
           <div className="flex flex-col gap-y-3 p-6">
             <div className="flex gap-x-2 justify-between">
               <LabeledDiv id="investmentAmount" label="Investment amount">
-                {wizardData?.data?.amountToInvest.toLocaleString(
+                {wizardData?.data?.amountToInvest?.toLocaleString(
                   i18n.language,
                   {
                     style: "currency",
@@ -268,26 +344,32 @@ const StepThree = () => {
                 )}
               </Button>
             </div>
-            <DistributeInfo
-              diffAmount={
-                wizardData.data?.amountToInvest - round(sumOfAmountInputs)
-              }
-              diffPercentage={100 - round(sumOfPercentageInputs)}
-            />
+            {monthlyInvestmentsWizardState?.amountToInvest && (
+              <DistributeInfo
+                diffAmount={
+                  monthlyInvestmentsWizardState?.amountToInvest -
+                  round(sumOfAmountInputs)
+                }
+                diffPercentage={100 - round(sumOfPercentageInputs)}
+              />
+            )}
           </div>
         </Card>
       </div>
-
-      <div className="h-full min-h-[300px]">
-        <SecurityDistributionList
-          selectedSecurities={wizardData.data.selectedSecurities}
-          handleRemove={handleRemove}
-          setInput={setInput}
-          percentageInputs={percentageInputs}
-          amountInputs={amountInputs}
-          portfolioCurrencyCode={portfolioCurrencyCode}
-        />
-      </div>
+      {monthlyInvestmentsWizardState.selectedSecurities && (
+        <div className="h-full min-h-[300px]">
+          <SecurityDistributionList
+            selectedSecurities={
+              monthlyInvestmentsWizardState.selectedSecurities
+            }
+            handleRemove={handleRemove}
+            setInput={setInput}
+            percentageInputs={percentageInputs}
+            amountInputs={amountInputs}
+            portfolioCurrencyCode={portfolioCurrencyCode}
+          />
+        </div>
+      )}
 
       <ConfirmDialog
         title={t("wizards.monthlyInvestments.stepThree.removeDialogTitle")}

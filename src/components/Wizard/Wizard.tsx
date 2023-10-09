@@ -113,7 +113,7 @@ export const Wizard: React.FC<WizardProps> = ({
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-95"
         >
-          <div className="flex fixed inset-0 z-40 w-full h-full select-none">
+          <div className="flex fixed inset-0 z-40 w-full h-full">
             <div
               id="wizardContainer"
               className="m-auto w-full md:w-screen lg:w-4/5 xl:w-3/4 max-w-6xl h-full md:h-screen bg-white rounded-lg xl:h-[95%] lg:h-[95%]"

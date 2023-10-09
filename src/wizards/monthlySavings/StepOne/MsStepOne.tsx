@@ -12,6 +12,7 @@ import {
   getUniqueExternalAccounts,
   useGetPortfoliosProfileAndFiguresAndAccounts,
 } from "../StepZero/api/useGetPortfoliosWithProfileAndAccounts";
+import { MonthlySavingsWizardState } from "../types";
 
 //min units of money to invest
 const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MS_MINAMOUNT";
@@ -21,7 +22,7 @@ const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MS_MINAMOUNT";
  * The user selects the portfolio and amount to save.
  */
 const MsStepOne = () => {
-  const { wizardData, setWizardData } = useWizard();
+  const { wizardData, setWizardData } = useWizard<MonthlySavingsWizardState>();
   const { t, i18n } = useModifiedTranslation();
   const {
     loading: loadingPortfolioData,
@@ -60,11 +61,15 @@ const MsStepOne = () => {
 
   const portfolioCurrencyCode = portfolio?.currency.securityCode;
 
-  const [inputValue, setInputValue] = useState(() => {
-    if (minAmount && wizardData?.data?.amountToSave < minAmount) {
-      return minAmount;
+  const [inputValue, setInputValue] = useState<string>(() => {
+    if (
+      minAmount &&
+      wizardData?.data?.amountToSave &&
+      wizardData.data.amountToSave < minAmount
+    ) {
+      return minAmount.toString();
     }
-    return wizardData?.data?.amountToSave || 100;
+    return wizardData?.data?.amountToSave?.toString() || "100";
   });
   const [inputError, setInputError] = useState("");
 
@@ -114,17 +119,6 @@ const MsStepOne = () => {
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue, minAmount, externalAcc]);
-
-  useEffect(() => {
-    setWizardData((prevState) => ({
-      ...prevState,
-      data: {
-        ...prevState.data,
-        selectedPortfolio: portfolio,
-      },
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portfolio]);
 
   /** Ensures input is a positive integer */
   const handleInput = (event: React.FormEvent<HTMLInputElement>) => {

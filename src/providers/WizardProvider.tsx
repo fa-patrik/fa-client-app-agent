@@ -1,13 +1,8 @@
 import React, { createContext, useState, useContext } from "react";
 
-interface WizardData {
+interface WizardData<T = unknown> {
   step: number;
-  /**
-   * This could be any data relevant to the specific Wizard using the Context.
-   * Initialized as an empty object. Remember to null check any content.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
+  data: T;
   /**
    * Whether to disable back button.
    */
@@ -20,13 +15,11 @@ interface WizardData {
    * Function to run when user completes the wizard.
    */
   onFinish?: () => void;
-
   /**
    * Initialized by the Wizard component.
    * Run to exit the wizard.
    */
   onExit?: () => void;
-
   /**
    * Initialized by the Wizard component.
    * Run to reset the wizard's state.
@@ -34,18 +27,17 @@ interface WizardData {
   onReset?: () => void;
 }
 
-interface WizardContextProps {
-  wizardData: WizardData;
-  setWizardData: React.Dispatch<React.SetStateAction<WizardData>>;
+interface WizardContextProps<T = unknown> {
+  wizardData: WizardData<T>;
+  setWizardData: React.Dispatch<React.SetStateAction<WizardData<T>>>;
 }
 
-const WizardContext = createContext<WizardContextProps | undefined>(undefined);
+const WizardContext = createContext<WizardContextProps<unknown> | undefined>(
+  undefined
+);
 
-/**
- * Contains the active step + data of the currently running Wizard.
- */
 export const WizardProvider: React.FC = ({ children }) => {
-  const [wizardData, setWizardData] = useState<WizardData>({
+  const [wizardData, setWizardData] = useState<WizardData<unknown>>({
     step: 0,
     data: {},
     backDisabled: true,
@@ -62,10 +54,10 @@ export const WizardProvider: React.FC = ({ children }) => {
   );
 };
 
-export const useWizard = () => {
-  const context = useContext(WizardContext);
-  if (!context) {
+export function useWizard<T = unknown>(): WizardContextProps<T> {
+  const context = useContext(WizardContext) as WizardContextProps<T> | null;
+  if (context === null) {
     throw new Error("useWizard must be used within a WizardProvider");
   }
   return context;
-};
+}

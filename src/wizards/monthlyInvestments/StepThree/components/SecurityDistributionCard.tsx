@@ -20,7 +20,7 @@ interface SecurityDistributionCardProps {
   setInput: (input: string, securityId: number, mode: string) => void;
   percentageInputs: Record<string, number | undefined>;
   amountInputs: Record<string, number | undefined>;
-  portfolioCurrencyCode: string;
+  portfolioCurrencyCode: string | undefined;
 }
 
 const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({

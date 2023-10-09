@@ -10,13 +10,16 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { toast } from "react-toastify";
 import TradableSecurityTable from "wizards/monthlyInvestments/StepTwo/components/TradableSecurityTable";
+import { MonthlyInvestmentsWizardState } from "../types";
 
 /**
  * Step two of the monthly investments process.
  * The user selects the securities to invest into.
  */
 const StepTwo = () => {
-  const { wizardData, setWizardData } = useWizard();
+  const { wizardData, setWizardData } =
+    useWizard<MonthlyInvestmentsWizardState>();
+  const monthlyInvestmentsWizardState = wizardData.data;
   const { t } = useModifiedTranslation();
   //useGetTradebleSecurities has its own api for filtering securities
   //however, that results in extra api requests
@@ -24,7 +27,8 @@ const StepTwo = () => {
   //and then handle the filtering separately in this component
   const { filters, filterOptions, data, loading, error } =
     useGetTradebleSecurities(
-      wizardData?.data.selectedPortfolio?.currency?.securityCode
+      monthlyInvestmentsWizardState.selectedPortfolioOption?.details?.currency
+        ?.securityCode
     );
   const [selectedCountry, setSelectedCountry] = useState<Option>(
     filters.country
@@ -100,10 +104,10 @@ const StepTwo = () => {
       : 0;
 
   //the setter is given to the table in order for it
-  //to be able to add, by the user, clicked on securities
+  //to be able to add or remove, by the user, clicked on securities
   const [selectedSecurities, setSelectedSecurities] = useState<
     TradableSecurity[]
-  >(wizardData?.data?.selectedSecurities || []);
+  >(monthlyInvestmentsWizardState.selectedSecurities || []);
 
   //store relevant data in the wizard context
   //so that later steps of the wizard can get it
@@ -124,15 +128,17 @@ const StepTwo = () => {
       setDisplayedMaxNrSecuritiesWarning(true);
     }
 
-    setWizardData((prevState) => ({
-      ...prevState,
-      nextDisabled: disableNext,
-      backDisabled: disableBack,
-      data: {
-        ...prevState.data,
-        selectedSecurities,
-      },
-    }));
+    setWizardData((prevState) => {
+      return {
+        ...prevState,
+        nextDisabled: disableNext,
+        backDisabled: disableBack,
+        data: {
+          ...prevState.data,
+          selectedSecurities,
+        },
+      };
+    });
   }, [displayedMaxNrSecuritiesWarning, selectedSecurities, setWizardData]);
 
   return (

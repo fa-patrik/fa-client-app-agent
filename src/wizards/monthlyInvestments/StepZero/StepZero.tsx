@@ -8,10 +8,7 @@ import {
   TradableSecurity,
   useGetTradebleSecurityLazy,
 } from "api/trading/useGetTradebleSecurities";
-import {
-  PortfolioMonthlyInvestmentsDTOInput,
-  useSetMonthlyInvestments,
-} from "api/trading/useSetMonthlyInvestments";
+import { useSetMonthlyInvestments } from "api/trading/useSetMonthlyInvestments";
 import { ReactComponent as PlusIcon } from "assets/plus-circle.svg";
 import {
   Badge,
@@ -21,17 +18,26 @@ import {
   LoadingIndicator,
 } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
+import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
 import {
+  canPortfolioMonthlyInvest,
+  canPortfolioOptionMonthlyInvest,
+} from "services/permissions/usePermission";
+import {
   MonthlyInvestments,
   MonthlyInvestmentsFieldId,
+  PortfolioWithMonthlyInvestments,
   addMonthlyInvestmentsToPortfolios,
+  convertMonthlyInvestmentsProfileToWizardState,
+  getEmptyApiInput,
   getUniqueSecurityCodes,
 } from "utils/faBackProfiles/monthlyInvestments";
 import { WizardBottomNavigationReplica } from "wizards/components/WizardBottomNavigationReplica";
 import SecurityDistributionTable from "../StepFive/SecurityDistributionTable";
+import { MonthlyInvestmentsWizardState } from "../types";
 
 /**
  * Initial step of the monthly savings wizard.
@@ -41,7 +47,9 @@ import SecurityDistributionTable from "../StepFive/SecurityDistributionTable";
 const StepZero = () => {
   const [isMounted, setIsMounted] = useState(true);
   const { impersonating } = useKeycloak();
-  const { setWizardData } = useWizard();
+  const { wizardData, setWizardData } = useWizard<
+    MonthlyInvestmentsWizardState | undefined
+  >();
   const {
     data: portfolioData,
     refetch: refetchPortfolioData,
@@ -66,7 +74,7 @@ const StepZero = () => {
   >(undefined);
 
   const { t, i18n } = useModifiedTranslation();
-  const { setMonthlyInvestments } = useSetMonthlyInvestments("Delete");
+  const { setMonthlyInvestments } = useSetMonthlyInvestments();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [loadingSecurityData, setLoadingSecurities] = useState(false);
@@ -79,18 +87,32 @@ const StepZero = () => {
 
     //send mutation to FA Back
     if (targetPortfolio) {
-      const emptyMonthlyInvestmentProfile: PortfolioMonthlyInvestmentsDTOInput =
-        {
-          enableInPfCurrency: false,
-          portfolio: targetPortfolio?.shortName,
-          rows: [],
-        };
-
-      await setMonthlyInvestments(emptyMonthlyInvestmentProfile);
+      const emptyMonthlyInvestmentProfile = getEmptyApiInput(
+        targetPortfolio.shortName
+      );
+      await setMonthlyInvestments(emptyMonthlyInvestmentProfile, "Delete");
       await refetchPortfolioData();
       setLoadingDelete(false);
       setConfirmDialogOpen(false);
     }
+  };
+
+  const editMonthlyInvestmentsProfile = (
+    portfolio: PortfolioWithMonthlyInvestments
+  ) => {
+    const monthlyInvestmentsWizardState =
+      convertMonthlyInvestmentsProfileToWizardState(portfolio, securities);
+    setWizardData((prevState) => ({
+      ...prevState,
+      step: 1,
+      backDisabled: false,
+      data: monthlyInvestmentsWizardState
+        ? {
+            ...monthlyInvestmentsWizardState,
+            isEditing: true,
+          }
+        : undefined,
+    }));
   };
 
   useEffect(() => {
@@ -143,25 +165,38 @@ const StepZero = () => {
   }, []);
 
   const loading =
-    loadingSecurityData || (loadingPortfolioData && !portfolioData);
+    (loadingSecurityData && !Object.keys(securities)?.length) ||
+    (loadingPortfolioData && !portfolioData);
 
   const errorAndNoDataToShow =
     (errorGettingPortfolioData || errorGettingSecurity) &&
     !portfolioData &&
     !Object.keys(securities)?.length;
 
-  const AddNewPlanButton = () => (
+  /**
+   * If all eligible portfolios already have an investment plan
+   */
+  const { portfolioOptions } = useFilteredPortfolioSelect(
+    canPortfolioOptionMonthlyInvest
+  );
+  const allowCreateNew =
+    portfolioOptions?.length !== portfoliosWithMonthlyInvestments?.length;
+
+  const AddNewPlanButton = ({ disabled }: { disabled?: boolean }) => (
     <Button
       isLoading={loadingPortfolioData}
-      disabled={loadingPortfolioData}
+      disabled={disabled || loadingPortfolioData}
       LeftIcon={PlusIcon}
-      onClick={() =>
+      onClick={() => {
+        //reset state
+        wizardData.onReset?.();
+        //set next step
         setWizardData((prevState) => ({
           ...prevState,
           step: 1,
           backDisabled: false,
-        }))
-      }
+        }));
+      }}
     >
       {loadingPortfolioData
         ? t("wizards.monthlyInvestments.stepZero.refreshingDataButtonLabel")
@@ -237,7 +272,23 @@ const StepZero = () => {
               }
             }
 
-            if (securitiesInProfile.length > 0)
+            if (securitiesInProfile.length > 0) {
+              const securitiesSortedByAmountDistribution =
+                securitiesInProfile?.sort(
+                  (secA: TradableSecurity, secB: TradableSecurity) => {
+                    const numericalOrder =
+                      (amountDistribution?.[secB.id] || 0) -
+                      (amountDistribution?.[secA.id] || 0);
+                    if (numericalOrder === 0) {
+                      //equally large- sort by name
+                      return secA.name
+                        .toLowerCase()
+                        .localeCompare(secB.name.toLowerCase());
+                    } else {
+                      return numericalOrder;
+                    }
+                  }
+                );
               return (
                 <Card key={portfolio.id} header={portfolio.name}>
                   <div className="flex flex-col gap-y-2 p-3">
@@ -258,13 +309,14 @@ const StepZero = () => {
                         id={`securityDistributionTable-${portfolio.id}`}
                         amountDistribution={amountDistribution}
                         totalAmount={totalAmount}
-                        securities={securitiesInProfile}
+                        securities={securitiesSortedByAmountDistribution}
                         portfolioCurrencyCode={portfolio.currency.securityCode}
                       />
                     </div>
                     <hr className="border-1" />
-                    <div className="flex justify-between p-3">
+                    <div className="flex justify-between">
                       <Button
+                        disabled={!canPortfolioMonthlyInvest(portfolio)}
                         variant="Delete"
                         onClick={() => {
                           setTargetPortfolio(portfolio);
@@ -275,13 +327,21 @@ const StepZero = () => {
                           "wizards.monthlyInvestments.stepZero.deletePlanButtonLabel"
                         )}
                       </Button>
-                      {false && ( //to be implemented
-                        <Button variant="Secondary">Edit</Button>
-                      )}
+                      <Button
+                        disabled={!canPortfolioMonthlyInvest(portfolio)}
+                        onClick={() => editMonthlyInvestmentsProfile(portfolio)}
+                        id={`editButton-${portfolio.id}`}
+                        variant="Secondary"
+                      >
+                        {t(
+                          "wizards.monthlyInvestments.stepZero.editPlanButtonLabel"
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </Card>
               );
+            }
             //portfolio did not have any monthly investment profile entries
             return null;
           })}
@@ -306,7 +366,7 @@ const StepZero = () => {
           />
         </div>
         <WizardBottomNavigationReplica>
-          <AddNewPlanButton />
+          {allowCreateNew && <AddNewPlanButton />}
         </WizardBottomNavigationReplica>
       </>
     );

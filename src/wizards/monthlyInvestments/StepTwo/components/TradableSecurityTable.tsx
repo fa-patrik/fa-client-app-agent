@@ -63,7 +63,12 @@ const TradableSecurityTable = ({
   const location = useLocation();
   const { t, i18n } = useModifiedTranslation();
   const [sortedRows, setSortedRows] = useState<TradableSecurity[]>(securities);
-
+  const [securitiesAsMap] = useState<Record<string, TradableSecurity>>(() => {
+    return securities?.reduce((prev, curr) => {
+      prev[curr.id] = curr;
+      return prev;
+    }, {} as Record<string, TradableSecurity>);
+  });
   const getPathToHolding = (holdingId: number) => {
     const currentPath = location.pathname;
     const pathParts = currentPath.split("/");
@@ -78,10 +83,16 @@ const TradableSecurityTable = ({
   >(() => {
     if (preSelectedRows?.length) {
       const preselected = preSelectedRows?.reduce((prev, curr) => {
-        prev[curr.id] = {
-          selected: true,
-          data: curr,
-        };
+        //check if preselected id in fetched securities
+        //there can be a discrepancy if a security was once
+        //allowed to be traded, and is in an investment plan
+        //but has since been removed from tradeable securities
+        if (curr.id in securitiesAsMap) {
+          prev[curr.id] = {
+            selected: true,
+            data: curr,
+          };
+        }
         return prev;
       }, {} as Record<TradableSecurity["id"], Row>);
       return preselected;

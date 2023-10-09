@@ -3,6 +3,7 @@ import { Card, Input, LabeledDiv } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { SelectMonthsGrid } from "../components/SelectedMonthsGrid";
+import { MonthlySavingsWizardState } from "../types";
 
 const months = Array(12)
   .fill(undefined)
@@ -15,7 +16,7 @@ const months = Array(12)
  * The user selects and savings schedule.
  */
 const MsStepTwo = () => {
-  const { wizardData, setWizardData } = useWizard();
+  const { wizardData, setWizardData } = useWizard<MonthlySavingsWizardState>();
   const { t, i18n } = useModifiedTranslation();
   const [selectedDate, setSelectedDate] = useState<string>(
     wizardData.data.selectedDate || "1"
@@ -74,12 +75,13 @@ const MsStepTwo = () => {
     0
   );
 
-  const yearlySavingsAmount = wizardData.data.amountToSave * nrOfMonthsToSave;
+  const yearlySavingsAmount =
+    (wizardData.data?.amountToSave || 0) * nrOfMonthsToSave;
 
   return (
     <div className="p-2 m-auto w-full max-w-md">
       <Card id="savingsScheduleCard">
-        <div className="flex flex-col gap-y-4 items-center py-6 select-none">
+        <div className="flex flex-col gap-y-4 items-center py-6">
           <Input
             error={inputError}
             id="dateInput"
@@ -104,7 +106,8 @@ const MsStepTwo = () => {
             {yearlySavingsAmount.toLocaleString(i18n.language, {
               style: "currency",
               currency:
-                wizardData.data.selectedPortfolio?.currency?.securityCode,
+                wizardData.data.selectedPortfolioOption?.details?.currency
+                  ?.securityCode,
             })}
           </LabeledDiv>
         </div>

@@ -1,33 +1,25 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Card, Input, LabeledDiv } from "components";
-import SelectGrid from "components/SelectGrid/SelectGrid";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
-
-const months = Array(12)
-  .fill(undefined)
-  .map((_, idx) => {
-    return idx;
-  });
+import {
+  SelectMonthsGrid,
+  months,
+} from "wizards/monthlySavings/components/SelectedMonthsGrid";
+import { MonthlyInvestmentsWizardState } from "../types";
 
 /**
  * Step four of the monthly savings process.
  * The user selects and savings schedule.
  */
 const StepFour = () => {
-  const { wizardData, setWizardData } = useWizard();
+  const { wizardData, setWizardData } =
+    useWizard<MonthlyInvestmentsWizardState>();
+  const monthlyInvestmentsWizardState = wizardData.data;
   const { t, i18n } = useModifiedTranslation();
-  const monthsAsString = months.map((dateNr) => {
-    const date = new Date();
-    date.setMonth(dateNr);
-    return {
-      id: `${dateNr}`,
-      label: date.toLocaleString(i18n.language, { month: "long" }),
-    };
-  });
 
   const [selectedDate, setSelectedDate] = useState<string>(
-    wizardData.data.selectedDate || "1"
+    monthlyInvestmentsWizardState.selectedDate || "1"
   );
 
   const [inputError, setInputError] = useState("");
@@ -50,7 +42,7 @@ const StepFour = () => {
   };
 
   const [selectedMonths, setSelectedMonths] = useState<Record<string, boolean>>(
-    wizardData.data.selectedMonths ||
+    monthlyInvestmentsWizardState.selectedMonths ||
       months.reduce((prev, curr) => {
         prev[curr] = true;
         return prev;
@@ -84,12 +76,12 @@ const StepFour = () => {
   );
 
   const yearlyInvestmentAmount =
-    wizardData.data.amountToInvest * nrOfMonthsToSave;
+    (monthlyInvestmentsWizardState.amountToInvest || 0) * nrOfMonthsToSave;
 
   return (
     <div className="p-2 m-auto w-full max-w-md">
       <Card id="savingsScheduleCard">
-        <div className="flex flex-col gap-y-4 items-center py-6 select-none">
+        <div className="flex flex-col gap-y-4 items-center py-6">
           <Input
             error={inputError}
             id="buyDateInput"
@@ -101,11 +93,9 @@ const StepFour = () => {
             value={selectedDate}
           />
 
-          <SelectGrid
-            id="selectableMonthsGrid"
+          <SelectMonthsGrid
             selected={selectedMonths}
             onSelect={setSelectedMonths}
-            selectBoxes={monthsAsString}
           />
 
           <LabeledDiv
@@ -118,7 +108,8 @@ const StepFour = () => {
             {yearlyInvestmentAmount.toLocaleString(i18n.language, {
               style: "currency",
               currency:
-                wizardData.data.selectedPortfolio?.currency?.securityCode,
+                monthlyInvestmentsWizardState.selectedPortfolioOption?.details
+                  ?.currency?.securityCode,
             })}
           </LabeledDiv>
         </div>

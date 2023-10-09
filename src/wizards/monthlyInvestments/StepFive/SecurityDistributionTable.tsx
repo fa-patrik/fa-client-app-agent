@@ -23,7 +23,7 @@ const SecurityDistributionTable = ({
 }: SecurityDistributionTableProps) => {
   const isSm = useMatchesBreakpoint("sm");
   const isLargeScreen = isSm;
-  const {t,i18n } = useModifiedTranslation();
+  const { t, i18n } = useModifiedTranslation();
   const truncateName = (name: string) => {
     if (name.length > SECURITY_NAME_MAX_LENGTH && !isLargeScreen) {
       return name.substring(0, SECURITY_NAME_MAX_LENGTH) + ".";
@@ -35,17 +35,24 @@ const SecurityDistributionTable = ({
     <table id={id || "securityDistributionTable"} className="w-full table-auto">
       <thead>
         <tr>
-          <th className="p-1 text-sm font-normal text-left">{t("component.securityDistributionTable.securityColumHeader")}</th>
-          <th className="p-1 text-sm font-normal text-right">{t("component.securityDistributionTable.percentageColumnHeader")}</th>
-          <th className="p-1 text-sm font-normal text-right">{t("component.securityDistributionTable.amountColumnHeader")}</th>
+          <th className="p-1 text-sm font-normal text-left">
+            {t("component.securityDistributionTable.securityColumHeader")}
+          </th>
+          <th className="p-1 text-sm font-normal text-right">
+            {t("component.securityDistributionTable.percentageColumnHeader")}
+          </th>
+          <th className="p-1 text-sm font-normal text-right">
+            {t("component.securityDistributionTable.amountColumnHeader")}
+          </th>
         </tr>
       </thead>
       <tbody>
         {securities?.map((security) => {
           const securityAmountDistribution =
             amountDistribution?.[security.id] || 0;
+          const denominator = totalAmount === 0 ? 1 : totalAmount;
           const securityPercentageDistribution =
-            (securityAmountDistribution / totalAmount) * 100;
+            (securityAmountDistribution / denominator) * 100;
           const largest =
             (amountDistribution &&
               Object.values(amountDistribution).reduce((prev, curr) => {

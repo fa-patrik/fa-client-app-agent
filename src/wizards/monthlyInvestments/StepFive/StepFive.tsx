@@ -1,30 +1,19 @@
 import { useEffect, useState } from "react";
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
-import {
-  PortfolioMonthlyInvestmentsDTOInput,
-  useSetMonthlyInvestments,
-} from "api/trading/useSetMonthlyInvestments";
+import { useSetMonthlyInvestments } from "api/trading/useSetMonthlyInvestments";
 import { Card } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
-import SelectGrid from "components/SelectGrid/SelectGrid";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
+import { convertWizardStateToApiFormat } from "utils/faBackProfiles/monthlyInvestments";
+import {
+  SelectMonthsGrid,
+  months,
+} from "wizards/monthlySavings/components/SelectedMonthsGrid";
+import { MonthlyInvestmentsWizardState } from "../types";
 import SecurityDistributionTable from "./SecurityDistributionTable";
-
-/**
- * Monthly investments profile -> Enable monthly investments
- * in portfolio currency checkbox.
- */
-const ENABLE_IN_PF_CURRENCY = true;
-
-const months = Array(12)
-  .fill(undefined)
-  .map((_, idx) => {
-    return idx;
-  });
 
 /**
  * Step five of the monthly investments process.
@@ -33,42 +22,36 @@ const months = Array(12)
  */
 const StepFive = () => {
   const { impersonating } = useKeycloak();
-  const { wizardData, setWizardData } = useWizard();
+  const { wizardData, setWizardData } =
+    useWizard<MonthlyInvestmentsWizardState>();
+  const monthlyInvestmentsWizardState = wizardData.data;
   const { t, i18n } = useModifiedTranslation();
   numbro.setLanguage(i18n.language);
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { setMonthlyInvestments } = useSetMonthlyInvestments();
   const [loadingFinish, setLoadingFinish] = useState(false);
-  const selectedPortfolioOption: PortfolioOption | undefined =
-    wizardData.data.selectedPortfolioOption;
-  const amountToInvest: number = wizardData.data.amountToInvest || 0;
-  const amountDistribution: Record<string, number> | undefined =
-    wizardData.data.amountDistribution;
-  const selectedSecurities: TradableSecurity[] | undefined =
-    wizardData.data.selectedSecurities?.filter((security: TradableSecurity) => {
-      //remove securities for which the user has input 0 as amount
-      return amountDistribution && amountDistribution[security.id] > 0;
-    });
+  const selectedPortfolioOption =
+    monthlyInvestmentsWizardState.selectedPortfolioOption;
+  const amountToInvest = monthlyInvestmentsWizardState.amountToInvest || 0;
+  const amountDistribution = monthlyInvestmentsWizardState.amountDistribution;
+  const selectedSecurities =
+    monthlyInvestmentsWizardState.selectedSecurities?.filter(
+      (security: TradableSecurity) => {
+        //remove securities for which the user has input 0 as amount
+        return amountDistribution && amountDistribution[security.id] > 0;
+      }
+    );
 
-  const percentageDistribution: Record<string, number> | undefined =
-    wizardData.data.percentageDistribution;
-  const selectedDate: string = wizardData.data.selectedDate;
-  const [selectedMonths, setSelectedMonths] = useState<Record<string, boolean>>(
-    wizardData.data.selectedMonths ||
+  const selectedDate = monthlyInvestmentsWizardState.selectedDate;
+  const [selectedMonths] = useState<Record<string, boolean>>(
+    monthlyInvestmentsWizardState.selectedMonths ||
       months.reduce((prev, curr) => {
         prev[curr] = true;
         return prev;
       }, {} as Record<string, boolean>)
   );
-  const monthsAsString = months.map((dateNr) => {
-    const date = new Date();
-    date.setMonth(dateNr);
-    return {
-      id: `${dateNr}`,
-      label: date.toLocaleString(i18n.language, { month: "long" }),
-    };
-  });
+
   const nrOfMonthsToInvest = Object.values(selectedMonths).reduce(
     (prev: number, curr) => {
       if (curr) prev++;
@@ -104,36 +87,16 @@ const StepFive = () => {
     setLoadingFinish(true);
     const selectedPortfolioShortName =
       selectedPortfolioOption?.details?.shortName;
-    const monthlyInvestmentProfile:
-      | PortfolioMonthlyInvestmentsDTOInput
-      | undefined = selectedSecurities?.reduce(
-      (prev, curr: TradableSecurity) => {
-        //populate new row in the profile
-        prev.rows.push({
-          date: Number(selectedDate),
-          selectedMonths: Object.keys(selectedMonths).reduce(
-            (prev, currMonthNr) => {
-              if (selectedMonths[currMonthNr])
-                prev.push(Number(currMonthNr) + 1);
-              return prev;
-            },
-            [] as number[]
-          ),
-          security: curr.securityCode,
-          amount: amountDistribution?.[curr.id] || 0,
-        });
-        return prev;
-      },
-      {
-        portfolio: selectedPortfolioShortName,
-        enableInPfCurrency: ENABLE_IN_PF_CURRENCY,
-        rows: [],
-      } as PortfolioMonthlyInvestmentsDTOInput
+    const monthlyInvestmentProfile = convertWizardStateToApiFormat(
+      wizardData.data
     );
 
     //send mutation to FA Back
     if (selectedPortfolioShortName && monthlyInvestmentProfile) {
-      await setMonthlyInvestments(monthlyInvestmentProfile);
+      await setMonthlyInvestments(
+        monthlyInvestmentProfile,
+        monthlyInvestmentsWizardState.isEditing ? "Edit" : "New"
+      );
     }
     //close the open dialog and go back to step 0
     setLoadingFinish(false);
@@ -141,32 +104,33 @@ const StepFive = () => {
     wizardData?.onReset?.();
   };
 
-  const selectedSecuritiesSortedByPercentageDistribution =
-    selectedSecurities?.sort(
-      (secA: TradableSecurity, secB: TradableSecurity) => {
-        const numericalOrder =
-          (percentageDistribution?.[secB.id] || 0) -
-          (percentageDistribution?.[secA.id] || 0);
-        if (numericalOrder === 0) {
-          //equally large- sort by name
-          return secA.name.localeCompare(secB.name);
-        } else {
-          return numericalOrder;
-        }
+  const selectedSecuritiesSortedByAmountDistribution = selectedSecurities?.sort(
+    (secA: TradableSecurity, secB: TradableSecurity) => {
+      const numericalOrder =
+        (amountDistribution?.[secB.id] || 0) -
+        (amountDistribution?.[secA.id] || 0);
+      if (numericalOrder === 0) {
+        //equally large- sort by name
+        return secA.name.toLowerCase().localeCompare(secB.name.toLowerCase());
+      } else {
+        return numericalOrder;
       }
-    );
+    }
+  );
 
   return (
     <div className="flex overflow-y-auto flex-col gap-y-4 p-4 m-auto w-full max-w-xl">
       <div>
         <Card>
-          <div className="flex flex-col gap-y-3 py-3 px-4 select-none">
+          <div className="flex flex-col gap-y-3 py-3 px-4">
             <p className="mx-auto text-lg font-semibold">
               {t("wizards.monthlyInvestments.stepFive.summaryTitle")}
             </p>
             <ul className="flex flex-col gap-y-2 w-full text-sm">
               <li className="flex">
-                <p className="w-1/2">Portfolio</p>
+                <p className="w-1/2">
+                  {t("wizards.monthlyInvestments.stepFive.portfolio")}
+                </p>
                 <p className="w-1/2 font-semibold text-right">
                   {selectedPortfolioOption?.details?.name}
                 </p>
@@ -177,7 +141,8 @@ const StepFive = () => {
                   {amountToInvest?.toLocaleString(i18n.language, {
                     style: "currency",
                     currency:
-                      wizardData.data.selectedPortfolio?.currency?.securityCode,
+                      monthlyInvestmentsWizardState.selectedPortfolioOption
+                        ?.details?.currency?.securityCode,
                   })}
                 </p>
               </li>
@@ -187,7 +152,8 @@ const StepFive = () => {
                   {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
                     style: "currency",
                     currency:
-                      wizardData.data.selectedPortfolio?.currency?.securityCode,
+                      monthlyInvestmentsWizardState.selectedPortfolioOption
+                        ?.details?.currency?.securityCode,
                   })}
                 </p>
               </li>
@@ -195,11 +161,12 @@ const StepFive = () => {
             <hr className="w-full border-1" />
             <div className="overflow-x-auto w-full">
               <SecurityDistributionTable
-                totalAmount={wizardData.data.amountToInvest}
-                securities={selectedSecuritiesSortedByPercentageDistribution}
+                totalAmount={monthlyInvestmentsWizardState.amountToInvest || 0}
+                securities={selectedSecuritiesSortedByAmountDistribution}
                 amountDistribution={amountDistribution}
                 portfolioCurrencyCode={
-                  wizardData.data.selectedPortfolio?.currency?.securityCode
+                  monthlyInvestmentsWizardState.selectedPortfolioOption?.details
+                    ?.currency?.securityCode || ""
                 }
               />
             </div>
@@ -223,21 +190,18 @@ const StepFive = () => {
               {t("wizards.monthlyInvestments.stepFive.monthsSelectedGridTitle")}
             </p>
             <div className="w-full">
-              <SelectGrid
-                id="selectableMonthsGrid"
-                disabled
-                selected={selectedMonths}
-                onSelect={setSelectedMonths}
-                selectBoxes={monthsAsString}
-                narrow
-              />
+              <SelectMonthsGrid disabled selected={selectedMonths} narrow />
             </div>
           </div>
         </Card>
       </div>
 
       <ConfirmDialog
-        title={t("wizards.monthlyInvestments.stepFive.confirmDialogTitle")}
+        title={
+          monthlyInvestmentsWizardState.isEditing
+            ? t("wizards.monthlyInvestments.stepFive.confirmEditDialogTitle")
+            : t("wizards.monthlyInvestments.stepFive.confirmDialogTitle")
+        }
         description={t(
           "wizards.monthlyInvestments.stepFive.confirmDialogDescription"
         )}

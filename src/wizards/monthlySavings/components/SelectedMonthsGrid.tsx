@@ -2,11 +2,7 @@ import { Dispatch, SetStateAction, useMemo } from "react";
 import SelectGrid from "components/SelectGrid/SelectGrid";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
-const months = Array(12)
-  .fill(undefined)
-  .map((_, idx) => {
-    return idx;
-  });
+export const months: number[] = Array.from({ length: 12 }, (_, i) => i + 1);
 
 interface Props {
   id?: string;
@@ -23,21 +19,18 @@ export const SelectMonthsGrid = ({
   onSelect,
   narrow,
 }: Props) => {
-  const { i18n } = useModifiedTranslation();
+  const { t } = useModifiedTranslation();
   const selectBoxes = useMemo(
     () =>
       months.map((dateNr) => {
-        const date = new Date();
-        date.setMonth(dateNr);
         return {
-          id: `${dateNr + 1}`,
-          label: date.toLocaleString(i18n.language, {
-            month: "long",
-          }),
+          id: `${dateNr}`,
+          label: t(`utils.months.${dateNr}`),
         };
       }),
-    [i18n.language]
+    [t]
   );
+
   return (
     <SelectGrid
       id={id ?? "selectedMonthsGrid"}

@@ -11,13 +11,8 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
-import { SelectMonthsGrid } from "../components/SelectedMonthsGrid";
-
-const months = Array(12)
-  .fill(undefined)
-  .map((_, idx) => {
-    return idx;
-  });
+import { SelectMonthsGrid, months } from "../components/SelectedMonthsGrid";
+import { MonthlySavingsWizardState } from "../types";
 
 /**
  * Final step of the monthly savings process.
@@ -26,7 +21,7 @@ const months = Array(12)
  */
 const MsStepThree = () => {
   const { impersonating } = useKeycloak();
-  const { wizardData, setWizardData } = useWizard();
+  const { wizardData, setWizardData } = useWizard<MonthlySavingsWizardState>();
   const { t, i18n } = useModifiedTranslation();
   numbro.setLanguage(i18n.language);
 
@@ -107,7 +102,7 @@ const MsStepThree = () => {
   return (
     <div className="p-2 m-auto w-full max-w-md">
       <Card>
-        <div className="flex flex-col gap-y-3 p-6 select-none">
+        <div className="flex flex-col gap-y-3 p-6">
           <p className="mx-auto text-lg font-semibold" id="summaryTitle">
             {t("wizards.monthlySavings.stepThree.summaryTitle")}
           </p>
@@ -141,7 +136,8 @@ const MsStepThree = () => {
                 {amountToSave?.toLocaleString(i18n.language, {
                   style: "currency",
                   currency:
-                    wizardData.data.selectedPortfolio?.currency?.securityCode,
+                    wizardData.data.selectedPortfolioOption?.details?.currency
+                      ?.securityCode,
                 })}
               </p>
             </li>
@@ -151,7 +147,8 @@ const MsStepThree = () => {
                 {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
                   style: "currency",
                   currency:
-                    wizardData.data.selectedPortfolio?.currency?.securityCode,
+                    wizardData.data.selectedPortfolioOption?.details?.currency
+                      ?.securityCode,
                 })}
               </p>
             </li>

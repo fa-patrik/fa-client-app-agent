@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   PortfolioWithProfileAndFigures,
   useGetPortfoliosWithProfileAndFigures,
@@ -6,16 +6,18 @@ import {
 import {
   Button,
   Card,
+  ComboBox,
   ErrorMessage,
   Input,
   LoadingIndicator,
-  PortfolioSelect,
 } from "components";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { canPortfolioOptionMonthlyInvest } from "services/permissions/usePermission";
+import { addMonthlyInvestmentsToPortfolios } from "utils/faBackProfiles/monthlyInvestments";
+import { MonthlyInvestmentsWizardState } from "../types";
 
 //min units of money to invest
 const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MINAMOUNT";
@@ -25,7 +27,9 @@ const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MINAMOUNT";
  * The user selects the securities to invest into.
  */
 const StepOne = () => {
-  const { wizardData, setWizardData } = useWizard();
+  const { wizardData, setWizardData } =
+    useWizard<MonthlyInvestmentsWizardState>();
+  const monthlyInvestmentsWizardState = wizardData.data;
   const { t } = useModifiedTranslation();
   const {
     data: portfolioData,
@@ -33,12 +37,33 @@ const StepOne = () => {
     refetch,
     networkStatus,
   } = useGetPortfoliosWithProfileAndFigures();
-  const { portfolioOptions } = useFilteredPortfolioSelect(
+  const { portfolioOptions, portfolioId } = useFilteredPortfolioSelect(
     canPortfolioOptionMonthlyInvest
   );
+
+  const portfoliosWithValidMonthlyInvestments = useMemo(() => {
+    return portfolioData?.portfolios
+      ? addMonthlyInvestmentsToPortfolios(portfolioData?.portfolios)
+      : [];
+  }, [portfolioData?.portfolios]);
+
+  const filteredPortfolioOptions = useMemo(() => {
+    if (wizardData.data.isEditing) return portfolioOptions;
+    return portfolioOptions?.filter(
+      //all pf without a valid monthly investments plan
+      (o) => portfoliosWithValidMonthlyInvestments.every((p) => p.id !== o.id)
+    );
+  }, [
+    portfolioOptions,
+    portfoliosWithValidMonthlyInvestments,
+    wizardData.data.isEditing,
+  ]);
+
   const [selectedPortfolioOption, setSelectedPortfolioOption] =
     useState<PortfolioOption>(
-      wizardData?.data?.selectedPortfolioOption || portfolioOptions[0]
+      monthlyInvestmentsWizardState.selectedPortfolioOption ||
+        filteredPortfolioOptions.find((o) => o.id === portfolioId) ||
+        filteredPortfolioOptions[0]
     );
 
   const [portfolio, setPortfolio] = useState<
@@ -53,11 +78,15 @@ const StepOne = () => {
 
   const portfolioCurrencyCode = portfolio?.currency.securityCode;
 
-  const [inputValue, setInputValue] = useState(() => {
-    if (minAmount && wizardData?.data?.amountToInvest < minAmount) {
-      return minAmount;
+  const [inputValue, setInputValue] = useState<string>(() => {
+    if (
+      minAmount &&
+      monthlyInvestmentsWizardState.amountToInvest &&
+      monthlyInvestmentsWizardState.amountToInvest < minAmount
+    ) {
+      return minAmount.toString();
     }
-    return wizardData?.data?.amountToInvest || 100;
+    return monthlyInvestmentsWizardState.amountToInvest?.toString() || "100";
   });
   const [inputError, setInputError] = useState("");
 
@@ -107,17 +136,6 @@ const StepOne = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue, minAmount]);
 
-  useEffect(() => {
-    setWizardData((prevState) => ({
-      ...prevState,
-      data: {
-        ...prevState.data,
-        selectedPortfolio: portfolio,
-      },
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portfolio]);
-
   /** Ensures input is a positive integer */
   const handleInput = (event: React.FormEvent<HTMLInputElement>) => {
     const target = event.currentTarget;
@@ -162,13 +180,14 @@ const StepOne = () => {
       <div>
         <Card>
           <div className="flex flex-col gap-y-3 p-6">
-            <PortfolioSelect
+            <ComboBox
+              disabled={monthlyInvestmentsWizardState.isEditing ?? false}
               label={t(
                 "wizards.monthlyInvestments.stepOne.portfolioInputLabel"
               )}
               onChange={setSelectedPortfolioOption}
-              portfolioId={selectedPortfolioOption.id}
-              portfolioOptions={portfolioOptions}
+              options={filteredPortfolioOptions}
+              value={selectedPortfolioOption}
             />
             <Input
               error={inputError}

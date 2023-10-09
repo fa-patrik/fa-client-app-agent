@@ -20,6 +20,7 @@ interface ComboBoxProps<T> {
   onChange: (option: T) => void;
   options: T[];
   label?: string;
+  disabled?: boolean;
   /**
    * If given, enables a mobile-friendly tooltip next to the label.
    */
@@ -66,6 +67,7 @@ export const ComboBox = <TOption extends Option>({
   onChange,
   label,
   tooltipContent,
+  disabled,
 }: ComboBoxProps<TOption>) => {
   const [query, setQuery] = useState("");
   const { t } = useModifiedTranslation();
@@ -94,9 +96,16 @@ export const ComboBox = <TOption extends Option>({
   });
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const filteredOptions = filterOptionsByQuery(options, query);
+  const isDisabled = disabled || options.length === 0;
   return (
     <>
-      <Combobox id={id} as="div" value={value} onChange={onChange}>
+      <Combobox
+        id={id}
+        as="div"
+        value={value}
+        onChange={onChange}
+        disabled={isDisabled}
+      >
         {label && (
           <div className="flex flex-row gap-x-2">
             <Combobox.Label className="text-sm font-normal">
@@ -117,7 +126,9 @@ export const ComboBox = <TOption extends Option>({
         )}
         <div
           ref={trigger}
-          className="flex gap-2 items-center py-2.5 pr-4 w-full h-10 bg-gray-50 rounded-lg border focus-within:border-2 border-gray-300 focus-within:border-primary-400"
+          className={classNames(
+            "flex gap-2 items-center py-2.5 pr-4 w-full h-10 bg-gray-50 rounded-lg border focus-within:border-2 border-gray-300 focus-within:border-primary-400"
+          )}
         >
           <Combobox.Input
             className="p-2.5 w-full h-10 text-sm text-gray-900 truncate bg-transparent rounded-lg border-0 focus:border-0 focus:ring-0 focus:-m-[1px]"
@@ -126,7 +137,11 @@ export const ComboBox = <TOption extends Option>({
             }
             onChange={(event) => setQuery(event.target.value)}
           />
-          <Combobox.Button className="">
+          <Combobox.Button
+            className={classNames("", {
+              "border-gray-200 text-gray-300 cursor-not-allowed": isDisabled,
+            })}
+          >
             <ChevronDown className="stroke-gray-500 w-[20px] h-[20px]" />
           </Combobox.Button>
         </div>
