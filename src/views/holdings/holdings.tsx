@@ -6,9 +6,14 @@ import {
   SecurityData,
   SecurityTypeDataWithSecurityData,
 } from "api/overview/types";
+import {
+  SwitchModalContent,
+  SwitchModalInitialData,
+} from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import {
   canPortfolioTrade,
+  switchableTag,
   usePermission,
 } from "services/permissions/usePermission";
 import { useModal } from "../../components/Modal/useModal";
@@ -113,6 +118,17 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
   const { t } = useModifiedTranslation();
   const isLargeScreen = useMatchesBreakpoint("sm");
   const canTrade = usePermission(undefined, canPortfolioTrade);
+  const canAnyHoldingSwitch = useMemo(() => {
+    return (
+      data?.contact.analytics.contact.parentPortfolios.some((p) =>
+        p.securityTypes.some((t) =>
+          t.securities.some((s) =>
+            s.security.tagsAsList.includes(switchableTag)
+          )
+        )
+      ) ?? false
+    );
+  }, [data?.contact.analytics.contact.parentPortfolios]);
   const contactData = data?.contact;
   const { data: portfolioData } = useGetPortfolioBasicFieldsById(
     contactData?.analytics?.contact?.parentPortfolios?.[0]?.portfolio?.id
@@ -138,6 +154,12 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
     contentProps: sellModalContentProps,
   } = useModal<SellModalInitialData>();
 
+  const {
+    onOpen: onSwitchModalOpen,
+    modalProps: switchModalProps,
+    contentProps: switchModalContentProps,
+  } = useModal<SwitchModalInitialData>();
+
   if (securityTypes.length === 0) {
     return <NoHoldings />;
   }
@@ -158,9 +180,11 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
             key={group.code}
             currency={currencyCode}
             tradeProps={{
+              canAnyHoldingSwitch,
               canTrade,
               onBuyModalOpen,
               onSellModalOpen,
+              onSwitchModalOpen,
             }}
             {...group}
           />
@@ -174,6 +198,9 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
           </Modal>
           <Modal {...sellModalProps} header={t("tradingModal.sellModalHeader")}>
             <SellModalContent {...sellModalContentProps} />
+          </Modal>
+          <Modal {...switchModalProps} header={t("switchOrderModal.header")}>
+            <SwitchModalContent {...switchModalContentProps} />
           </Modal>
         </>
       )}

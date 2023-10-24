@@ -17,8 +17,8 @@ export const useGetTradeOrder = () => {
   });
 
   const getTradeOrderByRefAndShortname = async (
-    reference: string,
-    shortName: string
+    reference?: string,
+    shortName?: string
   ) => {
     const response = await performQuery({
       variables: {

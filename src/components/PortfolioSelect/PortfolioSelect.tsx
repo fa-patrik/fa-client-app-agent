@@ -7,6 +7,7 @@ export interface PortfolioOption {
   label: string;
   subOptions?: PortfolioOption[];
   details: Portfolio | undefined;
+  error?: string;
 }
 
 interface PortfolioSelectProps {
@@ -15,6 +16,7 @@ interface PortfolioSelectProps {
   portfolioId?: number;
   onChange: (option: PortfolioOption) => void;
   label?: string;
+  error?: string;
 }
 
 export const PortfolioSelect = ({
@@ -23,6 +25,7 @@ export const PortfolioSelect = ({
   portfolioId,
   onChange,
   label,
+  error,
 }: PortfolioSelectProps) => {
   const currentPortfolioOption = getCurrentPortfolioOption(
     portfolioOptions,
@@ -35,6 +38,7 @@ export const PortfolioSelect = ({
       onChange={onChange}
       options={portfolioOptions}
       label={label}
+      error={error}
     />
   );
 };

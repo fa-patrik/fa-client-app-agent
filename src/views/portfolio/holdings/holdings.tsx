@@ -3,11 +3,16 @@ import {
   PortfolioData,
   SecurityTypeDataWithSecurityData,
 } from "api/overview/types";
+import {
+  SwitchModalContent,
+  SwitchModalInitialData,
+} from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import {
   canPortfolioTrade,
+  switchableTag,
   usePermission,
 } from "services/permissions/usePermission";
 import HoldingsExcelExportButton from "views/holdings/components/HoldingsExcelExportButton";
@@ -30,6 +35,10 @@ interface PortfolioHoldingsViewProps {
 export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
   const isLargeScreen = useMatchesBreakpoint("sm");
   const canTrade = usePermission(undefined, canPortfolioTrade);
+  const canAnyHoldingSwitch =
+    data?.securityTypes.some((t) =>
+      t.securities.some((s) => s.security.tagsAsList.includes(switchableTag))
+    ) ?? false;
   const { t } = useModifiedTranslation();
   const {
     Modal,
@@ -43,6 +52,13 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
     modalProps: sellModalProps,
     contentProps: sellModalContentProps,
   } = useModal<SellModalInitialData>();
+
+  const {
+    onOpen: onSwitchModalOpen,
+    modalProps: switchModalProps,
+    contentProps: switchModalContentProps,
+  } = useModal<SwitchModalInitialData>();
+
   const { portfolioId } = useParams();
   const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
   const { data: portfolioData } =
@@ -67,9 +83,11 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
             key={group.code}
             currency={currencyCode}
             tradeProps={{
+              canAnyHoldingSwitch,
               canTrade,
               onBuyModalOpen,
               onSellModalOpen,
+              onSwitchModalOpen,
             }}
             {...group}
           />
@@ -82,6 +100,9 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
           </Modal>
           <Modal {...sellModalProps} header={t("tradingModal.sellModalHeader")}>
             <SellModalContent {...sellModalContentProps} />
+          </Modal>
+          <Modal {...switchModalProps} header={t("switchOrderModal.header")}>
+            <SwitchModalContent {...switchModalContentProps} />
           </Modal>
         </>
       )}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FetchResult, gql, useMutation } from "@apollo/client";
+import { ExecutionMethod } from "api/enums";
 import { TransactionType } from "api/transactions/enums";
 import {
   LocalTradeOrderDetails,
@@ -60,16 +61,6 @@ interface ImportTradeOrderQueryResponse {
 }
 
 export type TradeType = "sell" | "buy" | "redemption" | "subscription";
-
-/**
- * Trade order's execution method.
- */
-export enum ExecutionMethod {
-  NOT_DEFINED = "1",
-  UNITS = "2",
-  GROSS_TRADE_AMOUNT = "3",
-  NET_TRADE_AMOUNT = "4",
-}
 
 export const useTrade = (
   newTradeOrder: Omit<

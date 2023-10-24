@@ -1,29 +1,29 @@
 import { FC, useEffect, useMemo, useState } from "react";
-import { Transaction } from "api/transactions/types";
+import { TradeOrder } from "api/orders/types";
 import { Button } from "components";
 import { Option, Select } from "components/Select/Select";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 /**
- * This component is used to filter the transaction data.
+ * This component is used to filter the order data.
  * @example
  * ```tsx
- * <TransactionsFilter
- *  transactionsData={transactionsData}
+ * <OrdersFilter
+ *  orderData={orderData}
  * onFilter={(filteredData) => setFilteredData(filteredData)}
  * />
  * ```
  */
-type TransactionsFilterProps = {
+type OrdersFilterProps = {
   /**
-   * The transaction data to be filtered
+   * The order data to be filtered
    */
-  transactionsData: Transaction[];
+  orderData: TradeOrder[];
   /**
    * This function will be called when the user applies the filters.
    * @param filteredData The filtered data
    */
-  onFilter: (filteredData: Transaction[]) => void;
+  onFilter: (filteredData: TradeOrder[]) => void;
   /**
    * The filter header
    * @example
@@ -34,8 +34,8 @@ type TransactionsFilterProps = {
   filterHeader?: string;
 };
 
-export const TransactionsFilter: FC<TransactionsFilterProps> = ({
-  transactionsData,
+export const OrdersFilter: FC<OrdersFilterProps> = ({
+  orderData,
   onFilter,
   filterHeader,
 }) => {
@@ -53,52 +53,44 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
     filteredDataBySecurityName,
     filteredDataByTransactionType,
   ] = useMemo(() => {
-    if (!transactionsData) return [];
-    const filteredDataByBoth = transactionsData.filter((transaction) => {
+    if (!orderData) return [];
+    const filteredDataByBoth = orderData.filter((order) => {
       const isTransactionTypeMatch =
         !selectedTransactionTypes.length ||
         selectedTransactionTypes.some(
-          (type) => type.label === transaction.type.typeName
+          (type) => type.label === order.type.typeName
         );
       const isSecurityNameMatch =
         !selectedSecurityNames.length ||
-        selectedSecurityNames.some(
-          (name) => name.label === transaction.securityName
-        );
+        selectedSecurityNames.some((name) => name.label === order.securityName);
 
       return isTransactionTypeMatch && isSecurityNameMatch;
     });
 
-    const filteredDataBySecurityName = transactionsData.filter(
-      (transaction) => {
-        const isSecurityNameMatch =
-          !selectedSecurityNames.length ||
-          selectedSecurityNames.some(
-            (name) => name.label === transaction.securityName
-          );
+    const filteredDataBySecurityName = orderData.filter((order) => {
+      const isSecurityNameMatch =
+        !selectedSecurityNames.length ||
+        selectedSecurityNames.some((name) => name.label === order.securityName);
 
-        return isSecurityNameMatch;
-      }
-    );
+      return isSecurityNameMatch;
+    });
 
-    const filteredDataByTransactionType = transactionsData.filter(
-      (transaction) => {
-        const isTransactionTypeMatch =
-          !selectedTransactionTypes.length ||
-          selectedTransactionTypes.some(
-            (type) => type.label === transaction.type.typeName
-          );
+    const filteredDataByTransactionType = orderData.filter((order) => {
+      const isTransactionTypeMatch =
+        !selectedTransactionTypes.length ||
+        selectedTransactionTypes.some(
+          (type) => type.label === order.type.typeName
+        );
 
-        return isTransactionTypeMatch;
-      }
-    );
+      return isTransactionTypeMatch;
+    });
 
     return [
       filteredDataByBoth,
       filteredDataBySecurityName,
       filteredDataByTransactionType,
     ];
-  }, [transactionsData, selectedTransactionTypes, selectedSecurityNames]);
+  }, [orderData, selectedTransactionTypes, selectedSecurityNames]);
 
   useEffect(() => {
     onFilter(filteredDataByBoth || []);
@@ -106,10 +98,10 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
 
   const { transactionTypes, securityNames } = useMemo(() => {
     const transactionTypes = filteredDataBySecurityName?.map(
-      (transaction) => transaction.type.typeName
+      (order) => order.type.typeName
     );
     const securityNames = filteredDataByTransactionType?.map(
-      (transaction) => transaction.securityName
+      (order) => order.securityName
     );
 
     const columnToOptions = (column: string[] | undefined) =>

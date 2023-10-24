@@ -1,10 +1,10 @@
 import { gql, useMutation, useApolloClient } from "@apollo/client";
+import { OrderStatus } from "api/enums";
 import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { OrderMutationResponse } from "api/orders/types";
 import { TRADE_ORDERS_QUERY } from "api/orders/useGetAllTradeOrders";
 import { useGetTradeOrder } from "api/orders/useGetTradeOrder";
 import { useGetTradeOrderById } from "api/orders/useGetTradeOrderById";
-import { OrderStatus } from "api/transactions/types";
 import { TRANSACTION_DETAILS_QUERY } from "api/transactions/useGetTransactionDetails";
 import { useLocalStorageStore } from "hooks/useLocalStorageStore";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -13,7 +13,6 @@ import {
   isPortfolioAllowedToCancelOrder,
   isTradeOrderCancellable,
 } from "services/permissions/cancelOrder";
-import { ORDER_STATUS } from "./enums";
 
 const CANCEL_ORDER_MUTATION = gql`
   mutation cancelOrder($portfolioShortName: String, $extId: String, $reference: String) {
@@ -22,16 +21,16 @@ const CANCEL_ORDER_MUTATION = gql`
         parentPortfolio: $portfolioShortName, 
         extId: $extId,
         reference: $reference,
-        status:"${ORDER_STATUS.Cancelled}"
+        status:"${OrderStatus.Cancelled}"
       }
     )
   }
 `;
 
 interface CancelOrderQueryProps {
-  orderId: number;
-  reference: string;
-  portfolioId: number;
+  orderId?: number;
+  reference?: string;
+  portfolioId?: number;
 }
 
 interface CancelOrderQueryVariables {
@@ -81,7 +80,7 @@ export const useCancelOrder = (cancelledTradeOrder: CancelOrderQueryProps) => {
   const apolloClient = useApolloClient();
   const { data: orderParentPortfolio } =
     useGetPortfolioBasicFieldsById(portfolioId);
-  const handleOrderCancel = async () => {
+  const handleOrderCancel = async (showToast = true) => {
     try {
       if (!orderParentPortfolio)
         throw new Error(
@@ -159,7 +158,7 @@ export const useCancelOrder = (cancelledTradeOrder: CancelOrderQueryProps) => {
               },
             });
             //update orderStatus in the tradingStorage
-            localVersionOfTradeOrder.orderStatus = ORDER_STATUS.Cancelled;
+            localVersionOfTradeOrder.orderStatus = OrderStatus.Cancelled;
             const filteredOrders = orders.filter(
               (order) => order.reference !== reference
             );
@@ -181,7 +180,7 @@ export const useCancelOrder = (cancelledTradeOrder: CancelOrderQueryProps) => {
               },
             });
             //update its orderStatus in the tradingStorage
-            localVersionOfTradeOrder.orderStatus = ORDER_STATUS.Cancelled;
+            localVersionOfTradeOrder.orderStatus = OrderStatus.Cancelled;
             const filteredOrders = orders.filter(
               (order) => order.reference !== reference
             );
@@ -196,9 +195,10 @@ export const useCancelOrder = (cancelledTradeOrder: CancelOrderQueryProps) => {
           );
       }
 
-      toast.success(t("messages.orderCancelSuccess"), { autoClose: 3000 });
+      if (showToast)
+        toast.success(t("messages.orderCancelSuccess"), { autoClose: 3000 });
     } catch (e: unknown) {
-      toast.error(t("messages.orderCancelFailed"));
+      if (showToast) toast.error(t("messages.orderCancelFailed"));
       await apolloClient.refetchQueries({
         include: [TRADE_ORDERS_QUERY, TRANSACTION_DETAILS_QUERY],
       });

@@ -1,9 +1,10 @@
 import { MutableRefObject, useState, useEffect } from "react";
+import { ExecutionMethod } from "api/enums";
 import { SecurityTypeCode, SecurityTradeType } from "api/holdings/types";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { useGetBuyData } from "api/trading/useGetBuyData";
-import { ExecutionMethod, useTrade } from "api/trading/useTrade";
+import { useTrade } from "api/trading/useTrade";
 import {
   PortfolioSelect,
   DownloadableDocument,

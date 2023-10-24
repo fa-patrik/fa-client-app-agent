@@ -9,7 +9,8 @@ export type Variant =
   | "Red"
   | "Delete"
   | "Transparent"
-  | "Success";
+  | "Success"
+  | "Outlined";
 type Size = "md" | "xs";
 
 interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
@@ -44,6 +45,8 @@ export const Button = ({
           variant === "Delete",
         "bg-white border-2 border-primary-600 hover:bg-primary-100 text-primary-600 fill-primary-600 leading-tight":
           variant === "Secondary",
+        "border-2 border-primary-600 hover:bg-primary-100 text-primary-600 fill-primary-600 leading-tight":
+          variant === "Outlined",
         "bg-gray-700 hover:bg-gray-800 text-white fill-white":
           variant === "Dark",
         "w-full": isFullWidth,

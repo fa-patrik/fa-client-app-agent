@@ -67,6 +67,7 @@ export const canPortfolioOptionTrade = (portfolioOption: PortfolioOption) => {
 };
 
 export const tradableTag = "Tradeable";
+export const switchableTag = "Switchable";
 
 /*
  * Checks if user or portfolio is eligible

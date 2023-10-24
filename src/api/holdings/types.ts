@@ -82,3 +82,15 @@ export interface PortfolioHoldingDetailsQuery {
     };
   };
 }
+
+export interface ContactHoldingDetailsQuery {
+  contact: {
+    id: number;
+    portfolios: {
+      id: number;
+      portfolioReport: {
+        holdingPositions: HoldingPosition[];
+      };
+    }[];
+  };
+}

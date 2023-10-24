@@ -19,7 +19,7 @@ export const InfoCard = ({
 }: InfoCardProps) => (
   <Card onClick={onClick}>
     <div
-      className={classNames("p-2 h-full", {
+      className={classNames("p-2", {
         "bg-primary-50": colorScheme === "blue",
         "bg-red-50": colorScheme === "red",
         "bg-green-50": colorScheme === "green",

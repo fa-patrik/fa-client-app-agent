@@ -16,6 +16,7 @@ export interface SecurityData {
     countryCode: string;
     currencyCode: string;
     tagsAsList: string[];
+    securityTypeCode: string;
   };
   code: string;
   name: string;

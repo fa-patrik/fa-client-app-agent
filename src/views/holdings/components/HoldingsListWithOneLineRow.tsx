@@ -5,7 +5,10 @@ import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate } from "react-router";
 import { getGridColsClass } from "utils/tailwindClasses";
-import { tradableTag } from "../../../services/permissions/usePermission";
+import {
+  switchableTag,
+  tradableTag,
+} from "../../../services/permissions/usePermission";
 import { GroupedHoldings, HoldingProps } from "./HoldingsGroupedByType";
 import { NameWithFlag } from "./NameWithFlag";
 
@@ -15,7 +18,7 @@ export const HoldingsListWithOneLineRow = ({
   currency,
   tradeProps,
 }: GroupedHoldings) => {
-  const { canTrade } = tradeProps;
+  const { canTrade, canAnyHoldingSwitch } = tradeProps;
   const { t } = useModifiedTranslation();
   const navigate = useNavigate();
 
@@ -39,9 +42,11 @@ export const HoldingsListWithOneLineRow = ({
         {headersList.map((header, index) => (
           <div
             key={index}
-            className={
-              index === 0 ? `col-span-2 ${canTrade ? "pl-[102px]" : ""}` : ""
-            }
+            className={classNames("", {
+              "col-span-2": index === 0,
+              "pl-[169px]": index === 0 && canTrade && canAnyHoldingSwitch,
+              "pl-[102px]": index === 0 && canTrade && !canAnyHoldingSwitch,
+            })}
           >
             {header}
           </div>
@@ -79,13 +84,20 @@ const HoldingLg = ({
   tradeProps,
 }: HoldingProps) => {
   const { isinCode, countryCode, tagsAsList } = security;
-  const { canTrade, onBuyModalOpen, onSellModalOpen } = tradeProps;
+  const {
+    canTrade,
+    onBuyModalOpen,
+    onSellModalOpen,
+    onSwitchModalOpen,
+    canAnyHoldingSwitch,
+  } = tradeProps;
   const isTradable = tagsAsList.includes(tradableTag);
   const { t } = useModifiedTranslation();
   //no isin comes back as " "
   const codeToDisplay = isinCode && isinCode !== " " ? isinCode : code ?? "-";
   const isLgVersion = useMatchesBreakpoint("lg");
   const isXlVersion = useMatchesBreakpoint("xl");
+  const canSwitch = security.tagsAsList.includes(switchableTag);
 
   const valueChange = marketValue - tradeAmount;
   return (
@@ -93,7 +105,10 @@ const HoldingLg = ({
       <Grid.Row key={code} className="py-2 border-t" onClick={onClick}>
         <div
           className={classNames("col-span-2", {
-            "grid gap-3 grid-cols-[84px_auto]": canTrade,
+            "grid gap-3 grid-cols-[148px_auto]":
+              canTrade && canAnyHoldingSwitch,
+            "grid gap-3 grid-cols-[84px_auto]":
+              canTrade && !canAnyHoldingSwitch,
           })}
         >
           {canTrade && isTradable && (
@@ -117,6 +132,20 @@ const HoldingLg = ({
               >
                 {t("holdingsPage.sellButton")}
               </Button>
+              {canSwitch && (
+                <Button
+                  size="xs"
+                  variant="Dark"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSwitchModalOpen({
+                      sellSecurityId: security.id,
+                    });
+                  }}
+                >
+                  {t("holdingsPage.switchButton")}
+                </Button>
+              )}
             </div>
           )}
           {canTrade && !isTradable && <div className="text-center grow">-</div>}

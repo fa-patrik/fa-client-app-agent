@@ -5,6 +5,7 @@ import {
 import { Card, GainLoseColoring } from "components";
 import { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
 import { SellModalInitialData } from "components/TradingModals/SellModalContent/SellModalContent";
+import { SwitchModalInitialData } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { HoldingsListWithOneLineRow } from "./HoldingsListWithOneLineRow";
@@ -12,8 +13,10 @@ import { HoldingsListWithTwoLinesRow } from "./HoldingsListWithTwoLinesRow";
 
 interface TradeProps {
   canTrade: boolean;
+  canAnyHoldingSwitch: boolean;
   onBuyModalOpen: (initialData?: BuyModalInitialData) => void;
   onSellModalOpen: (initialData?: SellModalInitialData) => void;
+  onSwitchModalOpen: (initialData?: SwitchModalInitialData) => void;
 }
 
 interface HoldingsGroupedByTypeProps extends SecurityTypeDataWithSecurityData {

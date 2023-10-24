@@ -1,15 +1,12 @@
+import { OrderStatus, TransactionTypeAmountEffect } from "api/enums";
 import { TransactionType } from "api/transactions/enums";
-import { ORDER_STATUS } from "./enums";
-
-type Values<T> = T[keyof T];
-export type OrderStatus = Values<typeof ORDER_STATUS>;
 
 export interface TradeOrderType {
   typeCode: TransactionType;
   typeName: string;
   typeNamesAsMap?: Record<string, string>;
   cashFlowEffect: number;
-  amountEffect: number;
+  amountEffect: TransactionTypeAmountEffect;
 }
 
 export interface TradeOrder {
@@ -25,6 +22,48 @@ export interface TradeOrder {
   reference: string;
   orderStatus: OrderStatus;
   extId?: string;
+  linkedTransaction: TradeOrder | null;
+}
+
+export interface TradeOrderDetails extends TradeOrder {
+  security?: {
+    id: number;
+    isinCode: string;
+    country?: {
+      id: number;
+      code: string;
+    };
+    exchange?: {
+      name: string;
+    };
+  };
+  settlementDate: string;
+  unitPriceInSecurityCurrency: number;
+  costInSecurityCurrency: number;
+  accountFxRate: number;
+  documents: {
+    identifier: string;
+  }[];
+  extInfo: string;
+  marketPlace?: {
+    name: string;
+  };
+  account?: {
+    currency: {
+      accountCurrencyCode: string;
+    };
+  };
+  securityCurrencyCode: string;
+  tradeAmountInAccountCurrency: number;
+  tradeAmountInSecurityCurrency: number;
+  grossPriceInSecurityCurrency: number;
+  grossPriceInAccountCurrency: number;
+  reference: string;
+  linkedTransaction: TradeOrderDetails | null;
+}
+
+export interface TradeOrderDetailsQuery {
+  order: TradeOrderDetails;
 }
 
 export interface AllTradeOrdersQuery {

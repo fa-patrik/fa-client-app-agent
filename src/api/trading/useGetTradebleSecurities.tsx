@@ -55,8 +55,10 @@ const TRADABLE_SECURITIES_QUERY = gql`
         securityCode
       }
       managementFee
+      managementFeePercentage
       minTradeAmount
       fxRate(quoteCurrency: $currency)
+      blockSize
     }
   }
 `;
@@ -90,10 +92,12 @@ export interface TradableSecurity {
     namesAsMap: Record<string, string>;
   };
   managementFee: number;
+  managementFeePercentage: number;
   minTradeAmount: number;
   fxRate: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
+  blockSize: number;
 }
 
 export interface TradableSecuritiesQuery {
@@ -134,7 +138,10 @@ const filterOptionsInitial = {
   type: [emptyOption],
 };
 
-export const useGetTradebleSecurities = (currencyCode?: string) => {
+export const useGetTradebleSecurities = (
+  currencyCode?: string,
+  tags?: string[]
+) => {
   const { selectedContactId } = useGetContractIdData();
   const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
     useGetContactInfo(false, selectedContactId);
@@ -150,16 +157,15 @@ export const useGetTradebleSecurities = (currencyCode?: string) => {
         securityType: filters.type.id,
         name: filters.name,
         currency: currencyCode ?? portfoliosCurrency,
-        tradableTag,
+        tradableTag: tags ? [...tags, tradableTag] : [tradableTag],
       },
       ...getFetchPolicyOptions(
         `useGetTradebleSecurities.${filters.country.id}.${filters.type.id}.${
           filters.name
-        }.${currencyCode ?? portfoliosCurrency}`
+        }.${currencyCode ?? portfoliosCurrency}.${tags}`
       ),
     }
   );
-
 
   //derive the selectable options from the received security data, if any
   const filterOptions =
@@ -193,11 +199,9 @@ export const useGetTradebleSecurities = (currencyCode?: string) => {
           ),
         });
       }
-      
 
       return prev;
     }, filterOptionsInitial) ?? filterOptionsInitial;
-
 
   return {
     loading,
@@ -225,10 +229,10 @@ export const useGetTradebleSecurityLazy = () => {
       //const error = new ApolloError({ errorMessage: "Emulated error" });
       //throw error;
 
-      setError(undefined)
+      setError(undefined);
       return result;
     } catch (err) {
-      if(err instanceof ApolloError) setError(err);
+      if (err instanceof ApolloError) setError(err);
     }
   };
 
@@ -237,4 +241,3 @@ export const useGetTradebleSecurityLazy = () => {
     error,
   };
 };
-

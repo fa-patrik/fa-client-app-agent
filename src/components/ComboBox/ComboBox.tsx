@@ -1,9 +1,10 @@
-import React, { ReactNode, Fragment, useState } from "react";
+import React, { ReactNode, Fragment, useState, useEffect } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { ReactComponent as ChevronDown } from "assets/chevron-down.svg";
 import { ReactComponent as InfoIcon } from "assets/information-circle.svg";
 import classNames from "classnames";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
+import { LoadingIndicator } from "components/LoadingIndicator/LoadingIndicator";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { filterOptionsByQuery } from "utils/filtering";
 import { usePopper } from "../../hooks/usePopper";
@@ -18,13 +19,15 @@ interface ComboBoxProps<T> {
   id?: string;
   value: T | undefined;
   onChange: (option: T) => void;
-  options: T[];
+  options: T[] | undefined;
   label?: string;
   disabled?: boolean;
+  loading?: boolean;
   /**
    * If given, enables a mobile-friendly tooltip next to the label.
    */
   tooltipContent?: string;
+  error?: string;
 }
 
 const renderOptions = (
@@ -68,6 +71,8 @@ export const ComboBox = <TOption extends Option>({
   label,
   tooltipContent,
   disabled,
+  error,
+  loading,
 }: ComboBoxProps<TOption>) => {
   const [query, setQuery] = useState("");
   const { t } = useModifiedTranslation();
@@ -96,9 +101,17 @@ export const ComboBox = <TOption extends Option>({
   });
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const filteredOptions = filterOptionsByQuery(options, query);
-  const isDisabled = disabled || options.length === 0;
+  const isDisabled = disabled || options?.length === 0 || loading;
+
+  //reset query on undefined or an option with empty label
+  useEffect(() => {
+    if (value === undefined || value.label === "") {
+      setQuery("");
+    }
+  }, [value]);
+
   return (
-    <>
+    <div className="flex flex-col">
       <Combobox
         id={id}
         as="div"
@@ -108,7 +121,7 @@ export const ComboBox = <TOption extends Option>({
       >
         {label && (
           <div className="flex flex-row gap-x-2">
-            <Combobox.Label className="text-sm font-normal">
+            <Combobox.Label className={classNames("text-sm font-normal")}>
               {label}
             </Combobox.Label>
             {tooltipContent && (
@@ -127,7 +140,10 @@ export const ComboBox = <TOption extends Option>({
         <div
           ref={trigger}
           className={classNames(
-            "flex gap-2 items-center py-2.5 pr-4 w-full h-10 bg-gray-50 rounded-lg border focus-within:border-2 border-gray-300 focus-within:border-primary-400"
+            "flex gap-2 items-center py-2.5 pr-4 w-full h-10 bg-gray-50 rounded-lg border focus-within:border-2 border-gray-300 focus-within:border-primary-400",
+            {
+              "border-2 border-red-500 focus-within:border-red-500": error,
+            }
           )}
         >
           <Combobox.Input
@@ -142,7 +158,11 @@ export const ComboBox = <TOption extends Option>({
               "border-gray-200 text-gray-300 cursor-not-allowed": isDisabled,
             })}
           >
-            <ChevronDown className="stroke-gray-500 w-[20px] h-[20px]" />
+            {loading ? (
+              <LoadingIndicator size="xs" />
+            ) : (
+              <ChevronDown className="stroke-gray-500 w-[20px] h-[20px]" />
+            )}
           </Combobox.Button>
         </div>
         <div ref={container}>
@@ -154,12 +174,13 @@ export const ComboBox = <TOption extends Option>({
             leaveFrom="transform scale-100 opacity-100"
             leaveTo="transform scale-95 opacity-0"
           >
-            <Combobox.Options className="overflow-y-auto py-1 max-h-96 text-base list-none bg-white rounded divide-y divide-gray-100 shadow">
+            <Combobox.Options className="overflow-y-auto py-1 max-h-60 text-base list-none bg-white rounded divide-y divide-gray-100 shadow">
               {renderOptions(filteredOptions, value)}
             </Combobox.Options>
           </Transition>
         </div>
       </Combobox>
+      {error && <small className="mt-2 text-red-500">{error}</small>}
       {tooltipContent && (
         <ConfirmDialog
           title={t("component.select.dialogTitle")}
@@ -169,6 +190,6 @@ export const ComboBox = <TOption extends Option>({
           setIsOpen={setConfirmDialogOpen}
         />
       )}
-    </>
+    </div>
   );
 };
