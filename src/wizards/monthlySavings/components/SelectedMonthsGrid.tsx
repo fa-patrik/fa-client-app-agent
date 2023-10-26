@@ -33,7 +33,7 @@ export const SelectMonthsGrid = ({
 
   return (
     <SelectGrid
-      id={id ?? "selectedMonthsGrid"}
+      id={id}
       disabled={disabled}
       onSelect={onSelect}
       narrow={narrow}

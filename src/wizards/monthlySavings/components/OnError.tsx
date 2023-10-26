@@ -2,11 +2,16 @@ import { Button, ErrorMessage, LoadingIndicator } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 interface OnErrorProps {
+  id?: string;
   refetchData: () => Promise<unknown>;
   networkStatus: number;
 }
 
-const OnError: React.FC<OnErrorProps> = ({ refetchData, networkStatus }) => {
+const OnError: React.FC<OnErrorProps> = ({
+  refetchData,
+  networkStatus,
+  id,
+}) => {
   const { t } = useModifiedTranslation();
 
   return (
@@ -16,7 +21,7 @@ const OnError: React.FC<OnErrorProps> = ({ refetchData, networkStatus }) => {
           <LoadingIndicator center size="sm" />
         ) : (
           <Button
-            id="refetchDataButton"
+            id={id ? `${id}-refetchDataButton` : undefined}
             onClick={async () => {
               await refetchData();
             }}

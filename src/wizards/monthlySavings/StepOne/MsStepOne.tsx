@@ -143,7 +143,10 @@ const MsStepOne = () => {
         <div>
           <ExclamationIcon className=" mr-2 stroke-amber-600" />
         </div>
-        <span className="text-xs text-amber-600" id="noAccountWarningMessage">
+        <span
+          className="text-xs text-amber-600"
+          id="monthlySavingsWizard-noAccountWarningMessage"
+        >
           {t("wizards.monthlySavings.stepOne.noAccountWarningMessage")}
         </span>
       </div>
@@ -153,7 +156,7 @@ const MsStepOne = () => {
   const AccountBadge = ({ accountNr }: { accountNr: string }) => {
     return (
       <div className="p-2 w-full text-sm text-gray-900">
-        <span id="debitAccount">{accountNr}</span>
+        <span id="monthlySavingsWizard-debitAccountNumber">{accountNr}</span>
       </div>
     );
   };
@@ -162,6 +165,7 @@ const MsStepOne = () => {
   if (errorGettingData)
     return (
       <OnError
+        id="monthlySavingsWizard-error"
         refetchData={async () => {
           await refetchPortfolioData();
         }}
@@ -174,7 +178,7 @@ const MsStepOne = () => {
       <Card>
         <div className="flex flex-col gap-y-3 p-6">
           <PortfolioSelect
-            id="portfolioSelect"
+            id="monthlySavingsWizard-portfolioSelector"
             label={t("wizards.monthlySavings.stepOne.portfolioInputLabel")}
             onChange={setSelectedPortfolioOption}
             portfolioId={selectedPortfolioOption.id}
@@ -198,7 +202,7 @@ const MsStepOne = () => {
 
           <hr />
           <Input
-            id="amountInput"
+            id="monthlySavingsWizard-amountInput"
             error={inputError}
             type="number"
             value={inputValue}
@@ -211,7 +215,10 @@ const MsStepOne = () => {
             placeholder={`${minAmount || 100}`}
           />
           {minAmount && (
-            <p className="text-xs font-thin" id="minAmountDisclaimer">
+            <p
+              className="text-xs font-thin"
+              id="monthlySavingsWizard-minAmountDisclaimer"
+            >
               {t("wizards.monthlySavings.stepOne.minAmountDisclaimer") + " "}
               {minAmount.toLocaleString(i18n.language, {
                 style: "currency",

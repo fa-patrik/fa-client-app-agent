@@ -34,7 +34,6 @@ const DistributeInfo = ({
 
   return (
     <div
-      id="distibuteInfo"
       className={classNames(
         "flex flex-row gap-x-4 items-center py-4 px-6 rounded-lg h-14 max-w-sm",
         {
@@ -47,7 +46,10 @@ const DistributeInfo = ({
       {diffAmount > 0 ? (
         <>
           <GlassHourIcon />
-          <p className="text-xs">
+          <p
+            className="text-xs"
+            id="monthlyInvestmentsWizard-distributeMoreDisclaimer"
+          >
             {t("wizards.monthlyInvestments.stepThree.distributeMore", {
               diffAmountFormatted,
               diffPercentageFormatted,
@@ -57,14 +59,20 @@ const DistributeInfo = ({
       ) : diffAmount < 0 ? (
         <>
           <CloseIcon />
-          <p className="text-xs">
+          <p
+            className="text-xs"
+            id="monthlyInvestmentsWizard-distributeLessDisclaimer"
+          >
             {t("wizards.monthlyInvestments.stepThree.distributeLess")}
           </p>
         </>
       ) : (
         <>
           <CheckIcon />
-          <p className="text-xs">
+          <p
+            className="text-xs"
+            id="monthlyInvestmentsWizard-distributeOkDisclaimer"
+          >
             {t("wizards.monthlyInvestments.stepThree.distributeOk")}
           </p>
         </>

@@ -11,6 +11,7 @@ interface PaginationProps {
   nextDisabled: boolean;
   pageCount: number;
   currentPageindex: number;
+  id?: string;
 }
 
 const Pagination = ({
@@ -23,6 +24,7 @@ const Pagination = ({
   setPage,
   pageCount,
   currentPageindex,
+  id,
 }: PaginationProps) => {
   const pages = [];
   for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
@@ -34,6 +36,7 @@ const Pagination = ({
     <nav aria-label="Page navigation example" className="py-1">
       <ul className="inline-flex gap-x-5 items-center -space-x-px">
         <Button
+          id={!id ? undefined : `${id}-backPageButton`}
           disabled={backDisabled}
           variant="Transparent"
           size="xs"
@@ -43,7 +46,12 @@ const Pagination = ({
             { "opacity-50 pointer-events-none": backDisabled }
           )}
         >
-          <span className="sr-only">{backLabel}</span>
+          <span
+            className="sr-only"
+            id={!id ? undefined : `${id}-backPageButtonLabel`}
+          >
+            {backLabel}
+          </span>
           <svg
             aria-hidden="true"
             className="w-5 h-5"
@@ -74,6 +82,7 @@ const Pagination = ({
             );
           })}
         <Button
+          id={!id ? undefined : `${id}-nextPageButton`}
           disabled={nextDisabled}
           variant="Transparent"
           size="xs"
@@ -83,7 +92,12 @@ const Pagination = ({
             { "opacity-50 pointer-events-none": nextDisabled }
           )}
         >
-          <span className="sr-only">{nextLabel}</span>
+          <span
+            className="sr-only"
+            id={!id ? undefined : `${id}-nextPageButtonLabel`}
+          >
+            {nextLabel}
+          </span>
           <svg
             aria-hidden="true"
             className="w-5 h-5"

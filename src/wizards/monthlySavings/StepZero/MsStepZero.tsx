@@ -149,7 +149,7 @@ const MsStepZero = () => {
 
   const AddNewPlanButton = () => (
     <Button
-      id="addNewPlanButton"
+      id="monthlySavingsWizard-addNewPlanButton"
       isLoading={loadingPortfolioData}
       disabled={loadingPortfolioData}
       LeftIcon={PlusIcon}
@@ -180,6 +180,7 @@ const MsStepZero = () => {
   if (errorGettingPortfolioData)
     return (
       <OnError
+        id="monthlySavingsWizard-error"
         refetchData={refetchPortfolioData}
         networkStatus={networkStatus}
       />
@@ -219,7 +220,10 @@ const MsStepZero = () => {
                 <div className="flex flex-col gap-y-2 p-3 text-sm">
                   <div className="flex justify-between">
                     <span>{t("wizards.monthlySavings.stepZero.amount")}</span>
-                    <span className="font-bold" id={`${portfolio.id}-amount`}>
+                    <span
+                      className="font-bold"
+                      id={`monthlySavingsWizard-amountToSave-${portfolio.id}`}
+                    >
                       {amount?.toLocaleString(i18n.language, {
                         style: "currency",
                         currency: portfolio.currency.securityCode,
@@ -228,12 +232,15 @@ const MsStepZero = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span>{t("wizards.monthlySavings.stepZero.account")}</span>
-                    <span className="font-bold" id={`${portfolio.id}-account`}>
+                    <span
+                      className="font-bold"
+                      id={`monthlySavingsWizard-account-${portfolio.id}`}
+                    >
                       {debitAccount ? (
                         debitAccount?.number
                       ) : (
                         <NoAccountWarning
-                          id={`${portfolio.id}-noAccountWarning`}
+                          id={`monthlySavingsWizard-noAccountWarning-${portfolio.id}`}
                         />
                       )}
                     </span>
@@ -243,7 +250,10 @@ const MsStepZero = () => {
                       {t("wizards.monthlySavings.stepZero.paymentDate")}
                     </span>
                     {!!date && (
-                      <span className="font-bold" id={`${portfolio.id}-date`}>
+                      <span
+                        className="font-bold"
+                        id={`monthlySavingsWizard-paymentDate-${portfolio.id}`}
+                      >
                         {t(
                           "wizards.monthlySavings.stepZero.selectedPaymentDate",
                           {
@@ -260,7 +270,7 @@ const MsStepZero = () => {
                     )}
                   </p>
                   <SelectMonthsGrid
-                    id={`${portfolio.id}-selectedMonthsGrid`}
+                    id={`monthlySavingsWizard-selectedMonthsGrid-${portfolio.id}`}
                     disabled
                     selected={selectedMonthsAsMap}
                     narrow
@@ -268,7 +278,7 @@ const MsStepZero = () => {
                   <hr className="border-1" />
                   <div className="flex justify-between">
                     <Button
-                      id={`${portfolio.id}-deleteButton`}
+                      id={`monthlySavingsWizard-deletePlanButton-${portfolio.id}`}
                       disabled={!canPortfolioMonthlySave(portfolio)}
                       variant="Delete"
                       onClick={() => {
@@ -283,7 +293,7 @@ const MsStepZero = () => {
                     <Button
                       disabled={!canPortfolioMonthlySave(portfolio)}
                       onClick={() => editMonthlySavingsProfile(portfolio)}
-                      id={`${portfolio.id}-editButton`}
+                      id={`monthlySavingsWizard-editPlanButton-${portfolio.id}`}
                       variant="Secondary"
                     >
                       {t("wizards.monthlySavings.stepZero.editPlanButtonLabel")}
@@ -294,6 +304,7 @@ const MsStepZero = () => {
             );
           })}
           <ConfirmDialog
+            id="monthlySavingsWizard-deletePlanDialog"
             title={t("wizards.monthlySavings.stepZero.deleteDialogTitle")}
             description={t(
               "wizards.monthlySavings.stepZero.deleteDialogDescription"
@@ -322,7 +333,10 @@ const MsStepZero = () => {
       <div className="flex w-full h-full">
         <div className="m-auto max-w-sm">
           <Badge colorScheme="blue">
-            <p className="p-4 m-auto text-lg font-normal">
+            <p
+              className="p-4 m-auto text-lg font-normal"
+              id="monthlySavingsWizard-noPlansInfo"
+            >
               {t("wizards.monthlySavings.stepZero.noPlansLabel")}
             </p>
           </Badge>

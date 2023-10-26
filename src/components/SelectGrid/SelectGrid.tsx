@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import classNames from "classnames";
 
 interface SelectGridProps {
-  id: string;
+  id?: string;
   selectBoxes: { id: string; label: string }[];
   onSelect?: Dispatch<SetStateAction<Record<string, boolean>>>;
   selected: Record<string, boolean>;
@@ -29,7 +29,7 @@ const SelectGrid = ({
       {selectBoxes.map((selectBox) => (
         <li key={selectBox.id}>
           <label
-            id={`${id}-label-${selectBox.id}`}
+            id={id ? `${id}-label-${selectBox.id}` : undefined}
             className={classNames(
               "flex gap-x-2 items-center py-1 px-2 text-xs select-none truncate ",
               {
@@ -44,7 +44,7 @@ const SelectGrid = ({
             )}
           >
             <input
-              id={`${id}-input-${selectBox.id}`}
+              id={id ? `${id}-input-${selectBox.id}` : undefined}
               disabled={disabled}
               onChange={(event) =>
                 onSelect &&

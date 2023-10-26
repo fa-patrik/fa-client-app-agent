@@ -33,6 +33,7 @@ interface TradableSecuritiesTableProps {
    * These securities should be selected when the table renders initially.
    */
   preSelectedRows?: TradableSecurity[];
+  id?: string;
 }
 
 enum ColumnSortedState {
@@ -56,6 +57,7 @@ const TradableSecurityTable = ({
   data: securities,
   onRowSelect,
   preSelectedRows,
+  id,
 }: TradableSecuritiesTableProps) => {
   const [columnSortedState, setColumnSortedState] = useState<
     Record<string, string>
@@ -369,6 +371,7 @@ const TradableSecurityTable = ({
             () =>
               columnsAdjustedByViewPort.map((column) => (
                 <th
+                  id={!id ? undefined : `${id}-header-${column.id}`}
                   onClick={
                     column.enableSorting && column.sortFn
                       ? () => column.sortFn(columnSortedState)
@@ -404,7 +407,7 @@ const TradableSecurityTable = ({
                 </th>
               )),
 
-            [columnsAdjustedByViewPort, columnSortedState]
+            [columnsAdjustedByViewPort, id, columnSortedState]
           )}
         </tr>
       </thead>
@@ -428,12 +431,14 @@ const TradableSecurityTable = ({
                   };
                 })
               }
+              id={!id ? undefined : `${id}-row-${security.id}`}
               key={security.id}
               className="border-b hover:cursor-pointer"
             >
               <td className="p-1">
                 <div className="flex justify-center items-center">
                   <Input
+                    id={!id ? undefined : `${id}-checkBox-${security.id}`}
                     label=""
                     type="checkbox"
                     readOnly
@@ -444,6 +449,7 @@ const TradableSecurityTable = ({
               <td className="p-1">
                 {/** Security data */}
                 <SecurityInfoCell
+                  id={!id ? undefined : `${id}-info-${security.id}`}
                   securityId={security.id}
                   countryCode={security.country?.code}
                   name={security.name}
@@ -461,6 +467,11 @@ const TradableSecurityTable = ({
                     <LoadingIndicator size="xs" />
                   ) : (
                     <span
+                      id={
+                        !id
+                          ? undefined
+                          : `${id}-performanceOneYear-${security.id}`
+                      }
                       className={classNames({
                         "text-red-500": performanceOneYear < 0,
                         "text-green-400": performanceOneYear > 0,
@@ -479,6 +490,7 @@ const TradableSecurityTable = ({
                 {/** Security value change */}
                 <div className="flex justify-end">
                   <span
+                    id={!id ? undefined : `${id}-managementFee-${security.id}`}
                     className={classNames({
                       "text-red-500": security.managementFee < 0,
                       "text-green-400": security.managementFee > 0,
@@ -499,7 +511,13 @@ const TradableSecurityTable = ({
                   <td className="p-1">
                     {/** Security min trade amount */}
                     <div className="flex justify-end">
-                      <span>
+                      <span
+                        id={
+                          !id
+                            ? undefined
+                            : `${id}-minTradeAmount-${security.id}`
+                        }
+                      >
                         {security.minTradeAmount.toLocaleString(i18n.language, {
                           style: "currency",
                           currency: security.currency.securityCode,
@@ -513,7 +531,15 @@ const TradableSecurityTable = ({
                       className="flex justify-center"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <DownloadableDocument label="" url={security.url} />
+                      <DownloadableDocument
+                        id={
+                          !id
+                            ? undefined
+                            : `${id}-documentButton-${security.id}`
+                        }
+                        label=""
+                        url={security.url}
+                      />
                     </div>
                   </td>
                   <td className="p-1">
@@ -524,13 +550,20 @@ const TradableSecurityTable = ({
                     >
                       <Link
                         onClick={(e) => e.stopPropagation()}
-                        id={`seurityInfoCell-link-${security.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-lg font-bold text-primary-500 underline"
                         to={getPathToHolding(security.id)}
                       >
-                        <Button size="xs" variant="Secondary">
+                        <Button
+                          size="xs"
+                          variant="Secondary"
+                          id={
+                            !id
+                              ? undefined
+                              : `${id}-detailsButton-${security.id}`
+                          }
+                        >
                           {t(
                             "component.tradableSecuritiesTable.detailsButtonLabel"
                           )}
@@ -567,6 +600,7 @@ const TradableSecurityTable = ({
           <td colSpan={1000}>
             <div className="flex justify-between items-center px-2 bg-white">
               <Button
+                id={!id ? undefined : `${id}-clearSelectionButton`}
                 disabled={!Object.values(selectedRows).some((v) => v.selected)}
                 size="xs"
                 onClick={() =>
@@ -584,6 +618,7 @@ const TradableSecurityTable = ({
                 {t("component.tradableSecuritiesTable.deselectAllButtonLabel")}
               </Button>
               <Pagination
+                id={!id ? undefined : `${id}-pagination`}
                 currentPageindex={pageIndex}
                 pageCount={pageCount}
                 setPage={setPageIndex}

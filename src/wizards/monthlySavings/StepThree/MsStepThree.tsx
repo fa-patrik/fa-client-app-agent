@@ -103,7 +103,7 @@ const MsStepThree = () => {
     <div className="p-2 m-auto w-full max-w-md">
       <Card>
         <div className="flex flex-col gap-y-3 p-6">
-          <p className="mx-auto text-lg font-semibold" id="summaryTitle">
+          <p className="mx-auto text-lg font-semibold">
             {t("wizards.monthlySavings.stepThree.summaryTitle")}
           </p>
           <ul className="flex flex-col gap-y-2 w-full text-sm">
@@ -113,7 +113,7 @@ const MsStepThree = () => {
               </p>
               <p
                 className="w-1/2 text-sm font-semibold text-right"
-                id="portfolioName"
+                id="monthlySavingsWizard-portfolioName"
               >
                 {selectedPortfolioOption?.details?.name}
               </p>
@@ -124,7 +124,7 @@ const MsStepThree = () => {
               </p>
               <p
                 className="w-1/2 text-sm font-semibold text-right"
-                id="accountNumber"
+                id="monthlySavingsWizard-debitAccountNumber"
               >
                 {selectedAccount?.number}
               </p>
@@ -132,7 +132,10 @@ const MsStepThree = () => {
             <hr className="w-full border-1" />
             <li className="flex justify-between">
               <p>{t("wizards.monthlySavings.stepThree.amount")}</p>
-              <p id="amount" className="text-sm font-semibold">
+              <p
+                className="text-sm font-semibold"
+                id="monthlySavingsWizard-amountToSave"
+              >
                 {amountToSave?.toLocaleString(i18n.language, {
                   style: "currency",
                   currency:
@@ -143,7 +146,10 @@ const MsStepThree = () => {
             </li>
             <li className="flex justify-between">
               <p>{t("wizards.monthlySavings.stepThree.yearlyAmount")}</p>
-              <p id="yearlyAmount" className="text-sm font-semibold">
+              <p
+                className="text-sm font-semibold"
+                id="monthlySavingsWizard-yearlyAmountToSave"
+              >
                 {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
                   style: "currency",
                   currency:
@@ -160,7 +166,10 @@ const MsStepThree = () => {
               <p className="w-1/2">
                 {t("wizards.monthlySavings.stepThree.paymentDate")}
               </p>
-              <p id={"date"} className="w-1/2 text-sm font-semibold text-right">
+              <p
+                id="monthlySavingsWizard-paymentDate"
+                className="w-1/2 text-sm font-semibold text-right"
+              >
                 {t("wizards.monthlySavings.stepThree.selectedPaymentDate", {
                   date: numbro(Number(selectedDate)).format("0o"),
                 })}
@@ -170,10 +179,16 @@ const MsStepThree = () => {
           <p className="text-sm">
             {t("wizards.monthlySavings.stepThree.monthsSelectedGridTitle")}
           </p>
-          <SelectMonthsGrid disabled selected={selectedMonths} narrow />
+          <SelectMonthsGrid
+            id="monthlySavingsWizard-selectableMonths"
+            disabled
+            selected={selectedMonths}
+            narrow
+          />
         </div>
       </Card>
       <ConfirmDialog
+        id="monthlySavingsWizard-confirmPlanDialog"
         title={t("wizards.monthlySavings.stepThree.confirmDialogTitle")}
         description={t(
           "wizards.monthlySavings.stepThree.confirmDialogDescription"

@@ -79,6 +79,7 @@ const getMenuItems = (
         label: i18n.t("userMenu.logout"),
         action: menuActions.logout,
         Icon: LogoutIcon,
+        id: "userMenu-logoutButton",
       },
     ];
   }
@@ -91,6 +92,7 @@ const getMenuItems = (
       },
       Icon: UserIcon,
       selected: contactData?.id?.toString() === selectedContactId?.toString(),
+      id: `userMenu-selectedContact-${selectedContactId}`,
     },
     "separator",
     ...(Array.isArray(representees)
@@ -104,6 +106,7 @@ const getMenuItems = (
             });
           },
           Icon: UserIcon,
+          id: `userMenu-representeeButton-${representee.id}`,
           selected:
             representee?.id?.toString() === selectedContactId?.toString(),
         }))
@@ -115,6 +118,7 @@ const getMenuItems = (
             label: i18n.t("userMenu.deposit"),
             action: menuActions.deposit,
             Icon: DepositIcon,
+            id: "userMenu-depositButton",
           },
         ]
       : []),
@@ -125,6 +129,7 @@ const getMenuItems = (
             label: i18n.t("userMenu.withdraw"),
             action: menuActions.withdraw,
             Icon: WithdrawalIcon,
+            id: "userMenu-withdrawButton",
           },
         ]
       : []),
@@ -132,9 +137,10 @@ const getMenuItems = (
     ...(canMonthlyInvest
       ? [
           {
-            label: i18n.t("Monthly investments"),
+            label: i18n.t("userMenu.monthlyInvestments"),
             action: menuActions.monthlyInvestments,
             Icon: CalendarIcon,
+            id: "userMenu-monthlyInvestmentsButton",
           },
         ]
       : []),
@@ -142,9 +148,10 @@ const getMenuItems = (
     ...(canMonthlySave
       ? [
           {
-            label: i18n.t("Monthly savings"),
+            label: i18n.t("userMenu.monthlySavings"),
             action: menuActions.monthlySavings,
             Icon: EuroIcon,
+            id: "userMenu-monthlySavingButton",
           },
         ]
       : []),
@@ -155,11 +162,13 @@ const getMenuItems = (
         menuActions.process(`/form/${process.key}`, {
           state: { header: process.name },
         }),
+      id: `userMenu-processButton-${process.name}`,
       Icon: ProcessIcon,
     })),
     "separator",
     {
       label: i18n.t("userMenu.logout"),
+      id: "userMenu-logoutButton",
       action: menuActions.logout,
       Icon: LogoutIcon,
     },
@@ -256,7 +265,7 @@ export const UserMenu = () => {
               typeof item === "string" ? (
                 <Separator key={index} />
               ) : (
-                <MenuItem key={index} {...item} />
+                <MenuItem key={index} {...item} id={item?.id} />
               )
             )}
           </Menu.Items>
@@ -340,6 +349,7 @@ interface MenuItemProps {
   action: () => void;
   Icon: ReactElementType;
   selected?: boolean;
+  id?: string;
 }
 
 const Separator = () => {
@@ -350,11 +360,18 @@ const Separator = () => {
   );
 };
 
-const MenuItem = ({ action, label, Icon, selected = false }: MenuItemProps) => {
+const MenuItem = ({
+  action,
+  label,
+  Icon,
+  selected = false,
+  id,
+}: MenuItemProps) => {
   return (
     <Menu.Item>
       {({ active }) => (
         <button
+          data-testid={id}
           className={classNames(
             `p-2 pr-4 flex gap-2 items-center w-full text-base font-medium text-gray-900`,
             {
@@ -367,7 +384,7 @@ const MenuItem = ({ action, label, Icon, selected = false }: MenuItemProps) => {
           <div className="items-center pr-2 w-full text-left grow">
             <span>{label}</span>
           </div>
-          <span className="">{selected && <CheckIcon />}</span>
+          <span>{selected && <CheckIcon />}</span>
         </button>
       )}
     </Menu.Item>

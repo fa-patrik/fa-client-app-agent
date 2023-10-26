@@ -9,6 +9,15 @@
       "dialogTitle": "Information",
       "dialogCloseButtonLabel": "Close"
     },
+    "wizard": {
+      "finishButtonLabel": "Finish",
+      "nextButtonLabel": "Next",
+      "backButtonLabel": "Back",
+      "exitDialogTitle": "Are you sure that you want to exit?",
+      "exitDialogDescription": "You will lose your progress.",
+      "exitDialogConfirmButtonLable": "Exit",
+      "exitDialogCancelButtonLabel": "Cancel"
+    },
     "tradableSecuritiesTable": {
       "securityColumnHeader": "Security",
       "1yrTwrColumnHeader": "1 year %",
@@ -28,7 +37,9 @@
   "userMenu": {
     "logout": "Logout",
     "deposit": "Deposit money",
-    "withdraw": "Withdraw money"
+    "withdraw": "Withdraw money",
+    "monthlySavings": "Monthly savings",
+    "monthlyInvestments": "Monthly investments"
   },
   "navTab": {
     "totalInvestments": "Total investments",
@@ -381,13 +392,6 @@
     "resetFilter": "Clear filter"
   },
   "wizards": {
-    "backButtonLabel": "Back",
-    "nextButtonLabel": "Next",
-    "finishButtonLabel": "Finish",
-    "exitWizardDialogTitle": "Are you sure that you want to exit?",
-    "exitWizardDialogDescription": "You will lose your progress.",
-    "exitWizardDialogConfirmButtonLabel": "Exit",
-    "exitWizardDialogConfirmCancelLabel": "Cancel",
     "monthlyInvestments": {
       "title": "Monthly investments",
       "stepZero": {

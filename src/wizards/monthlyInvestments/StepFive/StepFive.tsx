@@ -131,13 +131,19 @@ const StepFive = () => {
                 <p className="w-1/2">
                   {t("wizards.monthlyInvestments.stepFive.portfolio")}
                 </p>
-                <p className="w-1/2 font-semibold text-right">
+                <p
+                  id="monthlyInvestmentsWizard-portfolioName"
+                  className="w-1/2 font-semibold text-right"
+                >
                   {selectedPortfolioOption?.details?.name}
                 </p>
               </li>
               <li className="flex justify-between">
                 <p>{t("wizards.monthlyInvestments.stepFive.amount")}</p>
-                <p id="amountToInvest" className="font-semibold">
+                <p
+                  id="monthlyInvestmentsWizard-amountToInvest"
+                  className="font-semibold"
+                >
                   {amountToInvest?.toLocaleString(i18n.language, {
                     style: "currency",
                     currency:
@@ -148,7 +154,10 @@ const StepFive = () => {
               </li>
               <li className="flex justify-between">
                 <p>{t("wizards.monthlyInvestments.stepFive.yearlyAmount")}</p>
-                <p id="yearlyAmount" className="font-semibold">
+                <p
+                  id="monthlyInvestmentsWizard-yearlyAmountToInvest"
+                  className="font-semibold"
+                >
                   {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
                     style: "currency",
                     currency:
@@ -161,6 +170,7 @@ const StepFive = () => {
             <hr className="w-full border-1" />
             <div className="overflow-x-auto w-full">
               <SecurityDistributionTable
+                id="monthlyInvestmentsWizard-securityDistributionTable"
                 totalAmount={monthlyInvestmentsWizardState.amountToInvest || 0}
                 securities={selectedSecuritiesSortedByAmountDistribution}
                 amountDistribution={amountDistribution}
@@ -177,7 +187,7 @@ const StepFive = () => {
                   {t("wizards.monthlyInvestments.stepFive.buyDate")}
                 </p>
                 <p
-                  id={`selectedDate`}
+                  id="monthlyInvestmentsWizard-buyDate"
                   className="w-1/2 font-semibold text-right"
                 >
                   {t("wizards.monthlyInvestments.stepFive.selectedBuyDate", {
@@ -190,13 +200,19 @@ const StepFive = () => {
               {t("wizards.monthlyInvestments.stepFive.monthsSelectedGridTitle")}
             </p>
             <div className="w-full">
-              <SelectMonthsGrid disabled selected={selectedMonths} narrow />
+              <SelectMonthsGrid
+                id="monthlyInvestmentsWizard-selectableMonths"
+                disabled
+                selected={selectedMonths}
+                narrow
+              />
             </div>
           </div>
         </Card>
       </div>
 
       <ConfirmDialog
+        id="monthlyInvestmentsWizard-confirmPlanDialog"
         title={
           monthlyInvestmentsWizardState.isEditing
             ? t("wizards.monthlyInvestments.stepFive.confirmEditDialogTitle")

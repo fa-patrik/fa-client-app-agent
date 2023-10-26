@@ -3,6 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { ReactComponent as CloseIcon } from "assets/close.svg";
 import { Button } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
+import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 
 interface WizardStep {
@@ -31,6 +32,7 @@ export const Wizard: React.FC<WizardProps> = ({
 }) => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { wizardData, setWizardData } = useWizard();
+  const { t } = useModifiedTranslation();
 
   const nextStep = () => {
     if (wizardData.step < steps.length - 1)
@@ -153,7 +155,7 @@ export const Wizard: React.FC<WizardProps> = ({
                       onClick={prevStep}
                       className="rounded-lg border-2 border-transparent focus:border-primary-500 cursor-pointer outline-none hover:bg-primary-500/10"
                     >
-                      Back
+                      {t("component.wizard.backButtonLabel")}
                     </Button>
                     <div className="font-normal" id="wizardStepCount">
                       {wizardData.step + (firstStepIsAnIntro ? 0 : 1)}/
@@ -167,7 +169,7 @@ export const Wizard: React.FC<WizardProps> = ({
                         onClick={handleFinish}
                         className="rounded-lg border-2 border-transparent focus:border-primary-500 cursor-pointer outline-none hover:bg-primary-500/10"
                       >
-                        Finish
+                        {t("component.wizard.finishButtonLabel")}
                       </Button>
                     ) : (
                       <Button
@@ -180,17 +182,24 @@ export const Wizard: React.FC<WizardProps> = ({
                         onClick={nextStep}
                         className="rounded-lg border-2 border-transparent focus:border-primary-500 cursor-pointer outline-none hover:bg-primary-500/10"
                       >
-                        Next
+                        {t("component.wizard.nextButtonLabel")}
                       </Button>
                     )}
                   </div>
                 )}
               </Dialog.Panel>
               <ConfirmDialog
-                title="Are you sure that you want to exit?"
-                description={hideStepper ? "" : "You will lose your progress."}
-                confirmButtonText="Exit"
-                cancelButtonText="Cancel"
+                id="wizard-exitDialog"
+                title={t("component.wizard.exitDialogTitle")}
+                description={
+                  hideStepper ? "" : t("component.wizard.exitDialogDescription")
+                }
+                confirmButtonText={t(
+                  "component.wizard.exitDialogConfirmButtonLable"
+                )}
+                cancelButtonText={t(
+                  "component.wizard.exitDialogCancelButtonLabel"
+                )}
                 isOpen={confirmDialogOpen}
                 onConfirm={exitWizard}
                 setIsOpen={setConfirmDialogOpen}

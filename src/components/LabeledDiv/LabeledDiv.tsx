@@ -16,9 +16,9 @@ export const LabeledDiv = ({
   <div
     className={classNames(className, "leading-7")}
     {...rest}
-    id={`${id}-label`}
+    id={id ? `${id}-label` : undefined}
   >
-    <div className="text-sm font-normal" id={`${id}-content`}>
+    <div className="text-sm font-normal" id={id ? `${id}-content` : undefined}>
       {label}
     </div>
     {children}

@@ -80,11 +80,11 @@ const StepFour = () => {
 
   return (
     <div className="p-2 m-auto w-full max-w-md">
-      <Card id="savingsScheduleCard">
+      <Card>
         <div className="flex flex-col gap-y-4 items-center py-6">
           <Input
+            id="monthlyInvestmentsWizard-buyDateInput"
             error={inputError}
-            id="buyDateInput"
             label={t("wizards.monthlyInvestments.stepFour.buyDateInputLabel")}
             tooltipContent={t(
               "wizards.monthlyInvestments.stepFour.buyDateDialogDescription"
@@ -94,12 +94,13 @@ const StepFour = () => {
           />
 
           <SelectMonthsGrid
+            id="monthlyInvestmentsWizard-selectableMonths"
             selected={selectedMonths}
             onSelect={setSelectedMonths}
           />
 
           <LabeledDiv
-            id="totalInvestmentsPerYear"
+            id="monthlyInvestmentsWizard-totalInvestmentsPerYear"
             className="font-semibold"
             label={t(
               "wizards.monthlyInvestments.stepFour.totalInvestmentsPerYear"

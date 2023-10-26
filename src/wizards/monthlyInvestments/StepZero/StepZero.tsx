@@ -184,6 +184,7 @@ const StepZero = () => {
 
   const AddNewPlanButton = ({ disabled }: { disabled?: boolean }) => (
     <Button
+      id="monthlyInvestmentsWizard-addnewPlanButton"
       isLoading={loadingPortfolioData}
       disabled={disabled || loadingPortfolioData}
       LeftIcon={PlusIcon}
@@ -221,6 +222,7 @@ const StepZero = () => {
             <LoadingIndicator center size="sm" />
           ) : (
             <Button
+              id="monthlyInvestmentsWizard-refetchPortfolioDataButton"
               onClick={() => refetchPortfolioData()}
               variant="Transparent"
             >
@@ -242,7 +244,7 @@ const StepZero = () => {
     return (
       <>
         <div className="flex overflow-y-auto flex-col gap-y-4 p-4 m-auto w-full max-w-xl">
-          {portfoliosWithMonthlyInvestments.map((portfolio) => {
+          {portfoliosWithMonthlyInvestments.map((portfolio, index) => {
             const monthlyInvestmentsProfile = portfolio.monthlyInvestments;
             const securitiesInProfile: TradableSecurity[] = [];
             const amountDistribution: Record<TradableSecurity["id"], number> =
@@ -296,7 +298,10 @@ const StepZero = () => {
                       <span>
                         {t("wizards.monthlyInvestments.stepZero.amount")}
                       </span>
-                      <span className="font-bold">
+                      <span
+                        className="font-bold"
+                        id={`monthlyInvestmentsWizard-amountToInvest-${index}`}
+                      >
                         {totalAmount.toLocaleString(i18n.language, {
                           style: "currency",
                           currency: portfolio.currency.securityCode,
@@ -306,7 +311,7 @@ const StepZero = () => {
                     <hr className="border-1" />
                     <div className="overflow-x-auto w-full">
                       <SecurityDistributionTable
-                        id={`securityDistributionTable-${portfolio.id}`}
+                        id={`monthlyInvestmentsWizard-securityDistributionTable-${index}`}
                         amountDistribution={amountDistribution}
                         totalAmount={totalAmount}
                         securities={securitiesSortedByAmountDistribution}
@@ -316,6 +321,7 @@ const StepZero = () => {
                     <hr className="border-1" />
                     <div className="flex justify-between">
                       <Button
+                        id={`monthlyInvestmentsWizard-deletePlanButton-${index}`}
                         disabled={!canPortfolioMonthlyInvest(portfolio)}
                         variant="Delete"
                         onClick={() => {
@@ -330,7 +336,7 @@ const StepZero = () => {
                       <Button
                         disabled={!canPortfolioMonthlyInvest(portfolio)}
                         onClick={() => editMonthlyInvestmentsProfile(portfolio)}
-                        id={`editButton-${portfolio.id}`}
+                        id={`monthlyInvestmentsWizard-editPlanButton-${index}`}
                         variant="Secondary"
                       >
                         {t(
@@ -347,6 +353,7 @@ const StepZero = () => {
           })}
 
           <ConfirmDialog
+            id="monthlyInvestmentsWizard-deletePlanDialog"
             title={t("wizards.monthlyInvestments.stepZero.deleteDialogTitle")}
             description={t(
               "wizards.monthlyInvestments.stepZero.deleteDialogDescription"
@@ -375,7 +382,10 @@ const StepZero = () => {
       <div className="flex w-full h-full">
         <div className="m-auto max-w-xs">
           <Badge colorScheme="blue">
-            <p className="p-4 m-auto text-lg font-normal">
+            <p
+              className="p-4 m-auto text-lg font-normal"
+              id="monthlyInvestmentsWizard-noPlansLabel"
+            >
               {t("wizards.monthlyInvestments.stepZero.noPlansLabel")}
             </p>
           </Badge>

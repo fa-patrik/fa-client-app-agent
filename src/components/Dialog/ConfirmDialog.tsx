@@ -4,6 +4,7 @@ import { Button } from "components";
 import { Variant } from "components/Button/Button";
 
 interface ConfirmDialogProps {
+  id?: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onConfirm?: () => void;
@@ -17,6 +18,7 @@ interface ConfirmDialogProps {
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+  id,
   isOpen,
   setIsOpen,
   onConfirm,
@@ -35,7 +37,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog
-        id="confirmDialog"
+        id={id ?? "confirmDialog"}
         as="div"
         className="overflow-y-auto fixed inset-0 z-40"
         onClose={() => setIsOpen(false)}
@@ -68,11 +70,11 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             leaveTo="opacity-0 scale-95"
           >
             <div
-              id="confirmDialogContent"
+              id={!id ? "confirmDialogContent" : `${id}-content`}
               className="inline-block overflow-hidden p-4 my-8 w-full max-w-md text-left align-middle bg-white rounded-2xl shadow-xl transition-all transform"
             >
               <Dialog.Title
-                id="confirmDialogTitle"
+                id={!id ? "confirmDialogTitle" : `${id}-title`}
                 as="h3"
                 className="text-lg font-medium leading-6 text-gray-900"
               >
@@ -80,7 +82,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               </Dialog.Title>
               <div className="mt-2">
                 <p
-                  id="confirmDialogDescription"
+                  id={!id ? "confirmDialogDescription" : `${id}-description`}
                   className="text-sm text-gray-500"
                 >
                   {description}
@@ -91,7 +93,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 {cancelButtonText && (
                   <Button
                     disabled={loading}
-                    id="confirmDialogCancelButton"
+                    id={
+                      !id ? "confirmDialogCancelButton" : `${id}-cancelButton`
+                    }
                     variant="Secondary"
                     onClick={() => setIsOpen(false)}
                   >
@@ -103,7 +107,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                     variant={confirmButtonVariant || "Primary"}
                     disabled={loading || disabled}
                     isLoading={loading}
-                    id="confirmDialogConfirmButton"
+                    id={
+                      !id ? "confirmDialogConfirmButton" : `${id}-confirmButton`
+                    }
                     onClick={handleConfirm}
                   >
                     {confirmButtonText}

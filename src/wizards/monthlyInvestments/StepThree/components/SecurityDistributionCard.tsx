@@ -21,6 +21,7 @@ interface SecurityDistributionCardProps {
   percentageInputs: Record<string, number | undefined>;
   amountInputs: Record<string, number | undefined>;
   portfolioCurrencyCode: string | undefined;
+  id?: string;
 }
 
 const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
@@ -30,6 +31,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
   percentageInputs,
   amountInputs,
   portfolioCurrencyCode,
+  id,
 }) => {
   const { i18n } = useModifiedTranslation();
 
@@ -70,12 +72,14 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
   };
 
   const { t } = useModifiedTranslation();
+
   return (
-    <li id={`securityDistributionCard-${security.id}`}>
+    <li>
       <Card>
         <div className="flex flex-col gap-y-2 p-2">
           <div className="flex justify-between items-start">
             <SecurityInfoCell
+              id={id ?? undefined}
               securityId={security.id}
               countryCode={security.country?.code}
               name={security.name}
@@ -87,6 +91,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
 
             <div className="flex gap-x-4 text-red-500">
               <Button
+                id={!id ? undefined : `${id}-removeButton`}
                 onClick={() => handleRemove(security)}
                 variant="Transparent"
                 size="xs"
@@ -99,6 +104,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
           <div className="flex flex-col gap-y-1 items-end">
             <div className="flex flex-row gap-x-2">
               <Input
+                id={!id ? undefined : `${id}-percentageInput`}
                 label={t(
                   "wizards.monthlyInvestments.stepThree.percentageInputLabel"
                 )}
@@ -127,6 +133,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                 }
               />
               <Input
+                id={!id ? undefined : `${id}-amountInput`}
                 label={t(
                   "wizards.monthlyInvestments.stepThree.amountInputLabel",
                   {
@@ -156,7 +163,10 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                 }
               />
             </div>
-            <p className="text-sm font-thin">
+            <p
+              id={!id ? undefined : `${id}-minTradeAmountDisclaimer`}
+              className="text-sm font-thin"
+            >
               {t("wizards.monthlyInvestments.stepThree.minDisclaimer", {
                 amount: security.minTradeAmount.toLocaleString(i18n.language, {
                   style: "currency",

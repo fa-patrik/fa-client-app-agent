@@ -27,6 +27,7 @@ const InputPlain = (
   return (
     <>
       <label
+        id={!id ? undefined : `${id}-label`}
         className={classNames("text-sm font-normal", {
           "text-red-700": !!error,
         })}
@@ -36,7 +37,7 @@ const InputPlain = (
           {tooltipContent && (
             <>
               <div
-                id={`${id}-toolTipDialogButton`}
+                id={!id ? undefined : `${id}-tooltipDialogButton`}
                 className="cursor-help"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -66,10 +67,18 @@ const InputPlain = (
           {...inputAttributes}
         />
 
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        {error && (
+          <p
+            id={!id ? undefined : `${id}-error`}
+            className="mt-1 text-sm text-red-600"
+          >
+            {error}
+          </p>
+        )}
       </label>
       {tooltipContent && (
         <ConfirmDialog
+          id={!id ? undefined : `${id}-tooltipDialog`}
           title={t("component.select.dialogTitle")}
           description={tooltipContent}
           cancelButtonText={t("component.select.dialogCloseButtonLabel")}

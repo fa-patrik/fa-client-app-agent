@@ -148,7 +148,7 @@ const StepTwo = () => {
           <div className="grid md:flex grid-cols-2 gap-1 md:gap-x-2 md:items-end p-2 text-normal">
             <div className="col-span-2 md:w-48">
               <Input
-                id="nameIsinInput"
+                id="monthlyInvestmentsWizard-securityNameIsinInput"
                 className=" text-black rounded-lg"
                 label={t(
                   "wizards.monthlyInvestments.stepTwo.securityNameIsinInputLabel"
@@ -163,7 +163,7 @@ const StepTwo = () => {
               <>
                 <div className="z-50 md:w-48">
                   <ComboBox
-                    id="countrySelection"
+                    id="monthlyInvestmentsWizard-countrySelector"
                     value={selectedCountry}
                     onChange={(country) => setSelectedCountry(country)}
                     options={filterOptions.country}
@@ -174,7 +174,7 @@ const StepTwo = () => {
                 </div>
                 <div className="z-50 md:w-48">
                   <ComboBox
-                    id="typeSelection"
+                    id="monthlyInvestmentsWizard-typeSelector"
                     value={selectedType}
                     onChange={(type) => setSelectedType(type)}
                     options={filterOptions.type}
@@ -188,7 +188,7 @@ const StepTwo = () => {
           </div>
           <div className="flex col-span-2 gap-3 p-3">
             <button
-              id="showFiltersButton"
+              id="monthlyInvestmentsWizard-showFiltersButton"
               className="text-sm text-primary-500 underline"
               onClick={() => setDisplayCategoryFilter(!displayCategoryFilter)}
             >
@@ -203,7 +203,7 @@ const StepTwo = () => {
             </button>
             {selectedCountry?.id || selectedType?.id || inputNameOrIsin ? (
               <button
-                id="clearFiltersButton"
+                id="monthlyInvestmentsWizard-clearFiltersButton"
                 className="text-sm text-primary-500 underline"
                 onClick={() => {
                   setSelectedCountry(filters.country);
@@ -228,6 +228,7 @@ const StepTwo = () => {
           successComponentProps={{
             onRowSelect: setSelectedSecurities,
             preSelectedRows: selectedSecurities,
+            id: "monthlyInvestmentsWizard-securityTable",
           }}
         />
       </div>

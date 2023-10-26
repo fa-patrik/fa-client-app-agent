@@ -321,10 +321,13 @@ const StepThree = () => {
   return (
     <div className="flex overflow-y-auto flex-col gap-y-4 p-4 m-auto w-full max-w-xl h-full">
       <div>
-        <Card id="investmentDistributionCard">
+        <Card>
           <div className="flex flex-col gap-y-3 p-6">
             <div className="flex gap-x-2 justify-between">
-              <LabeledDiv id="investmentAmount" label="Investment amount">
+              <LabeledDiv
+                id="monthlyInvestmentsWizard-investmentAmount"
+                label="Investment amount"
+              >
                 {wizardData?.data?.amountToInvest?.toLocaleString(
                   i18n.language,
                   {
@@ -334,7 +337,7 @@ const StepThree = () => {
                 )}
               </LabeledDiv>
               <Button
-                id="distributeEvenlyButton"
+                id="monthlyInvestmentsWizard-distributeEvenlyButton"
                 onClick={distributeEvenly}
                 variant="Secondary"
                 size="xs"
@@ -359,6 +362,7 @@ const StepThree = () => {
       {monthlyInvestmentsWizardState.selectedSecurities && (
         <div className="h-full min-h-[300px]">
           <SecurityDistributionList
+            id="monthlyInvestmentsWizard-securityDistributionList"
             selectedSecurities={
               monthlyInvestmentsWizardState.selectedSecurities
             }
@@ -372,6 +376,7 @@ const StepThree = () => {
       )}
 
       <ConfirmDialog
+        id="monthlyInvestmentsWizard-removeSecurityDialog"
         title={t("wizards.monthlyInvestments.stepThree.removeDialogTitle")}
         description={t(
           "wizards.monthlyInvestments.stepThree.removeDialogDescription"

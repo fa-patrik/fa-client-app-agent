@@ -84,7 +84,7 @@ const MsStepTwo = () => {
         <div className="flex flex-col gap-y-4 items-center py-6">
           <Input
             error={inputError}
-            id="dateInput"
+            id="monthlySavingsWizard-paymentDateInput"
             label={t("wizards.monthlySavings.stepTwo.paymentDateInputLabel")}
             tooltipContent={t(
               "wizards.monthlySavings.stepTwo.paymentDateDialogDescription"
@@ -94,12 +94,13 @@ const MsStepTwo = () => {
           />
 
           <SelectMonthsGrid
+            id="monthlySavingsWizard-selectableMonths"
             selected={selectedMonths}
             onSelect={setSelectedMonths}
           />
 
           <LabeledDiv
-            id="totalSavingsPerYear"
+            id="monthlySavingsWizard-totalSavingsPerYear"
             className="font-semibold"
             label={t("wizards.monthlySavings.stepTwo.totalSavingsPerYear")}
           >

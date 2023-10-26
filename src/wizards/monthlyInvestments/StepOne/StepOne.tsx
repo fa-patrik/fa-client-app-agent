@@ -161,6 +161,7 @@ const StepOne = () => {
             <LoadingIndicator center size="sm" />
           ) : (
             <Button
+              id="monthlyInvestmentsWizard-refetchPortfolioDataButton"
               onClick={async () => {
                 await refetch();
               }}
@@ -181,6 +182,7 @@ const StepOne = () => {
         <Card>
           <div className="flex flex-col gap-y-3 p-6">
             <ComboBox
+              id="monthlyInvestmentsWizard-portfolioSelector"
               disabled={monthlyInvestmentsWizardState.isEditing ?? false}
               label={t(
                 "wizards.monthlyInvestments.stepOne.portfolioInputLabel"
@@ -190,6 +192,7 @@ const StepOne = () => {
               value={selectedPortfolioOption}
             />
             <Input
+              id="monthlyInvestmentsWizard-amountInput"
               error={inputError}
               type="number"
               value={inputValue}
@@ -202,7 +205,10 @@ const StepOne = () => {
               placeholder={`${minAmount || 100}`}
             />
             {minAmount && (
-              <p className="text-sm font-thin">
+              <p
+                id="monthlyInvestmentsWizard-minAmountDisclaimer"
+                className="text-sm font-thin"
+              >
                 {t("wizards.monthlyInvestments.stepOne.minAmountDisclaimer", {
                   amount: minAmount,
                   currency: portfolioCurrencyCode,
