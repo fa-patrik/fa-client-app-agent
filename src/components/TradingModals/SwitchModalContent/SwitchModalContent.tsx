@@ -3,7 +3,7 @@ import { ExecutionMethod, OrderStatus } from "api/enums";
 import { HoldingPosition } from "api/holdings/types";
 import { useGetContactHoldingsFromPfReport } from "api/holdings/useGetContactHoldingsFromPfReport";
 import { useGetPortfolioHoldingsFromPfReport } from "api/holdings/useGetPortfolioHoldingsFromPfReport";
-import { useGetSecurityFx } from "api/trading/useGetSecurityFx";
+/* import { useGetSecurityFx } from "api/trading/useGetSecurityFx"; */
 import {
   TradableSecurity,
   useGetTradebleSecurities,
@@ -95,7 +95,7 @@ export const SwitchModalContent = ({
   const {
     loading: loadingHoldings,
     data: portfolioHoldings,
-    refetch: refetchPortfolioPositions,
+    /* refetch: refetchPortfolioPositions, */
   } = useGetPortfolioHoldingsFromPfReport(portfolioId);
 
   //poll fresh position data from server every 5min
@@ -229,24 +229,24 @@ export const SwitchModalContent = ({
       : undefined;
 
   //get fx rate security to buy --> portfolio currency
-  const { data: buySecurityFxData, loading: loadingSecurityFx } =
+  /* const { data: buySecurityFxData, loading: loadingSecurityFx } =
     useGetSecurityFx(
       selectedBuySecurity?.currency.securityCode,
       portfolioCurrency
-    );
+    ); */
 
-  const buySecurityToPortfolioFx = buySecurityFxData?.[0]?.fxRate;
+  /* const buySecurityToPortfolioFx = buySecurityFxData?.[0]?.fxRate; */
 
-  const buySecurityMinTradeAmountInPfCurrency =
+  /* const buySecurityMinTradeAmountInPfCurrency =
     buySecurityToPortfolioFx &&
     selectedBuySecurity?.minTradeAmount &&
-    selectedBuySecurity?.minTradeAmount * buySecurityToPortfolioFx;
+    selectedBuySecurity?.minTradeAmount * buySecurityToPortfolioFx; */
 
-  //there is no min trade amount or the sell trade amount is larger
+  /* //there is no min trade amount or the sell trade amount is larger
   const isBuyMinTradeAmountSatisfied =
     !selectedBuySecurity?.minTradeAmount ||
     (approximateSellTradeAmountInPfCurrency || 0) >=
-      (buySecurityMinTradeAmountInPfCurrency || 0);
+      (buySecurityMinTradeAmountInPfCurrency || 0); */
 
   const getTradeAmountTooltip = () => {
     try {
@@ -370,7 +370,8 @@ export const SwitchModalContent = ({
 
   //const loadingRefetchOfHoldings = networkStatus === 4;
 
-  const loading = loadingHoldings || loadingSecurities || loadingSecurityFx;
+  const loading =
+    loadingHoldings || loadingSecurities; /* || loadingSecurityFx */
 
   const portfolioSelectError =
     !loading && !switchablePositionsAsOptions?.length;
@@ -396,7 +397,7 @@ export const SwitchModalContent = ({
 
   const inputShareErrorBool = inputShareError.length > 0;
 
-  const minTradeAmountError = !loading && !isBuyMinTradeAmountSatisfied;
+  /* const minTradeAmountError = !loading && !isBuyMinTradeAmountSatisfied; */
   const tradeAmountError = !loading && !approximateSellTradeAmountInPfCurrency;
   const unitsToSellError = !loading && !unitsToSell;
 
@@ -409,7 +410,7 @@ export const SwitchModalContent = ({
       sellPositionSelectError ||
       buySecuritySelectError ||
       inputShareErrorBool ||
-      minTradeAmountError ||
+      /* minTradeAmountError || */
       tradeAmountError ||
       unitsToSellError
       ? true
@@ -522,7 +523,7 @@ export const SwitchModalContent = ({
                 </div>
               </>
             )}
-            {selectedBuySecurity.minTradeAmount > 0 && (
+            {/*  {selectedBuySecurity.minTradeAmount > 0 && (
               <div className="text-gray-700 w-fit">
                 <span>{t("switchOrderModal.minTradeAmount")} </span>
                 <span id="switchOrderModal-minTradeAmount">
@@ -532,7 +533,7 @@ export const SwitchModalContent = ({
                   })}
                 </span>
               </div>
-            )}
+            )} */}
           </div>
         )}
       </div>
@@ -543,7 +544,7 @@ export const SwitchModalContent = ({
             <LoadingIndicator size="md" center />
           ) : (
             <LabeledDivFlex
-              error={
+              /*  error={
                 minTradeAmountError
                   ? t("switchOrderModal.minTradeAmountError", {
                       minTradeAmount: t("numberWithCurrency", {
@@ -552,7 +553,7 @@ export const SwitchModalContent = ({
                       }),
                     })
                   : ""
-              }
+              } */
               alignText="center"
               tooltipContent={tradeAmountTooltip}
               id="switchOrderModal-tradeAmount"
@@ -576,7 +577,7 @@ export const SwitchModalContent = ({
           //update portfolio position figures after new orders
           //nice thing to have in the future when
           //the api returns the updated tradable units
-          await refetchPortfolioPositions();
+          //await refetchPortfolioPositions();
           onClose();
         }}
         disabled={submitting || disableConfirm()}
