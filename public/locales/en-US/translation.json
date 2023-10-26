@@ -290,8 +290,8 @@
     "queryErrorWarning": "Server error occurred",
     "tradeAmountButtonLabel": "Trade amount",
     "unitsButtonLabel": "Units",
-    "createTradeSuccess": "Order created.",
-    "createTradeError": "Failed to create order."
+    "createTradeSuccess": "Order created",
+    "createTradeError": "Failed to create order"
   },
   "cancelOrderModal": {
     "header": "Cancelling order",
@@ -381,8 +381,8 @@
     "monthlySavingsDeletedSuccess": "Deleted monthly savings.",
     "monthlySavingsNewSuccess": "Created new monthly savings.",
     "monthlySavingsFailed": "Error while setting monthly savings.",
-    "createSwitchSuccess": "Order created.",
-    "createSwitchFailed": "Failed to create order."
+    "createSwitchSuccess": "Order created",
+    "createSwitchFailed": "Failed to create order"
   },
   "transactionFilter": {
     "transactionType": "Type",
