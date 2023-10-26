@@ -290,8 +290,8 @@
     "queryErrorWarning": "Server error occurred",
     "tradeAmountButtonLabel": "Trade amount",
     "unitsButtonLabel": "Units",
-    "createTradeSuccess": "Your order was created successfully",
-    "createTradeError": "Something went wrong"
+    "createTradeSuccess": "Order created.",
+    "createTradeError": "Failed to create order."
   },
   "cancelOrderModal": {
     "header": "Cancelling order",
@@ -330,9 +330,7 @@
     "kiid": "KIID",
     "confirmButtonLabel": "Confirm",
     "confirmDisclaimer": "Past performance is not a guide to future performance. When investing in financial instruments, the investor may lose all or part of the investments.",
-    "queryErrorWarning": "Server error occurred",
-    "createSwitchSuccess": "Your order was created successfully",
-    "createSwitchError": "Something went wrong"
+    "queryErrorWarning": "Server error occurred"
   },
   "contactPage": {
     "cardHeader": "Contact us"
@@ -383,8 +381,8 @@
     "monthlySavingsDeletedSuccess": "Deleted monthly savings.",
     "monthlySavingsNewSuccess": "Created new monthly savings.",
     "monthlySavingsFailed": "Error while setting monthly savings.",
-    "createSwitchSuccess": "Created switch.",
-    "createSwitchFailed": "Failed to create switch."
+    "createSwitchSuccess": "Order created.",
+    "createSwitchFailed": "Failed to create order."
   },
   "transactionFilter": {
     "transactionType": "Type",
