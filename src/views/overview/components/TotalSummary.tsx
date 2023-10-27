@@ -3,9 +3,9 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { DataCard } from "./DataCard";
 
 interface TotalSummaryProps {
-  currencyCode: string;
-  marketValue: number;
-  tradeAmount: number;
+  currencyCode: string | undefined;
+  marketValue: number | undefined;
+  tradeAmount: number | undefined;
 }
 
 export const TotalSummary = ({
@@ -14,29 +14,38 @@ export const TotalSummary = ({
   tradeAmount,
 }: TotalSummaryProps) => {
   const { t } = useModifiedTranslation();
-  const valueChange = marketValue - tradeAmount;
+  const valueChange =
+    marketValue !== undefined && tradeAmount !== undefined
+      ? marketValue - tradeAmount
+      : undefined;
   return (
     <>
       <DataCard
         colorScheme="black"
         label={t("portfolioSummary.currentMarketValue")}
-        value={t("numberWithCurrencyRounded", {
-          value: marketValue,
-          currency: currencyCode,
-        })}
+        value={
+          marketValue !== undefined
+            ? t("numberWithCurrencyRounded", {
+                value: marketValue,
+                currency: currencyCode,
+              })
+            : "-"
+        }
       />
       <DataCard
         colorScheme="black"
         label={t("portfolioSummary.unrealizedProfits")}
         value={
           <GainLoseColoring value={valueChange}>
-            {t("numberWithCurrencyRounded", {
-              value: valueChange,
-              currency: currencyCode,
-              formatParams: {
-                value: { signDisplay: "always" },
-              },
-            })}
+            {valueChange !== undefined
+              ? t("numberWithCurrencyRounded", {
+                  value: valueChange,
+                  currency: currencyCode,
+                  formatParams: {
+                    value: { signDisplay: "always" },
+                  },
+                })
+              : "-"}
           </GainLoseColoring>
         }
       />

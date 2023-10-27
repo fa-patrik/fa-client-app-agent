@@ -94,3 +94,70 @@ export interface ContactHoldingDetailsQuery {
     }[];
   };
 }
+
+export interface AnalyticsSecurityTypeData {
+  code: string;
+  name: string;
+  firstAnalysis: {
+    marketValue: number;
+    tradeAmount: number;
+    shareOfTotal: number;
+  } | null;
+}
+
+export interface AnalyticsSecurityData {
+  security: {
+    id: number;
+    isinCode: string;
+    countryCode: string;
+    currencyCode: string;
+    tagsAsList: string[];
+    securityTypeCode: string;
+  };
+  code: string;
+  name: string;
+  firstAnalysis: {
+    marketValue: number;
+    tradeAmount: number;
+    amount: number;
+    accruedInterest: number;
+    purchaseTradeAmount: number;
+  } | null;
+}
+
+export interface AnalyticsSecurityTypeDataWithSecurityData
+  extends AnalyticsSecurityTypeData {
+  securities: AnalyticsSecurityData[];
+}
+
+export interface ContactHoldingsFromAnalyticsQuery {
+  contact: {
+    id: number;
+    analytics: {
+      contact: {
+        firstAnalysis: {
+          marketValue: number;
+          tradeAmount: number;
+        } | null;
+        securityTypes: AnalyticsSecurityTypeDataWithSecurityData[];
+      };
+    };
+  };
+}
+
+export interface AnalyticsPortfolioHoldingsData {
+  portfolio: {
+    id: number;
+  };
+  firstAnalysis: {
+    marketValue: number;
+    tradeAmount: number;
+  } | null;
+  securityTypes: AnalyticsSecurityTypeData[];
+}
+
+export interface PortfolioHoldingsFromAnalyticsQuery {
+  analytics: {
+    grouppedAnalytics: AnalyticsPortfolioHoldingsData;
+  };
+}

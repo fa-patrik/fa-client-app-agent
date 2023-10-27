@@ -18,10 +18,12 @@ export const LineChartHeader = ({
       <div>{t("holdingsPage.price")}</div>
       <div className="text-right">
         <div className="text-base font-bold">
-          {t("number", {
-            value: price,
-            currency,
-          })}
+          {price !== undefined
+            ? t("number", {
+                value: price,
+                currency,
+              })
+            : "-"}
         </div>
         <div className="text-sm font-medium text-gray-500">
           {date && t("date", { date: dateFromYYYYMMDD(date) })}

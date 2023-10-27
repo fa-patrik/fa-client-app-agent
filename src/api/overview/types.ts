@@ -5,8 +5,7 @@ export interface SecurityTypeData {
     marketValue: number;
     tradeAmount: number;
     shareOfTotal: number;
-    [key: string]: number;
-  };
+  } | null;
 }
 
 export interface SecurityData {
@@ -26,8 +25,7 @@ export interface SecurityData {
     amount: number;
     accruedInterest: number;
     purchaseTradeAmount: number;
-    [key: string]: number;
-  };
+  } | null;
 }
 
 export interface SecurityTypeDataWithSecurityData extends SecurityTypeData {
@@ -41,8 +39,7 @@ export interface PortfolioData {
   firstAnalysis: {
     marketValue: number;
     tradeAmount: number;
-    [key: string]: number;
-  };
+  } | null;
   securityTypes: SecurityTypeDataWithSecurityData[];
 }
 
@@ -54,8 +51,7 @@ export interface ContactOverviewQuery {
         firstAnalysis: {
           marketValue: number;
           tradeAmount: number;
-          [key: string]: number;
-        };
+        } | null;
         parentPortfolios: PortfolioData[];
       };
     };

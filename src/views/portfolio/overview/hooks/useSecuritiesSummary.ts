@@ -29,9 +29,11 @@ const getTopSecurities = (positions: SecurityData[] | undefined) => {
   return [...positions]
     .sort(function (a, b) {
       const valueChangeA =
-        a.firstAnalysis.marketValue - a.firstAnalysis.tradeAmount;
+        (a?.firstAnalysis?.marketValue || 0) -
+        (a?.firstAnalysis?.tradeAmount || 0);
       const valueChangeB =
-        b.firstAnalysis.marketValue - b.firstAnalysis.tradeAmount;
+        (b?.firstAnalysis?.marketValue || 0) -
+        (b?.firstAnalysis?.tradeAmount || 0);
       return valueChangeB - valueChangeA;
     })
     .slice(0, 3);
@@ -42,9 +44,11 @@ const getWorstSecurities = (positions: SecurityData[] | undefined) => {
   return [...positions]
     .sort(function (a, b) {
       const valueChangeA =
-        a.firstAnalysis.marketValue - a.firstAnalysis.tradeAmount;
+        (a?.firstAnalysis?.marketValue || 0) -
+        (a?.firstAnalysis?.tradeAmount || 0);
       const valueChangeB =
-        b.firstAnalysis.marketValue - b.firstAnalysis.tradeAmount;
+        (b?.firstAnalysis?.marketValue || 0) -
+        (b?.firstAnalysis?.tradeAmount || 0);
       return valueChangeA - valueChangeB;
     })
     .slice(0, 3);

@@ -71,9 +71,7 @@ const Overview = ({ data }: OverviewProps) => {
   const { t } = useModifiedTranslation();
   const { data: portfolioData } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
-
-  //assumption that all portfolios have same currency, so we use currency from first one
-  const currencyCode = portfolioData?.currency?.securityCode || "";
+  const currencyCode = portfolioData?.currency?.securityCode;
 
   const { topSecurities, worstSecurities } = useSecuritiesSummary(
     data?.securityTypes

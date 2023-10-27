@@ -77,7 +77,7 @@ const HoldingLg = ({
   name,
   code,
   security,
-  firstAnalysis: { marketValue, tradeAmount, amount, purchaseTradeAmount },
+  firstAnalysis,
   onClick,
   showFlag,
   currency,
@@ -99,7 +99,11 @@ const HoldingLg = ({
   const isXlVersion = useMatchesBreakpoint("xl");
   const canSwitch = security.tagsAsList.includes(switchableTag);
 
-  const valueChange = marketValue - tradeAmount;
+  const valueChange =
+    firstAnalysis?.marketValue !== undefined &&
+    firstAnalysis?.tradeAmount !== undefined
+      ? firstAnalysis.marketValue - firstAnalysis.tradeAmount
+      : undefined;
   return (
     <>
       <Grid.Row key={code} className="py-2 border-t" onClick={onClick}>
@@ -158,29 +162,40 @@ const HoldingLg = ({
         <div className="text-xs md:text-base font-light">{codeToDisplay}</div>
         {isLgVersion && (
           <div className="text-base font-medium">
-            {t("number", { value: amount })}
+            {firstAnalysis?.amount !== undefined
+              ? t("number", { value: firstAnalysis?.amount })
+              : "-"}
           </div>
         )}
         {isXlVersion && (
           <div className="text-base font-medium">
-            {t("numberWithCurrency", {
-              value: purchaseTradeAmount,
-              currency: currency,
-            })}
+            {firstAnalysis?.purchaseTradeAmount !== undefined
+              ? t("numberWithCurrency", {
+                  value: firstAnalysis?.purchaseTradeAmount,
+                  currency: currency,
+                })
+              : "-"}
           </div>
         )}
         <div className="text-base font-medium">
-          {t("numberWithCurrency", { value: marketValue, currency })}
+          {firstAnalysis?.marketValue !== undefined
+            ? t("numberWithCurrency", {
+                value: firstAnalysis?.marketValue,
+                currency,
+              })
+            : "-"}
         </div>
         <div className="text-xs md:text-base font-medium">
           <GainLoseColoring value={valueChange}>
-            {t("numberWithCurrency", {
-              value: valueChange,
-              currency,
-              formatParams: {
-                value: { signDisplay: "always" },
-              },
-            })}
+            {valueChange !== undefined
+              ? t("numberWithCurrency", {
+                  value: valueChange,
+                  currency,
+                  formatParams: {
+                    value: { signDisplay: "always" },
+                  },
+                })
+              : "-"}
           </GainLoseColoring>
         </div>
       </Grid.Row>

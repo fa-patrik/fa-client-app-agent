@@ -3,7 +3,7 @@ import classNames from "classnames";
 
 interface GainLoseColoringProps {
   children: ReactNode;
-  value: number;
+  value?: number;
 }
 
 export const GainLoseColoring = ({
@@ -12,8 +12,8 @@ export const GainLoseColoring = ({
 }: GainLoseColoringProps) => (
   <div
     className={classNames({
-      "text-red-500": value < 0,
-      "text-green-400": value > 0,
+      "text-red-500": value !== undefined && value < 0,
+      "text-green-400": value !== undefined && value > 0,
     })}
   >
     {children}

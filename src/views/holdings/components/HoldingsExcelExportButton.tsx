@@ -8,7 +8,7 @@ import { useParams } from "react-router-dom";
 
 interface HoldingsExcelExportButtonProps {
   holdingsByType: SecurityTypeDataWithSecurityData[];
-  currencyCode: string;
+  currencyCode: string | undefined;
 }
 
 const HoldingsExcelExportButton = ({
@@ -55,21 +55,26 @@ const HoldingsExcelExportButton = ({
       const code = currHolding.code;
       const codeToDisplay =
         isinCode && isinCode !== " " ? isinCode : code ?? "-";
+      const valueChange =
+        currHolding.firstAnalysis?.marketValue &&
+        currHolding.firstAnalysis?.tradeAmount
+          ? currHolding.firstAnalysis?.marketValue -
+            currHolding.firstAnalysis?.tradeAmount
+          : undefined;
       const row = [
         currHolding.name,
         codeToDisplay,
-        currHolding.firstAnalysis.amount,
-        currHolding.firstAnalysis.purchaseTradeAmount,
-        currHolding.firstAnalysis.marketValue,
-        currHolding.firstAnalysis.marketValue -
-          currHolding.firstAnalysis.tradeAmount,
+        currHolding.firstAnalysis?.amount,
+        currHolding.firstAnalysis?.purchaseTradeAmount,
+        currHolding.firstAnalysis?.marketValue,
+        valueChange,
       ];
       prev.push(row);
       return prev;
-    }, [] as (string | number)[][]);
+    }, [] as (string | number | undefined)[][]);
     prev.push(...rows);
     return prev;
-  }, [] as (string | number)[][]);
+  }, [] as (string | number | undefined)[][]);
 
   return (
     <Button
