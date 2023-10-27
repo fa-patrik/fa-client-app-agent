@@ -328,7 +328,7 @@
     "fee": "Fee:",
     "tradeAmount": "Total trade amount",
     "kiid": "KIID",
-    "confirmButtonLabel": "Confirm",
+    "confirmButtonLabel": "Switch",
     "confirmDisclaimer": "Past performance is not a guide to future performance. When investing in financial instruments, the investor may lose all or part of the investments.",
     "queryErrorWarning": "Server error occurred"
   },
