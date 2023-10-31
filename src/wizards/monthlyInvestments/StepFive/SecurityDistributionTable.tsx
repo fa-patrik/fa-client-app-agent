@@ -94,7 +94,7 @@ const SecurityDistributionTable = ({
               >
                 {securityPercentageDistribution.toLocaleString(i18n.language, {
                   style: "decimal",
-                  maximumFractionDigits: 3,
+                  maximumFractionDigits: 2,
                   minimumFractionDigits: 2,
                 })}
               </td>
