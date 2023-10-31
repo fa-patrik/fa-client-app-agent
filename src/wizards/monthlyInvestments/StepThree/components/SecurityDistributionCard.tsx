@@ -133,7 +133,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                     event,
                     wrapSetValue(setInput, security.id, "absolute"),
                     0,
-                    1000000000,
+                    undefined,
                     2
                   )
                 }
@@ -142,7 +142,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                     event,
                     wrapSetValue(setInput, security.id, "absolute"),
                     0,
-                    1000000000,
+                    undefined,
                     2
                   )
                 }
