@@ -31,5 +31,11 @@ describe("input utility functions", () => {
     it("should handle value being empty string", () => {
       expect(sanitizeNumberInputValue("", 0, 100, 2)).toBe("");
     });
+
+    it("should remove leading zeros but allow single zero", () => {
+      expect(sanitizeNumberInputValue("012", 0, 100, 2)).toBe("12");
+      expect(sanitizeNumberInputValue("000012", 0, 100, 2)).toBe("12");
+      expect(sanitizeNumberInputValue("0", 0, 100, 2)).toBe("0");
+    });
   });
 });

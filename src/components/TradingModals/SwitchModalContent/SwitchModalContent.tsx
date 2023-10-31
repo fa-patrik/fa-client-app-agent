@@ -465,7 +465,7 @@ export const SwitchModalContent = ({
                 })
               : ""
           }
-          type="text"
+          type="number"
           placeholder={t("switchOrderModal.shareInputPlaceholder")}
           className="w-20"
           value={inputValue}

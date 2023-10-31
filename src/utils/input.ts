@@ -14,6 +14,13 @@ export const sanitizeNumberInputValue = (
     sanitizedValue = parts[0] + "." + parts.slice(1).join("");
   }
 
+  // Remove leading zeroes
+  const [integerPart, decimalPart] = sanitizedValue.split(".");
+  if (integerPart !== "0" && integerPart.startsWith("0")) {
+    sanitizedValue =
+      integerPart.replace(/^0+/, "") + (decimalPart ? "." + decimalPart : "");
+  }
+
   const numberValue = parseFloat(sanitizedValue);
   if (max !== undefined && numberValue > max) {
     sanitizedValue = max.toString();
