@@ -5,7 +5,7 @@ import { isValidUrl } from "utils/url";
 
 interface DownloadableDocumentProps extends HTMLAttributes<HTMLAnchorElement> {
   label: string;
-  url?: string;
+  url?: string | null;
   /**
    * When documentIdentifier is present, clicking on the link will download the document or open it in a new tab if the name ends with .link
    * When documentIdentifier is not present, clicking on the link will open the url in a new tab
@@ -31,7 +31,7 @@ export const DownloadableDocument = ({
     ? {
         target: "_blank",
         rel: "noopener noreferrer",
-        href: url,
+        href: url || undefined,
       }
     : {
         href: "#",

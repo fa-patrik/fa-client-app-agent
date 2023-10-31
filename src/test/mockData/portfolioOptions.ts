@@ -13,6 +13,7 @@ export const portfolioOptionsMock = [
       shortName: "P1",
       currency: {
         securityCode: "USD",
+        amountDecimalCount: 2,
       },
       portfolioGroups: [{ code: "CP_TRADING" }, { code: "CP_DEPOSIT" }],
     },
@@ -28,6 +29,7 @@ export const portfolioOptionsMock = [
       shortName: "P2",
       currency: {
         securityCode: "USD",
+        amountDecimalCount: 2,
       },
       portfolioGroups: [
         { code: "CP_TRADING" },
@@ -47,6 +49,7 @@ export const portfolioOptionsMock = [
       shortName: "P3",
       currency: {
         securityCode: "USD",
+        amountDecimalCount: 2,
       },
       portfolioGroups: [{ code: "OTHER_GROUP" }],
     },
@@ -62,6 +65,7 @@ export const portfolioOptionsMock = [
           shortName: "P4",
           currency: {
             securityCode: "USD",
+            amountDecimalCount: 2,
           },
           portfolioGroups: [{ code: "CP_TRADING" }],
         },

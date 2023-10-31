@@ -1,23 +1,23 @@
-type SetValueFunc = (value: string) => void;
+export type SetValueFunc = (value: string) => void;
 
-const sanitizeNumberInputValue = (
+export const sanitizeNumberInputValue = (
   value: string,
-  min: number,
-  max: number,
+  min: number | undefined,
+  max: number | undefined,
   decimalPlaces: number
 ): string => {
   let sanitizedValue = value.replace(/[^0-9.]/g, ""); // remove non-digits and non-decimals
 
   // Remove extra decimal points if any
-  const decimalPoints = sanitizedValue.split(".").length - 1;
-  if (decimalPoints > 1) {
-    sanitizedValue = sanitizedValue.slice(0, sanitizedValue.lastIndexOf("."));
+  const parts = sanitizedValue.split(".");
+  if (parts.length > 2) {
+    sanitizedValue = parts[0] + "." + parts.slice(1).join("");
   }
 
   const numberValue = parseFloat(sanitizedValue);
-  if (numberValue > max) {
+  if (max !== undefined && numberValue > max) {
     sanitizedValue = max.toString();
-  } else if (numberValue < min) {
+  } else if (min !== undefined && numberValue < min) {
     sanitizedValue = min.toString();
   }
 
@@ -36,7 +36,7 @@ export const handleNumberInputEvent = (
   event: React.FormEvent<HTMLInputElement>,
   setValue: SetValueFunc,
   min = 0,
-  max = 100,
+  max: number | undefined,
   decimalPlaces = 2
 ): void => {
   const target = event.currentTarget;
@@ -55,7 +55,7 @@ export const handleNumberPasteEvent = (
   event: React.ClipboardEvent,
   setValue: SetValueFunc,
   min = 0,
-  max = 100,
+  max: number | undefined,
   decimalPlaces = 2
 ): void => {
   event.preventDefault();

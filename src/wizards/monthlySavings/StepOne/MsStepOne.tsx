@@ -6,6 +6,7 @@ import { useFilteredPortfolioSelect } from "components/TradingModals/useFiltered
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { canPortfolioOptionMonthlySave } from "services/permissions/usePermission";
+import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import OnError from "../components/OnError";
 import {
   PortfolioProfileAndFiguresAndAccounts,
@@ -63,8 +64,8 @@ const MsStepOne = () => {
 
   const [inputValue, setInputValue] = useState<string>(() => {
     if (
-      minAmount &&
-      wizardData?.data?.amountToSave &&
+      minAmount !== undefined &&
+      wizardData?.data?.amountToSave !== undefined &&
       wizardData.data.amountToSave < minAmount
     ) {
       return minAmount.toString();
@@ -120,22 +121,7 @@ const MsStepOne = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue, minAmount, externalAcc]);
 
-  /** Ensures input is a positive integer */
-  const handleInput = (event: React.FormEvent<HTMLInputElement>) => {
-    const target = event.currentTarget;
-    if (target instanceof HTMLInputElement) {
-      const newValue = target.value.replace(/[^0-9]/g, ""); // remove non-digits
-      setInputValue(newValue);
-    }
-  };
-
-  /** Ensures pasted input is a positive integer */
-  const handlePaste = (event: React.ClipboardEvent) => {
-    event.preventDefault();
-    const text = event.clipboardData.getData("text");
-    const value = text.replace(/[^0-9]/g, ""); // remove non-digits
-    setInputValue(value);
-  };
+  const CURRENCY_BLOCK_SIZE = portfolio?.currency.amountDecimalCount || 2;
 
   const NoAccountWarning = () => {
     return (
@@ -206,8 +192,24 @@ const MsStepOne = () => {
             error={inputError}
             type="number"
             value={inputValue}
-            onChange={(e) => handleInput(e)}
-            onPaste={(e) => handlePaste(e)}
+            onChange={(e) =>
+              handleNumberInputEvent(
+                e,
+                setInputValue,
+                0,
+                undefined,
+                CURRENCY_BLOCK_SIZE
+              )
+            }
+            onPaste={(e) =>
+              handleNumberPasteEvent(
+                e,
+                setInputValue,
+                0,
+                undefined,
+                CURRENCY_BLOCK_SIZE
+              )
+            }
             className="text-black rounded-lg"
             label={t("wizards.monthlySavings.stepOne.amountInputLabel", {
               currency: portfolioCurrencyCode,

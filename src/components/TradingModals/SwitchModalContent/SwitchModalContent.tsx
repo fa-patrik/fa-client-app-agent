@@ -19,10 +19,6 @@ import {
   Input,
   PortfolioSelect,
 } from "components/index";
-import {
-  handleNumberInputEvent,
-  handleNumberPasteEvent,
-} from "components/Input/utils";
 import { LabeledDivFlex } from "components/LabeledDiv/LabeledDivFlex";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useUniqueReference } from "hooks/useUniqueReference";
@@ -30,28 +26,10 @@ import { useKeycloak } from "providers/KeycloakProvider";
 import { switchableTag } from "services/permissions/usePermission";
 import { getBackendTranslation } from "utils/backTranslations";
 import { findPortfolioOptionById } from "utils/filtering";
+import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import { round } from "utils/number";
 import { addProtocolToUrl } from "utils/url";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
-
-/**
- * Returns the nr of decimal places that the blockSize represents.
- * @param blockSize security block size
- * @returns
- */
-function calculateDecimalPlaces(blockSize: number | undefined): number {
-  try {
-    if (!blockSize || blockSize >= 1 || blockSize <= 0) {
-      throw new Error("Invalid blockSize value. It should be between 0 and 1.");
-    }
-
-    const decimalPlaces = Math.abs(Math.floor(Math.log10(blockSize)));
-    return decimalPlaces;
-  } catch (error) {
-    //if (error instanceof Error) console.error(error.message);
-    return 4;
-  }
-}
 
 export interface SwitchModalInitialData {
   sellSecurityId: number;
@@ -211,11 +189,14 @@ export const SwitchModalContent = ({
     : undefined;
 
   const portfolioCurrency = selectedPortfolio?.currency.securityCode;
-
+  const CURRENCY_BLOCK_SIZE =
+    selectedSellSecurity?.amountDecimalCount !== undefined
+      ? selectedSellSecurity?.amountDecimalCount
+      : 2;
   const unitsToSell = selectedSellPosition
     ? round(
         (shareToSell / 100) * selectedSellPosition?.amount,
-        calculateDecimalPlaces(selectedSellSecurity?.blockSize)
+        CURRENCY_BLOCK_SIZE
       )
     : 0;
 

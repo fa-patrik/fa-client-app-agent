@@ -6,8 +6,8 @@ interface SecurityDistributionListProps {
   selectedSecurities: TradableSecurity[];
   handleRemove: (security: TradableSecurity) => void;
   setInput: (input: string, securityId: number, mode: string) => void;
-  percentageInputs: Record<string, number | undefined>;
-  amountInputs: Record<string, number | undefined>;
+  percentageInputs: Record<string, string | undefined>;
+  amountInputs: Record<string, string | undefined>;
   portfolioCurrencyCode: string | undefined;
   id?: string;
 }

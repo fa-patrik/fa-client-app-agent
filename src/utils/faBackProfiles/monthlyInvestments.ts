@@ -388,8 +388,7 @@ export const getEmptyApiInput = (portfolioShortName: string) => {
 /**
  * @returns the total amount to invest
  * as the sum of  each underlying security row's
- * amount field in the profile. Rounded to nearest
- * integer.
+ * amount field in the profile.
  */
 export const getAmountToInvest = (
   monthlyInvestments: MonthlyInvestmentsProfile
@@ -405,5 +404,5 @@ export const getAmountToInvest = (
     },
     0
   );
-  return Math.round(totalAmount);
+  return totalAmount;
 };

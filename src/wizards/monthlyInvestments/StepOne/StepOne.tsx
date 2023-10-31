@@ -17,6 +17,7 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { canPortfolioOptionMonthlyInvest } from "services/permissions/usePermission";
 import { addMonthlyInvestmentsToPortfolios } from "utils/faBackProfiles/monthlyInvestments";
+import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import { MonthlyInvestmentsWizardState } from "../types";
 
 //min units of money to invest
@@ -77,6 +78,7 @@ const StepOne = () => {
   ]?.value as number;
 
   const portfolioCurrencyCode = portfolio?.currency.securityCode;
+  const CURRENCY_BLOCK_SIZE = portfolio?.currency.amountDecimalCount;
 
   const [inputValue, setInputValue] = useState<string>(() => {
     if (
@@ -136,23 +138,6 @@ const StepOne = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue, minAmount]);
 
-  /** Ensures input is a positive integer */
-  const handleInput = (event: React.FormEvent<HTMLInputElement>) => {
-    const target = event.currentTarget;
-    if (target instanceof HTMLInputElement) {
-      const newValue = target.value.replace(/[^0-9]/g, ""); // remove non-digits
-      setInputValue(newValue);
-    }
-  };
-
-  /** Ensures pasted input is a positive integer */
-  const handlePaste = (event: React.ClipboardEvent) => {
-    event.preventDefault();
-    const text = event.clipboardData.getData("text");
-    const value = text.replace(/[^0-9]/g, ""); // remove non-digits
-    setInputValue(value);
-  };
-
   if (errorGettingPortfolioData)
     return (
       <div className="p-4 m-auto w-full h-full">
@@ -196,8 +181,24 @@ const StepOne = () => {
               error={inputError}
               type="number"
               value={inputValue}
-              onChange={(e) => handleInput(e)}
-              onPaste={(e) => handlePaste(e)}
+              onChange={(e) =>
+                handleNumberInputEvent(
+                  e,
+                  setInputValue,
+                  0,
+                  undefined,
+                  CURRENCY_BLOCK_SIZE
+                )
+              }
+              onPaste={(e) =>
+                handleNumberPasteEvent(
+                  e,
+                  setInputValue,
+                  0,
+                  undefined,
+                  CURRENCY_BLOCK_SIZE
+                )
+              }
               className="text-black rounded-lg"
               label={t("wizards.monthlyInvestments.stepOne.amountInputLabel", {
                 currency: portfolioCurrencyCode,
