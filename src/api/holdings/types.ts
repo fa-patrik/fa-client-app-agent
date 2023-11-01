@@ -51,6 +51,7 @@ export interface SecurityDetailsPosition {
     identifier: string;
     mimeType: string;
   }[];
+  amountDecimalCount: number;
 }
 
 export interface SecurityDetailsQuery {

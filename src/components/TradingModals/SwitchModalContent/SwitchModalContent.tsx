@@ -189,14 +189,17 @@ export const SwitchModalContent = ({
     : undefined;
 
   const portfolioCurrency = selectedPortfolio?.currency.securityCode;
-  const CURRENCY_BLOCK_SIZE =
+  const FALLBACK_BLOCK_SIZE = 2;
+  const PORTFOLIO_BLOCK_SIZE =
+    selectedPortfolio?.currency.amountDecimalCount || FALLBACK_BLOCK_SIZE;
+  const SELL_SECURITY_BLOCK_SIZE =
     selectedSellSecurity?.amountDecimalCount !== undefined
       ? selectedSellSecurity?.amountDecimalCount
-      : 2;
+      : FALLBACK_BLOCK_SIZE;
   const unitsToSell = selectedSellPosition
     ? round(
         (shareToSell / 100) * selectedSellPosition?.amount,
-        CURRENCY_BLOCK_SIZE
+        SELL_SECURITY_BLOCK_SIZE
       )
     : 0;
 
@@ -204,9 +207,12 @@ export const SwitchModalContent = ({
     unitsToSell &&
     selectedSellSecurity?.latestMarketData?.price &&
     selectedSellPosition?.marketFxRate
-      ? unitsToSell *
-        (selectedSellSecurity?.latestMarketData?.price /
-          selectedSellPosition?.marketFxRate)
+      ? round(
+          unitsToSell *
+            (selectedSellSecurity?.latestMarketData?.price /
+              selectedSellPosition?.marketFxRate),
+          PORTFOLIO_BLOCK_SIZE
+        )
       : undefined;
 
   //get fx rate security to buy --> portfolio currency

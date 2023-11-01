@@ -1,4 +1,4 @@
-import { MutableRefObject, useState, useEffect } from "react";
+import { MutableRefObject, useState, useEffect, useMemo } from "react";
 import { ExecutionMethod } from "api/enums";
 import { SecurityTypeCode, SecurityTradeType } from "api/holdings/types";
 import { useGetPortfolioHoldingFromPfReport } from "api/holdings/useGetPortfolioHoldingFromPfReport";
@@ -14,6 +14,7 @@ import {
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
+import { sanitizeNumberInputValue } from "utils/input";
 import { round } from "utils/number";
 import { addProtocolToUrl } from "utils/url";
 import { useGetSecurityDetails } from "../../../api/holdings/useGetSecurityDetails";
@@ -29,6 +30,8 @@ interface SellModalProps extends SellModalInitialData {
   onClose: () => void;
 }
 
+const FALLBACK_DECIMAL_COUNT = 2;
+
 const isSecurityTypeFund = (securityType: SecurityTypeCode | undefined) =>
   securityType === SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE;
 
@@ -38,20 +41,28 @@ const getTradeType = (securityType: SecurityTypeCode | undefined) =>
 const getCurrentAmount = (
   isTradeInUnits: boolean | undefined,
   amount: number,
-  marketValue: number,
-  marketFxRate: number
-) => (isTradeInUnits ? amount : round(marketValue * marketFxRate, 2));
+  marketValue: number
+) => (isTradeInUnits ? amount : marketValue);
 
 const getTradeAmount = (
   isTradeInUnits: boolean | undefined,
-  tradeAmount: number,
-  price: number
-) => (isTradeInUnits ? tradeAmount * price : tradeAmount);
-
-const getTradeAmountArgs = (
   amount: number,
-  isTradeInUnits: boolean | undefined
-) => (isTradeInUnits ? { units: amount } : { tradeAmount: amount });
+  price: number,
+  marketFxRate: number,
+  BLOCK_SIZE: number
+) => {
+  const value = round(amount, BLOCK_SIZE);
+  return isTradeInUnits ? (value * price) / marketFxRate || 1 : value;
+};
+
+const getTradeAmountApiArgs = (
+  amount: number,
+  isTradeInUnits: boolean | undefined,
+  BLOCK_SIZE: number
+) => {
+  const value = round(amount, BLOCK_SIZE);
+  return isTradeInUnits ? { units: value } : { tradeAmount: value };
+};
 
 export const SellModalContent = ({
   modalInitialFocusRef,
@@ -68,6 +79,7 @@ export const SellModalContent = ({
       securityCode: "",
       currency: { securityCode: "" },
       tagsAsSet: [],
+      amountDecimalCount: FALLBACK_DECIMAL_COUNT,
     },
   } = useGetSecurityDetails(securityId.toString());
   const {
@@ -77,6 +89,7 @@ export const SellModalContent = ({
     type: { code: securityType } = {},
     latestMarketData,
     tagsAsSet: securityTags,
+    amountDecimalCount: securityAmountDecimalCount,
   } = security;
 
   const price = ((data) => (data ? data.price : 0))(latestMarketData);
@@ -126,12 +139,19 @@ export const SellModalContent = ({
     securityId.toString()
   );
 
-  const currentAmount = getCurrentAmount(
-    isTradeInUnits,
-    units,
-    marketValue,
-    marketFxRate
+  const selectedPortfolio = useMemo(
+    () => portfolios.find((p) => p.id === portfolioId),
+    [portfolioId, portfolios]
   );
+  const portfolioCurrency = selectedPortfolio?.currency.securityCode;
+  const portfolioCurrencyAmountDecimalCount =
+    selectedPortfolio?.currency.amountDecimalCount || FALLBACK_DECIMAL_COUNT;
+
+  const BLOCK_SIZE = isTradeInUnits
+    ? securityAmountDecimalCount
+    : portfolioCurrencyAmountDecimalCount;
+
+  const currentAmount = getCurrentAmount(isTradeInUnits, units, marketValue);
 
   const {
     inputValue,
@@ -143,7 +163,12 @@ export const SellModalContent = ({
     setTradeAmountToAll,
     setTradeAmountToHalf,
     onInputModeChange,
-  } = useTradeAmountInput(currentAmount, currency, isTradeInUnits);
+  } = useTradeAmountInput(
+    currentAmount,
+    portfolioCurrency || "",
+    isTradeInUnits,
+    BLOCK_SIZE
+  );
 
   const { handleTrade: handleSell, submitting } = useTrade({
     tradeType: getTradeType(securityType),
@@ -151,7 +176,7 @@ export const SellModalContent = ({
       portfolios.find((portfolio) => portfolio.id === portfolioId) ||
       portfolios[0],
     securityName,
-    ...getTradeAmountArgs(amount, isTradeInUnits),
+    ...getTradeAmountApiArgs(amount, isTradeInUnits, BLOCK_SIZE),
     ...security,
     currency,
     executionMethod: isTradeInUnits
@@ -188,9 +213,9 @@ export const SellModalContent = ({
           label={t("tradingModal.currentUnits")}
           className="text-xl font-semibold text-gray-700"
         >
-          {currency &&
+          {portfolioCurrency &&
             t("number", {
-              value: currentAmount,
+              value: units,
             })}
         </LabeledDiv>
       ) : (
@@ -198,10 +223,10 @@ export const SellModalContent = ({
           label={t("tradingModal.currentMarketValue")}
           className="text-xl font-semibold text-gray-700"
         >
-          {currency &&
+          {portfolioCurrency &&
             t("numberWithCurrency", {
-              value: currentAmount,
-              currency: currency,
+              value: marketValue,
+              currency: portfolioCurrency,
             })}
         </LabeledDiv>
       )}
@@ -212,9 +237,16 @@ export const SellModalContent = ({
         onChange={(event) => {
           setInputState((previousState) => {
             const target = event.target as HTMLInputElement;
+            const santizedValue = sanitizeNumberInputValue(
+              target.value,
+              0,
+              undefined,
+              BLOCK_SIZE
+            );
             return {
               ...previousState,
-              inputValue: Number(target?.value || 0),
+              inputValue: santizedValue,
+              inputValueAsNr: Number(santizedValue),
             };
           });
         }}
@@ -240,7 +272,10 @@ export const SellModalContent = ({
               className={`text-center cursor-pointer py-2 px-4 flex-1 ${
                 isTradeInUnits ? "bg-gray-200" : ""
               }`}
-              onClick={() => setIsTradeInUnits(true)}
+              onClick={() => {
+                onInputModeChange({ id: "UNITS", label: "" });
+                setIsTradeInUnits(true);
+              }}
             >
               {t("tradingModal.unitsButtonLabel")}
             </button>
@@ -249,7 +284,13 @@ export const SellModalContent = ({
               className={`text-center cursor-pointer py-2 px-4 flex-1 ${
                 !isTradeInUnits ? "bg-gray-200" : ""
               }`}
-              onClick={() => setIsTradeInUnits(false)}
+              onClick={() => {
+                onInputModeChange({
+                  id: "TRADEAMOUNT",
+                  label: portfolioCurrency || "",
+                });
+                setIsTradeInUnits(false);
+              }}
             >
               {t("tradingModal.tradeAmountButtonLabel")}
             </button>
@@ -309,9 +350,15 @@ export const SellModalContent = ({
           </div>
           {t("numberWithCurrency", {
             value: isTradeAmountCorrect
-              ? getTradeAmount(isTradeInUnits, amount, price)
+              ? getTradeAmount(
+                  isTradeInUnits,
+                  amount,
+                  price,
+                  marketFxRate,
+                  BLOCK_SIZE
+                )
               : 0,
-            currency,
+            currency: portfolioCurrency,
           })}
         </div>
         <Button

@@ -1,3 +1,5 @@
+import { SecurityTradeType } from "api/holdings/types";
+
 /**
  * Distributes a trade amount with arbitrary decimals precision.
  * @param total the trade amount to distribute.
@@ -28,3 +30,28 @@ export function distributeTradeAmount(
 
   return distribution.map((amount) => amount / scale);
 }
+
+export const getAllowedTradeTypesForSecurity = (
+  securityTags: string[]
+): Record<SecurityTradeType, boolean> => {
+  return securityTags.reduce(
+    (prev, currTag) => {
+      if (currTag === SecurityTradeType.sellUnits) {
+        prev.sellUnits = true;
+      } else if (currTag === SecurityTradeType.sellTradeAmount) {
+        prev.sellTradeAmount = true;
+      } else if (currTag === SecurityTradeType.buyUnits) {
+        prev.buyUnits = true;
+      } else if (currTag === SecurityTradeType.buyTradeAmount) {
+        prev.buyTradeAmount = true;
+      }
+      return prev;
+    },
+    {
+      sellUnits: false,
+      sellTradeAmount: false,
+      buyUnits: false,
+      buyTradeAmount: false,
+    } as Record<string, boolean>
+  );
+};

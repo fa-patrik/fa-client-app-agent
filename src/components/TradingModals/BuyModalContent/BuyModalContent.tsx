@@ -15,6 +15,8 @@ import {
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
+import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
+import { round } from "utils/number";
 import { addProtocolToUrl } from "utils/url";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 
@@ -37,13 +39,23 @@ const getTradeAmount = (
   amount: number,
   isTradeInUnits: boolean | undefined,
   price = 1,
-  fxRate = 1
-) => (isTradeInUnits ? amount * price * fxRate : amount);
+  fxRate = 1,
+  BLOCK_SIZE = FALLBACK_DECIMAL_COUNT
+) => {
+  const value = round(amount, BLOCK_SIZE);
+  return isTradeInUnits ? value * price * fxRate : value;
+};
 
 const getTradeAmountArgs = (
   amount: number,
-  isTradeInUnits: boolean | undefined
-) => (isTradeInUnits ? { units: amount } : { tradeAmount: amount });
+  isTradeInUnits: boolean | undefined,
+  BLOCK_SIZE: number
+) => {
+  const value = round(amount, BLOCK_SIZE);
+  return isTradeInUnits ? { units: value } : { tradeAmount: value };
+};
+
+const FALLBACK_DECIMAL_COUNT = 2;
 
 export const BuyModalContent = ({
   modalInitialFocusRef,
@@ -60,6 +72,7 @@ export const BuyModalContent = ({
       securityCode: "",
       currency: { securityCode: "" },
       tagsAsSet: [],
+      amountDecimalCount: FALLBACK_DECIMAL_COUNT,
     },
   } = useGetSecurityDetails(securityId.toString());
   const {
@@ -69,6 +82,7 @@ export const BuyModalContent = ({
     latestMarketData,
     fxRate,
     tagsAsSet: securityTags,
+    amountDecimalCount: securityAmountDecimalCount,
   } = security;
 
   const [isTradeInUnits, setIsTradeInUnits] = useState(true);
@@ -112,12 +126,16 @@ export const BuyModalContent = ({
 
   const selectedPortfolioId = portfolioId;
 
-  const {
-    loading,
-    data: { availableCash = 0, currency: portfolioCurrency = "EUR" } = {},
-  } = useGetBuyData(selectedPortfolioId);
+  const { loading, data: portfolioData } = useGetBuyData(selectedPortfolioId);
 
-  const [amount, setAmount] = useState(0);
+  const [input, setInput] = useState<string>("0");
+  const inputAsNr = input ? Number(input) : 0;
+
+  const portfolioCurrencyAmountDecimalCount =
+    portfolioData?.currency.amountDecimalCount || FALLBACK_DECIMAL_COUNT;
+  const BLOCK_SIZE = isTradeInUnits
+    ? securityAmountDecimalCount
+    : portfolioCurrencyAmountDecimalCount;
 
   const { handleTrade: handleBuy, submitting } = useTrade({
     tradeType: getTradeType(securityType),
@@ -125,7 +143,7 @@ export const BuyModalContent = ({
       portfolios.find((portfolio) => portfolio.id === portfolioId) ||
       portfolios[0],
     securityName,
-    ...getTradeAmountArgs(amount, isTradeInUnits),
+    ...getTradeAmountArgs(inputAsNr, isTradeInUnits, BLOCK_SIZE),
     ...security,
     currency: security.currency.securityCode,
     executionMethod: isTradeInUnits
@@ -133,10 +151,29 @@ export const BuyModalContent = ({
       : ExecutionMethod.NET_TRADE_AMOUNT,
   });
 
+  const availableCash =
+    portfolioData?.portfolioReport.accountBalanceAdjustedWithOpenTradeOrders !==
+    undefined
+      ? portfolioData?.portfolioReport.accountBalanceAdjustedWithOpenTradeOrders
+      : undefined;
+  const portfolioCurrency = portfolioData?.currency.securityCode;
+
   const isTradeAmountCorrect =
-    !isNaN(availableCash) && amount >= 0 && amount <= availableCash;
+    availableCash !== undefined &&
+    !isNaN(availableCash) &&
+    inputAsNr >= 0 &&
+    inputAsNr <= availableCash;
 
   const { readonly } = useKeycloak();
+
+  useEffect(() => {
+    //when switching between amount and trade amount
+    //we must make sure the input is rounded to the allowed
+    //amount of decimals
+    setInput((currInput) =>
+      round(parseFloat(currInput), BLOCK_SIZE).toString()
+    );
+  }, [isTradeInUnits, BLOCK_SIZE]);
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
@@ -173,9 +210,12 @@ export const BuyModalContent = ({
       <Input
         disabled={!hasDeductedTradeType || !portfolioId}
         ref={modalInitialFocusRef}
-        value={amount || ""}
+        value={input}
         onChange={(event) => {
-          setAmount(Number(event.currentTarget.value));
+          handleNumberInputEvent(event, setInput, 0, undefined, BLOCK_SIZE);
+        }}
+        onPaste={(event) => {
+          handleNumberPasteEvent(event, setInput, 0, undefined, BLOCK_SIZE);
         }}
         label={
           isTradeInUnits
@@ -225,7 +265,7 @@ export const BuyModalContent = ({
           {t("numberWithCurrency", {
             value: isTradeAmountCorrect
               ? getTradeAmount(
-                  amount,
+                  inputAsNr,
                   isTradeInUnits,
                   latestMarketData?.price,
                   fxRate
@@ -237,7 +277,7 @@ export const BuyModalContent = ({
         <Button
           disabled={
             readonly ||
-            amount === 0 ||
+            inputAsNr === 0 ||
             loading ||
             !isTradeAmountCorrect ||
             !portfolioId

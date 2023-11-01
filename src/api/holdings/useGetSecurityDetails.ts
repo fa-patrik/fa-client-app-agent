@@ -37,6 +37,7 @@ const SECURITY_DETAILS_QUERY = gql`
         identifier
         mimeType
       }
+      amountDecimalCount
     }
   }
 `;

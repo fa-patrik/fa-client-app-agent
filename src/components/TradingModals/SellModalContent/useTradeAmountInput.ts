@@ -7,12 +7,17 @@ const INPUT_MODE = {
 };
 type Keys = keyof typeof INPUT_MODE;
 
-interface InputModeOption {
-  id: typeof INPUT_MODE[Keys];
+export interface InputModeOption {
+  id: (typeof INPUT_MODE)[Keys];
   label: string;
 }
 
-export const useTradeAmountInput = (marketValue: number, currency: string, isTradeInUnits: boolean) => {
+export const useTradeAmountInput = (
+  marketValue: number,
+  currency: string,
+  isTradeInUnits: boolean,
+  BLOCK_SIZE: number
+) => {
   const inputModesOptions = useMemo(
     () => [
       {
@@ -24,17 +29,16 @@ export const useTradeAmountInput = (marketValue: number, currency: string, isTra
         label: currency,
       },
     ],
-    [currency,]
+    [currency]
   );
 
-  const [{ inputValue, inputMode }, setInputState] = useState<{
+  const [{ inputValue, inputMode, inputValueAsNr }, setInputState] = useState<{
     inputMode: InputModeOption;
-    inputValue: number;
-  }>({ inputMode: inputModesOptions[1], inputValue: 0 });
-
+    inputValueAsNr: number;
+    inputValue: string;
+  }>({ inputMode: inputModesOptions[1], inputValue: "0", inputValueAsNr: 0 });
 
   const onInputModeChange = (newValue: InputModeOption) => {
-
     if (isNaN(marketValue)) {
       setInputState((previousState) => ({
         ...previousState,
@@ -44,29 +48,41 @@ export const useTradeAmountInput = (marketValue: number, currency: string, isTra
     }
 
     if (newValue.id === INPUT_MODE.PERCENTAGE) {
-      setInputState((previousState) => ({
-        ...previousState,
-        inputValue: round((previousState.inputValue / marketValue) * 100, 2),
-        inputMode: newValue,
-      }));
+      setInputState((previousState) => {
+        const newPercentage =
+          (previousState.inputValueAsNr / marketValue) * 100;
+        return {
+          ...previousState,
+          inputValue: round(newPercentage, 2).toString(),
+          inputValueAsNr: newPercentage,
+          inputMode: newValue,
+        };
+      });
     } else if (newValue.id === INPUT_MODE.CURRENCY) {
-      setInputState((previousState) => ({
-        ...previousState,
-        inputValue: round((previousState.inputValue * marketValue) / 100, 2),
-        inputMode: newValue,
-      }));
+      setInputState((previousState) => {
+        const newTradeAmount =
+          (previousState.inputValueAsNr * marketValue) / 100;
+        return {
+          ...previousState,
+          inputValue: round(newTradeAmount, BLOCK_SIZE).toString(),
+          inputValueAsNr: newTradeAmount,
+          inputMode: newValue,
+        };
+      });
     }
   };
   const setTradeAmountToHalf = () => {
     if (inputMode.id === INPUT_MODE.PERCENTAGE) {
       setInputState((previousState) => ({
         ...previousState,
-        inputValue: 50,
+        inputValue: "50",
+        inputValueAsNr: 50,
       }));
     } else if (inputMode.id === INPUT_MODE.CURRENCY) {
       setInputState((previousState) => ({
         ...previousState,
-        inputValue: round(marketValue / 2, 2),
+        inputValue: round(marketValue / 2, BLOCK_SIZE).toString(),
+        inputValueAsNr: marketValue / 2,
       }));
     }
   };
@@ -74,19 +90,21 @@ export const useTradeAmountInput = (marketValue: number, currency: string, isTra
     if (inputMode.id === INPUT_MODE.PERCENTAGE) {
       setInputState((previousState) => ({
         ...previousState,
-        inputValue: 100,
+        inputValue: "100",
+        inputValueAsNr: 100,
       }));
     } else if (inputMode.id === INPUT_MODE.CURRENCY) {
       setInputState((previousState) => ({
         ...previousState,
-        inputValue: round(marketValue, 2),
+        inputValue: round(marketValue, BLOCK_SIZE).toString(),
+        inputValueAsNr: marketValue,
       }));
     }
   };
   const amount =
     inputMode.id === INPUT_MODE.CURRENCY
-      ? inputValue
-      : round((inputValue * marketValue) / 100, 2);
+      ? round(inputValueAsNr, BLOCK_SIZE)
+      : round((inputValueAsNr * marketValue) / 100, BLOCK_SIZE);
   const isTradeAmountCorrect =
     !isNaN(marketValue) && amount >= 0 && amount <= marketValue;
 
@@ -96,17 +114,15 @@ export const useTradeAmountInput = (marketValue: number, currency: string, isTra
     const forcedInputMode = {
       id: INPUT_MODE.CURRENCY,
       label: currency,
-    }
+    };
 
-    setInputState((previousState) => (
-      {
-        ...previousState,
-        inputMode: forcedInputMode,
-        inputValue: 0
-      }
-    ))
-  }, [isTradeInUnits, currency])
-
+    setInputState((previousState) => ({
+      ...previousState,
+      inputMode: forcedInputMode,
+      inputValue: "0",
+      inputValueAsNr: 0,
+    }));
+  }, [isTradeInUnits, currency]);
 
   return {
     INPUT_MODE,
