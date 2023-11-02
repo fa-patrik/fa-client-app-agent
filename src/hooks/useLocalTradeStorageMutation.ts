@@ -73,7 +73,6 @@ const getOrderType = (type: TradeType): TradeOrderType => {
 export interface LocalTradeOrderDetails {
   portfolio: Portfolio;
   securityName: string;
-  currency: string;
   tradeType: TradeType;
   reference: string;
   units?: number;

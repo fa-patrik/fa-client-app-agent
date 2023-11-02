@@ -28,6 +28,7 @@ import { getBackendTranslation } from "utils/backTranslations";
 import { findPortfolioOptionById } from "utils/filtering";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import { round } from "utils/number";
+import { getTradeAmountTooltip } from "utils/trading";
 import { addProtocolToUrl } from "utils/url";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 
@@ -178,16 +179,6 @@ export const SwitchModalContent = ({
     ? portfolioHoldingsMap?.[selectedSellSecurity?.id]
     : undefined;
 
-  const selectedSellSecurityPriceDate = selectedSellSecurity?.latestMarketData
-    ?.date
-    ? new Date(selectedSellSecurity?.latestMarketData?.date).toLocaleDateString(
-        i18n.language,
-        {
-          dateStyle: "medium",
-        }
-      )
-    : undefined;
-
   const portfolioCurrency = selectedPortfolio?.currency.securityCode;
   const FALLBACK_BLOCK_SIZE = 2;
   const PORTFOLIO_BLOCK_SIZE =
@@ -234,82 +225,6 @@ export const SwitchModalContent = ({
     !selectedBuySecurity?.minTradeAmount ||
     (approximateSellTradeAmountInPfCurrency || 0) >=
       (buySecurityMinTradeAmountInPfCurrency || 0); */
-
-  const getTradeAmountTooltip = () => {
-    try {
-      const sellUnits = unitsToSell;
-
-      const sellSecurityName = selectedSellSecurity
-        ? getBackendTranslation(
-            selectedSellSecurity.name,
-            selectedSellSecurity.namesAsMap,
-            i18n.language
-          )
-        : "";
-
-      const sellPrice: string | undefined =
-        selectedSellSecurity?.latestMarketData?.price &&
-        selectedSellSecurity?.currency.securityCode
-          ? selectedSellSecurity?.latestMarketData?.price.toLocaleString(
-              i18n.language,
-              {
-                maximumFractionDigits: 12,
-                minimumFractionDigits: 2,
-                style: "currency",
-                currencyDisplay: "code",
-                currency: selectedSellSecurity?.currency.securityCode,
-              }
-            )
-          : undefined;
-
-      const sellSecurityToPortfoliofxRate: string | undefined =
-        selectedSellPosition?.marketFxRate &&
-        t("number", {
-          value: selectedSellPosition?.marketFxRate,
-        });
-
-      if (
-        sellUnits &&
-        sellPrice &&
-        sellSecurityName &&
-        selectedSellSecurityPriceDate
-      ) {
-        if (
-          sellSecurityToPortfoliofxRate &&
-          selectedSellSecurity?.currency.securityCode &&
-          portfolioCurrency &&
-          selectedSellSecurity?.currency.securityCode !== portfolioCurrency
-        ) {
-          const breakdownWithFx: string = t(
-            "switchOrderModal.tradeAmountDisclaimerWithFx",
-            {
-              units: sellUnits,
-              securityName: sellSecurityName,
-              price: sellPrice,
-              date: selectedSellSecurityPriceDate,
-              fxRate: sellSecurityToPortfoliofxRate,
-              fx1: portfolioCurrency,
-              fx2: selectedSellSecurity?.currency.securityCode,
-            }
-          );
-          return breakdownWithFx;
-        } else {
-          const breakdown: string = t(
-            "switchOrderModal.tradeAmountDisclaimer",
-            {
-              units: sellUnits,
-              securityName: sellSecurityName,
-              price: sellPrice,
-              date: selectedSellSecurityPriceDate,
-            }
-          );
-          return breakdown;
-        }
-      }
-    } catch (error) {
-      console.debug("Error creating calculation details string", error);
-    }
-  };
 
   //validate and update the sell security
   useEffect(() => {
@@ -404,7 +319,17 @@ export const SwitchModalContent = ({
       : false;
   };
 
-  const tradeAmountTooltip = getTradeAmountTooltip();
+  const tradeAmountTooltip =
+    selectedSellSecurity !== undefined && portfolioCurrency !== undefined
+      ? getTradeAmountTooltip(
+          unitsToSell,
+          selectedSellSecurity,
+          selectedSellSecurity?.fxRate,
+          portfolioCurrency,
+          i18n.language,
+          t
+        )
+      : undefined;
 
   const getUniqueReference = useUniqueReference();
   const reference = getUniqueReference();

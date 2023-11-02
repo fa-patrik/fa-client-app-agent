@@ -1,4 +1,7 @@
-import { SecurityTradeType } from "api/holdings/types";
+import { SecurityDetailsPosition, SecurityTradeType } from "api/holdings/types";
+import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import { TOptions, StringMap } from "i18next";
+import { getBackendTranslation } from "./backTranslations";
 
 /**
  * Distributes a trade amount with arbitrary decimals precision.
@@ -32,26 +35,186 @@ export function distributeTradeAmount(
 }
 
 export const getAllowedTradeTypesForSecurity = (
-  securityTags: string[]
+  securityTags: string[] | undefined
 ): Record<SecurityTradeType, boolean> => {
+  if (!securityTags)
+    return {
+      "Trade type:Sell units": false,
+      "Trade type:Sell trade amount": false,
+      "Trade type:Buy units": false,
+      "Trade type:Buy trade amount": false,
+    };
   return securityTags.reduce(
     (prev, currTag) => {
       if (currTag === SecurityTradeType.sellUnits) {
-        prev.sellUnits = true;
+        prev["Trade type:Sell units"] = true;
       } else if (currTag === SecurityTradeType.sellTradeAmount) {
-        prev.sellTradeAmount = true;
+        prev["Trade type:Sell trade amount"] = true;
       } else if (currTag === SecurityTradeType.buyUnits) {
-        prev.buyUnits = true;
+        prev["Trade type:Buy units"] = true;
       } else if (currTag === SecurityTradeType.buyTradeAmount) {
-        prev.buyTradeAmount = true;
+        prev["Trade type:Buy trade amount"] = true;
       }
       return prev;
     },
     {
-      sellUnits: false,
-      sellTradeAmount: false,
-      buyUnits: false,
-      buyTradeAmount: false,
-    } as Record<string, boolean>
+      "Trade type:Sell units": false,
+      "Trade type:Sell trade amount": false,
+      "Trade type:Buy units": false,
+      "Trade type:Buy trade amount": false,
+    } as Record<SecurityTradeType, boolean>
   );
+};
+
+export const getTradeAmountTooltip = (
+  units: number,
+  security: TradableSecurity | SecurityDetailsPosition,
+  fxRate: number,
+  portfolioCurrency: string,
+  locale: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: (key: string, options?: TOptions<StringMap> | undefined) => any
+): string | undefined => {
+  try {
+    const sellSecurityName = security
+      ? getBackendTranslation(security.name, security.namesAsMap, locale)
+      : "";
+
+    const sellPrice =
+      security?.latestMarketData?.price && security?.currency.securityCode
+        ? t("numberWithCurrency", {
+            value: security.latestMarketData.price,
+            currency: security?.currency.securityCode,
+          })
+        : undefined;
+
+    const sellSecurityToPortfoliofxRate = fxRate
+      ? t("number", { value: fxRate })
+      : undefined;
+
+    const securityPriceDate =
+      security.latestMarketData?.date !== undefined
+        ? new Date(security.latestMarketData?.date).toLocaleDateString(locale, {
+            dateStyle: "medium",
+          })
+        : undefined;
+
+    if (
+      units &&
+      sellPrice &&
+      sellSecurityName &&
+      security.latestMarketData?.price
+    ) {
+      if (
+        sellSecurityToPortfoliofxRate &&
+        security?.currency.securityCode &&
+        portfolioCurrency &&
+        security.currency.securityCode !== portfolioCurrency
+      ) {
+        const breakdownWithFx: string = t(
+          "switchOrderModal.tradeAmountDisclaimerWithFx",
+          {
+            units,
+            securityName: sellSecurityName,
+            price: sellPrice,
+            date: securityPriceDate,
+            fxRate: sellSecurityToPortfoliofxRate,
+            fx1: security.currency.securityCode,
+            fx2: portfolioCurrency,
+          }
+        );
+        return breakdownWithFx;
+      } else {
+        const breakdown: string = t("switchOrderModal.tradeAmountDisclaimer", {
+          units,
+          securityName: sellSecurityName,
+          price: sellPrice,
+          date: securityPriceDate,
+        });
+        return breakdown;
+      }
+    }
+  } catch (error) {
+    console.debug("Error creating calculation details string", error);
+  }
+
+  return undefined;
+};
+
+export const getBlockSizeErrorTooltip = (
+  securityPriceInPfCurrency: number,
+  security: TradableSecurity | SecurityDetailsPosition,
+  fxRate: number,
+  portfolioCurrency: string,
+  locale: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: (key: string, options?: TOptions<StringMap> | undefined) => any
+): string | undefined => {
+  try {
+    const sellSecurityName = security
+      ? getBackendTranslation(security.name, security.namesAsMap, locale)
+      : "";
+
+    const sellPrice =
+      security?.latestMarketData?.price && security?.currency.securityCode
+        ? t("numberWithCurrency", {
+            value: security.latestMarketData.price,
+            currency: security?.currency.securityCode,
+          })
+        : undefined;
+
+    const sellSecurityToPortfoliofxRate = fxRate
+      ? t("number", { value: fxRate })
+      : undefined;
+
+    const securityPriceDate =
+      security.latestMarketData?.date !== undefined
+        ? new Date(security.latestMarketData?.date).toLocaleDateString(locale, {
+            dateStyle: "medium",
+          })
+        : undefined;
+
+    if (
+      securityPriceInPfCurrency &&
+      sellPrice &&
+      sellSecurityName &&
+      security.latestMarketData?.price
+    ) {
+      if (
+        sellSecurityToPortfoliofxRate &&
+        security?.currency.securityCode &&
+        portfolioCurrency &&
+        security.currency.securityCode !== portfolioCurrency
+      ) {
+        const breakdownWithFx: string = t("tradingModal.blockSizeErrorWithFx", {
+          tradeAmount: t("numberWithCurrency", {
+            value: securityPriceInPfCurrency,
+            currency: portfolioCurrency,
+          }),
+          securityName: sellSecurityName,
+          price: sellPrice,
+          date: securityPriceDate,
+          fxRate: sellSecurityToPortfoliofxRate,
+          fx1: security.currency.securityCode,
+          fx2: portfolioCurrency,
+        });
+        return breakdownWithFx;
+      } else {
+        const breakdown: string = t("tradingModal.blockSizeError", {
+          tradeAmount: t("numberWithCurrency", {
+            value: securityPriceInPfCurrency,
+            currency: portfolioCurrency,
+          }),
+          securityName: sellSecurityName,
+          price: sellPrice,
+          date: securityPriceDate,
+        });
+        return breakdown;
+      }
+    }
+  } catch (error) {
+    console.debug("Error creating calculation details string", error);
+  }
+
+  return undefined;
 };

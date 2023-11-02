@@ -52,7 +52,7 @@ const getTradeAmount = (
   BLOCK_SIZE: number
 ) => {
   const value = round(amount, BLOCK_SIZE);
-  return isTradeInUnits ? (value * price) / marketFxRate || 1 : value;
+  return isTradeInUnits ? (value * price) / (marketFxRate || 1) : value;
 };
 
 const getTradeAmountApiArgs = (
@@ -84,7 +84,6 @@ export const SellModalContent = ({
   } = useGetSecurityDetails(securityId.toString());
   const {
     name: securityName,
-    currency: { securityCode: currency },
     url2,
     type: { code: securityType } = {},
     latestMarketData,
@@ -178,7 +177,6 @@ export const SellModalContent = ({
     securityName,
     ...getTradeAmountApiArgs(amount, isTradeInUnits, BLOCK_SIZE),
     ...security,
-    currency,
     executionMethod: isTradeInUnits
       ? ExecutionMethod.UNITS
       : ExecutionMethod.NET_TRADE_AMOUNT,
@@ -273,7 +271,6 @@ export const SellModalContent = ({
                 isTradeInUnits ? "bg-gray-200" : ""
               }`}
               onClick={() => {
-                onInputModeChange({ id: "UNITS", label: "" });
                 setIsTradeInUnits(true);
               }}
             >
@@ -285,10 +282,6 @@ export const SellModalContent = ({
                 !isTradeInUnits ? "bg-gray-200" : ""
               }`}
               onClick={() => {
-                onInputModeChange({
-                  id: "TRADEAMOUNT",
-                  label: portfolioCurrency || "",
-                });
                 setIsTradeInUnits(false);
               }}
             >

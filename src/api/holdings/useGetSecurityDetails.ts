@@ -12,6 +12,7 @@ const SECURITY_DETAILS_QUERY = gql`
     security(id: $securityId) {
       id
       name
+      namesAsMap
       securityCode
       isinCode
       url
@@ -42,16 +43,20 @@ const SECURITY_DETAILS_QUERY = gql`
   }
 `;
 
-export const useGetSecurityDetails = (securityId: string | undefined) => {
+export const useGetSecurityDetails = (
+  securityId: string | undefined,
+  currencyCode?: string
+) => {
   const { selectedContactId } = useGetContractIdData();
   const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
     useGetContactInfo(false, selectedContactId);
+
   const { loading, error, data } = useQuery<SecurityDetailsQuery>(
     SECURITY_DETAILS_QUERY,
     {
       variables: {
         securityId: securityId,
-        currency: portfoliosCurrency,
+        currency: currencyCode || portfoliosCurrency,
         filterTags: ["Online"],
       },
     }

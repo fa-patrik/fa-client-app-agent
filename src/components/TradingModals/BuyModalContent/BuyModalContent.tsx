@@ -1,4 +1,4 @@
-import { MutableRefObject, useState, useEffect } from "react";
+import { MutableRefObject, useState, useEffect, useMemo } from "react";
 import { ExecutionMethod } from "api/enums";
 import { SecurityTypeCode, SecurityTradeType } from "api/holdings/types";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
@@ -11,12 +11,20 @@ import {
   Button,
   Input,
   LabeledDiv,
+  LoadingIndicator,
 } from "components/index";
+import { LabeledDivFlex } from "components/LabeledDiv/LabeledDivFlex";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
+import { getBackendTranslation } from "utils/backTranslations";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
-import { round } from "utils/number";
+import { roundDown } from "utils/number";
+import {
+  getAllowedTradeTypesForSecurity,
+  getBlockSizeErrorTooltip,
+  getTradeAmountTooltip,
+} from "utils/trading";
 import { addProtocolToUrl } from "utils/url";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 
@@ -35,26 +43,6 @@ const isSecurityTypeFund = (securityType: SecurityTypeCode | undefined) =>
 const getTradeType = (securityType: SecurityTypeCode | undefined) =>
   isSecurityTypeFund(securityType) ? "subscription" : "buy";
 
-const getTradeAmount = (
-  amount: number,
-  isTradeInUnits: boolean | undefined,
-  price = 1,
-  fxRate = 1,
-  BLOCK_SIZE = FALLBACK_DECIMAL_COUNT
-) => {
-  const value = round(amount, BLOCK_SIZE);
-  return isTradeInUnits ? value * price * fxRate : value;
-};
-
-const getTradeAmountArgs = (
-  amount: number,
-  isTradeInUnits: boolean | undefined,
-  BLOCK_SIZE: number
-) => {
-  const value = round(amount, BLOCK_SIZE);
-  return isTradeInUnits ? { units: value } : { tradeAmount: value };
-};
-
 const FALLBACK_DECIMAL_COUNT = 2;
 
 export const BuyModalContent = ({
@@ -62,60 +50,7 @@ export const BuyModalContent = ({
   onClose,
   id: securityId,
 }: BuyModalProps) => {
-  const {
-    data: security = {
-      name: "",
-      url2: undefined,
-      type: { code: undefined },
-      latestMarketData: undefined,
-      fxRate: 1,
-      securityCode: "",
-      currency: { securityCode: "" },
-      tagsAsSet: [],
-      amountDecimalCount: FALLBACK_DECIMAL_COUNT,
-    },
-  } = useGetSecurityDetails(securityId.toString());
-  const {
-    name: securityName,
-    url2 = undefined,
-    type: { code: securityType } = {},
-    latestMarketData,
-    fxRate,
-    tagsAsSet: securityTags,
-    amountDecimalCount: securityAmountDecimalCount,
-  } = security;
-
-  const [isTradeInUnits, setIsTradeInUnits] = useState(true);
-  const [canToggleTradeType, setCanToggleTradeType] = useState(false);
-  //in case it takes some time to loop through tags and deduct trade type
-  const [hasDeductedTradeType, setHasDeductedTradeType] = useState(false);
-  useEffect(() => {
-    setHasDeductedTradeType(false);
-    const isTradeTypeSpecified = securityTags?.some(
-      (tag) =>
-        tag === SecurityTradeType.buyUnits ||
-        tag === SecurityTradeType.buyTradeAmount
-    );
-    const isUnitsSupported = securityTags?.some(
-      (tag) => tag === SecurityTradeType.buyUnits
-    );
-    const isTradeAmountSupported = securityTags?.some(
-      (tag) => tag === SecurityTradeType.buyTradeAmount
-    );
-    const isUnitsDefaultTradeType = !isSecurityTypeFund(securityType);
-    setCanToggleTradeType(
-      isTradeTypeSpecified && isUnitsSupported && isTradeAmountSupported
-    );
-    setIsTradeInUnits(
-      isTradeTypeSpecified
-        ? isUnitsSupported &&
-            (!isTradeAmountSupported || isUnitsDefaultTradeType)
-        : isUnitsDefaultTradeType
-    );
-    setHasDeductedTradeType(true);
-  }, [securityTags, securityType]);
-
-  const { t } = useModifiedTranslation();
+  const { t, i18n } = useModifiedTranslation();
   const { selectedContactId } = useGetContractIdData();
   const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
     false,
@@ -125,68 +60,198 @@ export const BuyModalContent = ({
     useTradablePortfolioSelect();
 
   const selectedPortfolioId = portfolioId;
+  const selectedPortfolio = useMemo(() => {
+    return portfolios.find((p) => p.id === portfolioId);
+  }, [portfolios, portfolioId]);
 
-  const { loading, data: portfolioData } = useGetBuyData(selectedPortfolioId);
+  const { data: buySecurity, loading: loadingSecurity } = useGetSecurityDetails(
+    securityId.toString(),
+    selectedPortfolio?.currency.securityCode
+  );
 
-  const [input, setInput] = useState<string>("0");
+  const { loading: loadingCash, data: portfolioData } =
+    useGetBuyData(selectedPortfolioId);
+
+  const [isTradeInUnits, setIsTradeInUnits] = useState(true);
+  const [canToggleTradeType, setCanToggleTradeType] = useState(false);
+
+  const securityAllowedTradeTypes = useMemo(() => {
+    return getAllowedTradeTypesForSecurity(buySecurity?.tagsAsSet);
+  }, [buySecurity?.tagsAsSet]);
+
+  useEffect(() => {
+    const isTradeTypeSpecified =
+      securityAllowedTradeTypes[SecurityTradeType.buyUnits] ||
+      securityAllowedTradeTypes[SecurityTradeType.buyTradeAmount];
+    const isUnitsSupported =
+      securityAllowedTradeTypes[SecurityTradeType.buyUnits];
+    const isTradeAmountSupported =
+      securityAllowedTradeTypes[SecurityTradeType.buyTradeAmount];
+    const isUnitsDefaultTradeType = !isSecurityTypeFund(buySecurity?.type.code);
+    setCanToggleTradeType(
+      isTradeTypeSpecified && isUnitsSupported && isTradeAmountSupported
+    );
+    setIsTradeInUnits(
+      isTradeTypeSpecified
+        ? isUnitsSupported &&
+            (!isTradeAmountSupported || isUnitsDefaultTradeType)
+        : isUnitsDefaultTradeType
+    );
+  }, [securityAllowedTradeTypes, buySecurity?.type.code]);
+
+  const [input, setInput] = useState<string>("");
   const inputAsNr = input ? Number(input) : 0;
 
-  const portfolioCurrencyAmountDecimalCount =
-    portfolioData?.currency.amountDecimalCount || FALLBACK_DECIMAL_COUNT;
-  const BLOCK_SIZE = isTradeInUnits
-    ? securityAmountDecimalCount
-    : portfolioCurrencyAmountDecimalCount;
+  const SECURITY_BLOCK_SIZE =
+    buySecurity?.amountDecimalCount !== undefined
+      ? buySecurity.amountDecimalCount
+      : FALLBACK_DECIMAL_COUNT;
+  const PORTFOLIO_BLOCK_SIZE =
+    portfolioData?.currency.amountDecimalCount !== undefined
+      ? portfolioData?.currency.amountDecimalCount
+      : FALLBACK_DECIMAL_COUNT;
+
+  const buySecurityName =
+    buySecurity !== undefined
+      ? getBackendTranslation(
+          buySecurity?.name,
+          buySecurity?.namesAsMap,
+          i18n.language
+        )
+      : undefined;
+
+  const buySecurityFxRate = buySecurity?.fxRate || 1;
+  const buySecurityPrice = buySecurity?.latestMarketData?.price;
+  const buySecurityPriceInPfCurrency =
+    buySecurityPrice !== undefined
+      ? buySecurityPrice * buySecurityFxRate
+      : undefined;
+  const unitsToBuyFromTradeAmount =
+    buySecurityPriceInPfCurrency !== undefined
+      ? inputAsNr / (buySecurityPriceInPfCurrency || 1)
+      : undefined;
+
+  const unitsToBuy = isTradeInUnits
+    ? roundDown(inputAsNr, SECURITY_BLOCK_SIZE)
+    : unitsToBuyFromTradeAmount !== undefined
+    ? roundDown(unitsToBuyFromTradeAmount, SECURITY_BLOCK_SIZE)
+    : undefined;
+  const tradeAmountInPfCurrency =
+    unitsToBuy !== undefined && buySecurityPriceInPfCurrency !== undefined
+      ? unitsToBuy * buySecurityPriceInPfCurrency
+      : undefined;
+  const tradeAmount =
+    unitsToBuy !== undefined && buySecurityPrice !== undefined
+      ? unitsToBuy * buySecurityPrice
+      : undefined;
 
   const { handleTrade: handleBuy, submitting } = useTrade({
-    tradeType: getTradeType(securityType),
-    portfolio:
-      portfolios.find((portfolio) => portfolio.id === portfolioId) ||
-      portfolios[0],
-    securityName,
-    ...getTradeAmountArgs(inputAsNr, isTradeInUnits, BLOCK_SIZE),
-    ...security,
-    currency: security.currency.securityCode,
+    tradeType: getTradeType(buySecurity?.type.code),
+    portfolio: selectedPortfolio || portfolios[0],
+    securityName: buySecurityName || "-",
+    units: isTradeInUnits ? unitsToBuy : undefined,
+    tradeAmount: !isTradeInUnits ? tradeAmount : undefined,
+    securityCode: buySecurity?.securityCode || "",
     executionMethod: isTradeInUnits
       ? ExecutionMethod.UNITS
       : ExecutionMethod.NET_TRADE_AMOUNT,
   });
 
   const availableCash =
-    portfolioData?.portfolioReport.accountBalanceAdjustedWithOpenTradeOrders !==
-    undefined
-      ? portfolioData?.portfolioReport.accountBalanceAdjustedWithOpenTradeOrders
-      : undefined;
-  const portfolioCurrency = portfolioData?.currency.securityCode;
+    portfolioData?.portfolioReport.accountBalanceAdjustedWithOpenTradeOrders;
+  const portfolioCurrency = selectedPortfolio?.currency.securityCode;
 
-  const isTradeAmountCorrect =
-    availableCash !== undefined &&
-    !isNaN(availableCash) &&
-    inputAsNr >= 0 &&
-    inputAsNr <= availableCash;
+  const insufficientCash =
+    (availableCash || 0) === 0 ||
+    (availableCash || 0) < (tradeAmountInPfCurrency || 0);
 
   const { readonly } = useKeycloak();
+
+  const isTradeAmountAnEstimation =
+    !isTradeInUnits &&
+    buySecurity?.type?.code !==
+      SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE &&
+    portfolioCurrency === buySecurity?.currency.securityCode;
+
+  const tradeAmountTooltip =
+    unitsToBuy !== undefined &&
+    buySecurity !== undefined &&
+    portfolioCurrency !== undefined
+      ? getTradeAmountTooltip(
+          unitsToBuy,
+          buySecurity,
+          buySecurity.fxRate,
+          portfolioCurrency,
+          i18n.language,
+          t
+        )
+      : undefined;
+
+  const blockSizeMinTradeAmountInPfCurrency =
+    buySecurityPriceInPfCurrency !== undefined
+      ? (1 / 10 ** SECURITY_BLOCK_SIZE) * buySecurityPriceInPfCurrency
+      : undefined;
+
+  const blockSizeError =
+    !isTradeInUnits &&
+    buySecurity !== undefined &&
+    buySecurity?.type.code === SecurityTypeCode.EQUITY &&
+    blockSizeMinTradeAmountInPfCurrency !== undefined &&
+    portfolioCurrency !== undefined &&
+    tradeAmountInPfCurrency !== undefined &&
+    !(blockSizeMinTradeAmountInPfCurrency <= tradeAmountInPfCurrency)
+      ? getBlockSizeErrorTooltip(
+          blockSizeMinTradeAmountInPfCurrency,
+          buySecurity,
+          buySecurity.fxRate,
+          portfolioCurrency,
+          i18n.language,
+          t
+        )
+      : undefined;
 
   useEffect(() => {
     //when switching between amount and trade amount
     //we must make sure the input is rounded to the allowed
     //amount of decimals
     setInput((currInput) =>
-      round(parseFloat(currInput), BLOCK_SIZE).toString()
+      currInput
+        ? roundDown(
+            parseFloat(currInput),
+            isTradeInUnits ? SECURITY_BLOCK_SIZE : PORTFOLIO_BLOCK_SIZE
+          ).toString()
+        : ""
     );
-  }, [isTradeInUnits, BLOCK_SIZE]);
+  }, [isTradeInUnits, SECURITY_BLOCK_SIZE, PORTFOLIO_BLOCK_SIZE]);
+
+  const loading = loadingSecurity || loadingCash;
+
+  const disableBuyButton = () => {
+    return (
+      loading ||
+      inputAsNr === 0 ||
+      insufficientCash ||
+      readonly ||
+      !selectedPortfolio ||
+      !!blockSizeError
+    );
+  };
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
-      <LabeledDiv
-        label={t("tradingModal.securityName")}
-        className="text-2xl font-semibold"
-      >
-        {securityName}
-      </LabeledDiv>
-      {url2 && (
+      {buySecurityName && (
+        <LabeledDiv
+          label={t("tradingModal.securityName")}
+          className="text-2xl font-semibold"
+        >
+          {buySecurityName}
+        </LabeledDiv>
+      )}
+      {loadingSecurity && <LoadingIndicator size="sm" />}
+      {buySecurity?.url2 && (
         <div className="w-fit">
           <DownloadableDocument
-            url={addProtocolToUrl(url2)}
+            url={addProtocolToUrl(buySecurity?.url2)}
             label={t("tradingModal.kiid")}
           />
         </div>
@@ -201,21 +266,36 @@ export const BuyModalContent = ({
         label={t("tradingModal.availableCash")}
         className="text-xl font-semibold text-gray-700"
       >
-        {portfolioCurrency &&
+        {!loadingCash &&
+          portfolioCurrency &&
+          availableCash !== undefined &&
           t("numberWithCurrency", {
             value: availableCash,
             currency: portfolioCurrency,
           })}
+        {loadingCash && <LoadingIndicator size="xs" />}
       </LabeledDiv>
       <Input
-        disabled={!hasDeductedTradeType || !portfolioId}
+        disabled={!portfolioId}
         ref={modalInitialFocusRef}
         value={input}
         onChange={(event) => {
-          handleNumberInputEvent(event, setInput, 0, undefined, BLOCK_SIZE);
+          handleNumberInputEvent(
+            event,
+            setInput,
+            0,
+            undefined,
+            isTradeInUnits ? SECURITY_BLOCK_SIZE : PORTFOLIO_BLOCK_SIZE
+          );
         }}
         onPaste={(event) => {
-          handleNumberPasteEvent(event, setInput, 0, undefined, BLOCK_SIZE);
+          handleNumberPasteEvent(
+            event,
+            setInput,
+            0,
+            undefined,
+            isTradeInUnits ? SECURITY_BLOCK_SIZE : PORTFOLIO_BLOCK_SIZE
+          );
         }}
         label={
           isTradeInUnits
@@ -226,9 +306,13 @@ export const BuyModalContent = ({
         }
         type="number"
         error={
-          !isTradeAmountCorrect && !loading
-            ? t("tradingModal.tradeAmountInputError")
-            : undefined
+          !input && !loading
+            ? " "
+            : blockSizeError !== undefined && !loading
+            ? " "
+            : insufficientCash && !loading
+            ? t("tradingModal.insufficientCashError")
+            : ""
         }
       />
 
@@ -258,30 +342,24 @@ export const BuyModalContent = ({
 
       <hr className="my-2" />
       <div className="flex flex-col gap-4 items-stretch ">
-        <div className="text-3xl font-semibold text-center">
-          <div className="text-base font-normal">
-            {t("tradingModal.tradeAmount")}
-          </div>
+        <LabeledDivFlex
+          alignText="center"
+          tooltipContent={tradeAmountTooltip || blockSizeError}
+          id="buyOrderModal-tradeAmount"
+          label={
+            isTradeAmountAnEstimation
+              ? t("tradingModal.approximateTradeAmount")
+              : t("tradingModal.tradeAmount")
+          }
+          className="text-2xl font-semibold"
+        >
           {t("numberWithCurrency", {
-            value: isTradeAmountCorrect
-              ? getTradeAmount(
-                  inputAsNr,
-                  isTradeInUnits,
-                  latestMarketData?.price,
-                  fxRate
-                )
-              : 0,
+            value: tradeAmountInPfCurrency || 0,
             currency: portfolioCurrency,
           })}
-        </div>
+        </LabeledDivFlex>
         <Button
-          disabled={
-            readonly ||
-            inputAsNr === 0 ||
-            loading ||
-            !isTradeAmountCorrect ||
-            !portfolioId
-          }
+          disabled={disableBuyButton()}
           isLoading={submitting}
           onClick={async () => {
             const response = await handleBuy();

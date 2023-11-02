@@ -143,12 +143,17 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
                 : t("ordersPage.tradeAmount")}
             </div>
             <div className="text-sm text-right">
-              {t("numberWithCurrency", {
-                value: isPartOfSwitch
-                  ? switchDetails?.fromOrder?.tradeAmountInPortfolioCurrency
-                  : order.tradeAmountInPortfolioCurrency,
-                currency: orderParentPortfolio?.currency.securityCode,
-              })}
+              {(isPartOfSwitch &&
+                switchDetails?.fromOrder?.tradeAmountInPortfolioCurrency !==
+                  undefined) ||
+              order.tradeAmountInPortfolioCurrency !== undefined
+                ? t("numberWithCurrency", {
+                    value: isPartOfSwitch
+                      ? switchDetails?.fromOrder?.tradeAmountInPortfolioCurrency
+                      : order.tradeAmountInPortfolioCurrency,
+                    currency: orderParentPortfolio?.currency.securityCode,
+                  })
+                : "-"}
             </div>
           </li>
           <li className="flex flex-row justify-between">

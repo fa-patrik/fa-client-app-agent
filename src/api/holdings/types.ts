@@ -27,6 +27,7 @@ export enum SecurityTradeType {
 export interface SecurityDetailsPosition {
   id: number;
   name: string;
+  namesAsMap: Record<string, string>;
   securityCode: string;
   isinCode: string;
   url: string;
