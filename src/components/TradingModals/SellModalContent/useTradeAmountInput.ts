@@ -13,7 +13,7 @@ export interface InputModeOption {
 }
 
 export const useTradeAmountInput = (
-  marketValue: number,
+  marketValue: number | undefined,
   currency: string,
   isTradeInUnits: boolean,
   BLOCK_SIZE: number
@@ -59,7 +59,7 @@ export const useTradeAmountInput = (
   }, [isTradeInUnits, currency]);
 
   const onInputModeChange = (newValue: InputModeOption) => {
-    if (isNaN(marketValue)) {
+    if (marketValue !== undefined && isNaN(marketValue)) {
       setInputState((previousState) => ({
         ...previousState,
         inputMode: newValue,
@@ -70,7 +70,8 @@ export const useTradeAmountInput = (
     if (newValue.id === INPUT_MODE.PERCENTAGE) {
       setInputState((previousState) => {
         const newPercentage =
-          previousState.inputValueAsNr !== undefined
+          previousState.inputValueAsNr !== undefined &&
+          marketValue !== undefined
             ? (previousState.inputValueAsNr / marketValue) * 100
             : undefined;
         return {
@@ -86,7 +87,8 @@ export const useTradeAmountInput = (
     } else if (newValue.id === INPUT_MODE.CURRENCY) {
       setInputState((previousState) => {
         const newTradeAmount =
-          previousState.inputValueAsNr !== undefined
+          previousState.inputValueAsNr !== undefined &&
+          marketValue !== undefined
             ? (previousState.inputValueAsNr * marketValue) / 100
             : undefined;
         return {
@@ -137,17 +139,22 @@ export const useTradeAmountInput = (
       }));
     }
   };
-  const amount = inputValueAsNr
-    ? inputMode.id === INPUT_MODE.CURRENCY
-      ? round(inputValueAsNr, BLOCK_SIZE)
-      : round((inputValueAsNr * marketValue) / 100, BLOCK_SIZE)
-    : 0;
+  const amount =
+    inputValueAsNr && marketValue !== undefined
+      ? inputMode.id === INPUT_MODE.CURRENCY
+        ? round(inputValueAsNr, BLOCK_SIZE)
+        : round((inputValueAsNr * marketValue) / 100, BLOCK_SIZE)
+      : 0;
   const isTradeAmountCorrect =
-    !isNaN(marketValue) && amount >= 0 && amount <= marketValue;
+    marketValue !== undefined &&
+    !isNaN(marketValue) &&
+    amount >= 0 &&
+    amount <= marketValue;
 
   return {
     INPUT_MODE,
     inputValue,
+    inputValueAsNr,
     setInputState,
     inputModesOptions,
     inputMode,

@@ -1,6 +1,6 @@
 import { MutableRefObject, useState, useEffect, useMemo } from "react";
 import { ExecutionMethod } from "api/enums";
-import { SecurityTypeCode, SecurityTradeType } from "api/holdings/types";
+import { SecurityTypeCode } from "api/holdings/types";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { useGetBuyData } from "api/trading/useGetBuyData";
@@ -20,13 +20,10 @@ import { useKeycloak } from "providers/KeycloakProvider";
 import { getBackendTranslation } from "utils/backTranslations";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import { roundDown } from "utils/number";
-import {
-  getAllowedTradeTypesForSecurity,
-  getBlockSizeErrorTooltip,
-  getTradeAmountTooltip,
-} from "utils/trading";
+import { getBlockSizeErrorTooltip, getTradeAmountTooltip } from "utils/trading";
 import { addProtocolToUrl } from "utils/url";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
+import { useGetBuyTradeType } from "./useGetBuyTradeType";
 
 export interface BuyModalInitialData {
   id: number;
@@ -37,8 +34,9 @@ interface BuyModalProps extends BuyModalInitialData {
   onClose: () => void;
 }
 
-const isSecurityTypeFund = (securityType: SecurityTypeCode | undefined) =>
-  securityType === SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE;
+export const isSecurityTypeFund = (
+  securityType: SecurityTypeCode | undefined
+) => securityType === SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE;
 
 const getTradeType = (securityType: SecurityTypeCode | undefined) =>
   isSecurityTypeFund(securityType) ? "subscription" : "buy";
@@ -64,7 +62,7 @@ export const BuyModalContent = ({
     return portfolios.find((p) => p.id === portfolioId);
   }, [portfolios, portfolioId]);
 
-  const { data: buySecurity, loading: loadingSecurity } = useGetSecurityDetails(
+  const { data: security, loading: loadingSecurity } = useGetSecurityDetails(
     securityId.toString(),
     selectedPortfolio?.currency.securityCode
   );
@@ -72,39 +70,15 @@ export const BuyModalContent = ({
   const { loading: loadingCash, data: portfolioData } =
     useGetBuyData(selectedPortfolioId);
 
-  const [isTradeInUnits, setIsTradeInUnits] = useState(true);
-  const [canToggleTradeType, setCanToggleTradeType] = useState(false);
-
-  const securityAllowedTradeTypes = useMemo(() => {
-    return getAllowedTradeTypesForSecurity(buySecurity?.tagsAsSet);
-  }, [buySecurity?.tagsAsSet]);
-
-  useEffect(() => {
-    const isTradeTypeSpecified =
-      securityAllowedTradeTypes[SecurityTradeType.buyUnits] ||
-      securityAllowedTradeTypes[SecurityTradeType.buyTradeAmount];
-    const isUnitsSupported =
-      securityAllowedTradeTypes[SecurityTradeType.buyUnits];
-    const isTradeAmountSupported =
-      securityAllowedTradeTypes[SecurityTradeType.buyTradeAmount];
-    const isUnitsDefaultTradeType = !isSecurityTypeFund(buySecurity?.type.code);
-    setCanToggleTradeType(
-      isTradeTypeSpecified && isUnitsSupported && isTradeAmountSupported
-    );
-    setIsTradeInUnits(
-      isTradeTypeSpecified
-        ? isUnitsSupported &&
-            (!isTradeAmountSupported || isUnitsDefaultTradeType)
-        : isUnitsDefaultTradeType
-    );
-  }, [securityAllowedTradeTypes, buySecurity?.type.code]);
+  const { isTradeInUnits, canToggleTradeType, setIsTradeInUnits } =
+    useGetBuyTradeType(security?.tagsAsSet, security?.type.code);
 
   const [input, setInput] = useState<string>("");
   const inputAsNr = input ? Number(input) : 0;
 
   const SECURITY_BLOCK_SIZE =
-    buySecurity?.amountDecimalCount !== undefined
-      ? buySecurity.amountDecimalCount
+    security?.amountDecimalCount !== undefined
+      ? security.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
   const PORTFOLIO_BLOCK_SIZE =
     portfolioData?.currency.amountDecimalCount !== undefined
@@ -112,16 +86,16 @@ export const BuyModalContent = ({
       : FALLBACK_DECIMAL_COUNT;
 
   const buySecurityName =
-    buySecurity !== undefined
+    security !== undefined
       ? getBackendTranslation(
-          buySecurity?.name,
-          buySecurity?.namesAsMap,
+          security?.name,
+          security?.namesAsMap,
           i18n.language
         )
       : undefined;
 
-  const buySecurityFxRate = buySecurity?.fxRate || 1;
-  const buySecurityPrice = buySecurity?.latestMarketData?.price;
+  const buySecurityFxRate = security?.fxRate || 1;
+  const buySecurityPrice = security?.latestMarketData?.price;
   const buySecurityPriceInPfCurrency =
     buySecurityPrice !== undefined
       ? buySecurityPrice * buySecurityFxRate
@@ -146,12 +120,12 @@ export const BuyModalContent = ({
       : undefined;
 
   const { handleTrade: handleBuy, submitting } = useTrade({
-    tradeType: getTradeType(buySecurity?.type.code),
+    tradeType: getTradeType(security?.type.code),
     portfolio: selectedPortfolio || portfolios[0],
     securityName: buySecurityName || "-",
     units: isTradeInUnits ? unitsToBuy : undefined,
     tradeAmount: !isTradeInUnits ? tradeAmount : undefined,
-    securityCode: buySecurity?.securityCode || "",
+    securityCode: security?.securityCode || "",
     executionMethod: isTradeInUnits
       ? ExecutionMethod.UNITS
       : ExecutionMethod.NET_TRADE_AMOUNT,
@@ -160,6 +134,7 @@ export const BuyModalContent = ({
   const availableCash =
     portfolioData?.portfolioReport.accountBalanceAdjustedWithOpenTradeOrders;
   const portfolioCurrency = selectedPortfolio?.currency.securityCode;
+  const buySecurityCurrency = security?.currency.securityCode;
 
   const insufficientCash =
     (availableCash || 0) === 0 ||
@@ -167,20 +142,21 @@ export const BuyModalContent = ({
 
   const { readonly } = useKeycloak();
 
-  const isTradeAmountAnEstimation =
+  //all cases except when buying fund with trade amount
+  const isTradeAmountAnEstimation = !(
     !isTradeInUnits &&
-    buySecurity?.type?.code !==
-      SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE &&
-    portfolioCurrency === buySecurity?.currency.securityCode;
+    security?.type?.code === SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE &&
+    portfolioCurrency === buySecurityCurrency
+  );
 
   const tradeAmountTooltip =
     unitsToBuy !== undefined &&
-    buySecurity !== undefined &&
+    security !== undefined &&
     portfolioCurrency !== undefined
       ? getTradeAmountTooltip(
           unitsToBuy,
-          buySecurity,
-          buySecurity.fxRate,
+          security,
+          security.fxRate,
           portfolioCurrency,
           i18n.language,
           t
@@ -192,18 +168,18 @@ export const BuyModalContent = ({
       ? (1 / 10 ** SECURITY_BLOCK_SIZE) * buySecurityPriceInPfCurrency
       : undefined;
 
-  const blockSizeError =
+  const blockSizeTradeAmountError =
     !isTradeInUnits &&
-    buySecurity !== undefined &&
-    buySecurity?.type.code === SecurityTypeCode.EQUITY &&
+    security !== undefined &&
+    security?.type.code === SecurityTypeCode.EQUITY &&
     blockSizeMinTradeAmountInPfCurrency !== undefined &&
     portfolioCurrency !== undefined &&
     tradeAmountInPfCurrency !== undefined &&
     !(blockSizeMinTradeAmountInPfCurrency <= tradeAmountInPfCurrency)
       ? getBlockSizeErrorTooltip(
           blockSizeMinTradeAmountInPfCurrency,
-          buySecurity,
-          buySecurity.fxRate,
+          security,
+          security.fxRate,
           portfolioCurrency,
           i18n.language,
           t
@@ -233,7 +209,7 @@ export const BuyModalContent = ({
       insufficientCash ||
       readonly ||
       !selectedPortfolio ||
-      !!blockSizeError
+      !!blockSizeTradeAmountError
     );
   };
 
@@ -248,10 +224,10 @@ export const BuyModalContent = ({
         </LabeledDiv>
       )}
       {loadingSecurity && <LoadingIndicator size="sm" />}
-      {buySecurity?.url2 && (
+      {security?.url2 && (
         <div className="w-fit">
           <DownloadableDocument
-            url={addProtocolToUrl(buySecurity?.url2)}
+            url={addProtocolToUrl(security?.url2)}
             label={t("tradingModal.kiid")}
           />
         </div>
@@ -304,11 +280,11 @@ export const BuyModalContent = ({
                 currency: portfolioCurrency,
               })
         }
-        type="number"
+        type="text"
         error={
           !input && !loading
             ? " "
-            : blockSizeError !== undefined && !loading
+            : blockSizeTradeAmountError !== undefined && !loading
             ? " "
             : insufficientCash && !loading
             ? t("tradingModal.insufficientCashError")
@@ -344,7 +320,7 @@ export const BuyModalContent = ({
       <div className="flex flex-col gap-4 items-stretch ">
         <LabeledDivFlex
           alignText="center"
-          tooltipContent={tradeAmountTooltip || blockSizeError}
+          tooltipContent={tradeAmountTooltip || blockSizeTradeAmountError}
           id="buyOrderModal-tradeAmount"
           label={
             isTradeAmountAnEstimation
