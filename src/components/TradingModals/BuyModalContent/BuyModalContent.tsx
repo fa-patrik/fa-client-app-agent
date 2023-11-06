@@ -20,7 +20,11 @@ import { useKeycloak } from "providers/KeycloakProvider";
 import { getBackendTranslation } from "utils/backTranslations";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import { roundDown } from "utils/number";
-import { getBlockSizeErrorTooltip, getTradeAmountTooltip } from "utils/trading";
+import {
+  getBlockSizeErrorTooltip,
+  getBlockSizeMinTradeAmount,
+  getTradeAmountTooltip,
+} from "utils/trading";
 import { addProtocolToUrl } from "utils/url";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 import { useGetBuyTradeType } from "./useGetBuyTradeType";
@@ -85,7 +89,7 @@ export const BuyModalContent = ({
       ? portfolioData?.currency.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
 
-  const buySecurityName =
+  const securityName =
     security !== undefined
       ? getBackendTranslation(
           security?.name,
@@ -94,15 +98,13 @@ export const BuyModalContent = ({
         )
       : undefined;
 
-  const buySecurityFxRate = security?.fxRate || 1;
-  const buySecurityPrice = security?.latestMarketData?.price;
-  const buySecurityPriceInPfCurrency =
-    buySecurityPrice !== undefined
-      ? buySecurityPrice * buySecurityFxRate
-      : undefined;
+  const securityFxRate = security?.fxRate || 1;
+  const securityPrice = security?.latestMarketData?.price;
+  const securityPriceInPfCurrency =
+    securityPrice !== undefined ? securityPrice * securityFxRate : undefined;
   const unitsToBuyFromTradeAmount =
-    buySecurityPriceInPfCurrency !== undefined
-      ? inputAsNr / (buySecurityPriceInPfCurrency || 1)
+    securityPriceInPfCurrency !== undefined
+      ? inputAsNr / (securityPriceInPfCurrency || 1)
       : undefined;
 
   const unitsToBuy = isTradeInUnits
@@ -111,18 +113,18 @@ export const BuyModalContent = ({
     ? roundDown(unitsToBuyFromTradeAmount, SECURITY_BLOCK_SIZE)
     : undefined;
   const tradeAmountInPfCurrency =
-    unitsToBuy !== undefined && buySecurityPriceInPfCurrency !== undefined
-      ? unitsToBuy * buySecurityPriceInPfCurrency
+    unitsToBuy !== undefined && securityPriceInPfCurrency !== undefined
+      ? unitsToBuy * securityPriceInPfCurrency
       : undefined;
   const tradeAmount =
-    unitsToBuy !== undefined && buySecurityPrice !== undefined
-      ? unitsToBuy * buySecurityPrice
+    unitsToBuy !== undefined && securityPrice !== undefined
+      ? unitsToBuy * securityPrice
       : undefined;
 
   const { handleTrade: handleBuy, submitting } = useTrade({
     tradeType: getTradeType(security?.type.code),
     portfolio: selectedPortfolio || portfolios[0],
-    securityName: buySecurityName || "-",
+    securityName: securityName || "-",
     units: isTradeInUnits ? unitsToBuy : undefined,
     tradeAmount: !isTradeInUnits ? tradeAmount : undefined,
     securityCode: security?.securityCode || "",
@@ -134,19 +136,19 @@ export const BuyModalContent = ({
   const availableCash =
     portfolioData?.portfolioReport.accountBalanceAdjustedWithOpenTradeOrders;
   const portfolioCurrency = selectedPortfolio?.currency.securityCode;
-  const buySecurityCurrency = security?.currency.securityCode;
+  const securityCurrency = security?.currency.securityCode;
 
   const insufficientCash =
-    (availableCash || 0) === 0 ||
-    (availableCash || 0) < (tradeAmountInPfCurrency || 0);
+    (availableCash || 0) < (tradeAmountInPfCurrency || 0); // less than trying to buy for
 
   const { readonly } = useKeycloak();
 
-  //all cases except when buying fund with trade amount
+  //we don't know the final trade amount unless
+  //buying mutual fund with cash
   const isTradeAmountAnEstimation = !(
     !isTradeInUnits &&
     security?.type?.code === SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE &&
-    portfolioCurrency === buySecurityCurrency
+    portfolioCurrency === securityCurrency
   );
 
   const tradeAmountTooltip =
@@ -163,26 +165,32 @@ export const BuyModalContent = ({
         )
       : undefined;
 
+  //min trade amount allowed to trade in this security
+  //based on its block size only
   const blockSizeMinTradeAmountInPfCurrency =
-    buySecurityPriceInPfCurrency !== undefined
-      ? (1 / 10 ** SECURITY_BLOCK_SIZE) * buySecurityPriceInPfCurrency
+    securityPriceInPfCurrency !== undefined
+      ? getBlockSizeMinTradeAmount(
+          SECURITY_BLOCK_SIZE,
+          securityPriceInPfCurrency
+        )
       : undefined;
 
   const blockSizeTradeAmountError =
     !isTradeInUnits &&
+    inputAsNr > 0 &&
     security !== undefined &&
-    security?.type.code === SecurityTypeCode.EQUITY &&
     blockSizeMinTradeAmountInPfCurrency !== undefined &&
     portfolioCurrency !== undefined &&
     tradeAmountInPfCurrency !== undefined &&
-    !(blockSizeMinTradeAmountInPfCurrency <= tradeAmountInPfCurrency)
+    blockSizeMinTradeAmountInPfCurrency > tradeAmountInPfCurrency //input is lower than min allowed trade amount
       ? getBlockSizeErrorTooltip(
           blockSizeMinTradeAmountInPfCurrency,
           security,
           security.fxRate,
           portfolioCurrency,
           i18n.language,
-          t
+          t,
+          true
         )
       : undefined;
 
@@ -200,7 +208,7 @@ export const BuyModalContent = ({
     );
   }, [isTradeInUnits, SECURITY_BLOCK_SIZE, PORTFOLIO_BLOCK_SIZE]);
 
-  const loading = loadingSecurity || loadingCash;
+  const loading = loadingCash || loadingSecurity;
 
   const disableBuyButton = () => {
     return (
@@ -208,19 +216,18 @@ export const BuyModalContent = ({
       inputAsNr === 0 ||
       insufficientCash ||
       readonly ||
-      !selectedPortfolio ||
-      !!blockSizeTradeAmountError
+      !selectedPortfolio
     );
   };
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
-      {buySecurityName && (
+      {securityName && (
         <LabeledDiv
           label={t("tradingModal.securityName")}
           className="text-2xl font-semibold"
         >
-          {buySecurityName}
+          {securityName}
         </LabeledDiv>
       )}
       {loadingSecurity && <LoadingIndicator size="sm" />}
@@ -282,9 +289,7 @@ export const BuyModalContent = ({
         }
         type="text"
         error={
-          !input && !loading
-            ? " "
-            : blockSizeTradeAmountError !== undefined && !loading
+          !input || inputAsNr === 0
             ? " "
             : insufficientCash && !loading
             ? t("tradingModal.insufficientCashError")

@@ -148,7 +148,8 @@ export const getBlockSizeErrorTooltip = (
   portfolioCurrency: string,
   locale: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  t: (key: string, options?: TOptions<StringMap> | undefined) => any
+  t: (key: string, options?: TOptions<StringMap> | undefined) => any,
+  buy: boolean
 ): string | undefined => {
   try {
     const sellSecurityName = security
@@ -186,29 +187,39 @@ export const getBlockSizeErrorTooltip = (
         portfolioCurrency &&
         security.currency.securityCode !== portfolioCurrency
       ) {
-        const breakdownWithFx: string = t("tradingModal.blockSizeErrorWithFx", {
-          tradeAmount: t("numberWithCurrency", {
-            value: securityPriceInPfCurrency,
-            currency: portfolioCurrency,
-          }),
-          securityName: sellSecurityName,
-          price: sellPrice,
-          date: securityPriceDate,
-          fxRate: sellSecurityToPortfoliofxRate,
-          fx1: security.currency.securityCode,
-          fx2: portfolioCurrency,
-        });
+        const breakdownWithFx: string = t(
+          buy
+            ? "tradingModal.buyBlockSizeErrorWithFx"
+            : "tradingModal.sellBlockSizeErrorWithFx",
+          {
+            tradeAmount: t("numberWithCurrency", {
+              value: securityPriceInPfCurrency,
+              currency: portfolioCurrency,
+            }),
+            securityName: sellSecurityName,
+            price: sellPrice,
+            date: securityPriceDate,
+            fxRate: sellSecurityToPortfoliofxRate,
+            fx1: security.currency.securityCode,
+            fx2: portfolioCurrency,
+          }
+        );
         return breakdownWithFx;
       } else {
-        const breakdown: string = t("tradingModal.blockSizeError", {
-          tradeAmount: t("numberWithCurrency", {
-            value: securityPriceInPfCurrency,
-            currency: portfolioCurrency,
-          }),
-          securityName: sellSecurityName,
-          price: sellPrice,
-          date: securityPriceDate,
-        });
+        const breakdown: string = t(
+          buy
+            ? "tradingModal.buyBlockSizeErrorWithFx"
+            : "tradingModal.sellBlockSizeErrorWithFx",
+          {
+            tradeAmount: t("numberWithCurrency", {
+              value: securityPriceInPfCurrency,
+              currency: portfolioCurrency,
+            }),
+            securityName: sellSecurityName,
+            price: sellPrice,
+            date: securityPriceDate,
+          }
+        );
         return breakdown;
       }
     }
@@ -217,4 +228,14 @@ export const getBlockSizeErrorTooltip = (
   }
 
   return undefined;
+};
+
+export const getBlockSizeMinTradeAmount = (
+  securityBlockSize: number,
+  securityPrice: number
+) => {
+  const fraction = 1 / 10 ** securityBlockSize;
+  const blockSizeMinTradeAmount = fraction * securityPrice;
+
+  return blockSizeMinTradeAmount;
 };

@@ -30,7 +30,7 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
         status: "4"
         amount: $units
         tradeAmount: $tradeAmount
-        unitPrice: ""
+        unitPrice: "AUTO"
         fxRate: "AUTO"
         reference: $reference
         executionMethod: $executionMethod

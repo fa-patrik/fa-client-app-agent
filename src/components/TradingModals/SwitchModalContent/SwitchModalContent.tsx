@@ -396,7 +396,7 @@ export const SwitchModalContent = ({
                 })
               : ""
           }
-          type="number"
+          type="text"
           placeholder={t("switchOrderModal.shareInputPlaceholder")}
           className="w-20"
           value={inputValue}
@@ -480,7 +480,6 @@ export const SwitchModalContent = ({
           )}
         </div>
       </>
-      <hr className="my-1" />
       <Button
         id="switchOrderModal-confirmButton"
         onClick={async () => {

@@ -20,7 +20,11 @@ import { useKeycloak } from "providers/KeycloakProvider";
 import { getBackendTranslation } from "utils/backTranslations";
 import { handleNumberInputEvent } from "utils/input";
 import { roundDown } from "utils/number";
-import { getBlockSizeErrorTooltip, getTradeAmountTooltip } from "utils/trading";
+import {
+  getBlockSizeErrorTooltip,
+  getBlockSizeMinTradeAmount,
+  getTradeAmountTooltip,
+} from "utils/trading";
 import { addProtocolToUrl } from "utils/url";
 import { useGetSecurityDetails } from "../../../api/holdings/useGetSecurityDetails";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
@@ -57,25 +61,6 @@ const getUnitsToSell = (
       );
     }
   }
-};
-
-const getInsufficientFunds = (
-  isTradeInUnits: boolean,
-  units: number | undefined,
-  unitsToSell: number | undefined,
-  marketValue: number | undefined,
-  tradeAmountInPfCurrency: number | undefined
-) => {
-  const insufficientFunds =
-    isTradeInUnits && unitsToSell !== undefined && units !== undefined
-      ? unitsToSell > units
-      : !isTradeInUnits &&
-        tradeAmountInPfCurrency !== undefined &&
-        marketValue !== undefined
-      ? tradeAmountInPfCurrency > marketValue
-      : true;
-
-  return insufficientFunds;
 };
 
 export const isSecurityTypeFund = (
@@ -127,9 +112,13 @@ export const SellModalContent = ({
     useGetSellTradeType(security?.tagsAsSet, security?.type.code);
 
   const PORTFOLIO_BLOCK_SIZE =
-    selectedPortfolio?.currency.amountDecimalCount || FALLBACK_DECIMAL_COUNT;
+    selectedPortfolio?.currency.amountDecimalCount !== undefined
+      ? selectedPortfolio?.currency.amountDecimalCount
+      : FALLBACK_DECIMAL_COUNT;
   const SECURITY_BLOCK_SIZE =
-    security?.amountDecimalCount || FALLBACK_DECIMAL_COUNT;
+    security?.amountDecimalCount !== undefined
+      ? security?.amountDecimalCount
+      : FALLBACK_DECIMAL_COUNT;
   const PERCENTAGE_BLOCK_SIZE = FALLBACK_DECIMAL_COUNT;
 
   const securityFxRate = security?.fxRate || 1;
@@ -174,34 +163,16 @@ export const SellModalContent = ({
       portfolios[0],
     securityName,
     units: isTradeInUnits ? unitsToSell : undefined,
-    tradeAmount: isTradeInUnits ? tradeAmount : undefined,
+    tradeAmount: !isTradeInUnits ? tradeAmount : undefined,
     securityCode: security?.securityCode || "",
     executionMethod: isTradeInUnits
       ? ExecutionMethod.UNITS
       : ExecutionMethod.NET_TRADE_AMOUNT,
   });
 
-  const insufficientFunds = getInsufficientFunds(
-    isTradeInUnits,
-    units,
-    unitsToSell,
-    marketValue,
-    tradeAmountInPfCurrency
-  );
-
   const { readonly } = useKeycloak();
 
-  const loading = !loadingPfReport && !loadingSecurity;
-
-  const disableSellButton = () => {
-    return (
-      readonly ||
-      inputAsNr === 0 ||
-      loading ||
-      !portfolioId ||
-      insufficientFunds
-    );
-  };
+  const loading = loadingPfReport && loadingSecurity;
 
   const tradeAmountTooltip =
     unitsToSell !== undefined &&
@@ -219,26 +190,37 @@ export const SellModalContent = ({
 
   const blockSizeMinTradeAmountInPfCurrency =
     securityPriceInPfCurrency !== undefined
-      ? (1 / 10 ** SECURITY_BLOCK_SIZE) * securityPriceInPfCurrency
+      ? getBlockSizeMinTradeAmount(
+          SECURITY_BLOCK_SIZE,
+          securityPriceInPfCurrency
+        )
       : undefined;
 
   const blockSizeTradeAmountError =
+    !isTradeInUnits &&
+    inputAsNr > 0 &&
     security !== undefined &&
-    security?.type.code === SecurityTypeCode.EQUITY &&
     blockSizeMinTradeAmountInPfCurrency !== undefined &&
     portfolioCurrency !== undefined &&
     tradeAmountInPfCurrency !== undefined &&
-    !(blockSizeMinTradeAmountInPfCurrency <= tradeAmountInPfCurrency)
+    blockSizeMinTradeAmountInPfCurrency > tradeAmountInPfCurrency
       ? getBlockSizeErrorTooltip(
           blockSizeMinTradeAmountInPfCurrency,
           security,
           security.fxRate,
           portfolioCurrency,
           i18n.language,
-          t
+          t,
+          false
         )
       : undefined;
 
+  const emptyPortfolio = units === undefined || units === 0;
+
+  const insufficientFunds =
+    unitsToSell !== undefined && units !== undefined && unitsToSell > units;
+
+  //however many decimals to round the input to
   const INPUT_BLOCK_SIZE = isPercentageMode
     ? PERCENTAGE_BLOCK_SIZE
     : isTradeInUnits
@@ -255,19 +237,28 @@ export const SellModalContent = ({
     });
   }, [INPUT_BLOCK_SIZE]);
 
-  console.log(tradeAmountInPfCurrency);
-  console.log(marketValue);
+  const disableSellButton = () => {
+    return (
+      readonly ||
+      inputAsNr === 0 ||
+      loading ||
+      !portfolioId ||
+      insufficientFunds ||
+      emptyPortfolio
+    );
+  };
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
-      {securityName && (
+      {!loadingSecurity && securityName && (
         <LabeledDiv
           label={t("tradingModal.securityName")}
           className="text-2xl font-semibold"
         >
-          {securityName}
+          {securityName ?? "-"}
         </LabeledDiv>
       )}
+      {loadingSecurity && <LoadingIndicator size="sm" />}
 
       {security?.url2 && (
         <div className="w-fit">
@@ -325,9 +316,9 @@ export const SellModalContent = ({
         }}
         label={
           isPercentageMode && isTradeInUnits
-            ? "Share (%) of units"
+            ? t("tradingModal.shareOfUnitsInputLabel")
             : isPercentageMode && !isTradeInUnits
-            ? "Share (%) of trade amount"
+            ? t("tradingModal.shareOfTradeAmountInputLabel")
             : isTradeInUnits
             ? t("tradingModal.unitsInputLabel")
             : t("tradingModal.tradeAmountInputLabel", {
@@ -335,7 +326,15 @@ export const SellModalContent = ({
               })
         }
         type="text"
-        error={insufficientFunds ? "SHIIT" : ""}
+        error={
+          !input || inputAsNr === 0
+            ? " "
+            : insufficientFunds && isTradeInUnits
+            ? t("tradingModal.insufficientUnitsError")
+            : insufficientFunds && !isTradeInUnits
+            ? t("tradingModal.insufficientMarketValueError")
+            : ""
+        }
       />
 
       {canToggleTradeType && (
@@ -366,7 +365,7 @@ export const SellModalContent = ({
         </>
       )}
 
-      <div className="flex justify-between items-center h-8">
+      <div className="flex justify-between items-end h-8">
         <div className="flex gap-1 items-center">
           <Button
             size="xs"
@@ -382,7 +381,7 @@ export const SellModalContent = ({
                 }
                 if (!isTradeInUnits && marketValue !== undefined) {
                   return setInput(() =>
-                    roundDown(marketValue, SECURITY_BLOCK_SIZE).toString()
+                    roundDown(marketValue, PORTFOLIO_BLOCK_SIZE).toString()
                   );
                 }
               }
@@ -405,7 +404,7 @@ export const SellModalContent = ({
                 }
                 if (!isTradeInUnits && marketValue !== undefined) {
                   return setInput(() =>
-                    roundDown(marketValue / 2, SECURITY_BLOCK_SIZE).toString()
+                    roundDown(marketValue / 2, PORTFOLIO_BLOCK_SIZE).toString()
                   );
                 }
               }
@@ -414,7 +413,7 @@ export const SellModalContent = ({
             {t("tradingModal.sellHalf")}
           </Button>
         </div>
-        <div className="flex z-0 justify-center items-center p-1 text-sm bg-gray-50 rounded-lg border border-gray-300 select-none">
+        <div className="flex z-0 justify-center items-center text-sm rounded-lg select-none">
           <Toggle
             enabled={isPercentageMode}
             setEnabled={setIsPercentageMode}
@@ -430,7 +429,7 @@ export const SellModalContent = ({
             alignText="center"
             tooltipContent={tradeAmountTooltip || blockSizeTradeAmountError}
             id="sellOrderModal-tradeAmount"
-            label={t("tradingModal.tradeAmount")}
+            label={t("tradingModal.approximateTradeAmount")}
             className="text-2xl font-semibold"
           >
             {t("numberWithCurrency", {
