@@ -20,6 +20,7 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
     $tradeAmount: String
     $reference: String
     $executionMethod: String
+    $accountFxRate: String
   ) {
     importTradeOrder(
       tradeOrder: {
@@ -30,8 +31,11 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
         status: "4"
         amount: $units
         tradeAmount: $tradeAmount
+        account: "AUTO"
         unitPrice: "AUTO"
         fxRate: "AUTO"
+        accountFxRate: $accountFxRate
+        taxType2: "RND"
         reference: $reference
         executionMethod: $executionMethod
       }

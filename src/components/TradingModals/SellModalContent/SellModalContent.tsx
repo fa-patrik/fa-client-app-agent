@@ -121,6 +121,7 @@ export const SellModalContent = ({
       : FALLBACK_DECIMAL_COUNT;
   const PERCENTAGE_BLOCK_SIZE = FALLBACK_DECIMAL_COUNT;
 
+  const securityCurrency = security?.currency.securityCode;
   const securityFxRate = security?.fxRate || 1;
   const securityPrice = security?.latestMarketData?.price;
   const securityPriceInPfCurrency =
@@ -138,14 +139,18 @@ export const SellModalContent = ({
         )
       : undefined;
 
-  const tradeAmountInPfCurrency =
+  const estimatedTradeAmountInPfCurrency =
     unitsToSell !== undefined && securityPriceInPfCurrency !== undefined
       ? unitsToSell * securityPriceInPfCurrency
       : undefined;
-  const tradeAmount =
+  const estimatedTradeAmountInSecurityCurrency =
     unitsToSell !== undefined && securityPrice !== undefined
       ? unitsToSell * securityPrice
       : undefined;
+
+  //this is what the user inputs, but converted to security currency
+  //we import this value (if trade amount selected)
+  const tradeAmountInSecurityCurrency = inputAsNr / securityFxRate;
 
   const securityName =
     security !== undefined
@@ -163,7 +168,7 @@ export const SellModalContent = ({
       portfolios[0],
     securityName,
     units: isTradeInUnits ? unitsToSell : undefined,
-    tradeAmount: !isTradeInUnits ? tradeAmount : undefined,
+    tradeAmount: !isTradeInUnits ? tradeAmountInSecurityCurrency : undefined,
     securityCode: security?.securityCode || "",
     executionMethod: isTradeInUnits
       ? ExecutionMethod.UNITS
@@ -202,8 +207,8 @@ export const SellModalContent = ({
     security !== undefined &&
     blockSizeMinTradeAmountInPfCurrency !== undefined &&
     portfolioCurrency !== undefined &&
-    tradeAmountInPfCurrency !== undefined &&
-    blockSizeMinTradeAmountInPfCurrency > tradeAmountInPfCurrency
+    estimatedTradeAmountInPfCurrency !== undefined &&
+    blockSizeMinTradeAmountInPfCurrency > estimatedTradeAmountInPfCurrency
       ? getBlockSizeErrorTooltip(
           blockSizeMinTradeAmountInPfCurrency,
           security,
@@ -424,7 +429,7 @@ export const SellModalContent = ({
 
       <hr />
       <div className="flex flex-col gap-4 items-stretch ">
-        <div className="text-3xl font-semibold text-center">
+        <div>
           <LabeledDivFlex
             alignText="center"
             tooltipContent={tradeAmountTooltip || blockSizeTradeAmountError}
@@ -433,10 +438,25 @@ export const SellModalContent = ({
             className="text-2xl font-semibold"
           >
             {t("numberWithCurrency", {
-              value: tradeAmountInPfCurrency || 0,
+              value: estimatedTradeAmountInPfCurrency || 0,
               currency: portfolioCurrency,
             })}
           </LabeledDivFlex>
+          {securityCurrency && portfolioCurrency !== securityCurrency && (
+            <LabeledDivFlex
+              alignText="center"
+              id="buyOrderModal-tradeAmount"
+              label={""}
+              className="text-md"
+            >
+              (
+              {t("numberWithCurrency", {
+                value: estimatedTradeAmountInSecurityCurrency || 0,
+                currency: securityCurrency,
+              })}
+              )
+            </LabeledDivFlex>
+          )}
         </div>
         <Button
           disabled={disableSellButton()}

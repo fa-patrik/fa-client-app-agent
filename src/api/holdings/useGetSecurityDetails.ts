@@ -19,6 +19,7 @@ const SECURITY_DETAILS_QUERY = gql`
       url2
       currency {
         securityCode
+        amountDecimalCount
       }
       latestMarketData {
         id

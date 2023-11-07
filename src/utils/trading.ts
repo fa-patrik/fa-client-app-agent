@@ -76,21 +76,28 @@ export const getTradeAmountTooltip = (
   t: (key: string, options?: TOptions<StringMap> | undefined) => any
 ): string | undefined => {
   try {
-    const sellSecurityName = security
+    const securityName = security
       ? getBackendTranslation(security.name, security.namesAsMap, locale)
       : "";
 
-    const sellPrice =
-      security?.latestMarketData?.price && security?.currency.securityCode
+    const unitsFormatted =
+      units !== undefined
+        ? t("number", {
+            value: units,
+          })
+        : undefined;
+
+    const price =
+      security?.latestMarketData?.price !== undefined &&
+      security?.currency.securityCode !== undefined
         ? t("numberWithCurrency", {
             value: security.latestMarketData.price,
             currency: security?.currency.securityCode,
           })
         : undefined;
 
-    const sellSecurityToPortfoliofxRate = fxRate
-      ? t("number", { value: fxRate })
-      : undefined;
+    const securityToPortfolioFx =
+      fxRate !== undefined ? t("number", { value: fxRate }) : undefined;
 
     const securityPriceDate =
       security.latestMarketData?.date !== undefined
@@ -99,14 +106,9 @@ export const getTradeAmountTooltip = (
           })
         : undefined;
 
-    if (
-      units &&
-      sellPrice &&
-      sellSecurityName &&
-      security.latestMarketData?.price
-    ) {
+    if (units && price && securityName && security.latestMarketData?.price) {
       if (
-        sellSecurityToPortfoliofxRate &&
+        securityToPortfolioFx &&
         security?.currency.securityCode &&
         portfolioCurrency &&
         security.currency.securityCode !== portfolioCurrency
@@ -114,11 +116,11 @@ export const getTradeAmountTooltip = (
         const breakdownWithFx: string = t(
           "switchOrderModal.tradeAmountDisclaimerWithFx",
           {
-            units,
-            securityName: sellSecurityName,
-            price: sellPrice,
+            units: unitsFormatted,
+            securityName: securityName,
+            price: price,
             date: securityPriceDate,
-            fxRate: sellSecurityToPortfoliofxRate,
+            fxRate: securityToPortfolioFx,
             fx1: security.currency.securityCode,
             fx2: portfolioCurrency,
           }
@@ -126,9 +128,9 @@ export const getTradeAmountTooltip = (
         return breakdownWithFx;
       } else {
         const breakdown: string = t("switchOrderModal.tradeAmountDisclaimer", {
-          units,
-          securityName: sellSecurityName,
-          price: sellPrice,
+          units: unitsFormatted,
+          securityName: securityName,
+          price: price,
           date: securityPriceDate,
         });
         return breakdown;

@@ -68,16 +68,16 @@ const InputPlain = (
           {...inputAttributes}
         />
 
-        {error && (
-          <Fade>
+        <Fade>
+          {error && (
             <p
               id={!id ? undefined : `${id}-error`}
               className="mt-1 text-xs text-red-600"
             >
               {error}
             </p>
-          </Fade>
-        )}
+          )}
+        </Fade>
       </label>
       {tooltipContent && (
         <ConfirmDialog

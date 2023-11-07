@@ -34,6 +34,7 @@ export interface SecurityDetailsPosition {
   url2: string;
   currency: {
     securityCode: string;
+    amountDecimalCount: number;
   };
   latestMarketData?: {
     price: number;

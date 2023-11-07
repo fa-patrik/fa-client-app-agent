@@ -88,6 +88,9 @@ export const BuyModalContent = ({
     portfolioData?.currency.amountDecimalCount !== undefined
       ? portfolioData?.currency.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
+  const INPUT_BLOCK_SIZE = isTradeInUnits
+    ? SECURITY_BLOCK_SIZE
+    : PORTFOLIO_BLOCK_SIZE;
 
   const securityName =
     security !== undefined
@@ -112,21 +115,24 @@ export const BuyModalContent = ({
     : unitsToBuyFromTradeAmount !== undefined
     ? roundDown(unitsToBuyFromTradeAmount, SECURITY_BLOCK_SIZE)
     : undefined;
-  const tradeAmountInPfCurrency =
+
+  const estimatedTradeAmountInPfCurrency =
     unitsToBuy !== undefined && securityPriceInPfCurrency !== undefined
       ? unitsToBuy * securityPriceInPfCurrency
       : undefined;
-  const tradeAmount =
+  const estimatedTradeAmountInSecurityCurrency =
     unitsToBuy !== undefined && securityPrice !== undefined
       ? unitsToBuy * securityPrice
       : undefined;
+
+  const tradeAmountInSecurityCurrency = inputAsNr / securityFxRate;
 
   const { handleTrade: handleBuy, submitting } = useTrade({
     tradeType: getTradeType(security?.type.code),
     portfolio: selectedPortfolio || portfolios[0],
     securityName: securityName || "-",
     units: isTradeInUnits ? unitsToBuy : undefined,
-    tradeAmount: !isTradeInUnits ? tradeAmount : undefined,
+    tradeAmount: !isTradeInUnits ? tradeAmountInSecurityCurrency : undefined,
     securityCode: security?.securityCode || "",
     executionMethod: isTradeInUnits
       ? ExecutionMethod.UNITS
@@ -139,12 +145,12 @@ export const BuyModalContent = ({
   const securityCurrency = security?.currency.securityCode;
 
   const insufficientCash =
-    (availableCash || 0) < (tradeAmountInPfCurrency || 0); // less than trying to buy for
+    (availableCash || 0) < (estimatedTradeAmountInPfCurrency || 0); // less than trying to buy for
 
   const { readonly } = useKeycloak();
 
   //we don't know the final trade amount unless
-  //buying mutual fund with cash
+  //buying mutual fund with cash and pf and sec currency is the same
   const isTradeAmountAnEstimation = !(
     !isTradeInUnits &&
     security?.type?.code === SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE &&
@@ -181,8 +187,8 @@ export const BuyModalContent = ({
     security !== undefined &&
     blockSizeMinTradeAmountInPfCurrency !== undefined &&
     portfolioCurrency !== undefined &&
-    tradeAmountInPfCurrency !== undefined &&
-    blockSizeMinTradeAmountInPfCurrency > tradeAmountInPfCurrency //input is lower than min allowed trade amount
+    estimatedTradeAmountInPfCurrency !== undefined &&
+    blockSizeMinTradeAmountInPfCurrency > estimatedTradeAmountInPfCurrency //input is lower than min allowed trade amount
       ? getBlockSizeErrorTooltip(
           blockSizeMinTradeAmountInPfCurrency,
           security,
@@ -200,13 +206,10 @@ export const BuyModalContent = ({
     //amount of decimals
     setInput((currInput) =>
       currInput
-        ? roundDown(
-            parseFloat(currInput),
-            isTradeInUnits ? SECURITY_BLOCK_SIZE : PORTFOLIO_BLOCK_SIZE
-          ).toString()
+        ? roundDown(parseFloat(currInput), INPUT_BLOCK_SIZE).toString()
         : ""
     );
-  }, [isTradeInUnits, SECURITY_BLOCK_SIZE, PORTFOLIO_BLOCK_SIZE]);
+  }, [INPUT_BLOCK_SIZE]);
 
   const loading = loadingCash || loadingSecurity;
 
@@ -268,7 +271,7 @@ export const BuyModalContent = ({
             setInput,
             0,
             undefined,
-            isTradeInUnits ? SECURITY_BLOCK_SIZE : PORTFOLIO_BLOCK_SIZE
+            INPUT_BLOCK_SIZE
           );
         }}
         onPaste={(event) => {
@@ -277,7 +280,7 @@ export const BuyModalContent = ({
             setInput,
             0,
             undefined,
-            isTradeInUnits ? SECURITY_BLOCK_SIZE : PORTFOLIO_BLOCK_SIZE
+            INPUT_BLOCK_SIZE
           );
         }}
         label={
@@ -323,22 +326,39 @@ export const BuyModalContent = ({
 
       <hr className="my-2" />
       <div className="flex flex-col gap-4 items-stretch ">
-        <LabeledDivFlex
-          alignText="center"
-          tooltipContent={tradeAmountTooltip || blockSizeTradeAmountError}
-          id="buyOrderModal-tradeAmount"
-          label={
-            isTradeAmountAnEstimation
-              ? t("tradingModal.approximateTradeAmount")
-              : t("tradingModal.tradeAmount")
-          }
-          className="text-2xl font-semibold"
-        >
-          {t("numberWithCurrency", {
-            value: tradeAmountInPfCurrency || 0,
-            currency: portfolioCurrency,
-          })}
-        </LabeledDivFlex>
+        <div>
+          <LabeledDivFlex
+            alignText="center"
+            tooltipContent={tradeAmountTooltip || blockSizeTradeAmountError}
+            id="buyOrderModal-tradeAmount"
+            label={
+              isTradeAmountAnEstimation
+                ? t("tradingModal.approximateTradeAmount")
+                : t("tradingModal.tradeAmount")
+            }
+            className="text-2xl font-semibold"
+          >
+            {t("numberWithCurrency", {
+              value: estimatedTradeAmountInPfCurrency || 0,
+              currency: portfolioCurrency,
+            })}
+          </LabeledDivFlex>
+          {securityCurrency && portfolioCurrency !== securityCurrency && (
+            <LabeledDivFlex
+              alignText="center"
+              id="buyOrderModal-tradeAmount"
+              label={""}
+              className="text-md"
+            >
+              (
+              {t("numberWithCurrency", {
+                value: estimatedTradeAmountInSecurityCurrency || 0,
+                currency: securityCurrency,
+              })}
+              )
+            </LabeledDivFlex>
+          )}
+        </div>
         <Button
           disabled={disableBuyButton()}
           isLoading={submitting}
