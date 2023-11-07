@@ -40,6 +40,8 @@ export const useGetPortfolioTradeOrders = (
         endDate: toShortISOString(endDate),
         portfolioIds: portfolioIds,
       },
+      fetchPolicy: "network-only",
+      nextFetchPolicy: "cache-first",
       ...options,
     }
   );

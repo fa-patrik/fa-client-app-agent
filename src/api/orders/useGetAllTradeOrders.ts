@@ -39,6 +39,8 @@ export const useGetAllTradeOrders = (options?: QueryHookOptions) => {
         endDate: toShortISOString(endDate),
         contactId: selectedContactId || linkedContact,
       },
+      fetchPolicy: "network-only",
+      nextFetchPolicy: "cache-first",
       ...options,
     }
   );
