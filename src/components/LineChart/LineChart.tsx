@@ -23,7 +23,7 @@ const lineChartColors = {
   fillGradientShadeIntensity: 1,
 };
 
-const lineChartDefaultOptions = {
+const lineChartDefaultOptions: ApexOptions = {
   chart: {
     fontFamily: "Inter, sans-serif",
     sparkline: {
@@ -79,6 +79,22 @@ export const LineChart = ({
 }: LineChartProps) => {
   const { t } = useModifiedTranslation();
 
+  const isLongPeriod = series[0].data.length >= 365;
+
+  const performanceChartLongPeriodDateFormatting = {
+    month: "short",
+    year: "2-digit",
+  };
+
+  const performanceChartShortPeriodDateFormatting = {
+    month: "short",
+    day: "numeric",
+  };
+
+  const dateFormatting = isLongPeriod
+    ? performanceChartLongPeriodDateFormatting
+    : performanceChartShortPeriodDateFormatting;
+
   return (
     <div className="h-full">
       <Chart
@@ -88,6 +104,24 @@ export const LineChart = ({
             chart: {
               ...lineChartDefaultOptions.chart,
               sparkline: { enabled: false },
+            },
+            xaxis: {
+              type: isPerformanceChart
+                ? "datetime"
+                : lineChartDefaultOptions.xaxis?.type,
+              ...lineChartDefaultOptions.xaxis,
+              labels: {
+                ...lineChartDefaultOptions.xaxis?.labels,
+                formatter: isPerformanceChart
+                  ? (value: string) =>
+                      value
+                        ? t("dateCustom", {
+                            date: new Date(value),
+                            ...dateFormatting,
+                          })
+                        : ""
+                  : lineChartDefaultOptions.xaxis?.labels?.formatter,
+              },
             },
             yaxis: {
               labels: {

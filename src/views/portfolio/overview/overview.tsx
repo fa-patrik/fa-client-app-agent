@@ -19,7 +19,6 @@ import { PieChart } from "components/PieChart/PieChart";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
-import { dateFromYYYYMMDD } from "utils/date";
 import { PortfolioInfoCard } from "../../overview/components/PortfolioInfoCard";
 import { ListedSecuritiesCard } from "./components/ListedSecuritiesCard";
 import { PortfolioSummary } from "./components/PortfolioSummary";
@@ -56,11 +55,6 @@ export const OverviewView = () => {
   return <QueryLoadingWrapper {...queryData} SuccessComponent={Overview} />;
 };
 
-const defaultDateFormatting = {
-  day: "numeric",
-  month: "short",
-};
-
 interface OverviewProps {
   data: PortfolioData | undefined;
 }
@@ -95,20 +89,17 @@ const Overview = ({ data }: OverviewProps) => {
   const linechartData = useMemo(() => {
     if (
       performanceChartData?.dailyValue &&
-      Array.isArray(performanceChartData)
+      Array.isArray(performanceChartData?.dailyValue)
     ) {
       const chartData = performanceChartData.dailyValue.map((data) => ({
-        x: t("dateCustom", {
-          date: dateFromYYYYMMDD(data.date),
-          ...defaultDateFormatting,
-        }),
+        x: data.date,
         y: data.indexedValue - 100,
       }));
       return chartData;
     } else {
       return [];
     }
-  }, [performanceChartData, t]);
+  }, [performanceChartData]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
