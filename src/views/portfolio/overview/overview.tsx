@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { SecurityTypeCode } from "api/holdings/types";
 import { PortfolioData } from "api/overview/types";
@@ -92,6 +92,24 @@ const Overview = ({ data }: OverviewProps) => {
 
   const breakPortfolioInfoCard = useMatchesBreakpoint("md");
 
+  const linechartData = useMemo(() => {
+    if (
+      performanceChartData?.dailyValue &&
+      Array.isArray(performanceChartData)
+    ) {
+      const chartData = performanceChartData.dailyValue.map((data) => ({
+        x: t("dateCustom", {
+          date: dateFromYYYYMMDD(data.date),
+          ...defaultDateFormatting,
+        }),
+        y: data.indexedValue - 100,
+      }));
+      return chartData;
+    } else {
+      return [];
+    }
+  }, [performanceChartData, t]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
       <div className="grid md:grid-cols-3 md:col-span-2 gap-4">
@@ -156,17 +174,7 @@ const Overview = ({ data }: OverviewProps) => {
                 series={[
                   {
                     name: t("overviewPage.lineChartTooltipLabel"),
-                    data:
-                      performanceChartData &&
-                      Array.isArray(performanceChartData?.dailyValue)
-                        ? performanceChartData.dailyValue.map((data) => ({
-                            x: t("dateCustom", {
-                              date: dateFromYYYYMMDD(data.date),
-                              ...defaultDateFormatting,
-                            }),
-                            y: data.indexedValue - 100,
-                          }))
-                        : [],
+                    data: linechartData,
                   },
                 ]}
                 detailed
