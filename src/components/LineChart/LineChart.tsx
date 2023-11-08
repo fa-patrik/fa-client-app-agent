@@ -80,10 +80,11 @@ export const LineChart = ({
   const { t } = useModifiedTranslation();
 
   const isLongPeriod = series[0].data.length >= 365;
+  const isVeryLongPeriod = series[0].data.length >= 365 * 4;
 
   const performanceChartLongPeriodDateFormatting = {
-    month: "short",
-    year: "2-digit",
+    month: isVeryLongPeriod ? undefined : "short",
+    year: "numeric",
   };
 
   const performanceChartShortPeriodDateFormatting = {

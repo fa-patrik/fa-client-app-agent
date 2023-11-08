@@ -73,10 +73,10 @@ const Overview = ({ data }: OverviewProps) => {
 
   const chartData = useGetChartData(data?.securityTypes);
 
-  const [timeValue, setTimeValue] = useState<Option>({
+  const [timeValue, setTimeValue] = useState<Option>(() => ({
     id: TimePeriodForGraph["DAYS-7"],
     label: "1W",
-  });
+  }));
 
   const {
     loading,
