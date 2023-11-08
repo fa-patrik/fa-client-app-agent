@@ -80,8 +80,8 @@ export const LineChart = ({
   const { t } = useModifiedTranslation();
 
   const isLongPeriod = series[0].data.length >= 365;
-
-  const performanceChartLongPeriodDateFormatting = {
+  const isVeryLongPeriod = series[0].data.length >= 365 * 4;
+  const performanceChartToolTipFormatting = {
     month: "short",
     year: "numeric",
     day: "numeric",
@@ -92,7 +92,12 @@ export const LineChart = ({
     day: "numeric",
   };
 
-  const dateFormatting = isLongPeriod
+  const performanceChartLongPeriodDateFormatting = {
+    month: isVeryLongPeriod ? undefined : "short",
+    year: isVeryLongPeriod ? "numeric" : "2-digit",
+  };
+
+  const performanceChartDateFormat = isLongPeriod
     ? performanceChartLongPeriodDateFormatting
     : performanceChartShortPeriodDateFormatting;
 
@@ -118,7 +123,7 @@ export const LineChart = ({
                       value
                         ? t("dateCustom", {
                             date: new Date(value),
-                            ...dateFormatting,
+                            ...performanceChartDateFormat,
                           })
                         : ""
                   : lineChartDefaultOptions.xaxis?.labels?.formatter,
@@ -148,6 +153,18 @@ export const LineChart = ({
             style: {
               fontSize: "14px",
               fontFamily: "Inter, sans-serif",
+            },
+            x: {
+              ...lineChartDefaultOptions.tooltip?.x,
+              formatter: isPerformanceChart
+                ? (value: number) =>
+                    value
+                      ? t("dateCustom", {
+                          date: new Date(value),
+                          ...performanceChartToolTipFormatting,
+                        })
+                      : ""
+                : lineChartDefaultOptions.tooltip?.x?.formatter,
             },
             y: {
               formatter: (value: number) =>
