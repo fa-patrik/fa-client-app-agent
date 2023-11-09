@@ -13,7 +13,7 @@
       "finishButtonLabel": "Finish",
       "nextButtonLabel": "Next",
       "backButtonLabel": "Back",
-      "exitDialogTitle": "Are you sure that you want to exit?",
+      "exitDialogTitle": "Do you want to exit?",
       "exitDialogDescription": "You will lose your progress.",
       "exitDialogConfirmButtonLable": "Exit",
       "exitDialogCancelButtonLabel": "Cancel"
@@ -121,7 +121,7 @@
     "details": "Details",
     "security": "Security",
     "tradeAmount": "Trade amount",
-    "approximateTradeAmount": "Approx. trade amount",
+    "approximateTradeAmount": "Est. trade amount",
     "orderCancelDisclaimer": "This order can be cancelled.",
     "marketplace": "Marketplace",
     "isin": "ISIN code",
@@ -274,9 +274,15 @@
     "portfolio": "Portfolio",
     "availableCash": "Available cash",
     "currentMarketValue": "Current market value",
-    "currentUnits": "Current position amount",
+    "currentUnits": "Current position units",
     "tradeAmount": "Total trade amount",
+    "approximateTradeAmount": "Estimated trade amount",
     "tradeAmountInputError": "Entered value is not correct",
+    "insufficientCashError": "You are attempting to buy more than the available cash allows",
+    "insufficientUnitsError": "You are attempting to sell more than the available units",
+    "insufficientMarketValueError": "You are attempting to sell more than the available market value",
+    "shareOfUnitsInputLabel": "Share (%) of units",
+    "shareOfTradeAmountInputLabel": "Share (%) of trade amount",
     "tradeAmountInputLabel": "Trade amount in {{currency}}",
     "unitsInputLabel": "Number of units",
     "buyModalHeader": "Buy",
@@ -288,6 +294,10 @@
     "sellAll": "Sell all",
     "buyDisclaimer": "Past performance is not a guide to future performance. When investing in financial instruments, the investor may lose all or part of the investments.",
     "queryErrorWarning": "Server error occurred",
+    "buyBlockSizeErrorWithFx": "A minimum of {{tradeAmount}} is required to buy one share of {{securityName}} according to the latest price {{price}} ({{date}}), using an exchange rate of {{fxRate}} ({{fx1}}/{{fx2}}).",
+    "sellBlockSizeErrorWithFx": "A minimum of {{tradeAmount}} is required to sell one share of {{securityName}} according to the latest price {{price}} ({{date}}), using an exchange rate of {{fxRate}} ({{fx1}}/{{fx2}}).",
+    "buyBlockSizeError": "A minimum of {{tradeAmount}} is required to buy one share of {{securityName}} according to the latest price {{price}} ({{date}}).",
+    "sellBlockSizeError": "A minimum of {{tradeAmount}} is required to sell one share of {{securityName}} according to the latest price {{price}} ({{date}}).",
     "tradeAmountButtonLabel": "Trade amount",
     "unitsButtonLabel": "Units",
     "createTradeSuccess": "Order created",
@@ -312,7 +322,7 @@
     "portfolio": "Portfolio",
     "portfolioSelectLabel": "Portfolio",
     "tradeAmountExchangeRateDisclaimer": "Using an exchange rate of {{fxRate}} ({{fx1}}/{{fx2}})",
-    "approximateTradeAmount": "Approximate trade amount",
+    "approximateTradeAmount": "Estimated trade amount",
     "fromSecuritySelectorLabel": "Switch from",
     "percentageInputLabel": "Share %",
     "noSwitchableSecuritiesInSystemError": "No switchable securities available",
@@ -322,8 +332,8 @@
     "minTradeAmountError": "Below minimum trade amount ({{minTradeAmount}})",
     "shareInputPlaceholder": "100",
     "toSecuritySelectorLabel": "Switch to",
-    "tradeAmountDisclaimer": "{{units}} units in {{securityName}} according to the latest price {{price}} ({{date}}).",
-    "tradeAmountDisclaimerWithFx": "{{units}} units in {{securityName}} according to the latest price {{price}} ({{date}}), using an exchange rate of {{fxRate}} ({{fx1}}/{{fx2}}).",
+    "tradeAmountDisclaimer": "{{units}} unit(s) in {{securityName}} according to the latest price {{price}} ({{date}}).",
+    "tradeAmountDisclaimerWithFx": "{{units}} unit(s) in {{securityName}} according to the latest price {{price}} ({{date}}), using an exchange rate of {{fxRate}} ({{fx1}}/{{fx2}}).",
     "minTradeAmount": "Min. trade amount",
     "fee": "Fee:",
     "tradeAmount": "Total trade amount",
@@ -389,14 +399,20 @@
     "securityName": "Security",
     "resetFilter": "Clear filter"
   },
+  "orderFilter": {
+    "transactionType": "Type",
+    "securityName": "Security",
+    "resetFilter": "Clear filter",
+    "switchOrderTypeName": "Switch"
+  },
   "wizards": {
     "monthlyInvestments": {
       "title": "Monthly investments",
       "stepZero": {
         "stepTitle": "Overview of existing plans",
-        "noPlansLabel": "You do not have any investment plans",
+        "noPlansLabel": "You don't have any investment plans.",
         "amount": "Amount",
-        "addNewPlanButtonLabel": "Add new investment plan",
+        "addNewPlanButtonLabel": "Add investment plan",
         "refreshingDataButtonLabel": "Refreshing data",
         "selectPortfolioInputLabel": "Portfolio",
         "deletePlanButtonLabel": "Delete",
@@ -436,9 +452,9 @@
         "amountInputBelowMinError": "Below min. amount",
         "amountInputPlaceholder": "200",
         "minDisclaimer": "Min. {{amount}}",
-        "distributeMore": "Please distribute the remaining {{diffAmountFormatted}} ({{diffPercentageFormatted}}%) amount.",
-        "distributeLess": "You've allocated more than the available amount. Please adjust.",
-        "distributeOk": "You've successfully distributed the entire amount.",
+        "distributeMore": "Distribute the remaining {{diffAmountFormatted}} ({{diffPercentageFormatted}}%) amount.",
+        "distributeLess": "You allocated more than the available amount. Adjust the amounts below.",
+        "distributeOk": "You distributed the whole amount.",
         "removeDialogTitle": "Remove security?",
         "removeDialogDescription": "Do you want to remove the security from your selection?",
         "removeDialogCancelButton": "Cancel",
@@ -463,24 +479,24 @@
         "buyDate": "Buy date",
         "selectedBuyDate": "{{date}} day of month",
         "monthsSelectedGridTitle": "Months",
-        "confirmDialogTitle": "Confirm your new investment plan",
-        "confirmEditDialogTitle": "Confirm your edited investment plan",
-        "confirmDialogDescription": "Would you like to finalize and save your investment plan?",
+        "confirmDialogTitle": "Confirm your investment plan",
+        "confirmEditDialogTitle": "Confirm your investment plan",
+        "confirmDialogDescription": "Do you want to save your plan?",
         "confirmDialogCancelButtonLabel": "Cancel",
-        "confirmDialogConfirmButtonLabel": "Confirm"
+        "confirmDialogConfirmButtonLabel": "Save"
       }
     },
     "monthlySavings": {
       "title": "Monthly savings",
       "stepZero": {
         "stepTitle": "Overview of existing savings plans",
-        "noPlansLabel": "You do not have any savings plans",
+        "noPlansLabel": "You don't have any savings plans.",
         "amount": "Amount",
         "account": "Debit account",
         "noAccountWarning": "No account",
         "paymentDate": "Payment date",
         "selectedPaymentDate": "{{date}} day of month",
-        "addNewPlanButtonLabel": "Add new savings plan",
+        "addNewPlanButtonLabel": "Add savings plan",
         "refreshingDataButtonLabel": "Refreshing data",
         "selectPortfolioInputLabel": "Portfolio",
         "deletePlanButtonLabel": "Delete",
@@ -492,7 +508,7 @@
       },
       "stepOne": {
         "stepTitle": "Select portfolio and amount to save",
-        "noAccountWarningMessage": "There is no eligible debit account linked to your selected portfolio",
+        "noAccountWarningMessage": "The portfolio you selected doesn't have debit accounts.",
         "noPortfolioWarningMessage": "No eligble portfolio",
         "amountInputLabel": "Amount in {{currency}}",
         "amountInputError": "Below minimum amount",
@@ -520,8 +536,8 @@
         "paymentDate": "Payment date",
         "selectedPaymentDate": "{{date}} day of month",
         "monthsSelectedGridTitle": "Months",
-        "confirmDialogTitle": "Confirm your new savings plan",
-        "confirmDialogDescription": "Would you like to finalize and save your new savings plan?",
+        "confirmDialogTitle": "Confirm your savings plan",
+        "confirmDialogDescription": "Do you want to save your plan?",
         "confirmDialogCancelButtonLabel": "Cancel",
         "confirmDialogConfirmButtonLabel": "Save"
       }
@@ -541,6 +557,9 @@
       "10": "October",
       "11": "November",
       "12": "December"
+    },
+    "switchOrder": {
+      "typeName": "Switch"
     }
   }
 }

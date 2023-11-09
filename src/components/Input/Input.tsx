@@ -2,6 +2,7 @@ import { ForwardedRef, forwardRef, HTMLProps, useState } from "react";
 import { ReactComponent as InfoIcon } from "assets/information-circle.svg";
 import classNames from "classnames";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
+import Fade from "components/Transition/Fade";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 export interface InputProps extends HTMLProps<HTMLInputElement> {
@@ -67,14 +68,16 @@ const InputPlain = (
           {...inputAttributes}
         />
 
-        {error && (
-          <p
-            id={!id ? undefined : `${id}-error`}
-            className="mt-1 text-sm text-red-600"
-          >
-            {error}
-          </p>
-        )}
+        <Fade>
+          {error && (
+            <p
+              id={!id ? undefined : `${id}-error`}
+              className="mt-1 text-xs text-red-600"
+            >
+              {error}
+            </p>
+          )}
+        </Fade>
       </label>
       {tooltipContent && (
         <ConfirmDialog

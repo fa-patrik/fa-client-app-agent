@@ -1,10 +1,10 @@
 import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
-import { getSwitchDetails, isOrderPartOfSwitch } from "utils/switchOrders";
 import { Badge, Grid } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate, useParams } from "react-router-dom";
 import { dateFromYYYYMMDD } from "utils/date";
+import { getSwitchDetails, isOrderPartOfSwitch } from "utils/switchOrders";
 import {
   getNameFromBackendTranslations,
   getTransactionColor,
@@ -82,14 +82,11 @@ const Order = ({ order, onClick }: OrderProps) => {
             </div>
             <div className="float-right w-max text-center">
               <Badge
-                colorScheme={
+                colorScheme={getTransactionColor(
+                  order.type.amountEffect,
+                  order.type.cashFlowEffect,
                   isPartOfSwitch
-                    ? "green"
-                    : getTransactionColor(
-                        order.type.amountEffect,
-                        order.type.cashFlowEffect
-                      )
-                }
+                )}
               >
                 {isPartOfSwitch
                   ? "Switch"

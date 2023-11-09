@@ -18,9 +18,9 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
     $transactionTypeCode: String
     $units: String
     $tradeAmount: String
-    $currency: String
     $reference: String
     $executionMethod: String
+    $accountFxRate: String
   ) {
     importTradeOrder(
       tradeOrder: {
@@ -31,8 +31,11 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
         status: "4"
         amount: $units
         tradeAmount: $tradeAmount
+        account: "AUTO"
         unitPrice: "AUTO"
-        currency: $currency
+        fxRate: "AUTO"
+        accountFxRate: $accountFxRate
+        taxType2: "RND"
         reference: $reference
         executionMethod: $executionMethod
       }
@@ -45,7 +48,6 @@ interface ImportTradeOrderQueryVariables {
   transactionDate: Date;
   securityCode: string;
   transactionTypeCode: string;
-  currency: string;
   reference: string;
   units?: number;
   tradeAmount?: number;

@@ -2,24 +2,15 @@ import { gql, useQuery } from "@apollo/client";
 import { getSubPortfolioIds } from "api/generic/useGetSubPortfolioIds";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { Portfolio, useGetContactInfo } from "../initial/useGetContactInfo";
+import {
+  PORTFOLIO_BASIC_FIELDS,
+  Portfolio,
+  useGetContactInfo,
+} from "../initial/useGetContactInfo";
 
 export const PORTFOLIO_EXTENDED_FIELDS = gql`
   fragment PortfolioWithProfileAndFigures on Portfolio {
-    id
-    name
-    status
-    shortName
-    currency {
-      securityCode
-    }
-    portfolioGroups {
-      id
-      code
-    }
-    parentPortfolios {
-      id
-    }
+    ...PortfolioBasicFields
     profile {
       id
       attributes {
@@ -37,17 +28,7 @@ export const PORTFOLIO_EXTENDED_FIELDS = gql`
       latestValues
     }
     portfolios {
-      id
-      name
-      status
-      shortName
-      currency {
-        securityCode
-      }
-      portfolioGroups {
-        id
-        code
-      }
+      ...PortfolioBasicFields
       profile {
         id
         attributes {
@@ -70,6 +51,7 @@ export const PORTFOLIO_EXTENDED_FIELDS = gql`
 
 //maximum of 2 sub portfolio depth
 export const PORTFOLIO_EXTENDED_DATA_QUERY = gql`
+  ${PORTFOLIO_BASIC_FIELDS}
   ${PORTFOLIO_EXTENDED_FIELDS}
   query GetPortfoliosProfileAndFigures($portfolioIds: [String]) {
     portfolios(ids: $portfolioIds) {
@@ -81,7 +63,7 @@ export const PORTFOLIO_EXTENDED_DATA_QUERY = gql`
 export interface Attribute {
   id: number;
   attributeKey: string;
-  defaultValue: string | number | Date | null;
+  defaultValue: string | number | Date | null | boolean;
   doubleValue: number | null;
   stringValue: string | null;
   booleanValue: boolean | null;

@@ -7,6 +7,7 @@ const TRANSACTIONS_QUERY = gql`
       id
       currency {
         securityCode
+        amountDecimalCount
       }
       portfolioReport(
         adjustPositionsBasedOnOpenTradeOrders: true
@@ -23,6 +24,7 @@ interface PortfolioTransactionsQuery {
   portfolio: {
     currency: {
       securityCode: string;
+      amountDecimalCount: number;
     };
     portfolioReport: {
       accountBalanceAdjustedWithOpenTradeOrders: number;
@@ -44,11 +46,6 @@ export const useGetBuyData = (portfolioId: number | undefined) => {
   return {
     loading,
     error,
-    data: data && {
-      availableCash:
-        data.portfolio?.portfolioReport
-          ?.accountBalanceAdjustedWithOpenTradeOrders,
-      currency: data.portfolio?.currency?.securityCode,
-    },
+    data: data?.portfolio,
   };
 };

@@ -1,25 +1,31 @@
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import { Button, Card, Input } from "components";
+
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import {
+  SetValueFunc,
+  handleNumberInputEvent,
+  handleNumberPasteEvent,
+} from "utils/input";
 import SecurityInfoCell from "wizards/monthlyInvestments/StepTwo/components/SecurityInfoCell";
 
-/**
- * Rounds to 3 decimals.
- * @param number
- * @returns
- */
-const round = (number: number | undefined) => {
-  if (number) return Math.round(number * 1000) / 1000;
-  return number;
+const wrapSetValue = (
+  setValue: (input: string, securityId: number, mode: string) => void,
+  securityId: number,
+  mode: string
+): SetValueFunc => {
+  return (input: string) => {
+    setValue(input, securityId, mode);
+  };
 };
 
 interface SecurityDistributionCardProps {
   security: TradableSecurity;
   handleRemove: (security: TradableSecurity) => void;
   setInput: (input: string, securityId: number, mode: string) => void;
-  percentageInputs: Record<string, number | undefined>;
-  amountInputs: Record<string, number | undefined>;
+  percentageInputs: Record<string, string | undefined>;
+  amountInputs: Record<string, string | undefined>;
   portfolioCurrencyCode: string | undefined;
   id?: string;
 }
@@ -37,42 +43,10 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
 
   const minTradeAmountInPfCurrency = security.minTradeAmount * security.fxRate;
 
-  /** Ensures input is of max 2 decimals and positive */
-  const handleInput = (
-    event: React.FormEvent<HTMLInputElement>,
-    securityId: number,
-    mode: string
-  ) => {
-    const target = event.currentTarget;
-
-    if (target instanceof HTMLInputElement) {
-      let newValue = target.value.replace(/-/g, "");
-      if (mode === "absolute") {
-        const decimalIndex = target.value.indexOf(".");
-        if (decimalIndex !== -1 && newValue.length - decimalIndex - 1 > 2) {
-          newValue = newValue.slice(0, decimalIndex + 3); // trim after two decimal places
-        }
-      }
-      setInput(newValue, securityId, mode);
-    }
-  };
-
-  /** Ensures pasted input is of max 2 decimals and positive */
-  const handlePaste = (
-    event: React.ClipboardEvent,
-    securityId: number,
-    mode: string
-  ) => {
-    event.preventDefault();
-    const text = event.clipboardData.getData("text");
-    const decimal = text.split(".")[1];
-    if (!decimal || decimal.length <= 2) {
-      setInput(text, securityId, mode);
-    }
-  };
-
   const { t } = useModifiedTranslation();
 
+  const amount = amountInputs[security.id] || "";
+  const percentage = percentageInputs[security.id] || "";
   return (
     <li>
       <Card>
@@ -112,24 +86,34 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                 placeholder={t(
                   "wizards.monthlyInvestments.stepThree.percentageInputPlaceholder"
                 )}
-                className="w-20 "
-                value={round(percentageInputs[security.id])}
+                className="w-20"
+                value={percentage}
                 onChange={(event) =>
-                  handleInput(event, security.id, "percentage")
+                  handleNumberInputEvent(
+                    event,
+                    wrapSetValue(setInput, security.id, "percentage"),
+                    0,
+                    100,
+                    2
+                  )
                 }
                 onPaste={(event) =>
-                  handlePaste(event, security.id, "percentage")
+                  handleNumberPasteEvent(
+                    event,
+                    wrapSetValue(setInput, security.id, "percentage"),
+                    0,
+                    100,
+                    2
+                  )
                 }
                 error={
-                  (percentageInputs[security.id] || 0) < 0
-                    ? t(
-                        "wizards.monthlyInvestments.stepThree.percentageInputBelowError"
-                      )
-                    : (percentageInputs[security.id] || 0) > 100
+                  (parseFloat(percentage) || 0) <= 0
+                    ? " "
+                    : (parseFloat(percentage) || 0) > 100
                     ? t(
                         "wizards.monthlyInvestments.stepThree.percentageInputOverError"
                       )
-                    : undefined
+                    : ""
                 }
               />
               <Input
@@ -143,23 +127,34 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                 type="number"
                 placeholder="200"
                 className="w-40"
-                value={amountInputs[security.id]}
+                value={amount}
                 onChange={(event) =>
-                  handleInput(event, security.id, "absolute")
+                  handleNumberInputEvent(
+                    event,
+                    wrapSetValue(setInput, security.id, "absolute"),
+                    0,
+                    undefined,
+                    2
+                  )
                 }
-                onPaste={(event) => handlePaste(event, security.id, "absolute")}
+                onPaste={(event) =>
+                  handleNumberPasteEvent(
+                    event,
+                    wrapSetValue(setInput, security.id, "absolute"),
+                    0,
+                    undefined,
+                    2
+                  )
+                }
                 error={
-                  (amountInputs[security.id] || 0) < 0
-                    ? t(
-                        "wizards.monthlyInvestments.stepThree.amountInputBelowError"
-                      )
+                  (parseFloat(amount) || 0) <= 0
+                    ? " "
                     : minTradeAmountInPfCurrency &&
-                      (amountInputs[security.id] || 0) <
-                        minTradeAmountInPfCurrency
+                      (parseFloat(amount) || 0) < minTradeAmountInPfCurrency
                     ? t(
                         "wizards.monthlyInvestments.stepThree.amountInputBelowMinError"
                       )
-                    : undefined
+                    : ""
                 }
               />
             </div>

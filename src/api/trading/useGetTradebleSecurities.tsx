@@ -58,7 +58,7 @@ const TRADABLE_SECURITIES_QUERY = gql`
       managementFeePercentage
       minTradeAmount
       fxRate(quoteCurrency: $currency)
-      blockSize
+      amountDecimalCount
     }
   }
 `;
@@ -69,35 +69,40 @@ interface SecurityPrice {
   date: string;
 }
 
+export interface TradableSecurityType {
+  id: number;
+  name: string;
+  code: SecurityTypeCode;
+  namesAsMap: Record<string, string>;
+}
+
 export interface TradableSecurity {
   id: number;
   name: string;
   namesAsMap: Record<string, string>;
   securityCode: string;
-  isinCode?: string;
-  url: string;
-  url2: string;
-  latestMarketData?: SecurityPrice;
+  isinCode: string | null;
+  url: string | null;
+  url2: string | null;
+  latestMarketData: SecurityPrice | null;
   currency: {
+    id: number;
     securityCode: string;
   };
-  country?: {
+  country: {
+    id: number;
     code: string;
     name: string;
     namesAsMap: Record<string, string>;
-  };
-  type: {
-    code: SecurityTypeCode;
-    name: string;
-    namesAsMap: Record<string, string>;
-  };
+  } | null;
+  type: TradableSecurityType;
   managementFee: number;
   managementFeePercentage: number;
   minTradeAmount: number;
   fxRate: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
-  blockSize: number;
+  amountDecimalCount: number;
 }
 
 export interface TradableSecuritiesQuery {

@@ -4,7 +4,10 @@ import {
   PortfolioWithProfileAndFigures,
 } from "api/generic/useGetPortfoliosWithProfileAndFigures";
 import { getSubPortfolioIds } from "api/generic/useGetSubPortfolioIds";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import {
+  PORTFOLIO_BASIC_FIELDS,
+  useGetContactInfo,
+} from "api/initial/useGetContactInfo";
 import {
   ACCOUNT_CAT_EXTERNAL,
   CashAccount,
@@ -19,6 +22,7 @@ import { useKeycloak } from "providers/KeycloakProvider";
 
 //maximum of 2 sub portfolio depth
 const PORTFOLIO_PROFILE_FIGURES_ACCOUNTS_QUERY = gql`
+  ${PORTFOLIO_BASIC_FIELDS}
   ${PORTFOLIO_EXTENDED_FIELDS}
   ${PORTFOLIO_ACCOUNTS_FRAGMENT}
   ${PORTFOLIO_REPORT_ACCOUNTS_FRAGMENT}

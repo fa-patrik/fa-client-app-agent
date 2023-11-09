@@ -18,11 +18,12 @@ import {
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
 import { dateFromYYYYMMDD } from "utils/date";
-import { getSwitchDetails, isOrderPartOfSwitch } from "utils/switchOrders";
 import {
-  getTransactionColor,
-  getNameFromBackendTranslations,
-} from "utils/transactions";
+  getOrderTypeName,
+  getSwitchDetails,
+  isOrderPartOfSwitch,
+} from "utils/switchOrders";
+import { getTransactionColor } from "utils/transactions";
 import { InfoCard } from "views/transactionDetails/components/InfoCard";
 import { DataRow } from "../../holdingDetails/components/DataRow";
 import { ValueInCurrencies } from "./ValueInCurrencies";
@@ -77,23 +78,12 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
           <div className="grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fill,_minmax(175px,_1fr))]">
             <InfoCard
               label={t("transactionsPage.type")}
-              value={
+              value={getOrderTypeName(order, t, i18n.language)}
+              colorScheme={getTransactionColor(
+                order.type.amountEffect,
+                order.type.cashFlowEffect,
                 isPartOfSwitch
-                  ? "Switch"
-                  : getNameFromBackendTranslations(
-                      order.type.typeName,
-                      i18n.language,
-                      order.type.typeNamesAsMap
-                    )
-              }
-              colorScheme={
-                isPartOfSwitch
-                  ? "green"
-                  : getTransactionColor(
-                      order.type.amountEffect,
-                      order.type.cashFlowEffect
-                    )
-              }
+              )}
             />
             <InfoCard
               label={
