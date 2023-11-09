@@ -12,6 +12,7 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
     shortName
     currency {
       securityCode
+      amountDecimalCount
     }
     portfolioGroups {
       id
@@ -27,6 +28,7 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
       shortName
       currency {
         securityCode
+        amountDecimalCount
       }
       portfolioGroups {
         id
@@ -89,6 +91,7 @@ export enum PortfolioGroups {
 }
 
 export interface PortfolioGroup {
+  id: number;
   code: PortfolioGroups;
 }
 
@@ -118,6 +121,7 @@ export interface Portfolio {
   portfolios: Portfolio[]; //sub portfolios
   currency: {
     securityCode: string;
+    amountDecimalCount: number;
   };
   portfolioGroups: PortfolioGroup[];
 }
