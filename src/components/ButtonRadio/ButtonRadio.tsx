@@ -32,7 +32,7 @@ export const ButtonRadio = <TOption extends Option>({
                 "p-1.5 text-center grow cursor-pointer hover:bg-gray-100 focus:ring-0",
                 {
                   "bg-primary-100 text-primary-600 hover:bg-primary-200":
-                    checked,
+                    checked || value?.id === option.id,
                 }
               )}
             >
