@@ -162,10 +162,12 @@ const Order = ({
           </td>
         )}
         <td className="px-2 font-medium text-right">
-          {t("numberWithCurrency", {
-            value: order.tradeAmountInPortfolioCurrency,
-            currency: orderParentPortfolio?.currency.securityCode,
-          })}
+          {order.tradeAmountInPortfolioCurrency !== undefined
+            ? t("numberWithCurrency", {
+                value: order.tradeAmountInPortfolioCurrency,
+                currency: orderParentPortfolio?.currency.securityCode,
+              })
+            : "-"}
         </td>
         {isLgVersion && (
           <>

@@ -27,12 +27,14 @@ export enum SecurityTradeType {
 export interface SecurityDetailsPosition {
   id: number;
   name: string;
+  namesAsMap: Record<string, string>;
   securityCode: string;
   isinCode: string;
   url: string;
   url2: string;
   currency: {
     securityCode: string;
+    amountDecimalCount: number;
   };
   latestMarketData?: {
     price: number;
@@ -51,6 +53,7 @@ export interface SecurityDetailsPosition {
     identifier: string;
     mimeType: string;
   }[];
+  amountDecimalCount: number;
 }
 
 export interface SecurityDetailsQuery {

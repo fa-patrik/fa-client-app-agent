@@ -5,6 +5,7 @@ import { ReactComponent as InfoIcon } from "assets/information-circle.svg";
 import classNames from "classnames";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { LoadingIndicator } from "components/LoadingIndicator/LoadingIndicator";
+import Fade from "components/Transition/Fade";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { filterOptionsByQuery } from "utils/filtering";
 import { usePopper } from "../../hooks/usePopper";
@@ -187,7 +188,11 @@ export const ComboBox = <TOption extends Option>({
           </Transition>
         </div>
       </Combobox>
-      {error && <small className="mt-2 text-red-500">{error}</small>}
+      {error && (
+        <Fade>
+          <small className="mt-2 text-red-500">{error}</small>
+        </Fade>
+      )}
       {tooltipContent && (
         <ConfirmDialog
           id={!id ? undefined : `${id}-tooltipDialog`}
