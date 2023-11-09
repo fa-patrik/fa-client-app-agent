@@ -6,11 +6,12 @@ import { Badge } from "components";
 import { Button, LabeledDiv } from "components/index";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { getSwitchDetails, isOrderPartOfSwitch } from "utils/switchOrders";
 import {
-  getNameFromBackendTranslations,
-  getTransactionColor,
-} from "utils/transactions";
+  getOrderTypeName,
+  getSwitchDetails,
+  isOrderPartOfSwitch,
+} from "utils/switchOrders";
+import { getTransactionColor } from "utils/transactions";
 
 export interface CancelOrderModalInitialData {
   order: TradeOrder;
@@ -36,20 +37,13 @@ export const CancelOrderModalContent = ({
 
   const switchDetails = isPartOfSwitch ? getSwitchDetails(order) : undefined;
 
-  const typeTranslated = getNameFromBackendTranslations(
-    isPartOfSwitch
-      ? t("cancelOrderModal.switchTypeName")
-      : order.type.typeName ?? "",
-    i18n.language,
-    order.type.typeNamesAsMap
-  );
+  const typeTranslated = getOrderTypeName(order, t, i18n.language);
 
-  const typeColor = isPartOfSwitch
-    ? "green"
-    : getTransactionColor(
-        order.type.amountEffect ?? 0,
-        order.type.cashFlowEffect ?? 0
-      );
+  const typeColor = getTransactionColor(
+    order.type.amountEffect ?? 0,
+    order.type.cashFlowEffect ?? 0,
+    isPartOfSwitch
+  );
 
   const TypeBadge = () => {
     return <Badge colorScheme={typeColor}>{typeTranslated}</Badge>;

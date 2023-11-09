@@ -389,6 +389,12 @@
     "securityName": "Security",
     "resetFilter": "Clear filter"
   },
+  "orderFilter": {
+    "transactionType": "Type",
+    "securityName": "Security",
+    "resetFilter": "Clear filter",
+    "switchOrderTypeName": "Switch"
+  },
   "wizards": {
     "monthlyInvestments": {
       "title": "Monthly investments",
@@ -541,6 +547,9 @@
       "10": "October",
       "11": "November",
       "12": "December"
+    },
+    "switchOrder": {
+      "typeName": "Switch"
     }
   }
 }
