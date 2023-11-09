@@ -3,6 +3,7 @@ import { TradeOrder } from "api/orders/types";
 import { Button } from "components";
 import { Option, Select } from "components/Select/Select";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { getOrderTypeName, isOrderPartOfSwitch } from "utils/switchOrders";
 
 /**
  * This component is used to filter the order data.
@@ -39,7 +40,7 @@ export const OrdersFilter: FC<OrdersFilterProps> = ({
   onFilter,
   filterHeader,
 }) => {
-  const { t } = useModifiedTranslation();
+  const { t, i18n } = useModifiedTranslation();
 
   const [selectedTransactionTypes, setSelectedTransactionTypes] = useState<
     Option[]
@@ -58,11 +59,20 @@ export const OrdersFilter: FC<OrdersFilterProps> = ({
       const isTransactionTypeMatch =
         !selectedTransactionTypes.length ||
         selectedTransactionTypes.some(
-          (type) => type.label === order.type.typeName
+          (type) => type.label === getOrderTypeName(order, t, i18n.language)
         );
       const isSecurityNameMatch =
         !selectedSecurityNames.length ||
-        selectedSecurityNames.some((name) => name.label === order.securityName);
+        selectedSecurityNames.some((name) => {
+          if (isOrderPartOfSwitch(order)) {
+            return (
+              name.label === order.securityName ||
+              name.label === order.linkedTransaction?.securityName
+            );
+          } else {
+            return name.label === order.securityName;
+          }
+        });
 
       return isTransactionTypeMatch && isSecurityNameMatch;
     });
@@ -70,7 +80,16 @@ export const OrdersFilter: FC<OrdersFilterProps> = ({
     const filteredDataBySecurityName = orderData.filter((order) => {
       const isSecurityNameMatch =
         !selectedSecurityNames.length ||
-        selectedSecurityNames.some((name) => name.label === order.securityName);
+        selectedSecurityNames.some((name) => {
+          if (isOrderPartOfSwitch(order)) {
+            return (
+              name.label === order.securityName ||
+              name.label === order.linkedTransaction?.securityName
+            );
+          } else {
+            return name.label === order.securityName;
+          }
+        });
 
       return isSecurityNameMatch;
     });
@@ -78,9 +97,10 @@ export const OrdersFilter: FC<OrdersFilterProps> = ({
     const filteredDataByTransactionType = orderData.filter((order) => {
       const isTransactionTypeMatch =
         !selectedTransactionTypes.length ||
-        selectedTransactionTypes.some(
-          (type) => type.label === order.type.typeName
-        );
+        selectedTransactionTypes.some((type) => {
+          const typeName = getOrderTypeName(order, t, i18n.language);
+          return type.label === typeName;
+        });
 
       return isTransactionTypeMatch;
     });
@@ -90,19 +110,35 @@ export const OrdersFilter: FC<OrdersFilterProps> = ({
       filteredDataBySecurityName,
       filteredDataByTransactionType,
     ];
-  }, [orderData, selectedTransactionTypes, selectedSecurityNames]);
+  }, [
+    orderData,
+    selectedTransactionTypes,
+    selectedSecurityNames,
+    t,
+    i18n.language,
+  ]);
 
   useEffect(() => {
     onFilter(filteredDataByBoth || []);
   }, [filteredDataByBoth, onFilter]);
 
   const { transactionTypes, securityNames } = useMemo(() => {
-    const transactionTypes = filteredDataBySecurityName?.map(
-      (order) => order.type.typeName
-    );
-    const securityNames = filteredDataByTransactionType?.map(
-      (order) => order.securityName
-    );
+    const transactionTypes = filteredDataBySecurityName?.map((order) => {
+      const typeName = getOrderTypeName(order, t, i18n.language);
+      return typeName;
+    });
+    const securityNames =
+      filteredDataByTransactionType?.map((order) => order.securityName) || [];
+
+    //if order is a switch, get also the linked leg and its security name
+    const linkedSecurityNames =
+      filteredDataByTransactionType?.reduce((prev, o) => {
+        if (isOrderPartOfSwitch(o)) {
+          const linkedOrder = o.linkedTransaction;
+          if (linkedOrder?.securityName) prev.push(linkedOrder?.securityName);
+        }
+        return prev;
+      }, [] as string[]) || [];
 
     const columnToOptions = (column: string[] | undefined) =>
       !column
@@ -118,22 +154,27 @@ export const OrdersFilter: FC<OrdersFilterProps> = ({
 
     return {
       transactionTypes: columnToOptions(transactionTypes),
-      securityNames: columnToOptions(securityNames),
+      securityNames: columnToOptions([
+        ...securityNames,
+        ...linkedSecurityNames,
+      ]),
     };
-  }, [filteredDataBySecurityName, filteredDataByTransactionType]);
+  }, [
+    filteredDataBySecurityName,
+    filteredDataByTransactionType,
+    i18n.language,
+    t,
+  ]);
 
   return (
-    <div
-      id="transactionsFilter"
-      className="flex flex-col gap-4 w-full sm:w-fit"
-    >
+    <div id="orderFilter" className="flex flex-col gap-4 w-full sm:w-fit">
       {filterHeader && (
         <div className="text-sm font-normal">{filterHeader}</div>
       )}
       <div className="grid flex-wrap grid-cols-1 sm:grid-cols-3 gap-2 -mt-3">
         <div className="w-full sm:w-48">
           <Select
-            label={t("transactionFilter.transactionType")}
+            label={t("orderFilter.transactionType")}
             value={selectedTransactionTypes}
             options={transactionTypes}
             onChangeMultiple={setSelectedTransactionTypes}
@@ -142,7 +183,7 @@ export const OrdersFilter: FC<OrdersFilterProps> = ({
         </div>
         <div className="w-full sm:w-48">
           <Select
-            label={t("transactionFilter.securityName")}
+            label={t("orderFilter.securityName")}
             value={selectedSecurityNames}
             options={securityNames}
             onChangeMultiple={setSelectedSecurityNames}
@@ -160,7 +201,7 @@ export const OrdersFilter: FC<OrdersFilterProps> = ({
             }
             variant="Secondary"
           >
-            {t("transactionFilter.resetFilter")}
+            {t("orderFilter.resetFilter")}
           </Button>
         </div>
       </div>
