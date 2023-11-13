@@ -19,7 +19,7 @@ import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { getBackendTranslation } from "utils/backTranslations";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
-import { roundDown } from "utils/number";
+import { round, roundDown } from "utils/number";
 import {
   getBlockSizeErrorTooltip,
   getBlockSizeMinTradeAmount,
@@ -52,6 +52,7 @@ export const BuyModalContent = ({
   onClose,
   id: securityId,
 }: BuyModalProps) => {
+  const [submitting, setSubmitting] = useState(false);
   const { t, i18n } = useModifiedTranslation();
   const { selectedContactId } = useGetContractIdData();
   const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
@@ -84,6 +85,10 @@ export const BuyModalContent = ({
     security?.amountDecimalCount !== undefined
       ? security.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
+  const SECURITY_CURRENCY_BLOCK_SIZE =
+    security?.currency.amountDecimalCount !== undefined
+      ? security?.currency.amountDecimalCount
+      : FALLBACK_DECIMAL_COUNT;
   const PORTFOLIO_BLOCK_SIZE =
     portfolioData?.currency.amountDecimalCount !== undefined
       ? portfolioData?.currency.amountDecimalCount
@@ -103,8 +108,12 @@ export const BuyModalContent = ({
 
   const securityFxRate = security?.fxRate || 1;
   const securityPrice = security?.latestMarketData?.price;
+
   const securityPriceInPfCurrency =
-    securityPrice !== undefined ? securityPrice * securityFxRate : undefined;
+    securityPrice !== undefined
+      ? round(securityPrice * securityFxRate, PORTFOLIO_BLOCK_SIZE)
+      : undefined;
+
   const unitsToBuyFromTradeAmount =
     securityPriceInPfCurrency !== undefined
       ? inputAsNr / (securityPriceInPfCurrency || 1)
@@ -118,25 +127,31 @@ export const BuyModalContent = ({
 
   const estimatedTradeAmountInPfCurrency =
     unitsToBuy !== undefined && securityPriceInPfCurrency !== undefined
-      ? unitsToBuy * securityPriceInPfCurrency
+      ? round(unitsToBuy * securityPriceInPfCurrency, PORTFOLIO_BLOCK_SIZE)
       : undefined;
+
   const estimatedTradeAmountInSecurityCurrency =
     unitsToBuy !== undefined && securityPrice !== undefined
-      ? unitsToBuy * securityPrice
+      ? round(unitsToBuy * securityPrice, SECURITY_CURRENCY_BLOCK_SIZE)
       : undefined;
 
-  const tradeAmountInSecurityCurrency = inputAsNr / securityFxRate;
+  const fxRate =
+    (estimatedTradeAmountInSecurityCurrency || 0) /
+    (estimatedTradeAmountInPfCurrency || 1);
 
-  const { handleTrade: handleBuy, submitting } = useTrade({
+  const { handleTrade: handleBuy } = useTrade({
     tradeType: getTradeType(security?.type.code),
     portfolio: selectedPortfolio || portfolios[0],
     securityName: securityName || "-",
     units: isTradeInUnits ? unitsToBuy : undefined,
-    tradeAmount: !isTradeInUnits ? tradeAmountInSecurityCurrency : undefined,
+    tradeAmount: !isTradeInUnits
+      ? estimatedTradeAmountInSecurityCurrency
+      : undefined,
     securityCode: security?.securityCode || "",
     executionMethod: isTradeInUnits
       ? ExecutionMethod.UNITS
       : ExecutionMethod.NET_TRADE_AMOUNT,
+    fxRate,
   });
 
   const availableCash =
@@ -148,14 +163,6 @@ export const BuyModalContent = ({
     (availableCash || 0) < (estimatedTradeAmountInPfCurrency || 0); // less than trying to buy for
 
   const { readonly } = useKeycloak();
-
-  //we don't know the final trade amount unless
-  //buying mutual fund with cash and pf and sec currency is the same
-  const isTradeAmountAnEstimation = !(
-    !isTradeInUnits &&
-    security?.type?.code === SecurityTypeCode.COLLECTIVE_INVESTMENT_VEHICLE &&
-    portfolioCurrency === securityCurrency
-  );
 
   const tradeAmountTooltip =
     unitsToBuy !== undefined &&
@@ -174,10 +181,11 @@ export const BuyModalContent = ({
   //min trade amount allowed to trade in this security
   //based on its block size only
   const blockSizeMinTradeAmountInPfCurrency =
-    securityPriceInPfCurrency !== undefined
-      ? getBlockSizeMinTradeAmount(
-          SECURITY_BLOCK_SIZE,
-          securityPriceInPfCurrency
+    securityPrice !== undefined
+      ? round(
+          getBlockSizeMinTradeAmount(SECURITY_BLOCK_SIZE, securityPrice) *
+            securityFxRate,
+          PORTFOLIO_BLOCK_SIZE
         )
       : undefined;
 
@@ -205,9 +213,7 @@ export const BuyModalContent = ({
     //we must make sure the input is rounded to the allowed
     //amount of decimals
     setInput((currInput) =>
-      currInput
-        ? roundDown(parseFloat(currInput), INPUT_BLOCK_SIZE).toString()
-        : ""
+      currInput ? round(parseFloat(currInput), INPUT_BLOCK_SIZE).toString() : ""
     );
   }, [INPUT_BLOCK_SIZE]);
 
@@ -218,8 +224,10 @@ export const BuyModalContent = ({
       loading ||
       inputAsNr === 0 ||
       insufficientCash ||
+      !!blockSizeTradeAmountError ||
       readonly ||
-      !selectedPortfolio
+      !selectedPortfolio ||
+      submitting
     );
   };
 
@@ -331,17 +339,12 @@ export const BuyModalContent = ({
             alignText="center"
             tooltipContent={tradeAmountTooltip || blockSizeTradeAmountError}
             id="buyOrderModal-tradeAmount"
-            label={
-              isTradeAmountAnEstimation
-                ? t("tradingModal.approximateTradeAmount")
-                : t("tradingModal.tradeAmount")
-            }
+            label={t("tradingModal.approximateTradeAmount")}
             className="text-2xl font-semibold"
           >
-            {t("numberWithCurrency", {
+            {`${t("number", {
               value: estimatedTradeAmountInPfCurrency || 0,
-              currency: portfolioCurrency,
-            })}
+            })} ${portfolioCurrency} `}
           </LabeledDivFlex>
           {securityCurrency && portfolioCurrency !== securityCurrency && (
             <LabeledDivFlex
@@ -351,10 +354,9 @@ export const BuyModalContent = ({
               className="text-md"
             >
               (
-              {t("numberWithCurrency", {
+              {`${t("number", {
                 value: estimatedTradeAmountInSecurityCurrency || 0,
-                currency: securityCurrency,
-              })}
+              })} ${securityCurrency}`}
               )
             </LabeledDivFlex>
           )}
@@ -363,6 +365,7 @@ export const BuyModalContent = ({
           disabled={disableBuyButton()}
           isLoading={submitting}
           onClick={async () => {
+            setSubmitting(true);
             const response = await handleBuy();
             if (response) {
               onClose();

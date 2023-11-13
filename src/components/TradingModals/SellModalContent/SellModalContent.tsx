@@ -19,7 +19,7 @@ import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { getBackendTranslation } from "utils/backTranslations";
 import { handleNumberInputEvent } from "utils/input";
-import { roundDown } from "utils/number";
+import { round, roundDown } from "utils/number";
 import {
   getBlockSizeErrorTooltip,
   getBlockSizeMinTradeAmount,
@@ -75,6 +75,7 @@ export const SellModalContent = ({
   onClose,
   id: securityId,
 }: SellModalProps) => {
+  const [submitting, setSubmitting] = useState(false);
   const [isPercentageMode, setIsPercentageMode] = useState(false);
   const [input, setInput] = useState("");
   const inputAsNr = input ? parseFloat(input) : 0;
@@ -119,13 +120,19 @@ export const SellModalContent = ({
     security?.amountDecimalCount !== undefined
       ? security?.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
+  const SECURITY_CURRENCY_BLOCK_SIZE =
+    security?.currency.amountDecimalCount !== undefined
+      ? security?.currency.amountDecimalCount
+      : FALLBACK_DECIMAL_COUNT;
   const PERCENTAGE_BLOCK_SIZE = FALLBACK_DECIMAL_COUNT;
 
   const securityCurrency = security?.currency.securityCode;
   const securityFxRate = security?.fxRate || 1;
   const securityPrice = security?.latestMarketData?.price;
   const securityPriceInPfCurrency =
-    securityPrice !== undefined ? securityPrice * securityFxRate : undefined;
+    securityPrice !== undefined
+      ? round(securityPrice * securityFxRate, PORTFOLIO_BLOCK_SIZE)
+      : undefined;
 
   const unitsToSell =
     securityPriceInPfCurrency !== undefined && units !== undefined
@@ -141,16 +148,17 @@ export const SellModalContent = ({
 
   const estimatedTradeAmountInPfCurrency =
     unitsToSell !== undefined && securityPriceInPfCurrency !== undefined
-      ? unitsToSell * securityPriceInPfCurrency
-      : undefined;
-  const estimatedTradeAmountInSecurityCurrency =
-    unitsToSell !== undefined && securityPrice !== undefined
-      ? unitsToSell * securityPrice
+      ? round(unitsToSell * securityPriceInPfCurrency, PORTFOLIO_BLOCK_SIZE)
       : undefined;
 
-  //this is what the user inputs, but converted to security currency
-  //we import this value (if trade amount selected)
-  const tradeAmountInSecurityCurrency = inputAsNr / securityFxRate;
+  const estimatedTradeAmountInSecurityCurrency =
+    unitsToSell !== undefined && securityPrice !== undefined
+      ? round(unitsToSell * securityPrice, SECURITY_CURRENCY_BLOCK_SIZE)
+      : undefined;
+
+  const fxRate =
+    (estimatedTradeAmountInSecurityCurrency || 0) /
+    (estimatedTradeAmountInPfCurrency || 1);
 
   const securityName =
     security !== undefined
@@ -161,18 +169,21 @@ export const SellModalContent = ({
         )
       : "-";
 
-  const { handleTrade: handleSell, submitting } = useTrade({
+  const { handleTrade: handleSell } = useTrade({
     tradeType: getTradeType(security?.type.code),
     portfolio:
       portfolios.find((portfolio) => portfolio.id === portfolioId) ||
       portfolios[0],
     securityName,
     units: isTradeInUnits ? unitsToSell : undefined,
-    tradeAmount: !isTradeInUnits ? tradeAmountInSecurityCurrency : undefined,
+    tradeAmount: !isTradeInUnits
+      ? estimatedTradeAmountInSecurityCurrency
+      : undefined,
     securityCode: security?.securityCode || "",
     executionMethod: isTradeInUnits
       ? ExecutionMethod.UNITS
       : ExecutionMethod.NET_TRADE_AMOUNT,
+    fxRate,
   });
 
   const { readonly } = useKeycloak();
@@ -194,10 +205,11 @@ export const SellModalContent = ({
       : undefined;
 
   const blockSizeMinTradeAmountInPfCurrency =
-    securityPriceInPfCurrency !== undefined
-      ? getBlockSizeMinTradeAmount(
-          SECURITY_BLOCK_SIZE,
-          securityPriceInPfCurrency
+    securityPrice !== undefined
+      ? round(
+          getBlockSizeMinTradeAmount(SECURITY_BLOCK_SIZE, securityPrice) *
+            securityFxRate,
+          PORTFOLIO_BLOCK_SIZE
         )
       : undefined;
 
@@ -237,7 +249,7 @@ export const SellModalContent = ({
     //we must make sure the input is rounded properly
     setInput((currInput) => {
       return currInput
-        ? roundDown(parseFloat(currInput), INPUT_BLOCK_SIZE).toString()
+        ? round(parseFloat(currInput), INPUT_BLOCK_SIZE).toString()
         : "";
     });
   }, [INPUT_BLOCK_SIZE]);
@@ -249,7 +261,9 @@ export const SellModalContent = ({
       loading ||
       !portfolioId ||
       insufficientFunds ||
-      emptyPortfolio
+      !!blockSizeTradeAmountError ||
+      emptyPortfolio ||
+      submitting
     );
   };
 
@@ -462,6 +476,7 @@ export const SellModalContent = ({
           disabled={disableSellButton()}
           isLoading={submitting}
           onClick={async () => {
+            setSubmitting(true);
             const response = await handleSell();
             if (response) {
               onClose();

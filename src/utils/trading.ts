@@ -87,14 +87,7 @@ export const getTradeAmountTooltip = (
           })
         : undefined;
 
-    const price =
-      security?.latestMarketData?.price !== undefined &&
-      security?.currency.securityCode !== undefined
-        ? t("numberWithCurrency", {
-            value: security.latestMarketData.price,
-            currency: security?.currency.securityCode,
-          })
-        : undefined;
+    const price = `${security?.latestMarketData?.price} ${security.currency.securityCode}`;
 
     const securityToPortfolioFx =
       fxRate !== undefined ? t("number", { value: fxRate }) : undefined;
@@ -158,13 +151,7 @@ export const getBlockSizeErrorTooltip = (
       ? getBackendTranslation(security.name, security.namesAsMap, locale)
       : "";
 
-    const sellPrice =
-      security?.latestMarketData?.price && security?.currency.securityCode
-        ? t("numberWithCurrency", {
-            value: security.latestMarketData.price,
-            currency: security?.currency.securityCode,
-          })
-        : undefined;
+    const sellPrice = `${security?.latestMarketData?.price} ${security.currency.securityCode}`;
 
     const sellSecurityToPortfoliofxRate = fxRate
       ? t("number", { value: fxRate })

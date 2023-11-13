@@ -20,7 +20,8 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
     $tradeAmount: String
     $reference: String
     $executionMethod: String
-    $accountFxRate: String
+    $fxRate: String
+    $unitPrice: String
   ) {
     importTradeOrder(
       tradeOrder: {
@@ -32,10 +33,10 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
         amount: $units
         tradeAmount: $tradeAmount
         account: "AUTO"
-        unitPrice: "AUTO"
-        fxRate: "AUTO"
-        accountFxRate: $accountFxRate
-        taxType2: "RND"
+        unitPrice: $unitPrice
+        fxRate: $fxRate
+        accountFxRate: $fxRate
+        reportFxRate: $fxRate
         reference: $reference
         executionMethod: $executionMethod
       }
@@ -52,6 +53,8 @@ interface ImportTradeOrderQueryVariables {
   units?: number;
   tradeAmount?: number;
   executionMethod: ExecutionMethod;
+  fxRate?: number | string;
+  unitPrice?: number | string;
 }
 
 const errorStatus = "ERROR" as const;
@@ -89,7 +92,7 @@ export const useTrade = (
   const handleTrade = async () => {
     setSubmitting(true);
     try {
-      const { tradeType, portfolio } = newTradeOrder;
+      const { tradeType, portfolio, fxRate, unitPrice } = newTradeOrder;
       if (!portfolio) {
         return;
       }
@@ -98,6 +101,8 @@ export const useTrade = (
       const apiResponse = await handleAPITrade({
         variables: {
           ...newTradeOrder,
+          fxRate: fxRate !== undefined ? fxRate : "AUTO",
+          unitPrice: unitPrice !== undefined ? unitPrice : "AUTO",
           transactionDate: new Date(),
           transactionTypeCode: getTradeTypeForAPI(tradeType),
           reference: transactionReference,
