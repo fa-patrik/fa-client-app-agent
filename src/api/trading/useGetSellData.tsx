@@ -1,14 +1,13 @@
 import { gql, useQuery } from "@apollo/client";
+import { PORTFOLIO_REPORT_HOLDINGS_DETAILS_FIELDS } from "api/holdings/fragments";
+import { HoldingPosition } from "api/holdings/types";
 import { getFetchPolicyOptions } from "api/utils";
 
-const BUY_DATA_QUERY = gql`
-  query GetBuyData($portfolioId: Long, $quoteCurrency: String) {
+const SELL_DATA_QUERY = gql`
+  ${PORTFOLIO_REPORT_HOLDINGS_DETAILS_FIELDS}
+  query GetSellData($portfolioId: Long, $quoteCurrency: String) {
     portfolio(id: $portfolioId) {
       id
-      currency {
-        securityCode
-        amountDecimalCount
-      }
       defaultAccount
       accounts {
         id
@@ -19,22 +18,20 @@ const BUY_DATA_QUERY = gql`
           fxRate(quoteCurrency: $quoteCurrency)
         }
       }
-      portfolioReport(
-        adjustPositionsBasedOnOpenTradeOrders: true
-        calculateExpectedAmountBasedOpenTradeOrders: true
-      ) {
+      portfolioReport {
         portfolioId
-        accountBalanceAdjustedWithOpenTradeOrders: accountBalance
+        ...PortfolioReportHoldingDetailsFields
       }
     }
   }
 `;
 
-interface BuyData {
+interface SellData {
   portfolio: {
     currency: {
-      securityCode: string;
+      id: number;
       amountDecimalCount: number;
+      securityCode: string;
     };
     defaultAccount: string;
     accounts: {
@@ -47,26 +44,26 @@ interface BuyData {
       };
     }[];
     portfolioReport: {
-      accountBalanceAdjustedWithOpenTradeOrders: number;
+      holdingPositions: HoldingPosition[];
     };
   };
 }
 
-export const useGetBuyData = (
+export const useGetSellData = (
   portfolioId: number | undefined,
   quoteCurrency?: string
 ) => {
-  const { loading, error, data } = useQuery<BuyData>(BUY_DATA_QUERY, {
+  const { loading, error, data } = useQuery<SellData>(SELL_DATA_QUERY, {
     variables: {
       portfolioId,
       quoteCurrency,
     },
-    ...getFetchPolicyOptions(`useGetBuyData.${portfolioId}.${quoteCurrency}`),
+    ...getFetchPolicyOptions(`GetSellData.${portfolioId}.${quoteCurrency}`),
   });
 
   return {
     loading,
     error,
-    data: data?.portfolio,
+    data,
   };
 };

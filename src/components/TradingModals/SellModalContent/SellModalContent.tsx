@@ -1,8 +1,8 @@
 import { MutableRefObject, useEffect, useMemo, useState } from "react";
 import { ExecutionMethod } from "api/enums";
 import { SecurityTypeCode } from "api/holdings/types";
-import { useGetPortfolioHoldingFromPfReport } from "api/holdings/useGetPortfolioHoldingFromPfReport";
 import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { useGetSellData } from "api/trading/useGetSellData";
 import { useTrade } from "api/trading/useTrade";
 import {
   PortfolioSelect,
@@ -47,17 +47,17 @@ const getUnitsToSell = (
   inputAsNr: number,
   securityPriceInPfCurrency: number,
   units: number,
-  SECURITY_BLOCK_SIZE: number
+  securityAmountDecimalCount: number
 ) => {
   if (isPercentageMode) {
-    return roundDown((inputAsNr / 100) * units, SECURITY_BLOCK_SIZE);
+    return roundDown((inputAsNr / 100) * units, securityAmountDecimalCount);
   } else {
     if (isTradeInUnits) {
-      return roundDown(inputAsNr, SECURITY_BLOCK_SIZE);
+      return roundDown(inputAsNr, securityAmountDecimalCount);
     } else {
       return roundDown(
         inputAsNr / (securityPriceInPfCurrency || 1),
-        SECURITY_BLOCK_SIZE
+        securityAmountDecimalCount
       );
     }
   }
@@ -90,18 +90,12 @@ export const SellModalContent = ({
     useTradablePortfolioSelect();
 
   const selectedPortfolioId = portfolioId;
-  const {
-    loading: loadingPfReport,
-    data: { marketValue, amount: units } = {},
-  } = useGetPortfolioHoldingFromPfReport(
-    selectedPortfolioId,
-    securityId.toString()
-  );
 
   const selectedPortfolio = useMemo(
     () => portfolios.find((p) => p.id === portfolioId),
     [portfolioId, portfolios]
   );
+
   const portfolioCurrency = selectedPortfolio?.currency.securityCode;
 
   const { data: security, loading: loadingSecurity } = useGetSecurityDetails(
@@ -109,29 +103,62 @@ export const SellModalContent = ({
     portfolioCurrency
   );
 
+  const { loading: loadingPfReport, data: sellData } = useGetSellData(
+    selectedPortfolioId,
+    security?.currency.securityCode
+  );
+
+  const holding = sellData?.portfolio.portfolioReport.holdingPositions.find(
+    (h) => h.security.id === securityId
+  );
+  const marketValue = holding?.marketValue;
+  const units = holding?.amount;
+
+  const defaultAccount =
+    sellData?.portfolio?.accounts?.find(
+      (a) =>
+        a.currency.securityCode === sellData.portfolio.currency.securityCode
+    ) || sellData?.portfolio?.accounts?.[0];
+
+  const accountToSecurityFxRate = 1 / (defaultAccount?.currency.fxRate || 1);
+
   const { isTradeInUnits, canToggleTradeType, setIsTradeInUnits } =
     useGetSellTradeType(security?.tagsAsSet, security?.type.code);
 
-  const PORTFOLIO_BLOCK_SIZE =
+  const portfolioCurrencyAmountDecimalCount =
     selectedPortfolio?.currency.amountDecimalCount !== undefined
       ? selectedPortfolio?.currency.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
-  const SECURITY_BLOCK_SIZE =
+  const securityAmountDecimalCount =
     security?.amountDecimalCount !== undefined
       ? security?.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
-  const SECURITY_CURRENCY_BLOCK_SIZE =
+  const securityCurrencyAmountDecimalCount =
     security?.currency.amountDecimalCount !== undefined
       ? security?.currency.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
-  const PERCENTAGE_BLOCK_SIZE = FALLBACK_DECIMAL_COUNT;
+  const accountCurrencyAmountDecimalCount =
+    defaultAccount?.currency.amountDecimalCount !== undefined
+      ? defaultAccount?.currency.amountDecimalCount
+      : FALLBACK_DECIMAL_COUNT;
+  const percentagDecimalCount = FALLBACK_DECIMAL_COUNT;
 
   const securityCurrency = security?.currency.securityCode;
-  const securityFxRate = security?.fxRate || 1;
+  const securityToPortfolioFxRate = security?.fxRate || 1;
   const securityPrice = security?.latestMarketData?.price;
   const securityPriceInPfCurrency =
     securityPrice !== undefined
-      ? round(securityPrice * securityFxRate, PORTFOLIO_BLOCK_SIZE)
+      ? round(
+          securityPrice * securityToPortfolioFxRate,
+          portfolioCurrencyAmountDecimalCount
+        )
+      : undefined;
+  const securityPriceInAccCurrency =
+    securityPrice !== undefined
+      ? round(
+          securityPrice * accountToSecurityFxRate,
+          portfolioCurrencyAmountDecimalCount
+        )
       : undefined;
 
   const unitsToSell =
@@ -142,23 +169,38 @@ export const SellModalContent = ({
           inputAsNr,
           securityPriceInPfCurrency,
           units,
-          SECURITY_BLOCK_SIZE
+          securityAmountDecimalCount
         )
       : undefined;
 
   const estimatedTradeAmountInPfCurrency =
     unitsToSell !== undefined && securityPriceInPfCurrency !== undefined
-      ? round(unitsToSell * securityPriceInPfCurrency, PORTFOLIO_BLOCK_SIZE)
+      ? round(
+          unitsToSell * securityPriceInPfCurrency,
+          portfolioCurrencyAmountDecimalCount
+        )
       : undefined;
 
   const estimatedTradeAmountInSecurityCurrency =
     unitsToSell !== undefined && securityPrice !== undefined
-      ? round(unitsToSell * securityPrice, SECURITY_CURRENCY_BLOCK_SIZE)
+      ? round(unitsToSell * securityPrice, securityCurrencyAmountDecimalCount)
       : undefined;
 
-  const fxRate =
+  const estimatedTradeAmountInAccountCurrency =
+    unitsToSell !== undefined && securityPriceInAccCurrency !== undefined
+      ? round(
+          unitsToSell * securityPriceInAccCurrency,
+          accountCurrencyAmountDecimalCount
+        )
+      : undefined;
+
+  const calculatedReportfxRate =
     (estimatedTradeAmountInSecurityCurrency || 0) /
     (estimatedTradeAmountInPfCurrency || 1);
+
+  const calculatedAccountFxRate =
+    (estimatedTradeAmountInSecurityCurrency || 0) /
+    (estimatedTradeAmountInAccountCurrency || 1);
 
   const securityName =
     security !== undefined
@@ -183,7 +225,8 @@ export const SellModalContent = ({
     executionMethod: isTradeInUnits
       ? ExecutionMethod.UNITS
       : ExecutionMethod.NET_TRADE_AMOUNT,
-    fxRate,
+    reportFxRate: calculatedReportfxRate,
+    accountFxRate: calculatedAccountFxRate,
   });
 
   const { readonly } = useKeycloak();
@@ -197,7 +240,7 @@ export const SellModalContent = ({
       ? getTradeAmountTooltip(
           unitsToSell,
           security,
-          securityFxRate,
+          securityToPortfolioFxRate,
           portfolioCurrency,
           i18n.language,
           t
@@ -207,9 +250,11 @@ export const SellModalContent = ({
   const blockSizeMinTradeAmountInPfCurrency =
     securityPrice !== undefined
       ? round(
-          getBlockSizeMinTradeAmount(SECURITY_BLOCK_SIZE, securityPrice) *
-            securityFxRate,
-          PORTFOLIO_BLOCK_SIZE
+          getBlockSizeMinTradeAmount(
+            securityAmountDecimalCount,
+            securityPrice
+          ) * securityToPortfolioFxRate,
+          portfolioCurrencyAmountDecimalCount
         )
       : undefined;
 
@@ -239,10 +284,10 @@ export const SellModalContent = ({
 
   //however many decimals to round the input to
   const INPUT_BLOCK_SIZE = isPercentageMode
-    ? PERCENTAGE_BLOCK_SIZE
+    ? percentagDecimalCount
     : isTradeInUnits
-    ? SECURITY_BLOCK_SIZE
-    : PORTFOLIO_BLOCK_SIZE;
+    ? securityAmountDecimalCount
+    : portfolioCurrencyAmountDecimalCount;
 
   useEffect(() => {
     //when switching between amount and trade amount
@@ -395,12 +440,15 @@ export const SellModalContent = ({
               } else {
                 if (isTradeInUnits && units !== undefined) {
                   return setInput(() =>
-                    roundDown(units, SECURITY_BLOCK_SIZE).toString()
+                    roundDown(units, securityAmountDecimalCount).toString()
                   );
                 }
                 if (!isTradeInUnits && marketValue !== undefined) {
                   return setInput(() =>
-                    roundDown(marketValue, PORTFOLIO_BLOCK_SIZE).toString()
+                    roundDown(
+                      marketValue,
+                      portfolioCurrencyAmountDecimalCount
+                    ).toString()
                   );
                 }
               }
@@ -418,12 +466,15 @@ export const SellModalContent = ({
               } else {
                 if (isTradeInUnits && units !== undefined) {
                   return setInput(() =>
-                    roundDown(units / 2, SECURITY_BLOCK_SIZE).toString()
+                    roundDown(units / 2, securityAmountDecimalCount).toString()
                   );
                 }
                 if (!isTradeInUnits && marketValue !== undefined) {
                   return setInput(() =>
-                    roundDown(marketValue / 2, PORTFOLIO_BLOCK_SIZE).toString()
+                    roundDown(
+                      marketValue / 2,
+                      portfolioCurrencyAmountDecimalCount
+                    ).toString()
                   );
                 }
               }

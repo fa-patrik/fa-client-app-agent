@@ -72,8 +72,17 @@ export const BuyModalContent = ({
     selectedPortfolio?.currency.securityCode
   );
 
-  const { loading: loadingCash, data: portfolioData } =
-    useGetBuyData(selectedPortfolioId);
+  const { loading: loadingCash, data: portfolioData } = useGetBuyData(
+    selectedPortfolioId,
+    security?.currency.securityCode
+  );
+
+  const defaultAccount =
+    portfolioData?.accounts?.find(
+      (a) => a.currency.securityCode === portfolioData.currency.securityCode
+    ) || portfolioData?.accounts?.[0];
+
+  const securityToAccountFxRate = 1 / (defaultAccount?.currency.fxRate || 1);
 
   const { isTradeInUnits, canToggleTradeType, setIsTradeInUnits } =
     useGetBuyTradeType(security?.tagsAsSet, security?.type.code);
@@ -81,21 +90,25 @@ export const BuyModalContent = ({
   const [input, setInput] = useState<string>("");
   const inputAsNr = input ? Number(input) : 0;
 
-  const SECURITY_BLOCK_SIZE =
+  const securityAmountDecimalCount =
     security?.amountDecimalCount !== undefined
       ? security.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
-  const SECURITY_CURRENCY_BLOCK_SIZE =
+  const securityCurrencyAmountDecimalCount =
     security?.currency.amountDecimalCount !== undefined
       ? security?.currency.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
-  const PORTFOLIO_BLOCK_SIZE =
+  const portfolioCurrencyAmountDecimalCount =
     portfolioData?.currency.amountDecimalCount !== undefined
       ? portfolioData?.currency.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
-  const INPUT_BLOCK_SIZE = isTradeInUnits
-    ? SECURITY_BLOCK_SIZE
-    : PORTFOLIO_BLOCK_SIZE;
+  const accountCurrencyAmountDecimalCount =
+    defaultAccount?.currency.amountDecimalCount !== undefined
+      ? defaultAccount?.currency.amountDecimalCount
+      : FALLBACK_DECIMAL_COUNT;
+  const inputBlockSize = isTradeInUnits
+    ? securityAmountDecimalCount
+    : portfolioCurrencyAmountDecimalCount;
 
   const securityName =
     security !== undefined
@@ -106,12 +119,23 @@ export const BuyModalContent = ({
         )
       : undefined;
 
-  const securityFxRate = security?.fxRate || 1;
+  const securityToPortfolioFxRate = security?.fxRate || 1;
   const securityPrice = security?.latestMarketData?.price;
 
   const securityPriceInPfCurrency =
     securityPrice !== undefined
-      ? round(securityPrice * securityFxRate, PORTFOLIO_BLOCK_SIZE)
+      ? round(
+          securityPrice * securityToPortfolioFxRate,
+          portfolioCurrencyAmountDecimalCount
+        )
+      : undefined;
+
+  const securityPriceInAccCurrency =
+    securityPrice !== undefined
+      ? round(
+          securityPrice * securityToAccountFxRate,
+          portfolioCurrencyAmountDecimalCount
+        )
       : undefined;
 
   const unitsToBuyFromTradeAmount =
@@ -120,24 +144,39 @@ export const BuyModalContent = ({
       : undefined;
 
   const unitsToBuy = isTradeInUnits
-    ? roundDown(inputAsNr, SECURITY_BLOCK_SIZE)
+    ? roundDown(inputAsNr, securityAmountDecimalCount)
     : unitsToBuyFromTradeAmount !== undefined
-    ? roundDown(unitsToBuyFromTradeAmount, SECURITY_BLOCK_SIZE)
+    ? roundDown(unitsToBuyFromTradeAmount, securityAmountDecimalCount)
     : undefined;
 
   const estimatedTradeAmountInPfCurrency =
     unitsToBuy !== undefined && securityPriceInPfCurrency !== undefined
-      ? round(unitsToBuy * securityPriceInPfCurrency, PORTFOLIO_BLOCK_SIZE)
+      ? round(
+          unitsToBuy * securityPriceInPfCurrency,
+          portfolioCurrencyAmountDecimalCount
+        )
+      : undefined;
+
+  const estimatedTradeAmountInAccountCurrency =
+    unitsToBuy !== undefined && securityPriceInAccCurrency !== undefined
+      ? round(
+          unitsToBuy * securityPriceInAccCurrency,
+          accountCurrencyAmountDecimalCount
+        )
       : undefined;
 
   const estimatedTradeAmountInSecurityCurrency =
     unitsToBuy !== undefined && securityPrice !== undefined
-      ? round(unitsToBuy * securityPrice, SECURITY_CURRENCY_BLOCK_SIZE)
+      ? round(unitsToBuy * securityPrice, securityCurrencyAmountDecimalCount)
       : undefined;
 
-  const fxRate =
+  const calculatedReportFxRate =
     (estimatedTradeAmountInSecurityCurrency || 0) /
     (estimatedTradeAmountInPfCurrency || 1);
+
+  const calculatedAccountFxRate =
+    (estimatedTradeAmountInSecurityCurrency || 0) /
+    (estimatedTradeAmountInAccountCurrency || 1);
 
   const { handleTrade: handleBuy } = useTrade({
     tradeType: getTradeType(security?.type.code),
@@ -151,7 +190,8 @@ export const BuyModalContent = ({
     executionMethod: isTradeInUnits
       ? ExecutionMethod.UNITS
       : ExecutionMethod.NET_TRADE_AMOUNT,
-    fxRate,
+    accountFxRate: calculatedAccountFxRate,
+    reportFxRate: calculatedReportFxRate,
   });
 
   const availableCash =
@@ -183,9 +223,11 @@ export const BuyModalContent = ({
   const blockSizeMinTradeAmountInPfCurrency =
     securityPrice !== undefined
       ? round(
-          getBlockSizeMinTradeAmount(SECURITY_BLOCK_SIZE, securityPrice) *
-            securityFxRate,
-          PORTFOLIO_BLOCK_SIZE
+          getBlockSizeMinTradeAmount(
+            securityAmountDecimalCount,
+            securityPrice
+          ) * securityToPortfolioFxRate,
+          portfolioCurrencyAmountDecimalCount
         )
       : undefined;
 
@@ -213,9 +255,9 @@ export const BuyModalContent = ({
     //we must make sure the input is rounded to the allowed
     //amount of decimals
     setInput((currInput) =>
-      currInput ? round(parseFloat(currInput), INPUT_BLOCK_SIZE).toString() : ""
+      currInput ? round(parseFloat(currInput), inputBlockSize).toString() : ""
     );
-  }, [INPUT_BLOCK_SIZE]);
+  }, [inputBlockSize]);
 
   const loading = loadingCash || loadingSecurity;
 
@@ -274,22 +316,10 @@ export const BuyModalContent = ({
         ref={modalInitialFocusRef}
         value={input}
         onChange={(event) => {
-          handleNumberInputEvent(
-            event,
-            setInput,
-            0,
-            undefined,
-            INPUT_BLOCK_SIZE
-          );
+          handleNumberInputEvent(event, setInput, 0, undefined, inputBlockSize);
         }}
         onPaste={(event) => {
-          handleNumberPasteEvent(
-            event,
-            setInput,
-            0,
-            undefined,
-            INPUT_BLOCK_SIZE
-          );
+          handleNumberPasteEvent(event, setInput, 0, undefined, inputBlockSize);
         }}
         label={
           isTradeInUnits
