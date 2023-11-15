@@ -108,8 +108,8 @@ export const SellModalContent = ({
     security?.currency.securityCode
   );
 
-  const holding = sellData?.portfolio.portfolioReport.holdingPositions.find(
-    (h) => h.security.id === securityId
+  const holding = sellData?.portfolio?.portfolioReport?.holdingPositions.find(
+    (h) => h?.security?.id === securityId
   );
   const marketValue = holding?.marketValue;
   const units = holding?.amount;
@@ -117,10 +117,11 @@ export const SellModalContent = ({
   const defaultAccount =
     sellData?.portfolio?.accounts?.find(
       (a) =>
-        a.currency.securityCode === sellData.portfolio.currency.securityCode
+        a?.currency?.securityCode ===
+        sellData?.portfolio?.currency?.securityCode
     ) || sellData?.portfolio?.accounts?.[0];
 
-  const accountToSecurityFxRate = 1 / (defaultAccount?.currency.fxRate || 1);
+  const accountToSecurityFxRate = 1 / (defaultAccount?.currency?.fxRate || 1);
 
   const { isTradeInUnits, canToggleTradeType, setIsTradeInUnits } =
     useGetSellTradeType(security?.tagsAsSet, security?.type.code);

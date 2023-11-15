@@ -69,23 +69,23 @@ export const BuyModalContent = ({
 
   const { data: security, loading: loadingSecurity } = useGetSecurityDetails(
     securityId.toString(),
-    selectedPortfolio?.currency.securityCode
+    selectedPortfolio?.currency?.securityCode
   );
 
   const { loading: loadingCash, data: portfolioData } = useGetBuyData(
     selectedPortfolioId,
-    security?.currency.securityCode
+    security?.currency?.securityCode
   );
 
   const defaultAccount =
     portfolioData?.accounts?.find(
-      (a) => a.currency.securityCode === portfolioData.currency.securityCode
+      (a) => a?.currency?.securityCode === portfolioData?.currency?.securityCode
     ) || portfolioData?.accounts?.[0];
 
-  const securityToAccountFxRate = 1 / (defaultAccount?.currency.fxRate || 1);
+  const securityToAccountFxRate = 1 / (defaultAccount?.currency?.fxRate || 1);
 
   const { isTradeInUnits, canToggleTradeType, setIsTradeInUnits } =
-    useGetBuyTradeType(security?.tagsAsSet, security?.type.code);
+    useGetBuyTradeType(security?.tagsAsSet, security?.type?.code);
 
   const [input, setInput] = useState<string>("");
   const inputAsNr = input ? Number(input) : 0;
