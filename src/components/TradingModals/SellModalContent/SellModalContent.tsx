@@ -339,6 +339,7 @@ export const SellModalContent = ({
           portfolioId={portfolioId}
           onChange={(newPortfolio) => setPortfolioId(newPortfolio.id)}
           label={t("tradingModal.portfolio")}
+          error={!portfolioId ? t("tradingModal.selectPortfolioError") : ""}
         />
       </div>
       {!loadingPfReport && isTradeInUnits && (
@@ -386,9 +387,7 @@ export const SellModalContent = ({
             ? t("tradingModal.shareOfTradeAmountInputLabel")
             : isTradeInUnits
             ? t("tradingModal.unitsInputLabel")
-            : t("tradingModal.tradeAmountInputLabel", {
-                currency: portfolioCurrency,
-              })
+            : t("tradingModal.tradeAmountSimpleInputLabel")
         }
         type="text"
         error={
@@ -503,26 +502,34 @@ export const SellModalContent = ({
             label={t("tradingModal.approximateTradeAmount")}
             className="text-2xl font-semibold"
           >
-            {t("numberWithCurrency", {
-              value: estimatedTradeAmountInPfCurrency || 0,
-              currency: portfolioCurrency,
-            })}
+            {estimatedTradeAmountInPfCurrency !== undefined &&
+            portfolioCurrency !== undefined
+              ? t("numberWithCurrency", {
+                  value: estimatedTradeAmountInPfCurrency,
+                  currency: portfolioCurrency,
+                })
+              : "-"}
           </LabeledDivFlex>
-          {securityCurrency && portfolioCurrency !== securityCurrency && (
-            <LabeledDivFlex
-              alignText="center"
-              id="buyOrderModal-tradeAmount"
-              label={""}
-              className="text-md"
-            >
-              (
-              {t("numberWithCurrency", {
-                value: estimatedTradeAmountInSecurityCurrency || 0,
-                currency: securityCurrency,
-              })}
-              )
-            </LabeledDivFlex>
-          )}
+          {securityCurrency &&
+            portfolioCurrency &&
+            portfolioCurrency !== securityCurrency && (
+              <LabeledDivFlex
+                alignText="center"
+                id="buyOrderModal-tradeAmount"
+                label={""}
+                className="text-md"
+              >
+                (
+                {estimatedTradeAmountInSecurityCurrency !== undefined &&
+                securityCurrency !== undefined
+                  ? t("numberWithCurrency", {
+                      value: estimatedTradeAmountInSecurityCurrency,
+                      currency: securityCurrency,
+                    })
+                  : "-"}
+                )
+              </LabeledDivFlex>
+            )}
         </div>
         <Button
           disabled={disableSellButton()}

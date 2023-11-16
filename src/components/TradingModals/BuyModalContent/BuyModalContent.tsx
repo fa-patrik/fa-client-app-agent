@@ -297,20 +297,22 @@ export const BuyModalContent = ({
         portfolioId={portfolioId}
         onChange={(newPortfolio) => setPortfolioId(newPortfolio.id)}
         label={t("tradingModal.portfolio")}
+        error={!portfolioId ? t("tradingModal.selectPortfolioError") : ""}
       />
-      <LabeledDiv
-        label={t("tradingModal.availableCash")}
-        className="text-xl font-semibold text-gray-700"
-      >
-        {!loadingCash &&
-          portfolioCurrency &&
-          availableCash !== undefined &&
-          t("numberWithCurrency", {
-            value: availableCash,
-            currency: portfolioCurrency,
-          })}
-        {loadingCash && <LoadingIndicator size="xs" />}
-      </LabeledDiv>
+      {!loadingCash && (
+        <LabeledDiv
+          label={t("tradingModal.availableCash")}
+          className="text-xl font-semibold text-gray-700"
+        >
+          {availableCash !== undefined && portfolioCurrency !== undefined
+            ? t("numberWithCurrency", {
+                value: availableCash,
+                currency: portfolioCurrency,
+              })
+            : "-"}
+        </LabeledDiv>
+      )}
+      {loadingCash && <LoadingIndicator size="xs" />}
       <Input
         disabled={!portfolioId}
         ref={modalInitialFocusRef}
@@ -324,13 +326,13 @@ export const BuyModalContent = ({
         label={
           isTradeInUnits
             ? t("tradingModal.unitsInputLabel")
-            : t("tradingModal.tradeAmountInputLabel", {
-                currency: portfolioCurrency,
-              })
+            : t("tradingModal.tradeAmountSimpleInputLabel")
         }
         type="text"
         error={
-          !input || inputAsNr === 0
+          portfolioId === undefined
+            ? ""
+            : !input || inputAsNr === 0
             ? " "
             : insufficientCash && !loading
             ? t("tradingModal.insufficientCashError")
@@ -372,24 +374,32 @@ export const BuyModalContent = ({
             label={t("tradingModal.approximateTradeAmount")}
             className="text-2xl font-semibold"
           >
-            {`${t("number", {
-              value: estimatedTradeAmountInPfCurrency || 0,
-            })} ${portfolioCurrency} `}
+            {portfolioCurrency !== undefined &&
+            estimatedTradeAmountInPfCurrency !== undefined
+              ? `${t("number", {
+                  value: estimatedTradeAmountInPfCurrency,
+                })} ${portfolioCurrency} `
+              : "-"}
           </LabeledDivFlex>
-          {securityCurrency && portfolioCurrency !== securityCurrency && (
-            <LabeledDivFlex
-              alignText="center"
-              id="buyOrderModal-tradeAmount"
-              label={""}
-              className="text-md"
-            >
-              (
-              {`${t("number", {
-                value: estimatedTradeAmountInSecurityCurrency || 0,
-              })} ${securityCurrency}`}
-              )
-            </LabeledDivFlex>
-          )}
+          {securityCurrency &&
+            portfolioCurrency &&
+            portfolioCurrency !== securityCurrency && (
+              <LabeledDivFlex
+                alignText="center"
+                id="buyOrderModal-tradeAmount"
+                label={""}
+                className="text-md"
+              >
+                (
+                {estimatedTradeAmountInSecurityCurrency !== undefined &&
+                securityCurrency !== undefined
+                  ? `${t("number", {
+                      value: estimatedTradeAmountInSecurityCurrency,
+                    })} ${securityCurrency}`
+                  : "-"}
+                )
+              </LabeledDivFlex>
+            )}
         </div>
         <Button
           disabled={disableBuyButton()}

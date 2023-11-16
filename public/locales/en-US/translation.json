@@ -272,6 +272,7 @@
   "tradingModal": {
     "securityName": "Security name",
     "portfolio": "Portfolio",
+    "selectPortfolioError": "Please select a portfolio",
     "availableCash": "Available cash",
     "currentMarketValue": "Current market value",
     "currentUnits": "Current position units",
@@ -284,6 +285,7 @@
     "shareOfUnitsInputLabel": "Share (%) of units",
     "shareOfTradeAmountInputLabel": "Share (%) of trade amount",
     "tradeAmountInputLabel": "Trade amount in {{currency}}",
+    "tradeAmountSimpleInputLabel": "Trade amount",
     "unitsInputLabel": "Number of units",
     "buyModalHeader": "Buy",
     "buyButtonLabel": "Buy",
