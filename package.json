@@ -1,6 +1,6 @@
 {
   "name": "fa-client-app",
-  "homepage": ".",
+  "homepage": "",
   "version": "1.7.0-SNAPSHOT",
   "private": true,
   "dependencies": {
