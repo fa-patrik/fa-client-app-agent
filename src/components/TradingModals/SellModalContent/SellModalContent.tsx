@@ -349,7 +349,7 @@ export const SellModalContent = ({
         >
           {portfolioCurrency !== undefined && units !== undefined
             ? t("number", { value: units })
-            : "-"}
+            : "0"}
         </LabeledDiv>
       )}
 
@@ -363,7 +363,7 @@ export const SellModalContent = ({
                 value: marketValue,
                 currency: portfolioCurrency,
               })
-            : "-"}
+            : "0"}
         </LabeledDiv>
       )}
       {loadingPfReport && <LoadingIndicator size="sm" />}
@@ -502,13 +502,10 @@ export const SellModalContent = ({
             label={t("tradingModal.approximateTradeAmount")}
             className="text-2xl font-semibold"
           >
-            {estimatedTradeAmountInPfCurrency !== undefined &&
-            portfolioCurrency !== undefined
-              ? t("numberWithCurrency", {
-                  value: estimatedTradeAmountInPfCurrency,
-                  currency: portfolioCurrency,
-                })
-              : "-"}
+            {t("numberWithCurrency", {
+              value: estimatedTradeAmountInPfCurrency || 0,
+              currency: portfolioCurrency,
+            })}
           </LabeledDivFlex>
           {securityCurrency &&
             portfolioCurrency &&
@@ -520,13 +517,10 @@ export const SellModalContent = ({
                 className="text-md"
               >
                 (
-                {estimatedTradeAmountInSecurityCurrency !== undefined &&
-                securityCurrency !== undefined
-                  ? t("numberWithCurrency", {
-                      value: estimatedTradeAmountInSecurityCurrency,
-                      currency: securityCurrency,
-                    })
-                  : "-"}
+                {t("numberWithCurrency", {
+                  value: estimatedTradeAmountInSecurityCurrency || 0,
+                  currency: securityCurrency,
+                })}
                 )
               </LabeledDivFlex>
             )}
