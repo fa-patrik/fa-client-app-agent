@@ -156,9 +156,9 @@ if you use class that hasn't been used yet, build of the app will be necessary.
 
 ## Deployment
 
-You can deploy a custom FA Client Portal to your FA Platform environment such that the application is hosted as a part of the FA Platform. By following the below instructions, your build files will eventually be uploaded to /public/portal directly in the FA Platform. FA's server side routing makes sure incoming requests are routed properly to the /public/portal/index.html.
+You can deploy a custom FA Client Portal to your FA Platform environment such that the application is hosted as a part of the FA Platform. By following the below instructions, your build files will eventually be uploaded to /public/portal directly in the FA Platform.
  
-Contact FA Customer Services to set up separate test and production urls (for example https://myportal.test.com and https://myportal.com) routing to /public/portal/index.html in your test and production environments.
+Contact FA Customer Services to set up separate test and production urls (for example https://myportal.test.com and https://myportal.com) routing to your test and production deployments.
 
 ### Deploying to your production or test environment
 * (Optional) Update the *homepage* variable in the *package.json* to the appropriate context root. The default value is "", assuming that the FA Client Portal will run at root ("/"). If you have a separate url as described above, you can leave the homepage value as is. However, it might be interesting to know that subdirectories to /public in FA Platform can be accessed directly from https://myenv.fasolutions.com/public/someSubdirectory, meaning that you hypothetically can host your client portal under the context of, for example, /public/portal. If so, you can change the homepage value to /public/portal, and after following the below steps, be able to access the app from https://myenv.fasolutions.com/public/portal. 
