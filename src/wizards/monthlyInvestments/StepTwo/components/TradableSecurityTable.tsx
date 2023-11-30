@@ -1,6 +1,11 @@
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
-import { TimePeriod } from "api/performance/types";
-import { useGetPerformanceBySecurityLazy } from "api/performance/useGetPerformanceGroupedBySecurity";
+import { useApolloClient } from "@apollo/client";
+import { PerformanceBySecurityQuery, TimePeriod } from "api/performance/types";
+import {
+  PERFORMANCE_BY_SECURITY_QUERY,
+  transformMap,
+  useGetPerformanceBySecurityLazy,
+} from "api/performance/useGetPerformanceGroupedBySecurity";
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { ReactComponent as SortIcon } from "assets/sort.svg";
 import { ReactComponent as SortAscIcon } from "assets/sortAsc.svg";
@@ -59,6 +64,13 @@ const TradableSecurityTable = ({
   preSelectedRows,
   id,
 }: TradableSecuritiesTableProps) => {
+  const [loadingPerformanceData, setLoadingPerformanceData] = useState(false);
+  const [performanceData, setPerformanceData] = useState<
+    Record<TradableSecurity["id"], Record<TimePeriod, number>> | undefined
+  >({});
+  const { getPerformanceBySecurity, loading: performanceLoading } =
+    useGetPerformanceBySecurityLazy();
+  const { cache } = useApolloClient();
   const [columnSortedState, setColumnSortedState] = useState<
     Record<string, string>
   >({});
@@ -342,27 +354,59 @@ const TradableSecurityTable = ({
     [pageIndex, sortedRows]
   );
 
-  const {
-    getPerformanceBySecurity,
-    data: performanceData,
-    loading: performanceLoading,
-  } = useGetPerformanceBySecurityLazy();
-
-  //fetch performance (TWR) figures for the securities
-  //on the current page of the table
   useEffect(() => {
-    const fetch = async () => {
-      const ids = rowsToDisplay.map((s) => s.id);
-      const timePeriods = [TimePeriod["YEARS-1"]];
-      await getPerformanceBySecurity({
-        variables: {
-          securityIds: ids,
-          timePeriodCodes: timePeriods,
-        },
-      });
+    const fetchData = async () => {
+      setLoadingPerformanceData(true);
+      console.debug(
+        "Running for ids",
+        rowsToDisplay.map((s) => s.id)
+      );
+      for (const security of rowsToDisplay) {
+        const variables = {
+          securityId: security.id,
+          timePeriodCodes: [TimePeriod["YEARS-1"]],
+        };
+        console.debug(`Requesting data for security ID: ${security.id}`);
+        const cacheResponse = cache.readQuery<PerformanceBySecurityQuery>({
+          query: PERFORMANCE_BY_SECURITY_QUERY,
+          variables,
+        });
+        if (cacheResponse) {
+          console.debug(
+            `Cache hit for ${security.name} (${security.id}), received data:`,
+            cacheResponse.security
+          );
+          setPerformanceData((prev) => ({
+            ...prev,
+            ...transformMap(cacheResponse),
+          }));
+        } else {
+          const response = await getPerformanceBySecurity(variables);
+          console.debug(
+            `Fetched data for ${security.name} (${security.id}), received data:`,
+            response?.data?.security
+          );
+          if (response) {
+            setPerformanceData((prev) => ({
+              ...prev,
+              ...transformMap(response.data),
+            }));
+          }
+        }
+      }
+      setLoadingPerformanceData(false);
     };
-    fetch();
-  }, [rowsToDisplay, getPerformanceBySecurity]);
+    try {
+      if (rowsToDisplay.length) {
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Failed getting security performance data.");
+      setLoadingPerformanceData(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rowsToDisplay]);
+
   return (
     <table className="min-w-full h-full text-sm text-gray-500 rounded-lg border-collapse table-auto select-none">
       <thead className="sticky top-0 z-10 text-xs text-gray-700 bg-gray-100 rounded-t-lg">
@@ -414,8 +458,7 @@ const TradableSecurityTable = ({
       <tbody>
         {rowsToDisplay?.map((security) => {
           const performanceOneYear =
-            performanceData?.[security.securityCode]?.[TimePeriod["YEARS-1"]] ||
-            0;
+            performanceData?.[security.id]?.[TimePeriod["YEARS-1"]];
           return (
             <tr
               onClick={() =>
@@ -463,7 +506,9 @@ const TradableSecurityTable = ({
               <td className="p-1">
                 {/** Security fee */}
                 <div className="flex justify-end">
-                  {performanceLoading ? (
+                  {performanceLoading[security.id] ||
+                  (performanceOneYear === undefined &&
+                    loadingPerformanceData) ? (
                     <LoadingIndicator size="xs" />
                   ) : (
                     <span
@@ -473,15 +518,17 @@ const TradableSecurityTable = ({
                           : `${id}-performanceOneYear-${security.id}`
                       }
                       className={classNames({
-                        "text-red-500": performanceOneYear < 0,
-                        "text-green-400": performanceOneYear > 0,
+                        "text-red-500": (performanceOneYear || 0) < 0,
+                        "text-green-400": (performanceOneYear || 0) > 0,
                       })}
                     >
-                      {performanceOneYear.toLocaleString(i18n.language, {
-                        style: "percent",
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      {performanceOneYear !== undefined
+                        ? performanceOneYear.toLocaleString(i18n.language, {
+                            style: "percent",
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                        : "-"}
                     </span>
                   )}
                 </div>

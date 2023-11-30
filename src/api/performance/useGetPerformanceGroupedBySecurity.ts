@@ -1,15 +1,19 @@
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { useState } from "react";
+import {
+  ApolloError,
+  OperationVariables,
+  gql,
+  useApolloClient,
+  useQuery,
+} from "@apollo/client";
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { PerformanceBySecurityQuery, TimePeriod } from "./types";
 
-const PERFORMANCE_BY_SECURITY_QUERY = gql`
-  query GetPerformanceBySecurity(
-    $securityIds: [Long]
-    $timePeriodCodes: [String]
-  ) {
+const SECURITY_PERFORMANCE_FRAGMENT = gql`
+  fragment SecurityPerformance on Security {
+    id
     analytics(
       parameters: {
-        secIds: $securityIds
         paramsSet: {
           timePeriodCodes: $timePeriodCodes
           key: "performanceBySecurity"
@@ -22,6 +26,9 @@ const PERFORMANCE_BY_SECURITY_QUERY = gql`
       grouppedAnalytics(key: "performanceBySecurity") {
         grouppedAnalytics {
           code
+          security {
+            id
+          }
           grouppedAnalyticsTimePeriod {
             timePeriodCode
             performance: twr
@@ -32,15 +39,27 @@ const PERFORMANCE_BY_SECURITY_QUERY = gql`
   }
 `;
 
+export const PERFORMANCE_BY_SECURITY_QUERY = gql`
+  ${SECURITY_PERFORMANCE_FRAGMENT}
+  query GetPerformanceBySecurity(
+    $securityId: Long
+    $timePeriodCodes: [String]
+  ) {
+    security(id: $securityId) {
+      ...SecurityPerformance
+    }
+  }
+`;
+
 export const useGetPerformanceGroupedBySecurity = (
-  securityIds: string[] | undefined,
+  securityId: number | undefined,
   timePeriodCodes: TimePeriod[]
 ) => {
   const { loading, error, data } = useQuery<PerformanceBySecurityQuery>(
     PERFORMANCE_BY_SECURITY_QUERY,
     {
       variables: {
-        securityIds: securityIds,
+        securityId: securityId,
         timePeriodCodes: timePeriodCodes,
       },
     }
@@ -49,32 +68,63 @@ export const useGetPerformanceGroupedBySecurity = (
   return {
     loading,
     error,
-    data: data?.analytics.grouppedAnalytics,
+    data: data?.security.analytics.grouppedAnalytics,
   };
 };
 
 export const useGetPerformanceBySecurityLazy = () => {
-  const [getPerformanceBySecurity, { loading, data, error }] =
-    useLazyQuery<PerformanceBySecurityQuery>(PERFORMANCE_BY_SECURITY_QUERY);
+  const [error, setError] = useState<ApolloError | undefined>();
+  const [loading, setLoading] = useState<
+    Record<TradableSecurity["id"], boolean>
+  >({});
+  const client = useApolloClient();
 
-  const dataAsMap = data?.analytics.grouppedAnalytics.grouppedAnalytics.reduce(
-    (prev, currSecurity) => {
-      prev[currSecurity.code] = currSecurity.grouppedAnalyticsTimePeriod.reduce(
-        (prev, currTimePeriod) => {
-          const timePeriodCode = currTimePeriod.timePeriodCode as TimePeriod;
-          prev[timePeriodCode] = currTimePeriod.performance;
-          return prev;
-        },
-        {} as Record<TimePeriod, number>
-      );
-      return prev;
-    },
-    {} as Record<TradableSecurity["securityCode"], Record<TimePeriod, number>>
-  );
+  const getPerformanceBySecurity = async (variables: OperationVariables) => {
+    const vars = variables as {
+      securityId: number;
+      timePeriodCodes: string[];
+    };
+    setLoading(() => ({ [vars.securityId]: true }));
+    try {
+      const result = await client.query({
+        query: PERFORMANCE_BY_SECURITY_QUERY,
+        variables,
+        fetchPolicy: "cache-first",
+      });
+      setError(undefined);
+      setLoading(() => ({ [vars.securityId]: false }));
+      return result;
+    } catch (err) {
+      setLoading(() => ({ [vars.securityId]: false }));
+      if (err instanceof ApolloError) setError(err);
+    }
+  };
+
   return {
+    getPerformanceBySecurity,
     loading,
     error,
-    data: dataAsMap,
-    getPerformanceBySecurity,
   };
+};
+
+export const transformMap = (data: PerformanceBySecurityQuery | undefined) => {
+  if (!data) return;
+
+  return data?.security.analytics.grouppedAnalytics.grouppedAnalytics.reduce(
+    (prevSecurity, currSecurity) => {
+      const securityPerformance =
+        currSecurity.grouppedAnalyticsTimePeriod.reduce(
+          (prevTimePeriod, currTimePeriod) => {
+            const timePeriodCode = currTimePeriod.timePeriodCode as TimePeriod;
+            return {
+              ...prevTimePeriod,
+              [timePeriodCode]: currTimePeriod.performance,
+            };
+          },
+          {} as Record<TimePeriod, number>
+        );
+      return { ...prevSecurity, [data?.security.id]: securityPerformance };
+    },
+    {} as Record<TradableSecurity["id"], Record<TimePeriod, number>>
+  );
 };
