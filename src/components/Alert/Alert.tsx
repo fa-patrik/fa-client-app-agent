@@ -1,25 +1,56 @@
-import { ReactComponent as ExclamationIcon } from "assets/exclamation-circle.svg";
+import {
+  faCircleInfo,
+  faCircleCheck,
+  faCircleExclamation,
+  faTriangleExclamation,
+  IconDefinition,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
 type Severity = "Error" | "Success" | "Warning" | "Info";
 
-interface AlertProps {
+export interface AlertProps {
+  id: string;
   severity: Severity;
-  content: string;
-  title?: string;
-  icon?: React.ReactNode;
+  content?: string;
+  title: string;
+  icon?: IconDefinition;
 }
 
-/**
- * Displays guiding messages towards the user
- * depending on if diffAmount is larger, less than or equal to 0.
- * @param diffAmount amount differing from target amount.
- * @param diffPercentage percentage differing from target amount (10 => 10%).
- */
-const Alert = ({ severity, icon, title, content }: AlertProps) => {
+const Icon = ({
+  severity,
+  icon,
+}: {
+  severity: string;
+  icon?: IconDefinition;
+}) => (
+  <FontAwesomeIcon
+    className={classNames("text-md", {
+      "text-primary-800": severity === "Info",
+      "text-green-600": severity === "Success",
+      "text-red-800": severity === "Error",
+      "text-amber-500": severity === "Warning",
+    })}
+    icon={
+      icon
+        ? icon
+        : severity === "Info"
+        ? faCircleInfo
+        : severity === "Success"
+        ? faCircleCheck
+        : severity === "Error"
+        ? faCircleExclamation
+        : faTriangleExclamation
+    }
+  />
+);
+
+const Alert = ({ severity, icon, title, content, id }: AlertProps) => {
   return (
     <div
+      id={id}
       className={classNames(
-        "flex flex-col p-1 text-sm rounded-lg flex-1 gap-y-1 border",
+        "flex flex-col p-1.5 text-sm rounded-lg flex-1 border-2 max-w-xl",
         {
           "bg-primary-100 border-primary-200": severity === "Info",
           "bg-green-100 border-green-200": severity === "Success",
@@ -28,20 +59,10 @@ const Alert = ({ severity, icon, title, content }: AlertProps) => {
         }
       )}
     >
-      <div className="flex flex-row gap-x-1 items-end">
-        {icon ??
-          (severity === "Info" ? (
-            <ExclamationIcon className="stroke-primary-800" />
-          ) : severity === "Success" ? (
-            <ExclamationIcon className="stroke-green-600" />
-          ) : severity === "Error" ? (
-            <ExclamationIcon className="stroke-red-800" />
-          ) : (
-            <ExclamationIcon className="stroke-amber-500" />
-          ))}
-
-        <span
-          className={classNames("text-sm font-semibold", {
+      <div className="flex flex-row gap-x-2 items-start">
+        {<Icon severity={severity} icon={icon} />}
+        <p
+          className={classNames("text-xs font-semibold", {
             "text-primary-800": severity === "Info",
             "text-green-600": severity === "Success",
             "text-red-800": severity === "Error",
@@ -49,10 +70,10 @@ const Alert = ({ severity, icon, title, content }: AlertProps) => {
           })}
         >
           {title}
-        </span>
+        </p>
       </div>
       <p
-        className={classNames("text-xs pl-1.5", {
+        className={classNames("text-xs pl-0.5", {
           "text-primary-900": severity === "Info",
           "text-green-900": severity === "Success",
           "text-red-900": severity === "Error",

@@ -1,6 +1,7 @@
-import { ReactComponent as CheckIcon } from "assets/check.svg";
-import { ReactComponent as CloseIcon } from "assets/close.svg";
-import { ReactComponent as GlassHourIcon } from "assets/glassHour.svg";
+import {
+  faScaleUnbalanced,
+  faScaleUnbalancedFlip,
+} from "@fortawesome/free-solid-svg-icons";
 import Alert from "components/Alert/Alert";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
@@ -41,43 +42,37 @@ const DistributeInfo = ({
     <>
       {overrideError ? (
         <Alert
-          severity="Success"
+          id="distributeInfo-alert-error"
+          severity="Warning"
           content={overrideError}
-          title="Unable to proceed"
+          title={t("wizards.monthlyInvestments.stepThree.unableToProceed")}
         />
       ) : diffAmount > 0 ? (
-        <>
-          <GlassHourIcon />
-          <p
-            className="text-xs"
-            id="monthlyInvestmentsWizard-distributeMoreDisclaimer"
-          >
-            {t("wizards.monthlyInvestments.stepThree.distributeMore", {
-              diffAmountFormatted,
-              diffPercentageFormatted,
-            })}
-          </p>
-        </>
+        <Alert
+          icon={faScaleUnbalanced}
+          id="distributeInfo-alert-distributeMore"
+          severity="Info"
+          content={t("wizards.monthlyInvestments.stepThree.distributeMore", {
+            diffAmountFormatted,
+            diffPercentageFormatted,
+          })}
+          title={t("wizards.monthlyInvestments.stepThree.distributeMoreTitle")}
+        />
       ) : diffAmount < 0 ? (
-        <>
-          <CloseIcon />
-          <p
-            className="text-xs"
-            id="monthlyInvestmentsWizard-distributeLessDisclaimer"
-          >
-            {t("wizards.monthlyInvestments.stepThree.distributeLess")}
-          </p>
-        </>
+        <Alert
+          icon={faScaleUnbalancedFlip}
+          id="distributeInfo-alert-distributeLess"
+          severity="Error"
+          content={t("wizards.monthlyInvestments.stepThree.distributeLess")}
+          title={t("wizards.monthlyInvestments.stepThree.distributeLessTitle")}
+        />
       ) : (
-        <>
-          <CheckIcon />
-          <p
-            className="text-xs"
-            id="monthlyInvestmentsWizard-distributeOkDisclaimer"
-          >
-            {t("wizards.monthlyInvestments.stepThree.distributeOk")}
-          </p>
-        </>
+        <Alert
+          id="distributeInfo-alert-distributeOk"
+          severity="Success"
+          content={t("wizards.monthlyInvestments.stepThree.distributeOk")}
+          title={t("wizards.monthlyInvestments.stepThree.distributedTitle")}
+        />
       )}
     </>
   );

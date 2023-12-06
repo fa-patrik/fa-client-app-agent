@@ -444,6 +444,11 @@
       "stepThree": {
         "stepTitle": "Distribute your investments",
         "distributeButtonLabel": "Distribute evenly",
+        "distributedTitle": "Distributed",
+        "unableToProceed": "Unable to proceed",
+        "distributeMoreTitle": "Distribute more",
+        "distributeLessTitle": "Distribute less",
+        "securityAllocatedZeroError": "A security has 0 amount. Remove it or allocate an amount.",
         "amountLabel": "Investment amount",
         "percentageInputLabel": "Percentage",
         "percentageInputPlaceholder": "% 50",

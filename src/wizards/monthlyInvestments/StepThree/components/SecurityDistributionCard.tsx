@@ -174,6 +174,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                   {
                     style: "currency",
                     currency: currency?.securityCode,
+                    maximumFractionDigits: currency?.amountDecimalCount,
                   }
                 ),
               })}

@@ -398,7 +398,11 @@ const StepThree = () => {
                   100 - round(sumOfPercentageInputs, PERCENTAGE_BLOCK_SIZE)
                 }
                 overrideError={
-                  isAnySecurityZero ? "A security has 0 amount" : undefined
+                  isAnySecurityZero
+                    ? t(
+                        "wizards.monthlyInvestments.stepThree.securityAllocatedZeroError"
+                      )
+                    : undefined
                 }
               />
             )}
