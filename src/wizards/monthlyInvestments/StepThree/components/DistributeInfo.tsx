@@ -1,12 +1,16 @@
 import { ReactComponent as CheckIcon } from "assets/check.svg";
 import { ReactComponent as CloseIcon } from "assets/close.svg";
 import { ReactComponent as GlassHourIcon } from "assets/glassHour.svg";
-import classNames from "classnames";
+import Alert from "components/Alert/Alert";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 interface DistributeInfoProps {
   diffAmount: number;
   diffPercentage: number;
+  /**
+   * If provided, is displayed and sets the component style to error.
+   */
+  overrideError?: string;
 }
 
 /**
@@ -18,6 +22,7 @@ interface DistributeInfoProps {
 const DistributeInfo = ({
   diffAmount,
   diffPercentage,
+  overrideError,
 }: DistributeInfoProps) => {
   const { i18n, t } = useModifiedTranslation();
 
@@ -33,17 +38,14 @@ const DistributeInfo = ({
   });
 
   return (
-    <div
-      className={classNames(
-        "flex flex-row gap-x-4 items-center py-4 px-6 rounded-lg h-14 max-w-sm",
-        {
-          "bg-primary-200": diffAmount > 0,
-          "bg-green-300": diffAmount === 0,
-          "bg-red-400": diffAmount < 0,
-        }
-      )}
-    >
-      {diffAmount > 0 ? (
+    <>
+      {overrideError ? (
+        <Alert
+          severity="Success"
+          content={overrideError}
+          title="Unable to proceed"
+        />
+      ) : diffAmount > 0 ? (
         <>
           <GlassHourIcon />
           <p
@@ -77,7 +79,7 @@ const DistributeInfo = ({
           </p>
         </>
       )}
-    </div>
+    </>
   );
 };
 export default DistributeInfo;
