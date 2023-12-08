@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ReactComponent as ExclamationIcon } from "assets/exclamation-circle.svg";
-import { Card, Input, LoadingIndicator, PortfolioSelect } from "components";
+import { Card, ComboBox, Input, LoadingIndicator } from "components";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { canPortfolioOptionMonthlySave } from "services/permissions/usePermission";
+import { addMonthlySavingsToPortfolios } from "utils/faBackProfiles/monthlySavings";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import OnError from "../components/OnError";
 import {
-  PortfolioProfileAndFiguresAndAccounts,
   getUniqueExternalAccounts,
   useGetPortfoliosProfileAndFiguresAndAccounts,
 } from "../StepZero/api/useGetPortfoliosWithProfileAndAccounts";
@@ -17,6 +17,14 @@ import { MonthlySavingsWizardState } from "../types";
 
 //min units of money to invest
 const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MS_MINAMOUNT";
+
+const AccountBadge = ({ accountNr }: { accountNr: string }) => {
+  return (
+    <div className="p-2 w-full text-sm text-gray-900">
+      <span id="monthlySavingsWizard-debitAccountNumber">{accountNr}</span>
+    </div>
+  );
+};
 
 /**
  * Step one of the monthly savings process.
@@ -35,17 +43,34 @@ const MsStepOne = () => {
   const { portfolioOptions, portfolioId } = useFilteredPortfolioSelect(
     canPortfolioOptionMonthlySave
   );
+
+  const portfoliosWithMonthlySavings = useMemo(() => {
+    return portfolioData?.portfolios
+      ? addMonthlySavingsToPortfolios(portfolioData?.portfolios)
+      : [];
+  }, [portfolioData?.portfolios]);
+
+  const filteredPortfolioOptions = useMemo(() => {
+    if (wizardData.data.isEditing) return portfolioOptions;
+    return portfolioOptions?.filter(
+      //all pf without a valid monthly savings plan
+      (o) => portfoliosWithMonthlySavings?.every((p) => p.id !== o.id)
+    );
+  }, [
+    portfoliosWithMonthlySavings,
+    portfolioOptions,
+    wizardData.data.isEditing,
+  ]);
+
   const [selectedPortfolioOption, setSelectedPortfolioOption] =
     useState<PortfolioOption>(
       wizardData?.data?.selectedPortfolioOption ||
-        portfolioOptions.find((o) => o.id === portfolioId) ||
-        portfolioOptions[0]
+        filteredPortfolioOptions.find((o) => o.id === portfolioId) ||
+        filteredPortfolioOptions[0]
     );
 
-  const [portfolio, setPortfolio] = useState<
-    PortfolioProfileAndFiguresAndAccounts | undefined
-  >(() =>
-    portfolioData?.portfolios?.find((p) => p.id === selectedPortfolioOption.id)
+  const portfolio = portfolioData?.portfolios?.find(
+    (p) => p.id === selectedPortfolioOption?.id
   );
 
   const externalAcc = useMemo(() => {
@@ -74,13 +99,6 @@ const MsStepOne = () => {
   });
   const [inputError, setInputError] = useState("");
 
-  useEffect(() => {
-    const selectedPortfolio = portfolioData?.portfolios?.find(
-      (p) => p.id === selectedPortfolioOption.id
-    );
-    setPortfolio(() => selectedPortfolio);
-  }, [portfolioData?.portfolios, selectedPortfolioOption]);
-
   //set portfolio and account to wizard state
   useEffect(() => {
     setWizardData((prevState) => ({
@@ -91,7 +109,8 @@ const MsStepOne = () => {
         selectedAccount: externalAcc,
       },
     }));
-  }, [selectedPortfolioOption, setWizardData, externalAcc]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPortfolioOption, externalAcc]);
 
   //validate written input and set it to the wizard state
   useEffect(() => {
@@ -123,7 +142,7 @@ const MsStepOne = () => {
 
   const CURRENCY_BLOCK_SIZE = portfolio?.currency.amountDecimalCount || 2;
 
-  const NoAccountWarning = () => {
+  const NoAccountWarning = useCallback(() => {
     return (
       <div className="flex items-center p-1 w-full text-sm rounded-lg border bg-amber-50">
         <div>
@@ -137,15 +156,7 @@ const MsStepOne = () => {
         </span>
       </div>
     );
-  };
-
-  const AccountBadge = ({ accountNr }: { accountNr: string }) => {
-    return (
-      <div className="p-2 w-full text-sm text-gray-900">
-        <span id="monthlySavingsWizard-debitAccountNumber">{accountNr}</span>
-      </div>
-    );
-  };
+  }, [t]);
 
   const errorGettingData = errorGettingPortfolioData;
   if (errorGettingData)
@@ -163,14 +174,14 @@ const MsStepOne = () => {
     <div className="p-2 m-auto w-full max-w-xs">
       <Card>
         <div className="flex flex-col gap-y-3 p-6">
-          <PortfolioSelect
+          <ComboBox
             id="monthlySavingsWizard-portfolioSelector"
             label={t("wizards.monthlySavings.stepOne.portfolioInputLabel")}
             onChange={setSelectedPortfolioOption}
-            portfolioId={selectedPortfolioOption.id}
-            portfolioOptions={portfolioOptions}
+            options={filteredPortfolioOptions}
+            value={selectedPortfolioOption}
+            disabled={wizardData.data.isEditing ?? false}
           />
-
           <div>
             {loadingPortfolioData ? (
               <LoadingIndicator size="xs" />
@@ -218,7 +229,7 @@ const MsStepOne = () => {
           />
           {minAmount && (
             <p
-              className="text-xs font-thin"
+              className="text-sm font-thin"
               id="monthlySavingsWizard-minAmountDisclaimer"
             >
               {t("wizards.monthlySavings.stepOne.minAmountDisclaimer") + " "}
