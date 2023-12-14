@@ -51,8 +51,15 @@ export const chartRangeOptions = [
 export const OverviewView = () => {
   const { portfolioId } = useParams();
   const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
-  const queryData = useGetPortfolioOverviewSmart(portfolioIdAsNr);
-  return <QueryLoadingWrapper {...queryData} SuccessComponent={Overview} />;
+  const analytics = useGetPortfolioOverviewSmart(portfolioIdAsNr);
+  return (
+    <QueryLoadingWrapper
+      loading={analytics.loading}
+      error={analytics.error}
+      data={analytics.data}
+      SuccessComponent={Overview}
+    />
+  );
 };
 
 interface OverviewProps {

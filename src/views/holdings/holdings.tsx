@@ -67,7 +67,7 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
     contentProps: switchModalContentProps,
   } = useModal<SwitchModalInitialData>();
 
-  if (securityTypes?.length === 0) {
+  if (!securityTypes?.length) {
     return <NoHoldings />;
   }
 

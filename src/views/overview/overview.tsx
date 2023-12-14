@@ -11,8 +11,15 @@ import { TotalSummary } from "./components/TotalSummary";
 
 export const OverviewView = () => {
   useGetContactCashFromPfReport();
-  const queryData = useGetContactOverview();
-  return <QueryLoadingWrapper {...queryData} SuccessComponent={Overview} />;
+  const analytics = useGetContactOverview();
+  return (
+    <QueryLoadingWrapper
+      loading={analytics.loading}
+      error={analytics.error}
+      data={analytics.data}
+      SuccessComponent={Overview}
+    />
+  );
 };
 
 interface OverviewProps {

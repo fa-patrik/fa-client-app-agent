@@ -5,10 +5,17 @@ import { Holdings } from "views/portfolio/holdings/holdings";
 
 export const HoldingsView = () => {
   const { portfolioId } = useParams();
-  const portflioIdAsNr =
+  const portfolioIdAsNr =
     portfolioId && !isNaN(Number(portfolioId))
       ? parseInt(portfolioId, 10)
       : undefined;
-  const queryData = useGetPortfolioOverviewSmart(portflioIdAsNr);
-  return <QueryLoadingWrapper {...queryData} SuccessComponent={Holdings} />;
+  const analytics = useGetPortfolioOverviewSmart(portfolioIdAsNr);
+  return (
+    <QueryLoadingWrapper
+      loading={analytics.loading}
+      error={analytics.error}
+      data={analytics.data}
+      SuccessComponent={Holdings}
+    />
+  );
 };
