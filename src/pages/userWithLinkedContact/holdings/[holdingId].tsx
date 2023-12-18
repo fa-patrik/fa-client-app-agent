@@ -1,11 +1,9 @@
-import { useMemo } from "react";
+import { useGetContactHoldingsFromAnalytics } from "api/holdings/useGetContactHoldingsFromAnalytics";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
 import { SecurityTypeDataWithSecurityData } from "api/overview/types";
-import { useGetContactOverview } from "api/overview/useGetContactOverview";
 import { QueryLoadingWrapper } from "components";
 import { useParams } from "react-router-dom";
 import { HoldingDetails } from "views/holdingDetails/holdingDetails";
-import { aggregatePortfolioData } from "views/holdings/holdings";
 import { NotFoundView } from "views/notFoundView/notFoundView";
 
 const findHolding = (
@@ -32,15 +30,10 @@ export const HoldingPage = () => {
     loading: holdingLoading,
     error: holdingError,
     data: holdingData,
-  } = useGetContactOverview();
+  } = useGetContactHoldingsFromAnalytics();
 
-  const aggregatedData = useMemo(() => {
-    const portfolioData =
-      holdingData?.contact?.analytics?.contact?.parentPortfolios || [];
-    return aggregatePortfolioData(portfolioData);
-  }, [holdingData?.contact?.analytics?.contact?.parentPortfolios]);
-
-  const securityTypesData = aggregatedData ? Object.values(aggregatedData) : [];
+  const securityTypesData =
+    holdingData?.contact?.analytics?.contact?.securityTypes;
   const holding = findHolding(securityTypesData, holdingId);
 
   // marge data are ready when:

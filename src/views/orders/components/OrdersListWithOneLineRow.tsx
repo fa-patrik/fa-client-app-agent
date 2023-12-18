@@ -1,10 +1,11 @@
 import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
-import { Badge } from "components";
+import classNames from "classnames";
+import { Badge, Card } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 import {
   isStatusCancellable,
@@ -13,11 +14,11 @@ import {
 } from "services/permissions/cancelOrder";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
-  getNameFromBackendTranslations,
-  getTransactionColor,
-} from "utils/transactions";
-import { TransactionType } from "views/transactionDetails/transactionDetailsView";
-import { useNavigateToDetails } from "views/transactions/useNavigateToDetails";
+  getOrderTypeName,
+  getSwitchDetails,
+  isOrderPartOfSwitch,
+} from "utils/switchOrders";
+import { getTransactionColor } from "utils/transactions";
 import { OrderProps, OrdersListProps } from "./OrdersGroup";
 
 export const OrdersListWithOneLineRow = ({
@@ -29,65 +30,57 @@ export const OrdersListWithOneLineRow = ({
   const showPortfolioLabel = !portfolioId;
   const { t } = useModifiedTranslation();
 
-  const type = "order" as TransactionType;
-  const navigate = useNavigateToDetails(type);
-
   const isLgVersion = useMatchesBreakpoint("lg");
+  const navigate = useNavigate();
 
   return (
-    <div>
+    <Card>
       <Tooltip id="cancelOrderTooltip" place="top" />
-      <table className="w-full table-fixed">
-        <thead className="text-sm font-semibold text-gray-500 bg-gray-200 border-t">
+      <table className="w-full table-auto">
+        <thead className="text-sm font-semibold text-gray-500 bg-gray-100">
           <tr>
-            <th className="py-1 px-2 text-left">
-              {t("transactionsPage.security")}
+            <th className="p-1 text-center ">{t("ordersPage.type")}</th>
+            <th colSpan={2} className="py-1 px-2 text-left ">
+              {t("ordersPage.security")}
             </th>
             {showPortfolioLabel && (
-              <th className="p-1 text-left">
-                {t("transactionsPage.portfolioName")}
-              </th>
+              <th className="p-1 text-left">{t("ordersPage.portfolioName")}</th>
             )}
-            <th className="p-1 text-right">
-              {t("transactionsPage.transactionDate")}
+            <th className="py-1 px-2 text-right ">
+              {t("ordersPage.tradeAmount")}
             </th>
             {isLgVersion && (
-              <th className="p-1 text-right">{t("transactionsPage.units")}</th>
+              <>
+                <th className="p-1 text-right ">{t("ordersPage.units")}</th>
+                <th className="p-1 text-right ">
+                  {t("ordersPage.transactionDate")}
+                </th>
+              </>
             )}
-            <th className="p-1 text-center">{t("transactionsPage.type")}</th>
-            <th className="py-1 px-2 text-right">
-              {t("transactionsPage.tradeAmount")}
-            </th>
+            <th className="py-1 text-center">{t("ordersPage.status")}</th>
             {isAnyOrderCancellable && <th></th>}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="text-sm">
           {orders.map((order) => (
             <Order
+              order={order}
               {...order}
               key={isLocalOrder(order) ? order.reference : order.id}
               showPortfolioLabel={showPortfolioLabel}
-              onClick={navigate(order.id)}
+              onClick={() => navigate(`../orders/${order.id}`)}
               isAnyOrderCancellable={isAnyOrderCancellable}
               onCancelOrderModalOpen={onCancelOrderModalOpen}
             />
           ))}
         </tbody>
       </table>
-    </div>
+    </Card>
   );
 };
 
 const Order = ({
-  id,
-  orderStatus,
-  reference,
-  transactionDate,
-  amount,
-  type,
-  tradeAmountInPortfolioCurrency,
-  securityName,
-  parentPortfolio,
+  order,
   onClick,
   showPortfolioLabel,
   isAnyOrderCancellable,
@@ -97,31 +90,38 @@ const Order = ({
   const { t, i18n } = useModifiedTranslation();
 
   const { data: orderParentPortfolio } = useGetPortfolioBasicFieldsById(
-    parentPortfolio.id
+    order.parentPortfolio.id
   );
 
+  const isPartOfSwitch = isOrderPartOfSwitch(order);
+  const switchDetails = isPartOfSwitch ? getSwitchDetails(order) : undefined;
+
   const orderCanBeCancelled =
-    isStatusCancellable(orderStatus) &&
-    isTransactionTypeCancellable(type.typeCode);
+    isStatusCancellable(
+      isPartOfSwitch && switchDetails?.fromOrder?.orderStatus
+        ? switchDetails?.fromOrder?.orderStatus
+        : order.orderStatus
+    ) &&
+    isTransactionTypeCancellable(
+      isPartOfSwitch && switchDetails?.fromOrder?.type.typeCode
+        ? switchDetails?.fromOrder?.type.typeCode
+        : order.type.typeCode
+    );
+
   const portfolioAllowedToCancel =
     orderParentPortfolio &&
     isPortfolioAllowedToCancelOrder(orderParentPortfolio);
-
-  const typeTranslated = getNameFromBackendTranslations(
-    type.typeName,
-    i18n.language,
-    type.typeNamesAsMap
-  );
 
   const TypeBadge = () => {
     return (
       <Badge
         colorScheme={getTransactionColor(
-          type.amountEffect,
-          type.cashFlowEffect
+          order.type.amountEffect,
+          order.type.cashFlowEffect,
+          isPartOfSwitch
         )}
       >
-        {typeTranslated}
+        {getOrderTypeName(order, t, i18n.language)}
       </Badge>
     );
   };
@@ -129,38 +129,77 @@ const Order = ({
   return (
     <>
       <tr
-        onClick={onClick}
-        className="h-12 hover:bg-primary-50 border-t transition-colors cursor-pointer"
+        onClick={!isLocalOrder(order) ? onClick : undefined}
+        className={classNames(
+          "h-12 hover:bg-primary-50 border-t transition-colors",
+          {
+            "cursor-pointer": !isLocalOrder(order),
+          }
+        )}
       >
-        <td className="px-2 font-semibold text-left">{securityName}</td>
-        {showPortfolioLabel && (
-          <td className="px-1 text-sm md:text-base text-left text-gray-500">
-            {orderParentPortfolio?.name}
-          </td>
-        )}
-        <td className="px-1 text-sm md:text-base font-medium text-right text-gray-500">
-          <span>{t("date", { date: dateFromYYYYMMDD(transactionDate) })}</span>
-        </td>
-        {isLgVersion && (
-          <td className="px-1 text-base font-medium text-right">
-            {amount != null ? t("number", { value: amount }) : "-"}
-          </td>
-        )}
-        <td className="px-1 ">
+        <td className="px-1">
           <div className="flex justify-center">
             <TypeBadge />
           </div>
         </td>
-        <td className="px-2 text-base font-medium text-right">
-          {t("numberWithCurrency", {
-            value: tradeAmountInPortfolioCurrency,
-            currency: orderParentPortfolio?.currency.securityCode,
-          })}
+        <td className="px-2 font-semibold text-left" colSpan={2}>
+          <div>
+            {isPartOfSwitch ? (
+              <>
+                <div className="flex flex-row gap-x-1">
+                  <div className="flex flex-col gap-y-1 font-normal text-gray-500">
+                    <span>{t("ordersPage.switchSell")}</span>
+                    <span>{t("ordersPage.switchBuy")}</span>
+                  </div>
+                  <div className="flex flex-col gap-y-1 font-semibold text-black">
+                    <span>{switchDetails?.fromOrder?.securityName}</span>
+                    <span>{switchDetails?.toOrder?.securityName}</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <span>{order.securityName}</span>
+            )}
+          </div>
+        </td>
+        {showPortfolioLabel && (
+          <td className="px-1 text-left text-gray-500">
+            {orderParentPortfolio?.name}
+          </td>
+        )}
+        <td className="px-2 font-medium text-right">
+          {order.tradeAmountInPortfolioCurrency !== undefined
+            ? t("numberWithCurrency", {
+                value: order.tradeAmountInPortfolioCurrency,
+                currency: orderParentPortfolio?.currency.securityCode,
+              })
+            : "-"}
+        </td>
+        {isLgVersion && (
+          <>
+            <td className="px-1 font-medium text-right">
+              {order.amount != null && !isPartOfSwitch
+                ? t("number", { value: order.amount })
+                : "-"}
+            </td>
+            <td className="px-1 font-medium text-right text-gray-500">
+              <span>
+                {t("date", { date: dateFromYYYYMMDD(order.transactionDate) })}
+              </span>
+            </td>
+          </>
+        )}
+        <td className="px-1 font-medium text-center">
+          {t(
+            `ordersPage.orderStatuses.${
+              switchDetails?.switchOrderStatus ?? order.orderStatus
+            }`
+          )}
         </td>
         {orderCanBeCancelled && portfolioAllowedToCancel ? (
           <td className="pr-4 h-full">
             <div
-              id={`cancelOrder-${id}`}
+              id={`cancelOrder-${order.id}`}
               className="ml-auto w-fit"
               data-tooltip-content={t("ordersPage.cancelOrder")}
               data-tooltip-id="cancelOrderTooltip"
@@ -171,13 +210,8 @@ const Order = ({
                   event.stopPropagation(); //hinders the parent onClick
                   if (onCancelOrderModalOpen) {
                     onCancelOrderModalOpen({
-                      orderId: id,
-                      reference: reference,
-                      portfolioName: orderParentPortfolio.name,
-                      portfolioId: orderParentPortfolio.id,
-                      securityName,
-                      transactionDate,
-                      type,
+                      portfolio: orderParentPortfolio,
+                      order: order,
                     });
                   }
                 }}

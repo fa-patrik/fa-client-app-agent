@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 
 export const SUPPORTED_ROWS_MONTHLY_INVESTMENTS = 15;
-type mode = "Delete" | "New"
+type mode = "Delete" | "New" | "Edit";
 
 /**
  * Representing a row in the FA Back Portfolio Investment plan profile.
@@ -20,9 +20,9 @@ interface PortfolioMonthlyInvestmentDTOInput {
  * Representing the FA Back Portfolio Investment plan profile.
  */
 export interface PortfolioMonthlyInvestmentsDTOInput {
-    portfolio: string;
-    enableInPfCurrency: boolean;
-    rows: PortfolioMonthlyInvestmentDTOInput[];
+  portfolio: string;
+  enableInPfCurrency: boolean;
+  rows: PortfolioMonthlyInvestmentDTOInput[];
 }
 
 interface SetMonthlyInvestmentsMutationVariables {
@@ -30,13 +30,14 @@ interface SetMonthlyInvestmentsMutationVariables {
 }
 
 interface SetMonthlyInvestmentsMutationResponse {
-  importPortfolioMonthlyInvestments: PortfolioMonthlyInvestmentsDTOInput
+  importPortfolioMonthlyInvestments: PortfolioMonthlyInvestmentsDTOInput;
 }
 
 const SET_MONTHLY_INVESTMENTS_MUTATION = gql`
-  mutation setMonthlyInvestments($monthlyInvestments: PortfolioMonthlyInvestmentsDTOInput)
- {
-    importPortfolioMonthlyInvestments(monthlyInvestments: $monthlyInvestments){
+  mutation setMonthlyInvestments(
+    $monthlyInvestments: PortfolioMonthlyInvestmentsDTOInput
+  ) {
+    importPortfolioMonthlyInvestments(monthlyInvestments: $monthlyInvestments) {
       enableInPfCurrency
       rows {
         amount
@@ -46,13 +47,13 @@ const SET_MONTHLY_INVESTMENTS_MUTATION = gql`
       }
       portfolio
     }
-}
+  }
 `;
 
 /**
  * Import monthly investments profile data.
  */
-export const useSetMonthlyInvestments = (mode = "New" as mode) => {
+export const useSetMonthlyInvestments = () => {
   const { t } = useModifiedTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [handleSetMonthlyInvestments] = useMutation<
@@ -61,7 +62,8 @@ export const useSetMonthlyInvestments = (mode = "New" as mode) => {
   >(SET_MONTHLY_INVESTMENTS_MUTATION);
 
   const setMonthlyInvestments = async (
-    monthlyInvestments: SetMonthlyInvestmentsMutationVariables["monthlyInvestments"]
+    monthlyInvestments: SetMonthlyInvestmentsMutationVariables["monthlyInvestments"],
+    mode: mode
   ) => {
     setSubmitting(true);
     try {
@@ -75,19 +77,21 @@ export const useSetMonthlyInvestments = (mode = "New" as mode) => {
       toast.success(
         t(
           mode === "Delete"
-            ? "Deleted monthly investment"
-            : "Created new monthly investment"
+            ? t("messages.monthlyInvestmentsDeletedSuccess")
+            : mode === "New"
+            ? t("messages.monthlyInvestmentsNewSuccess")
+            : t("messages.monthlyInvestmentsEditSuccess")
         ),
-        { autoClose: 3000, closeButton: false,  position: "top-center" }
+        { autoClose: 3000, closeButton: false, position: "top-center" }
       );
       setSubmitting(false);
       return apiResponse;
     } catch (e: unknown) {
-      toast.error(t("Something went wrong."), {
+      toast.error(t("messages.monthlyInvestmentsFailed"), {
         style: { whiteSpace: "pre-line" },
         closeButton: false,
         autoClose: 3000,
-        position: "top-center"
+        position: "top-center",
       });
       setSubmitting(false);
       return null;
@@ -104,8 +108,10 @@ const handleBadAPIResponse = (
     Record<string, unknown>
   >
 ) => {
-  if (!apiResponse.data || !apiResponse.data.importPortfolioMonthlyInvestments) {
-    console.log("Test")
+  if (
+    !apiResponse.data ||
+    !apiResponse.data.importPortfolioMonthlyInvestments
+  ) {
     throw new Error("Error while setting monthly investments");
   }
 };

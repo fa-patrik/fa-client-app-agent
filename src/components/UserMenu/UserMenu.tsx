@@ -13,6 +13,7 @@ import { Representee, useGetContactInfo } from "api/initial/useGetContactInfo";
 import { ReactComponent as CalendarIcon } from "assets/calendar-outlined.svg";
 import { ReactComponent as CheckIcon } from "assets/check.svg";
 import { ReactComponent as DepositIcon } from "assets/deposit.svg";
+import { ReactComponent as EuroIcon } from "assets/euro-circle-outlined.svg";
 import { ReactComponent as ProcessIcon } from "assets/external-link.svg";
 import { ReactComponent as LogoutIcon } from "assets/logout.svg";
 import { ReactComponent as UserIcon } from "assets/user-circle.svg";
@@ -32,6 +33,7 @@ import { keycloakService } from "services/keycloakService";
 import { useCanDeposit, useCanWithdraw } from "services/permissions/money";
 import {
   canPortfolioMonthlyInvest,
+  canPortfolioMonthlySave,
   PermissionMode,
   usePermission,
 } from "services/permissions/usePermission";
@@ -41,6 +43,10 @@ import StepOne from "wizards/monthlyInvestments/StepOne/StepOne";
 import StepThree from "wizards/monthlyInvestments/StepThree/StepThree";
 import StepTwo from "wizards/monthlyInvestments/StepTwo/StepTwo";
 import StepZero from "wizards/monthlyInvestments/StepZero/StepZero";
+import MsStepOne from "wizards/monthlySavings/StepOne/MsStepOne";
+import MsStepThree from "wizards/monthlySavings/StepThree/MsStepThree";
+import MsStepTwo from "wizards/monthlySavings/StepTwo/MsStepTwo";
+import MsStepZero from "wizards/monthlySavings/StepZero/MsStepZero";
 import { useModal } from "../Modal/useModal";
 import { DepositModalContent } from "../MoneyModals/DepositModalContent/DepositModalContent";
 import { WithdrawModalContent } from "../MoneyModals/WithdrawModalContent/WithdrawModalContent";
@@ -50,6 +56,7 @@ interface MenuActions {
   deposit: () => void;
   withdraw: () => void;
   monthlyInvestments: () => void;
+  monthlySavings: () => void;
   process: (to: To, options?: NavigateOptions) => void;
   setSelectedContact: (contact: SelectedContact) => void;
 }
@@ -60,6 +67,7 @@ const getMenuItems = (
   canDeposit: boolean,
   canWithdraw: boolean,
   canMonthlyInvest: boolean,
+  canMonthlySave: boolean,
   processes: Process[],
   representees: Representee[],
   contactData: SelectedContact,
@@ -71,6 +79,7 @@ const getMenuItems = (
         label: i18n.t("userMenu.logout"),
         action: menuActions.logout,
         Icon: LogoutIcon,
+        id: "userMenu-logoutButton",
       },
     ];
   }
@@ -83,6 +92,7 @@ const getMenuItems = (
       },
       Icon: UserIcon,
       selected: contactData?.id?.toString() === selectedContactId?.toString(),
+      id: `userMenu-selectedContact-${selectedContactId}`,
     },
     "separator",
     ...(Array.isArray(representees)
@@ -96,6 +106,7 @@ const getMenuItems = (
             });
           },
           Icon: UserIcon,
+          id: `userMenu-representeeButton-${representee.id}`,
           selected:
             representee?.id?.toString() === selectedContactId?.toString(),
         }))
@@ -107,6 +118,7 @@ const getMenuItems = (
             label: i18n.t("userMenu.deposit"),
             action: menuActions.deposit,
             Icon: DepositIcon,
+            id: "userMenu-depositButton",
           },
         ]
       : []),
@@ -117,6 +129,7 @@ const getMenuItems = (
             label: i18n.t("userMenu.withdraw"),
             action: menuActions.withdraw,
             Icon: WithdrawalIcon,
+            id: "userMenu-withdrawButton",
           },
         ]
       : []),
@@ -124,9 +137,21 @@ const getMenuItems = (
     ...(canMonthlyInvest
       ? [
           {
-            label: i18n.t("Monthly investments"),
+            label: i18n.t("userMenu.monthlyInvestments"),
             action: menuActions.monthlyInvestments,
             Icon: CalendarIcon,
+            id: "userMenu-monthlyInvestmentsButton",
+          },
+        ]
+      : []),
+    "separator",
+    ...(canMonthlySave
+      ? [
+          {
+            label: i18n.t("userMenu.monthlySavings"),
+            action: menuActions.monthlySavings,
+            Icon: EuroIcon,
+            id: "userMenu-monthlySavingButton",
           },
         ]
       : []),
@@ -137,11 +162,13 @@ const getMenuItems = (
         menuActions.process(`/form/${process.key}`, {
           state: { header: process.name },
         }),
+      id: `userMenu-processButton-${process.name}`,
       Icon: ProcessIcon,
     })),
     "separator",
     {
       label: i18n.t("userMenu.logout"),
+      id: "userMenu-logoutButton",
       action: menuActions.logout,
       Icon: LogoutIcon,
     },
@@ -160,6 +187,11 @@ export const UserMenu = () => {
     PermissionMode.ANY,
     canPortfolioMonthlyInvest
   );
+  const canMonthlySave = usePermission(
+    PermissionMode.ANY,
+    canPortfolioMonthlySave
+  );
+
   const canDeposit = useCanDeposit();
   const canWithdraw = useCanWithdraw();
   const { data: contactData, loading } = useGetContactInfo();
@@ -176,13 +208,17 @@ export const UserMenu = () => {
     contentProps: withdrawModalContentProps,
   } = useModal();
 
-  const [wizardOpen, setWizardOpen] = useState(false);
+  const [monthlyInvestmentsWizardOpen, setMonthlyInvestmentsWizardOpen] =
+    useState(false);
+  const [monthlySavingsWizardOpen, setMonthlySavingsWizardOpen] =
+    useState(false);
 
   const menuActions = {
     logout: () => keycloakService.onAuthLogout(),
     deposit: () => onDepositModalOpen(),
     withdraw: () => onWithdrawModalOpen(),
-    monthlyInvestments: () => setWizardOpen(true),
+    monthlyInvestments: () => setMonthlyInvestmentsWizardOpen(true),
+    monthlySavings: () => setMonthlySavingsWizardOpen(true),
     process: (to: To, options?: NavigateOptions) => navigate(to, options),
     setSelectedContact: (contact: SelectedContact) => {
       setSelectedContact(contact);
@@ -216,6 +252,7 @@ export const UserMenu = () => {
               canDeposit,
               canWithdraw,
               canMonthlyInvest,
+              canMonthlySave,
               readonly ? [] : processes,
               contactData?.representees || [],
               {
@@ -228,7 +265,7 @@ export const UserMenu = () => {
               typeof item === "string" ? (
                 <Separator key={index} />
               ) : (
-                <MenuItem key={index} {...item} />
+                <MenuItem key={index} {...item} id={item?.id} />
               )
             )}
           </Menu.Items>
@@ -243,11 +280,11 @@ export const UserMenu = () => {
       >
         <WithdrawModalContent {...withdrawModalContentProps} />
       </Modal>
-      {wizardOpen && ( //only mounted when needed
+      {monthlyInvestmentsWizardOpen && ( //only mounted when needed
         <Wizard
           title={t("wizards.monthlyInvestments.title")}
-          isOpen={wizardOpen}
-          setIsOpen={setWizardOpen}
+          isOpen={monthlyInvestmentsWizardOpen}
+          setIsOpen={setMonthlyInvestmentsWizardOpen}
           firstStepIsAnIntro
           steps={[
             {
@@ -277,6 +314,32 @@ export const UserMenu = () => {
           ]}
         />
       )}
+      {monthlySavingsWizardOpen && ( //only mounted when needed
+        <Wizard
+          title={t("wizards.monthlySavings.title")}
+          isOpen={monthlySavingsWizardOpen}
+          setIsOpen={setMonthlySavingsWizardOpen}
+          firstStepIsAnIntro
+          steps={[
+            {
+              label: t("wizards.monthlySavings.stepZero.stepTitle"),
+              component: <MsStepZero />,
+            },
+            {
+              label: t("wizards.monthlySavings.stepOne.stepTitle"),
+              component: <MsStepOne />,
+            },
+            {
+              label: t("wizards.monthlySavings.stepTwo.stepTitle"),
+              component: <MsStepTwo />,
+            },
+            {
+              label: t("wizards.monthlySavings.stepThree.stepTitle"),
+              component: <MsStepThree />,
+            },
+          ]}
+        />
+      )}
     </>
   );
 };
@@ -286,6 +349,7 @@ interface MenuItemProps {
   action: () => void;
   Icon: ReactElementType;
   selected?: boolean;
+  id?: string;
 }
 
 const Separator = () => {
@@ -296,11 +360,18 @@ const Separator = () => {
   );
 };
 
-const MenuItem = ({ action, label, Icon, selected = false }: MenuItemProps) => {
+const MenuItem = ({
+  action,
+  label,
+  Icon,
+  selected = false,
+  id,
+}: MenuItemProps) => {
   return (
     <Menu.Item>
       {({ active }) => (
         <button
+          data-testid={id}
           className={classNames(
             `p-2 pr-4 flex gap-2 items-center w-full text-base font-medium text-gray-900`,
             {
@@ -313,7 +384,7 @@ const MenuItem = ({ action, label, Icon, selected = false }: MenuItemProps) => {
           <div className="items-center pr-2 w-full text-left grow">
             <span>{label}</span>
           </div>
-          <span className="">{selected && <CheckIcon />}</span>
+          <span>{selected && <CheckIcon />}</span>
         </button>
       )}
     </Menu.Item>

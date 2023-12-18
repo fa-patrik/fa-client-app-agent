@@ -114,3 +114,29 @@ export const filterOptionsByFunction = (
     return prev;
   }, [] as Option[]);
 };
+
+/**
+ * Finds the PortfolioOption (recursively)
+ * matching the id.
+ * @param options List of options.
+ * @param id id of option.
+ * @returns option or undefined.
+ */
+export const findPortfolioOptionById = (
+  options: PortfolioOption[] | undefined,
+  id: number
+): PortfolioOption | undefined => {
+  if (!options) return;
+
+  for (const option of options) {
+    if (option.id === id) {
+      return option;
+    }
+
+    const foundSubOption = findPortfolioOptionById(option.subOptions, id);
+
+    if (foundSubOption) {
+      return foundSubOption;
+    }
+  }
+};

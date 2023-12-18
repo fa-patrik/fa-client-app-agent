@@ -1,13 +1,11 @@
+import { OrderStatus } from "api/enums";
 import { Portfolio } from "api/initial/useGetContactInfo";
 import { depositType } from "api/money/useDeposit";
 import { withdrawalType } from "api/money/useWithdrawal";
 import { TradeOrder, TradeOrderType } from "api/orders/types";
 import { TradeType as SecurityTradeType } from "api/trading/useTrade";
 import { TransactionType } from "api/transactions/enums";
-import {
-  LocalTradeOrderId,
-  LocalTradeOrderStatus,
-} from "hooks/useLocalTradeStorageState";
+import { LocalTradeOrderId } from "hooks/useLocalTradeStorageState";
 import i18n from "i18next";
 import { dateToYYYYMMDD } from "utils/date";
 import { assertUnreachable } from "utils/type";
@@ -75,7 +73,6 @@ const getOrderType = (type: TradeType): TradeOrderType => {
 export interface LocalTradeOrderDetails {
   portfolio: Portfolio;
   securityName: string;
-  currency: string;
   tradeType: TradeType;
   reference: string;
   units?: number;
@@ -100,7 +97,7 @@ export const useLocalTradeStorageMutation = () => {
     } = tradeDetails;
     await placeOrder({
       id: LocalTradeOrderId,
-      orderStatus: LocalTradeOrderStatus,
+      orderStatus: OrderStatus.Pending,
       securityName: securityName,
       type: getOrderType(tradeType),
       transactionDate: dateToYYYYMMDD(new Date()),
@@ -110,6 +107,7 @@ export const useLocalTradeStorageMutation = () => {
         id: portfolio.id,
       },
       reference,
+      linkedTransaction: null,
     });
   };
 };

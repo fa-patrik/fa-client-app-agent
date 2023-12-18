@@ -6,9 +6,10 @@ interface SecurityDistributionListProps {
   selectedSecurities: TradableSecurity[];
   handleRemove: (security: TradableSecurity) => void;
   setInput: (input: string, securityId: number, mode: string) => void;
-  percentageInputs: Record<string, number | undefined>;
-  amountInputs: Record<string, number | undefined>;
-  portfolioCurrencyCode: string;
+  percentageInputs: Record<string, string | undefined>;
+  amountInputs: Record<string, string | undefined>;
+  portfolioCurrencyCode: string | undefined;
+  id?: string;
 }
 
 const SecurityDistributionList: React.FC<SecurityDistributionListProps> = ({
@@ -18,16 +19,15 @@ const SecurityDistributionList: React.FC<SecurityDistributionListProps> = ({
   percentageInputs,
   amountInputs,
   portfolioCurrencyCode,
+  id,
 }) => {
   return (
-    <ul
-      id="securityDistributionList"
-      className="flex overflow-y-auto flex-col gap-y-3 pb-4 h-full"
-    >
-      {selectedSecurities?.map((security: TradableSecurity) => {
+    <ul id={id} className="flex overflow-y-auto flex-col gap-y-3 pb-4 h-full">
+      {selectedSecurities?.map((security: TradableSecurity, index) => {
         return (
           <RenderWhenInView key={security.id}>
             <SecurityDistributionCard
+              id={id ? `${id}-row-${index}` : `row-${index}`}
               security={security}
               handleRemove={handleRemove}
               setInput={setInput}

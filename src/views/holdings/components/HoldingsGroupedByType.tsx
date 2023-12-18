@@ -5,6 +5,7 @@ import {
 import { Card, GainLoseColoring } from "components";
 import { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
 import { SellModalInitialData } from "components/TradingModals/SellModalContent/SellModalContent";
+import { SwitchModalInitialData } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { HoldingsListWithOneLineRow } from "./HoldingsListWithOneLineRow";
@@ -12,35 +13,34 @@ import { HoldingsListWithTwoLinesRow } from "./HoldingsListWithTwoLinesRow";
 
 interface TradeProps {
   canTrade: boolean;
+  canAnyHoldingSwitch: boolean;
   onBuyModalOpen: (initialData?: BuyModalInitialData) => void;
   onSellModalOpen: (initialData?: SellModalInitialData) => void;
+  onSwitchModalOpen: (initialData?: SwitchModalInitialData) => void;
 }
 
 interface HoldingsGroupedByTypeProps extends SecurityTypeDataWithSecurityData {
-  currency: string;
+  currency: string | undefined;
   tradeProps: TradeProps;
 }
 
 export interface GroupedHoldings {
   securities: SecurityData[];
   groupCode: string;
-  currency: string;
+  currency: string | undefined;
   tradeProps: TradeProps;
 }
 
 export interface HoldingProps extends SecurityData {
   onClick?: () => void;
   showFlag: boolean;
-  currency: string;
+  currency: string | undefined;
   tradeProps: TradeProps;
 }
 
 export const HoldingsGroupedByType = ({
   name,
-  firstAnalysis: {
-    marketValue: groupMarketValue,
-    tradeAmount: groupTradeAmount,
-  },
+  firstAnalysis,
   securities,
   currency,
   code: groupCode,
@@ -57,8 +57,8 @@ export const HoldingsGroupedByType = ({
       header={
         <TypeHeader
           name={name}
-          marketValue={groupMarketValue}
-          tradeAmount={groupTradeAmount}
+          marketValue={firstAnalysis?.marketValue}
+          tradeAmount={firstAnalysis?.tradeAmount}
           currency={currency}
         />
       }
@@ -75,9 +75,9 @@ export const HoldingsGroupedByType = ({
 
 interface TypeHeaderProps {
   name: string;
-  currency: string;
-  marketValue: number;
-  tradeAmount: number;
+  currency: string | undefined;
+  marketValue: number | undefined;
+  tradeAmount: number | undefined;
 }
 
 const TypeHeader = ({
@@ -87,26 +87,33 @@ const TypeHeader = ({
   currency,
 }: TypeHeaderProps) => {
   const { t } = useModifiedTranslation();
-  const valueChange = marketValue - tradeAmount;
+  const valueChange =
+    marketValue !== undefined && tradeAmount !== undefined
+      ? marketValue - tradeAmount
+      : undefined;
   return (
     <div className="flex justify-between items-center">
       <div className="leading-none">{name}</div>
       <div className="text-right">
         <div className="text-base font-bol">
-          {t("numberWithCurrency", {
-            value: marketValue,
-            currency,
-          })}
+          {marketValue !== undefined
+            ? t("numberWithCurrency", {
+                value: marketValue,
+                currency,
+              })
+            : "-"}
         </div>
         <div className="text-sm font-medium">
           <GainLoseColoring value={valueChange}>
-            {t("numberWithCurrency", {
-              value: valueChange,
-              currency,
-              formatParams: {
-                value: { signDisplay: "always" },
-              },
-            })}
+            {valueChange !== undefined
+              ? t("numberWithCurrency", {
+                  value: valueChange,
+                  currency,
+                  formatParams: {
+                    value: { signDisplay: "always" },
+                  },
+                })
+              : "-"}
           </GainLoseColoring>
         </div>
       </div>

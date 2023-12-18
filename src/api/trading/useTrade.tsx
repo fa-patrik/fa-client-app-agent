@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FetchResult, gql, useMutation } from "@apollo/client";
+import { ExecutionMethod } from "api/enums";
 import { TransactionType } from "api/transactions/enums";
 import {
   LocalTradeOrderDetails,
@@ -17,9 +18,11 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
     $transactionTypeCode: String
     $units: String
     $tradeAmount: String
-    $currency: String
     $reference: String
     $executionMethod: String
+    $unitPrice: String
+    $accountFxRate: String
+    $reportFxRate: String
   ) {
     importTradeOrder(
       tradeOrder: {
@@ -30,8 +33,10 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
         status: "4"
         amount: $units
         tradeAmount: $tradeAmount
-        unitPrice: "AUTO"
-        currency: $currency
+        account: "AUTO"
+        unitPrice: $unitPrice
+        reportFxRate: $reportFxRate
+        accountFxRate: $accountFxRate
         reference: $reference
         executionMethod: $executionMethod
       }
@@ -44,11 +49,14 @@ interface ImportTradeOrderQueryVariables {
   transactionDate: Date;
   securityCode: string;
   transactionTypeCode: string;
-  currency: string;
   reference: string;
   units?: number;
   tradeAmount?: number;
   executionMethod: ExecutionMethod;
+  fxRate?: number | string;
+  reportFxRate?: number | string;
+  accountFxRate?: number | string;
+  unitPrice?: number | string;
 }
 
 const errorStatus = "ERROR" as const;
@@ -60,16 +68,6 @@ interface ImportTradeOrderQueryResponse {
 }
 
 export type TradeType = "sell" | "buy" | "redemption" | "subscription";
-
-/**
- * Trade order's execution method.
- */
-export enum ExecutionMethod {
-  NOT_DEFINED = "1",
-  UNITS = "2",
-  GROSS_TRADE_AMOUNT = "3",
-  NET_TRADE_AMOUNT = "4",
-}
 
 export const useTrade = (
   newTradeOrder: Omit<
@@ -96,7 +94,14 @@ export const useTrade = (
   const handleTrade = async () => {
     setSubmitting(true);
     try {
-      const { tradeType, portfolio } = newTradeOrder;
+      const {
+        tradeType,
+        portfolio,
+        reportFxRate,
+        accountFxRate,
+        fxRate,
+        unitPrice,
+      } = newTradeOrder;
       if (!portfolio) {
         return;
       }
@@ -105,6 +110,10 @@ export const useTrade = (
       const apiResponse = await handleAPITrade({
         variables: {
           ...newTradeOrder,
+          reportFxRate,
+          accountFxRate,
+          fxRate,
+          unitPrice: unitPrice !== undefined ? unitPrice : "AUTO",
           transactionDate: new Date(),
           transactionTypeCode: getTradeTypeForAPI(tradeType),
           reference: transactionReference,

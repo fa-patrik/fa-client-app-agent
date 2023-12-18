@@ -75,13 +75,13 @@ export const useGetPortfolioOptions = (includeTotal = true) => {
 };
 
 /**
- * Returns the portfolio option for the given portfolio, 
+ * Returns the portfolio option for the given portfolio,
  * including its sub-options (if they don't have PortfolioGroups.HIDE).
  * @param {Portfolio} portfolio - The portfolio to create the portfolio option for.
  * @param {Boolean} includeSubPortfolios - Whether to include sub portfolios.
  * @returns {PortfolioOption} The portfolio option for the given portfolio.
  */
-const getPortfolioOption = (
+export const getPortfolioOption = (
   portfolio: Portfolio
 ): PortfolioOption & { details?: Portfolio } => {
   const portfolioOption = {

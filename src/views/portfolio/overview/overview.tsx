@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { SecurityTypeCode } from "api/holdings/types";
 import { PortfolioData } from "api/overview/types";
@@ -19,7 +19,6 @@ import { PieChart } from "components/PieChart/PieChart";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
-import { dateFromYYYYMMDD } from "utils/date";
 import { PortfolioInfoCard } from "../../overview/components/PortfolioInfoCard";
 import { ListedSecuritiesCard } from "./components/ListedSecuritiesCard";
 import { PortfolioSummary } from "./components/PortfolioSummary";
@@ -56,11 +55,6 @@ export const OverviewView = () => {
   return <QueryLoadingWrapper {...queryData} SuccessComponent={Overview} />;
 };
 
-const defaultDateFormatting = {
-  day: "numeric",
-  month: "short",
-};
-
 interface OverviewProps {
   data: PortfolioData | undefined;
 }
@@ -71,9 +65,7 @@ const Overview = ({ data }: OverviewProps) => {
   const { t } = useModifiedTranslation();
   const { data: portfolioData } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
-
-  //assumption that all portfolios have same currency, so we use currency from first one
-  const currencyCode = portfolioData?.currency?.securityCode || "";
+  const currencyCode = portfolioData?.currency?.securityCode;
 
   const { topSecurities, worstSecurities } = useSecuritiesSummary(
     data?.securityTypes
@@ -81,10 +73,10 @@ const Overview = ({ data }: OverviewProps) => {
 
   const chartData = useGetChartData(data?.securityTypes);
 
-  const [timeValue, setTimeValue] = useState<Option>({
+  const [timeValue, setTimeValue] = useState<Option>(() => ({
     id: TimePeriodForGraph["DAYS-7"],
     label: "1W",
-  });
+  }));
 
   const {
     loading,
@@ -93,6 +85,21 @@ const Overview = ({ data }: OverviewProps) => {
   } = useGetPerformance(Number(portfolioId), timeValue.id);
 
   const breakPortfolioInfoCard = useMatchesBreakpoint("md");
+
+  const linechartData = useMemo(() => {
+    if (
+      performanceChartData?.dailyValue &&
+      Array.isArray(performanceChartData?.dailyValue)
+    ) {
+      const chartData = performanceChartData.dailyValue.map((data) => ({
+        x: data.date,
+        y: data.indexedValue - 100,
+      }));
+      return chartData;
+    } else {
+      return [];
+    }
+  }, [performanceChartData]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
@@ -158,17 +165,7 @@ const Overview = ({ data }: OverviewProps) => {
                 series={[
                   {
                     name: t("overviewPage.lineChartTooltipLabel"),
-                    data:
-                      performanceChartData &&
-                      Array.isArray(performanceChartData?.dailyValue)
-                        ? performanceChartData.dailyValue.map((data) => ({
-                            x: t("dateCustom", {
-                              date: dateFromYYYYMMDD(data.date),
-                              ...defaultDateFormatting,
-                            }),
-                            y: data.indexedValue - 100,
-                          }))
-                        : [],
+                    data: linechartData,
                   },
                 ]}
                 detailed

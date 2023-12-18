@@ -27,12 +27,14 @@ export enum SecurityTradeType {
 export interface SecurityDetailsPosition {
   id: number;
   name: string;
+  namesAsMap: Record<string, string>;
   securityCode: string;
   isinCode: string;
   url: string;
   url2: string;
   currency: {
     securityCode: string;
+    amountDecimalCount: number;
   };
   latestMarketData?: {
     price: number;
@@ -51,6 +53,7 @@ export interface SecurityDetailsPosition {
     identifier: string;
     mimeType: string;
   }[];
+  amountDecimalCount: number;
 }
 
 export interface SecurityDetailsQuery {
@@ -80,5 +83,84 @@ export interface PortfolioHoldingDetailsQuery {
     portfolioReport: {
       holdingPositions: HoldingPosition[];
     };
+  };
+}
+
+export interface ContactHoldingDetailsQuery {
+  contact: {
+    id: number;
+    portfolios: {
+      id: number;
+      portfolioReport: {
+        holdingPositions: HoldingPosition[];
+      };
+    }[];
+  };
+}
+
+export interface AnalyticsSecurityTypeData {
+  code: string;
+  name: string;
+  firstAnalysis: {
+    marketValue: number;
+    tradeAmount: number;
+    shareOfTotal: number;
+  } | null;
+}
+
+export interface AnalyticsSecurityData {
+  security: {
+    id: number;
+    isinCode: string;
+    countryCode: string;
+    currencyCode: string;
+    tagsAsList: string[];
+    securityTypeCode: string;
+  };
+  code: string;
+  name: string;
+  firstAnalysis: {
+    marketValue: number;
+    tradeAmount: number;
+    amount: number;
+    accruedInterest: number;
+    purchaseTradeAmount: number;
+  } | null;
+}
+
+export interface AnalyticsSecurityTypeDataWithSecurityData
+  extends AnalyticsSecurityTypeData {
+  securities: AnalyticsSecurityData[];
+}
+
+export interface ContactHoldingsFromAnalyticsQuery {
+  contact: {
+    id: number;
+    analytics: {
+      contact: {
+        firstAnalysis: {
+          marketValue: number;
+          tradeAmount: number;
+        } | null;
+        securityTypes: AnalyticsSecurityTypeDataWithSecurityData[];
+      };
+    };
+  };
+}
+
+export interface AnalyticsPortfolioHoldingsData {
+  portfolio: {
+    id: number;
+  };
+  firstAnalysis: {
+    marketValue: number;
+    tradeAmount: number;
+  } | null;
+  securityTypes: AnalyticsSecurityTypeData[];
+}
+
+export interface PortfolioHoldingsFromAnalyticsQuery {
+  analytics: {
+    grouppedAnalytics: AnalyticsPortfolioHoldingsData;
   };
 }

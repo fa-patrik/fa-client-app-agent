@@ -43,13 +43,17 @@ const HoldingBase = ({
   name,
   code,
   security: { isinCode, countryCode },
-  firstAnalysis: { marketValue, tradeAmount },
+  firstAnalysis,
   onClick,
   showFlag,
   currency,
 }: HoldingProps) => {
   const { t } = useModifiedTranslation();
-  const valueChange = marketValue - tradeAmount;
+  const valueChange =
+    firstAnalysis?.marketValue !== undefined &&
+    firstAnalysis?.tradeAmount !== undefined
+      ? firstAnalysis.marketValue - firstAnalysis.tradeAmount
+      : undefined;
   return (
     <>
       <Grid.Row key={code} className="py-2 border-t" onClick={onClick}>
@@ -61,7 +65,12 @@ const HoldingBase = ({
               showFlag={showFlag}
             />
             <div className="text-base font-medium">
-              {t("numberWithCurrency", { value: marketValue, currency })}
+              {firstAnalysis?.marketValue !== undefined
+                ? t("numberWithCurrency", {
+                    value: firstAnalysis?.marketValue,
+                    currency,
+                  })
+                : "-"}
             </div>
           </div>
           <div className="flex justify-between">
@@ -70,13 +79,15 @@ const HoldingBase = ({
             </div>
             <div className="text-xs md:text-base font-medium">
               <GainLoseColoring value={valueChange}>
-                {t("numberWithCurrency", {
-                  value: valueChange,
-                  currency,
-                  formatParams: {
-                    value: { signDisplay: "always" },
-                  },
-                })}
+                {valueChange !== undefined
+                  ? t("numberWithCurrency", {
+                      value: valueChange,
+                      currency,
+                      formatParams: {
+                        value: { signDisplay: "always" },
+                      },
+                    })
+                  : "-"}
               </GainLoseColoring>
             </div>
           </div>

@@ -7,8 +7,10 @@ export const useGetChartData = (
   return useMemo(() => {
     if (!securityTypes?.length) return { series: [], labels: [] };
     return {
-      series: securityTypes.map(
-        (typeData) => typeData.firstAnalysis.shareOfTotal * 100
+      series: securityTypes.map((typeData) =>
+        typeData?.firstAnalysis?.shareOfTotal !== undefined
+          ? typeData?.firstAnalysis?.shareOfTotal * 100
+          : undefined
       ),
       labels: securityTypes.map((typeData) => typeData.name),
     };

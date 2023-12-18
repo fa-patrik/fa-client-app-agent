@@ -7,20 +7,25 @@ export interface PortfolioOption {
   label: string;
   subOptions?: PortfolioOption[];
   details: Portfolio | undefined;
+  error?: string;
 }
 
 interface PortfolioSelectProps {
+  id?: string;
   portfolioOptions: PortfolioOption[];
   portfolioId?: number;
   onChange: (option: PortfolioOption) => void;
   label?: string;
+  error?: string;
 }
 
 export const PortfolioSelect = ({
+  id,
   portfolioOptions,
   portfolioId,
   onChange,
   label,
+  error,
 }: PortfolioSelectProps) => {
   const currentPortfolioOption = getCurrentPortfolioOption(
     portfolioOptions,
@@ -28,10 +33,12 @@ export const PortfolioSelect = ({
   );
   return (
     <ComboBox
+      id={id}
       value={currentPortfolioOption}
       onChange={onChange}
       options={portfolioOptions}
       label={label}
+      error={error}
     />
   );
 };

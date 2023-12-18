@@ -1,8 +1,6 @@
 import { TradeOrder } from "api/orders/types";
 import { Card } from "components";
-import {
-  CancelOrderModalInitialData
-} from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
+import { CancelOrderModalInitialData } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
 import { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { TransactionType } from "../../transactionDetails/transactionDetailsView";
@@ -15,7 +13,8 @@ export interface OrdersListProps {
   onCancelOrderModalOpen: (initialData: CancelOrderModalInitialData) => void;
 }
 
-export type OrderProps = TradeOrder & {
+export type OrderProps = {
+  order: TradeOrder;
   onClick?: () => void;
   showPortfolioLabel?: boolean;
   isAnyOrderCancellable?: boolean;
@@ -34,7 +33,7 @@ export const OrdersGroup = ({
   label,
   orders,
   isAnyOrderCancellable,
-  onCancelOrderModalOpen
+  onCancelOrderModalOpen,
 }: OrdersGroupProps) => {
   const hasOneLineRow = useMatchesBreakpoint("md");
 

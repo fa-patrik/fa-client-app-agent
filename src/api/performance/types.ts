@@ -32,19 +32,25 @@ export interface DailyValue {
 }
 
 export interface PerformanceBySecurityQuery {
-  analytics: {
-    grouppedAnalytics: {
-      grouppedAnalytics: [
-        {
-          code: string;
-          grouppedAnalyticsTimePeriod: [
-            {
-              timePeriodCode: string;
-              performance: number;
-            }
-          ];
-        }
-      ];
+  security: {
+    id: number;
+    analytics: {
+      grouppedAnalytics: {
+        grouppedAnalytics: [
+          {
+            security: {
+              id: number;
+            };
+            code: string;
+            grouppedAnalyticsTimePeriod: [
+              {
+                timePeriodCode: string;
+                performance: number;
+              }
+            ];
+          }
+        ];
+      };
     };
   };
 }

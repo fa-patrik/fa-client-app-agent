@@ -8,11 +8,15 @@ const INPUT_MODE = {
 type Keys = keyof typeof INPUT_MODE;
 
 interface InputModeOption {
-  id: typeof INPUT_MODE[Keys];
+  id: (typeof INPUT_MODE)[Keys];
   label: string;
 }
 
-export const useTradeAmountInput = (marketValue: number, currency: string, isTradeInUnits: boolean) => {
+export const useTradeAmountInput = (
+  marketValue: number,
+  currency: string,
+  isTradeInUnits: boolean
+) => {
   const inputModesOptions = useMemo(
     () => [
       {
@@ -24,7 +28,7 @@ export const useTradeAmountInput = (marketValue: number, currency: string, isTra
         label: currency,
       },
     ],
-    [currency,]
+    [currency]
   );
 
   const [{ inputValue, inputMode }, setInputState] = useState<{
@@ -32,9 +36,7 @@ export const useTradeAmountInput = (marketValue: number, currency: string, isTra
     inputValue: number;
   }>({ inputMode: inputModesOptions[1], inputValue: 0 });
 
-
   const onInputModeChange = (newValue: InputModeOption) => {
-
     if (isNaN(marketValue)) {
       setInputState((previousState) => ({
         ...previousState,
@@ -96,17 +98,14 @@ export const useTradeAmountInput = (marketValue: number, currency: string, isTra
     const forcedInputMode = {
       id: INPUT_MODE.CURRENCY,
       label: currency,
-    }
+    };
 
-    setInputState((previousState) => (
-      {
-        ...previousState,
-        inputMode: forcedInputMode,
-        inputValue: 0
-      }
-    ))
-  }, [isTradeInUnits, currency])
-
+    setInputState((previousState) => ({
+      ...previousState,
+      inputMode: forcedInputMode,
+      inputValue: 0,
+    }));
+  }, [isTradeInUnits, currency]);
 
   return {
     INPUT_MODE,

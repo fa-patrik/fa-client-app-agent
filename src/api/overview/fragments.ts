@@ -11,6 +11,7 @@ export const SECURITY_DATA_FRAGMENT = gql`
         countryCode
         currencyCode
         tagsAsList
+        securityTypeCode
       }
       firstAnalysis {
         marketValue
