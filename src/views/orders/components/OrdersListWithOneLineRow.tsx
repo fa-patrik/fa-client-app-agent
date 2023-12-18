@@ -1,5 +1,6 @@
 import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
+import classNames from "classnames";
 import { Badge, Card } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
@@ -128,8 +129,13 @@ const Order = ({
   return (
     <>
       <tr
-        onClick={onClick}
-        className="h-12 hover:bg-primary-50 border-t transition-colors cursor-pointer"
+        onClick={!isLocalOrder(order) ? onClick : undefined}
+        className={classNames(
+          "h-12 hover:bg-primary-50 border-t transition-colors",
+          {
+            "cursor-pointer": !isLocalOrder(order),
+          }
+        )}
       >
         <td className="px-1">
           <div className="flex justify-center">

@@ -73,7 +73,8 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
     orderParentPortfolio &&
     isPortfolioAllowedToCancelOrder(orderParentPortfolio);
 
-  const canExpandCard = true;
+  const canExpandCard =
+    !isLocalOrder(order) || (orderCanBeCancelled && portfolioAllowedToCancel);
 
   return (
     <div
@@ -125,9 +126,11 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
             <li className="flex flex-row justify-between">
               <div className="w-1/2 text-sm">{t("ordersPage.units")}</div>
               <div className="text-sm text-right">
-                {t("number", {
-                  value: order.amount,
-                })}
+                {order.amount !== undefined
+                  ? t("number", {
+                      value: order.amount,
+                    })
+                  : "-"}
               </div>
             </li>
           )}
@@ -200,20 +203,23 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
                   leaveTo="transform scale-95 opacity-0"
                 >
                   <Disclosure.Panel className="flex flex-row gap-y-2 justify-between items-end py-1 w-full text-gray-500">
-                    <div>
-                      <Button size="xs" variant="Outlined">
-                        <Link
-                          onClick={(e) => e.stopPropagation()}
-                          id={`linkToOrderDetails-${order.id}`}
-                          //target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs"
-                          to={`../orders/${order.id}`}
-                        >
-                          {t("ordersPage.details")}
-                        </Link>
-                      </Button>
-                    </div>
+                    {!isLocalOrder(order) && (
+                      <div>
+                        <Button size="xs" variant="Outlined">
+                          <Link
+                            onClick={(e) => e.stopPropagation()}
+                            id={`linkToOrderDetails-${order.id}`}
+                            //target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs"
+                            to={`../orders/${order.id}`}
+                          >
+                            {t("ordersPage.details")}
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
+
                     {orderCanBeCancelled && portfolioAllowedToCancel && (
                       <div className="flex flex-row gap-x-2">
                         <button

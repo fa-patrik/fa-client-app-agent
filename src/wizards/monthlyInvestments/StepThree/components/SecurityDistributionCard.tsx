@@ -52,7 +52,6 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
 
   const amount = amountInputs[security.id] || "";
   const percentage = percentageInputs[security.id] || "";
-
   return (
     <li>
       <Card>
