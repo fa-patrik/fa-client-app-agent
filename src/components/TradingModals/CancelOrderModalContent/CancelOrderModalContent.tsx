@@ -1,23 +1,21 @@
 import { useState, MutableRefObject } from "react";
-import { TradeOrderType } from "api/orders/types";
+import { Portfolio } from "api/initial/useGetContactInfo";
+import { TradeOrder } from "api/orders/types";
 import { useCancelOrder } from "api/orders/useCancelOrder";
 import { Badge } from "components";
 import { Button, LabeledDiv } from "components/index";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useKeycloak } from "providers/KeycloakProvider";
 import {
-  getNameFromBackendTranslations,
-  getTransactionColor,
-} from "utils/transactions";
+  getOrderTypeName,
+  getSwitchDetails,
+  isOrderPartOfSwitch,
+} from "utils/switchOrders";
+import { getTransactionColor } from "utils/transactions";
 
 export interface CancelOrderModalInitialData {
-  orderId: number;
-  reference: string;
-  portfolioName: string;
-  securityName: string;
-  transactionDate: string;
-  portfolioId: number;
-  type: TradeOrderType;
+  order: TradeOrder;
+  portfolio: Portfolio;
 }
 
 interface CancelOrderModalProps extends CancelOrderModalInitialData {
@@ -27,34 +25,24 @@ interface CancelOrderModalProps extends CancelOrderModalInitialData {
 
 export const CancelOrderModalContent = ({
   onClose,
-  orderId,
-  reference,
-  portfolioName,
-  securityName,
-  transactionDate,
-  type,
-  portfolioId,
+  portfolio,
+  order,
   modalInitialFocusRef,
 }: CancelOrderModalProps) => {
   const [submitting, setSubmitting] = useState(false);
 
-  const { handleOrderCancel } = useCancelOrder({
-    orderId,
-    reference,
-    portfolioId,
-  });
-
   const { t, i18n } = useModifiedTranslation();
 
-  const typeTranslated = getNameFromBackendTranslations(
-    type.typeName ?? "",
-    i18n.language,
-    type.typeNamesAsMap
-  );
+  const isPartOfSwitch = isOrderPartOfSwitch(order);
+
+  const switchDetails = isPartOfSwitch ? getSwitchDetails(order) : undefined;
+
+  const typeTranslated = getOrderTypeName(order, t, i18n.language);
 
   const typeColor = getTransactionColor(
-    type.amountEffect ?? 0,
-    type.cashFlowEffect ?? 0
+    order.type.amountEffect ?? 0,
+    order.type.cashFlowEffect ?? 0,
+    isPartOfSwitch
   );
 
   const TypeBadge = () => {
@@ -63,44 +51,75 @@ export const CancelOrderModalContent = ({
 
   const { readonly } = useKeycloak();
 
+  //the order
+  const { handleOrderCancel: cancelOrder1 } = useCancelOrder({
+    orderId: order.id,
+    reference: order.reference,
+    portfolioId: order.parentPortfolio.id,
+  });
+
+  //the order's linked order
+  //in case of a switch
+  const { handleOrderCancel: cancelOrder2 } = useCancelOrder({
+    orderId: order.linkedTransaction?.id,
+    reference: order.linkedTransaction?.reference,
+    portfolioId: order.linkedTransaction?.parentPortfolio.id,
+  });
+
   return (
-    <div className="flex flex-col gap-2 justify-center min-w-[min(84vw,_450px)]">
+    <div className="flex flex-col gap-y-2 justify-center max-w-md">
       <div className="w-full text-left text-gray-600 text-md">
         {t("cancelOrderModal.question")}
       </div>
 
       <hr className="my-1" />
 
-      <div className="flex px-1">
-        <LabeledDiv
-          label={t("cancelOrderModal.portfolio")}
-          className="w-1/2 font-semibold text-gray-700 text-md"
-        >
-          {portfolioName}
-        </LabeledDiv>
-
-        <LabeledDiv
-          label={t("cancelOrderModal.security")}
-          className="w-1/2 font-semibold text-gray-700 text-md"
-        >
-          {securityName}
-        </LabeledDiv>
-      </div>
-
-      <div className="flex px-1">
-        <LabeledDiv
-          label={t("cancelOrderModal.date")}
-          className="w-1/2 font-semibold text-gray-700 text-md"
-        >
-          {transactionDate}
-        </LabeledDiv>
-
+      <div className="flex flex-row flex-wrap gap-y-3">
         <LabeledDiv
           label={t("cancelOrderModal.type")}
           className="flex flex-col gap-1 items-start w-1/2 font-semibold text-gray-700 text-md"
         >
           <TypeBadge />
         </LabeledDiv>
+        <LabeledDiv
+          label={t("cancelOrderModal.portfolio")}
+          className="w-1/2 font-semibold text-gray-700 text-md"
+        >
+          {portfolio.name}
+        </LabeledDiv>
+
+        {isPartOfSwitch ? (
+          <>
+            <LabeledDiv
+              label={t("cancelOrderModal.switchSell")}
+              className="w-1/2 font-semibold text-gray-700 text-md"
+            >
+              {switchDetails?.fromOrder?.securityName}
+            </LabeledDiv>
+            <LabeledDiv
+              label={t("cancelOrderModal.switchBuy")}
+              className="w-1/2 font-semibold text-gray-700 text-md"
+            >
+              {switchDetails?.toOrder?.securityName}
+            </LabeledDiv>
+          </>
+        ) : (
+          <>
+            <LabeledDiv
+              label={t("cancelOrderModal.security")}
+              className="w-1/2 font-semibold text-gray-700 text-md"
+            >
+              {order.securityName}
+            </LabeledDiv>
+
+            <LabeledDiv
+              label={t("cancelOrderModal.date")}
+              className="w-1/2 font-semibold text-gray-700 text-md"
+            >
+              {order.transactionDate}
+            </LabeledDiv>
+          </>
+        )}
       </div>
 
       <hr className="my-1" />
@@ -121,15 +140,17 @@ export const CancelOrderModalContent = ({
           isFullWidth
           onClick={async () => {
             setSubmitting(true);
-            await handleOrderCancel();
+            await cancelOrder1();
+            if (isPartOfSwitch) {
+              //passing false to disable a second toast notification
+              await cancelOrder2(false); //in case of a switch order
+            }
             onClose();
           }}
         >
           {t("cancelOrderModal.confirmButtonLabel")}
         </Button>
       </div>
-
-      <hr className="my-1" />
 
       <div className="w-full text-xs text-center text-gray-600">
         {t("cancelOrderModal.cancelDisclaimer")}

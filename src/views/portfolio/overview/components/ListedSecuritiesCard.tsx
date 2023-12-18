@@ -7,7 +7,7 @@ import { useNavigate } from "react-router";
 interface ListedSecuritiesCardProps {
   securities: SecurityData[];
   label: ReactNode;
-  currency: string;
+  currency: string | undefined;
 }
 
 export const ListedSecuritiesCard = ({
@@ -25,9 +25,13 @@ export const ListedSecuritiesCard = ({
       </div>
       <div className="flex flex-col px-2 divide-y">
         {securities.map((security) => {
+          const securityMarketValue = security?.firstAnalysis?.marketValue;
+          const securityPurchaseValue = security?.firstAnalysis?.tradeAmount;
           const valueChange =
-            security.firstAnalysis.marketValue -
-            security.firstAnalysis.tradeAmount;
+            securityMarketValue !== undefined &&
+            securityPurchaseValue !== undefined
+              ? securityMarketValue - securityPurchaseValue
+              : undefined;
           return (
             <div
               key={security.security.id}
@@ -37,13 +41,15 @@ export const ListedSecuritiesCard = ({
               <div className="text-base font-normal">{security.name}</div>
               <div className="whitespace-nowrap">
                 <GainLoseColoring value={valueChange}>
-                  {t("numberWithCurrency", {
-                    value: valueChange,
-                    currency,
-                    formatParams: {
-                      value: { signDisplay: "always" },
-                    },
-                  })}
+                  {valueChange !== undefined
+                    ? t("numberWithCurrency", {
+                        value: valueChange,
+                        currency,
+                        formatParams: {
+                          value: { signDisplay: "always" },
+                        },
+                      })
+                    : "-"}
                 </GainLoseColoring>
               </div>
             </div>

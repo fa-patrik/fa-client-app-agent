@@ -1,8 +1,8 @@
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 interface HoldingHeaderProps {
-  currency: string;
-  marketValue: number;
+  currency: string | undefined;
+  marketValue: number | undefined;
 }
 
 export const HoldingHeader = ({
@@ -14,10 +14,12 @@ export const HoldingHeader = ({
     <div className="flex justify-between items-center">
       <div>{t("holdingsPage.holding")}</div>
       <div className="text-lg font-bold text-right">
-        {t("numberWithCurrency", {
-          value: marketValue,
-          currency,
-        })}
+        {marketValue !== undefined
+          ? t("numberWithCurrency", {
+              value: marketValue,
+              currency,
+            })
+          : "-"}
       </div>
     </div>
   );

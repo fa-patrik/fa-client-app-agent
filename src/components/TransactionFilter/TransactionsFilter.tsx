@@ -1,5 +1,4 @@
 import { FC, useEffect, useMemo, useState } from "react";
-import { TradeOrder } from "api/orders/types";
 import { Transaction } from "api/transactions/types";
 import { Button } from "components";
 import { Option, Select } from "components/Select/Select";
@@ -19,12 +18,12 @@ type TransactionsFilterProps = {
   /**
    * The transaction data to be filtered
    */
-  transactionsData: Transaction[] | TradeOrder[];
+  transactionsData: Transaction[];
   /**
    * This function will be called when the user applies the filters.
    * @param filteredData The filtered data
    */
-  onFilter: (filteredData: Transaction[] | TradeOrder[]) => void;
+  onFilter: (filteredData: Transaction[]) => void;
   /**
    * The filter header
    * @example

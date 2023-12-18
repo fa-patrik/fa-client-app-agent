@@ -1,8 +1,7 @@
+import { OrderStatus } from "api/enums";
 import { Portfolio } from "api/initial/useGetContactInfo";
-import { ORDER_STATUS } from "api/orders/enums";
 import { TradeOrder } from "api/orders/types";
 import { TransactionType } from "api/transactions/enums";
-import { OrderStatus } from "api/transactions/types";
 
 const CANCELLABLE_TRANSACTION_TYPES = [
   TransactionType.BUY,
@@ -12,9 +11,9 @@ const CANCELLABLE_TRANSACTION_TYPES = [
 ] as TransactionType[];
 
 const CANCELLABLE_STATUSES = [
-  ORDER_STATUS.Accepted,
-  ORDER_STATUS.Pending,
-  ORDER_STATUS.Open,
+  OrderStatus.Accepted,
+  OrderStatus.Pending,
+  OrderStatus.Open,
 ] as OrderStatus[];
 
 export const CancelOrderPermissionGroup = "CP_CANCEL" as const;
@@ -45,7 +44,5 @@ export const isTransactionTypeCancellable = (typeCode: TransactionType) => {
 };
 
 export const isTradeOrderCancelled = (tradeOrder: TradeOrder) => {
-    return (
-        tradeOrder?.orderStatus === ORDER_STATUS.Cancelled
-    )
-}
+  return tradeOrder?.orderStatus === OrderStatus.Cancelled;
+};

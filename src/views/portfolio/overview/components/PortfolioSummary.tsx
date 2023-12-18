@@ -11,43 +11,56 @@ interface PortfolioSummaryProps {
 
 export const PortfolioSummary = ({
   currencyCode,
-  marketValue = 0,
-  tradeAmount = 0,
-  accountBalance = 0,
+  marketValue,
+  tradeAmount,
+  accountBalance,
 }: PortfolioSummaryProps) => {
   const { t } = useModifiedTranslation();
-  const valueChange = marketValue - tradeAmount;
+  const valueChange =
+    marketValue !== undefined && tradeAmount !== undefined
+      ? marketValue - tradeAmount
+      : undefined;
   return (
     <>
       <DataCard
         label={t("portfolioSummary.currentMarketValue")}
-        value={t("numberWithCurrencyRounded", {
-          value: marketValue,
-          currency: currencyCode,
-          maximumFractionDigits: 0,
-        })}
+        value={
+          marketValue !== undefined
+            ? t("numberWithCurrencyRounded", {
+                value: marketValue,
+                currency: currencyCode,
+                maximumFractionDigits: 0,
+              })
+            : "-"
+        }
       />
       <DataCard
         label={t("portfolioSummary.unrealizedProfits")}
         value={
           <GainLoseColoring value={valueChange}>
-            {t("numberWithCurrencyRounded", {
-              value: valueChange,
-              currency: currencyCode,
-              formatParams: {
-                value: { signDisplay: "always" },
-              },
-            })}
+            {valueChange !== undefined
+              ? t("numberWithCurrencyRounded", {
+                  value: valueChange,
+                  currency: currencyCode,
+                  formatParams: {
+                    value: { signDisplay: "always" },
+                  },
+                })
+              : "-"}
           </GainLoseColoring>
         }
       />
       <DataCard
         label={t("portfolioSummary.currentBalance")}
         toolTipContent={t("portfolioSummary.currentBalanceTooltip")}
-        value={t("numberWithCurrencyRounded", {
-          value: accountBalance,
-          currency: currencyCode,
-        })}
+        value={
+          accountBalance !== undefined
+            ? t("numberWithCurrencyRounded", {
+                value: accountBalance,
+                currency: currencyCode,
+              })
+            : "-"
+        }
       />
     </>
   );

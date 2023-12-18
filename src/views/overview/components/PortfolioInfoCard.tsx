@@ -18,7 +18,7 @@ interface PortfolioInfoCardProps {
   marketValue: number | undefined;
   currencyCode: string | undefined;
   tradeAmount: number | undefined;
-  currentBalance?: number | undefined;
+  currentBalance?: number;
 }
 
 export const QuestionmarkIcon = ({ w, h }: { w?: string; h?: string }) => (
@@ -41,10 +41,10 @@ export const QuestionmarkIcon = ({ w, h }: { w?: string; h?: string }) => (
 );
 
 export const PortfolioInfoCard = ({
-  currencyCode = "EUR",
-  currentBalance = 0,
-  tradeAmount = 0,
-  marketValue = 0,
+  currencyCode,
+  currentBalance,
+  tradeAmount,
+  marketValue,
   name,
   colorScheme = "gray",
   portfolioId,
@@ -66,7 +66,10 @@ export const PortfolioInfoCard = ({
     if (contactDbId) path = `/impersonate/${contactDbId}${path}`;
     navigate(path);
   };
-  const valueChange = marketValue - tradeAmount;
+  const valueChange =
+    marketValue !== undefined && tradeAmount !== undefined
+      ? marketValue - tradeAmount
+      : undefined;
   return (
     <>
       <CardWithChartBackground
@@ -82,11 +85,13 @@ export const PortfolioInfoCard = ({
               {t("portfolioSummary.currentMarketValue")}
             </Label>
             <div className="text-3xl font-medium">
-              {t("numberWithCurrencyRounded", {
-                value: marketValue,
-                currency: currencyCode,
-                maximumFractionDigits: 0,
-              })}
+              {marketValue !== undefined
+                ? t("numberWithCurrencyRounded", {
+                    value: marketValue,
+                    currency: currencyCode,
+                    maximumFractionDigits: 0,
+                  })
+                : "-"}
             </div>
           </div>
           <div className="flex z-0 justify-between">
@@ -96,34 +101,39 @@ export const PortfolioInfoCard = ({
               </Label>
               <div className="text-lg font-semibold ">
                 <GainLoseColoring value={valueChange}>
-                  {t("numberWithCurrencyRounded", {
-                    value: valueChange,
-                    currency: currencyCode,
-                    formatParams: {
-                      value: { signDisplay: "always" },
-                    },
-                  })}
+                  {valueChange !== undefined
+                    ? t("numberWithCurrencyRounded", {
+                        value: valueChange,
+                        currency: currencyCode,
+                        formatParams: {
+                          value: { signDisplay: "always" },
+                        },
+                      })
+                    : "-"}
                 </GainLoseColoring>
               </div>
             </div>
-            <div className="text-right">
-              <div className="flex flex-row gap-x-2 justify-end">
-                <Label colorScheme={colorScheme}>
-                  {t("portfolioSummary.currentBalance")}
-                </Label>
-                {showTooltipIcon && (
-                  <div data-tooltip-id="currentBalanceTooltip">
-                    <QuestionmarkIcon />
-                  </div>
-                )}
+
+            {currentBalance !== undefined && (
+              <div className="text-right">
+                <div className="flex flex-row gap-x-2 justify-end">
+                  <Label colorScheme={colorScheme}>
+                    {t("portfolioSummary.currentBalance")}
+                  </Label>
+                  {showTooltipIcon && (
+                    <div data-tooltip-id="currentBalanceTooltip">
+                      <QuestionmarkIcon />
+                    </div>
+                  )}
+                </div>
+                <div className="text-lg font-semibold">
+                  {t("numberWithCurrencyRounded", {
+                    value: currentBalance,
+                    currency: currencyCode,
+                  })}
+                </div>
               </div>
-              <div className="text-lg font-semibold">
-                {t("numberWithCurrencyRounded", {
-                  value: currentBalance,
-                  currency: currencyCode,
-                })}
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </CardWithChartBackground>

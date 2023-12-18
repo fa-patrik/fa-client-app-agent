@@ -9,6 +9,15 @@
       "dialogTitle": "Information",
       "dialogCloseButtonLabel": "Close"
     },
+    "wizard": {
+      "finishButtonLabel": "Finish",
+      "nextButtonLabel": "Next",
+      "backButtonLabel": "Back",
+      "exitDialogTitle": "Do you want to exit?",
+      "exitDialogDescription": "You will lose your progress.",
+      "exitDialogConfirmButtonLable": "Exit",
+      "exitDialogCancelButtonLabel": "Cancel"
+    },
     "tradableSecuritiesTable": {
       "securityColumnHeader": "Security",
       "1yrTwrColumnHeader": "1 year %",
@@ -17,7 +26,7 @@
       "securityUrl1ColumnHeader": "KIID",
       "detailsHeader": "Details",
       "detailsButtonLabel": "Details",
-      "deselectAllButtonLabel": "Clear all"
+      "deselectAllButtonLabel": "Clear selections"
     },
     "securityDistributionTable": {
       "securityColumHeader": "Security",
@@ -28,7 +37,9 @@
   "userMenu": {
     "logout": "Logout",
     "deposit": "Deposit money",
-    "withdraw": "Withdraw money"
+    "withdraw": "Withdraw money",
+    "monthlySavings": "Monthly savings",
+    "monthlyInvestments": "Monthly investments"
   },
   "navTab": {
     "totalInvestments": "Total investments",
@@ -68,6 +79,7 @@
     "name": "Name",
     "buyButton": "Buy",
     "sellButton": "Sell",
+    "switchButton": "Switch",
     "unrealizedProfits": "Unrealised profits",
     "marketValue": "Market value",
     "holding": "Holding",
@@ -90,6 +102,7 @@
     "performance5Y": "5Y performance",
     "buy": "BUY",
     "sell": "SELL",
+    "switch": "SWITCH",
     "excelFileName": "Holdings",
     "excelSheetName": "Holdings",
     "excelCol1Header": "Name",
@@ -104,13 +117,35 @@
     "header": "Order",
     "noOrders": "No orders are available\n for this period",
     "noOrdersInfo": "Try filtering with other dates",
+    "type": "Type",
+    "details": "Details",
+    "security": "Security",
+    "tradeAmount": "Trade amount",
+    "approximateTradeAmount": "Est. trade amount",
+    "orderCancelDisclaimer": "This order can be cancelled.",
+    "marketplace": "Marketplace",
+    "isin": "ISIN code",
+    "securityName": "Security name",
+    "accountName": "Account name",
+    "portfolioName": "Portfolio name",
+    "portfolio": "Portfolio",
+    "transactionDate": "Date",
+    "settlementDate": "Settlement date",
+    "units": "Units",
+    "cost": "Cost",
+    "description": "Description",
     "pending": "Pending",
     "inExecution": "In execution",
     "open": "Open",
     "accepted": "Accepted",
+    "switch": "Switch",
     "cancelled": "Cancelled",
+    "cancelButtonLabel": "Cancel",
     "buyStatus": "Buy",
     "sellStatus": "Sell",
+    "switchBuy": "To",
+    "switchSell": "From",
+    "status": "Status",
     "subscriptionStatus": "Subscription",
     "redemptionStatus": "Redemption",
     "depositStatus": "Deposit",
@@ -237,12 +272,20 @@
   "tradingModal": {
     "securityName": "Security name",
     "portfolio": "Portfolio",
+    "selectPortfolioError": "Please select a portfolio",
     "availableCash": "Available cash",
     "currentMarketValue": "Current market value",
-    "currentUnits": "Current position amount",
+    "currentUnits": "Current position units",
     "tradeAmount": "Total trade amount",
+    "approximateTradeAmount": "Estimated trade amount",
     "tradeAmountInputError": "Entered value is not correct",
+    "insufficientCashError": "You are attempting to buy more than the available cash allows",
+    "insufficientUnitsError": "You are attempting to sell more than the available units",
+    "insufficientMarketValueError": "You are attempting to sell more than the available market value",
+    "shareOfUnitsInputLabel": "Share (%) of units",
+    "shareOfTradeAmountInputLabel": "Share (%) of trade amount",
     "tradeAmountInputLabel": "Trade amount in {{currency}}",
+    "tradeAmountSimpleInputLabel": "Trade amount",
     "unitsInputLabel": "Number of units",
     "buyModalHeader": "Buy",
     "buyButtonLabel": "Buy",
@@ -253,10 +296,14 @@
     "sellAll": "Sell all",
     "buyDisclaimer": "Past performance is not a guide to future performance. When investing in financial instruments, the investor may lose all or part of the investments.",
     "queryErrorWarning": "Server error occurred",
+    "buyBlockSizeErrorWithFx": "A minimum of {{tradeAmount}} is required to buy one share of {{securityName}} according to the latest price {{price}} ({{date}}), using an exchange rate of {{fxRate}} ({{fx1}}/{{fx2}}).",
+    "sellBlockSizeErrorWithFx": "A minimum of {{tradeAmount}} is required to sell one share of {{securityName}} according to the latest price {{price}} ({{date}}), using an exchange rate of {{fxRate}} ({{fx1}}/{{fx2}}).",
+    "buyBlockSizeError": "A minimum of {{tradeAmount}} is required to buy one share of {{securityName}} according to the latest price {{price}} ({{date}}).",
+    "sellBlockSizeError": "A minimum of {{tradeAmount}} is required to sell one share of {{securityName}} according to the latest price {{price}} ({{date}}).",
     "tradeAmountButtonLabel": "Trade amount",
     "unitsButtonLabel": "Units",
-    "createTradeSuccess": "Your order was created successfully",
-    "createTradeError": "Something went wrong"
+    "createTradeSuccess": "Order created",
+    "createTradeError": "Failed to create order"
   },
   "cancelOrderModal": {
     "header": "Cancelling order",
@@ -265,9 +312,37 @@
     "security": "Security",
     "date": "Date",
     "type": "Type",
+    "switchBuy": "To",
+    "switchSell": "From",
+    "switchTypeName": "Switch",
     "backButtonLabel": "Back",
     "confirmButtonLabel": "Yes, cancel",
     "cancelDisclaimer": "Cancelling an order cannot be undone."
+  },
+  "switchOrderModal": {
+    "header": "Switch",
+    "portfolio": "Portfolio",
+    "portfolioSelectLabel": "Portfolio",
+    "tradeAmountExchangeRateDisclaimer": "Using an exchange rate of {{fxRate}} ({{fx1}}/{{fx2}})",
+    "approximateTradeAmount": "Estimated trade amount",
+    "fromSecuritySelectorLabel": "Switch from",
+    "percentageInputLabel": "Share %",
+    "noSwitchableSecuritiesInSystemError": "No switchable securities available",
+    "noSwitchableHoldingsError": "Portfolio has no switchable positions",
+    "shareInputTooltip": "The fraction of {{securityName}} to switch.",
+    "selectSecurityError": "Select a security",
+    "minTradeAmountError": "Below minimum trade amount ({{minTradeAmount}})",
+    "shareInputPlaceholder": "100",
+    "toSecuritySelectorLabel": "Switch to",
+    "tradeAmountDisclaimer": "{{units}} unit(s) in {{securityName}} according to the latest price {{price}} ({{date}}).",
+    "tradeAmountDisclaimerWithFx": "{{units}} unit(s) in {{securityName}} according to the latest price {{price}} ({{date}}), using an exchange rate of {{fxRate}} ({{fx1}}/{{fx2}}).",
+    "minTradeAmount": "Min. trade amount",
+    "fee": "Fee:",
+    "tradeAmount": "Total trade amount",
+    "kiid": "KIID",
+    "confirmButtonLabel": "Switch",
+    "confirmDisclaimer": "Past performance is not a guide to future performance. When investing in financial instruments, the investor may lose all or part of the investments.",
+    "queryErrorWarning": "Server error occurred"
   },
   "contactPage": {
     "cardHeader": "Contact us"
@@ -307,36 +382,45 @@
     "noCachedData": "No cached data",
     "authorisationError": "Authorisation server error",
     "refreshPage": "Refresh page",
-    "noCachedDataInfo": "Right now we can't get data from server.\n Come back here later.",
+    "noCachedDataInfo": "Right now we can't get data from the server.\n Come back here later.",
     "orderCancelFailed": "Order could not be cancelled.",
     "orderCancelSuccess": "Order cancelled.",
-    "orderAlreadyCancelled": "Order has already been cancelled."
+    "orderAlreadyCancelled": "Order has already been cancelled.",
+    "monthlyInvestmentsDeletedSuccess": "Deleted monthly investments",
+    "monthlyInvestmentsNewSuccess": "Created new monthly investments",
+    "monthlyInvestmentsEditSuccess": "Edited monthly investments",
+    "monthlyInvestmentsFailed": "Error while setting monthly investments",
+    "monthlySavingsDeletedSuccess": "Deleted monthly savings.",
+    "monthlySavingsNewSuccess": "Created new monthly savings.",
+    "monthlySavingsFailed": "Error while setting monthly savings.",
+    "createSwitchSuccess": "Order created",
+    "createSwitchFailed": "Failed to create order"
   },
   "transactionFilter": {
     "transactionType": "Type",
     "securityName": "Security",
     "resetFilter": "Clear filter"
   },
+  "orderFilter": {
+    "transactionType": "Type",
+    "securityName": "Security",
+    "resetFilter": "Clear filter",
+    "switchOrderTypeName": "Switch"
+  },
   "wizards": {
-    "backButtonLabel": "Back",
-    "nextButtonLabel": "Next",
-    "finishButtonLabel": "Finish",
-    "exitWizardDialogTitle": "Are you sure that you want to exit?",
-    "exitWizardDialogDescription": "You will lose your progress.",
-    "exitWizardDialogConfirmButtonLabel": "Exit",
-    "exitWizardDialogConfirmCancelLabel": "Cancel",
     "monthlyInvestments": {
       "title": "Monthly investments",
       "stepZero": {
         "stepTitle": "Overview of existing plans",
-        "noPlansLabel": "You do not have any monthly investment plans",
+        "noPlansLabel": "You don't have any investment plans.",
         "amount": "Amount",
-        "addNewPlanButtonLabel": "Add new plan",
+        "addNewPlanButtonLabel": "Add investment plan",
         "refreshingDataButtonLabel": "Refreshing data",
         "selectPortfolioInputLabel": "Portfolio",
         "deletePlanButtonLabel": "Delete",
-        "deleteDialogTitle": "Delete monthly investment plan?",
-        "deleteDialogDescription": "This will delete the plan.",
+        "editPlanButtonLabel": "Edit",
+        "deleteDialogTitle": "Delete investment plan?",
+        "deleteDialogDescription": "This action will permanently delete the selected investment plan. This cannot be undone.",
         "deleteDialogCancelButtonLabel": "Cancel",
         "deleteDialogConfirmButtonLabel": "Delete"
       },
@@ -355,7 +439,7 @@
         "typeFilterInputLabel": "Type",
         "displayFilterButtonLabel": "Show filters ({{n}}) applied",
         "hideFilterButtonLabel": "Hide filters",
-        "clearFiltersButtonLabel": "Clear all"
+        "clearFiltersButtonLabel": "Clear filters"
       },
       "stepThree": {
         "stepTitle": "Distribute your investments",
@@ -370,8 +454,8 @@
         "amountInputBelowMinError": "Below min. amount",
         "amountInputPlaceholder": "200",
         "minDisclaimer": "Min. {{amount}}",
-        "distributeMore": "You need to distribute the remaining {{diffAmountFormatted}} ({{diffPercentageFormatted}}%) amount.",
-        "distributeLess": "You have distributed more than the total amount.",
+        "distributeMore": "Distribute the remaining {{diffAmountFormatted}} ({{diffPercentageFormatted}}%) amount.",
+        "distributeLess": "You allocated more than the available amount. Adjust the amounts below.",
         "distributeOk": "You distributed the whole amount.",
         "removeDialogTitle": "Remove security?",
         "removeDialogDescription": "Do you want to remove the security from your selection?",
@@ -385,7 +469,7 @@
         "deselectAllMonthsToggleLabel": "Deselect all months",
         "totalInvestmentsPerYear": "Investment per year",
         "buyDateDialogTitle": "Information",
-        "buyDateDialogDescription": "If the day is missing in a month (for example, the 31st), the last day of the month is used."
+        "buyDateDialogDescription": "If a chosen date doesn't exist in a month (e.g., the 31st), the investment will occur on the last day of that month."
       },
       "stepFive": {
         "stepTitle": "Confirm your choices",
@@ -397,11 +481,87 @@
         "buyDate": "Buy date",
         "selectedBuyDate": "{{date}} day of month",
         "monthsSelectedGridTitle": "Months",
-        "confirmDialogTitle": "Confirm your monthly investment",
-        "confirmDialogDescription": "Do you want to save your monthly investment plan?",
+        "confirmDialogTitle": "Confirm your investment plan",
+        "confirmEditDialogTitle": "Confirm your investment plan",
+        "confirmDialogDescription": "Do you want to save your plan?",
         "confirmDialogCancelButtonLabel": "Cancel",
-        "confirmDialogConfirmButtonLabel": "Confirm"
+        "confirmDialogConfirmButtonLabel": "Save"
       }
+    },
+    "monthlySavings": {
+      "title": "Monthly savings",
+      "stepZero": {
+        "stepTitle": "Overview of existing savings plans",
+        "noPlansLabel": "You don't have any savings plans.",
+        "amount": "Amount",
+        "account": "Debit account",
+        "noAccountWarning": "No account",
+        "paymentDate": "Payment date",
+        "selectedPaymentDate": "{{date}} day of month",
+        "addNewPlanButtonLabel": "Add savings plan",
+        "refreshingDataButtonLabel": "Refreshing data",
+        "selectPortfolioInputLabel": "Portfolio",
+        "deletePlanButtonLabel": "Delete",
+        "editPlanButtonLabel": "Edit",
+        "deleteDialogTitle": "Delete savings plan?",
+        "deleteDialogDescription": "This action will permanently delete the selected savings plan. This cannot be undone.",
+        "deleteDialogCancelButtonLabel": "Cancel",
+        "deleteDialogConfirmButtonLabel": "Delete"
+      },
+      "stepOne": {
+        "stepTitle": "Select portfolio and amount to save",
+        "noAccountWarningMessage": "The portfolio you selected doesn't have debit accounts.",
+        "noPortfolioWarningMessage": "No eligble portfolio",
+        "amountInputLabel": "Amount in {{currency}}",
+        "amountInputError": "Below minimum amount",
+        "minAmountDisclaimer": "Min.",
+        "portfolioInputLabel": "Portfolio",
+        "linkedAccountLabel": "Debit account",
+        "refetchDataButtonLabel": "Attempt reload"
+      },
+      "stepTwo": {
+        "stepTitle": "Select when to save",
+        "paymentDateInputLabel": "Payment date",
+        "selectAllMonthsToggleLabel": "Select all months",
+        "deselectAllMonthsToggleLabel": "Deselect all months",
+        "totalSavingsPerYear": "Savings per year",
+        "paymentDateDialogTitle": "Information",
+        "paymentDateDialogDescription": "If a chosen date doesn't exist in a month (e.g., the 31st), the deposit will occur on the last day of that month."
+      },
+      "stepThree": {
+        "stepTitle": "Confirm your savings plan",
+        "summaryTitle": "Summary",
+        "portfolio": "Portfolio",
+        "account": "Debit account",
+        "amount": "Amount",
+        "yearlyAmount": "Yearly amount",
+        "paymentDate": "Payment date",
+        "selectedPaymentDate": "{{date}} day of month",
+        "monthsSelectedGridTitle": "Months",
+        "confirmDialogTitle": "Confirm your savings plan",
+        "confirmDialogDescription": "Do you want to save your plan?",
+        "confirmDialogCancelButtonLabel": "Cancel",
+        "confirmDialogConfirmButtonLabel": "Save"
+      }
+    }
+  },
+  "utils": {
+    "months": {
+      "1": "January",
+      "2": "February",
+      "3": "Mars",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    },
+    "switchOrder": {
+      "typeName": "Switch"
     }
   }
 }

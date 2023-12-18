@@ -7,14 +7,15 @@ import {
   CancelOrderModalInitialData,
   CancelOrderModalContent,
 } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
+import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import {
   isPortfolioAllowedToCancelOrder,
   isTradeOrderCancellable,
 } from "services/permissions/cancelOrder";
 import { NoOrders } from "./NoOrders";
-import { OrdersGroup } from "./OrdersGroup";
-import { useGroupedTradeOrdersByStatus } from "./useGroupedTradeOrdersByStatus";
+import { OrderCardList } from "./OrderCardList";
+import { OrdersListWithOneLineRow } from "./OrdersListWithOneLineRow";
 
 interface OrdersContainerProps {
   data: {
@@ -63,26 +64,22 @@ export const OrdersContainer = ({
     if (orders) checkOrdersCancellable(orders);
   }, [apolloClient, orders]);
 
-  const groupedTradeOrders = useGroupedTradeOrdersByStatus(orders);
+  const hasOneLineRow = useMatchesBreakpoint("md");
+
+  const OrdersList = hasOneLineRow ? OrdersListWithOneLineRow : OrderCardList;
+
   if (!orders || orders.length === 0) {
     return <NoOrders startDate={startDate} endDate={endDate} />;
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {groupedTradeOrders.map(
-        (group) =>
-          group.tradeOrders.length > 0 && (
-            <OrdersGroup
-              isAnyOrderCancellable={isAnyOrderCancellable}
-              key={group.type}
-              label={group.label}
-              orders={group.tradeOrders}
-              type="order"
-              onCancelOrderModalOpen={onCancelOrderModalOpen}
-            />
-          )
-      )}
+    <div>
+      <OrdersList
+        orders={orders}
+        isAnyOrderCancellable={isAnyOrderCancellable}
+        onCancelOrderModalOpen={onCancelOrderModalOpen}
+      />
+
       <Modal {...cancelOrderModalProps} header={t("cancelOrderModal.header")}>
         <CancelOrderModalContent {...cancelOrderModalContentProps} />
       </Modal>

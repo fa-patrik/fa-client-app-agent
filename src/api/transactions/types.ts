@@ -1,7 +1,5 @@
-import { ORDER_STATUS } from "../orders/enums";
+import { OrderStatus } from "api/enums";
 import { TransactionType } from "./enums";
-type Values<T> = T[keyof T];
-export type OrderStatus = Values<typeof ORDER_STATUS>;
 
 export interface Transaction {
   id: number;

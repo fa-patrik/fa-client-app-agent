@@ -1,12 +1,13 @@
 import { CountryFlag } from "components";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 interface SecurityInfoProps {
   countryCode: string | undefined;
   securityId: number;
   name: string;
-  isinCode: string | undefined;
+  isinCode: string | null;
   typeName: string;
+  id?: string;
 }
 
 const SecurityInfoCell = ({
@@ -15,35 +16,32 @@ const SecurityInfoCell = ({
   name,
   isinCode,
   typeName,
+  id,
 }: SecurityInfoProps) => {
-  const params = useParams();
-  const contactId = params?.contactDbId;
-
   return (
-    <div
-      id={`seurityInfoCell-${securityId}`}
-      className="flex flex-col text-xs text-black"
-    >
+    <div id={id} className="flex flex-col text-xs text-black">
       <div className="flex flex-row gap-x-1 items-center">
         <CountryFlag code={countryCode} />
-        <span className="font-bold ">{name}</span>
+        <span className="font-bold" id={id ? `${id}-name` : undefined}>
+          {name}
+        </span>
         <Link
-          onClick={(e) => e.stopPropagation()}
-          id={`seurityInfoCell-link-${securityId}`}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          id={id ? `${id}-linkToHoldings` : undefined}
           target="_blank"
           rel="noopener noreferrer"
           className="text-lg font-bold text-primary-500 underline"
-          to={`${
-            contactId ? `impersonate/${contactId}` : ""
-          }/holdings/${securityId}`}
+          to={`../holdings/${securityId}`}
         >
           ↗
         </Link>
       </div>
-      <span id={`seurityInfoCell-isinCode-${securityId}`} className="text-xs">
+      <span id={id ? `${id}-isinCode` : undefined} className="text-xs">
         {isinCode}
       </span>
-      <span id={`seurityInfoCell-typeName-${securityId}`} className="text-xs">
+      <span id={id ? `${id}-typeName` : undefined} className="text-xs">
         {typeName}
       </span>
     </div>

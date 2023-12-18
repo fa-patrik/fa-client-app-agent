@@ -55,8 +55,10 @@ const TRADABLE_SECURITIES_QUERY = gql`
         securityCode
       }
       managementFee
+      managementFeePercentage
       minTradeAmount
       fxRate(quoteCurrency: $currency)
+      amountDecimalCount
     }
   }
 `;
@@ -67,33 +69,40 @@ interface SecurityPrice {
   date: string;
 }
 
+export interface TradableSecurityType {
+  id: number;
+  name: string;
+  code: SecurityTypeCode;
+  namesAsMap: Record<string, string>;
+}
+
 export interface TradableSecurity {
   id: number;
   name: string;
   namesAsMap: Record<string, string>;
   securityCode: string;
-  isinCode?: string;
-  url: string;
-  url2: string;
-  latestMarketData?: SecurityPrice;
+  isinCode: string | null;
+  url: string | null;
+  url2: string | null;
+  latestMarketData: SecurityPrice | null;
   currency: {
+    id: number;
     securityCode: string;
   };
-  country?: {
+  country: {
+    id: number;
     code: string;
     name: string;
     namesAsMap: Record<string, string>;
-  };
-  type: {
-    code: SecurityTypeCode;
-    name: string;
-    namesAsMap: Record<string, string>;
-  };
+  } | null;
+  type: TradableSecurityType;
   managementFee: number;
+  managementFeePercentage: number;
   minTradeAmount: number;
   fxRate: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
+  amountDecimalCount: number;
 }
 
 export interface TradableSecuritiesQuery {
@@ -134,7 +143,10 @@ const filterOptionsInitial = {
   type: [emptyOption],
 };
 
-export const useGetTradebleSecurities = (currencyCode?: string) => {
+export const useGetTradebleSecurities = (
+  currencyCode?: string,
+  tags?: string[]
+) => {
   const { selectedContactId } = useGetContractIdData();
   const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
     useGetContactInfo(false, selectedContactId);
@@ -150,16 +162,15 @@ export const useGetTradebleSecurities = (currencyCode?: string) => {
         securityType: filters.type.id,
         name: filters.name,
         currency: currencyCode ?? portfoliosCurrency,
-        tradableTag,
+        tradableTag: tags ? [...tags, tradableTag] : [tradableTag],
       },
       ...getFetchPolicyOptions(
         `useGetTradebleSecurities.${filters.country.id}.${filters.type.id}.${
           filters.name
-        }.${currencyCode ?? portfoliosCurrency}`
+        }.${currencyCode ?? portfoliosCurrency}.${tags}`
       ),
     }
   );
-
 
   //derive the selectable options from the received security data, if any
   const filterOptions =
@@ -193,11 +204,9 @@ export const useGetTradebleSecurities = (currencyCode?: string) => {
           ),
         });
       }
-      
 
       return prev;
     }, filterOptionsInitial) ?? filterOptionsInitial;
-
 
   return {
     loading,
@@ -225,10 +234,10 @@ export const useGetTradebleSecurityLazy = () => {
       //const error = new ApolloError({ errorMessage: "Emulated error" });
       //throw error;
 
-      setError(undefined)
+      setError(undefined);
       return result;
     } catch (err) {
-      if(err instanceof ApolloError) setError(err);
+      if (err instanceof ApolloError) setError(err);
     }
   };
 
@@ -237,4 +246,3 @@ export const useGetTradebleSecurityLazy = () => {
     error,
   };
 };
-

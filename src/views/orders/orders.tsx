@@ -1,18 +1,39 @@
 import { useMemo, useState } from "react";
 import { TradeOrder } from "api/orders/types";
 import { QueryData } from "api/types";
-import {
-  Card,
-  DatePicker,
-  QueryLoadingWrapper,
-  TransactionsFilter,
-} from "components";
+import { Card, DatePicker, QueryLoadingWrapper } from "components";
+import { OrdersFilter } from "components/TransactionFilter/OrdersFilter";
 import { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import {
+  PartOfSwitch,
+  getPartOfSwitch,
+  linkSwitchBuyLegsToSells,
+} from "utils/switchOrders";
 import { OrdersContainer } from "./components/OrdersContainer";
 import OrdersExcelExportButton from "./components/OrdersExcelExportButton";
 import { isOrderStatusToDisplayType } from "./components/useGroupedTradeOrdersByStatus";
+
+const filterOrders = (order: TradeOrder) => {
+  //only keep orders that should be displayed to user
+
+  //Handle switches
+  //A switch consists of a sell and a buy. They are linked together.
+  //We only keep one of them, and display the linked leg.
+  if (order.linkedTransaction) {
+    if (getPartOfSwitch(order) === PartOfSwitch.BUY) {
+      return false;
+    }
+    if (getPartOfSwitch(order) === PartOfSwitch.SELL) {
+      return (
+        isOrderStatusToDisplayType(order.orderStatus) ||
+        isOrderStatusToDisplayType(order.linkedTransaction.orderStatus)
+      );
+    }
+  }
+  return isOrderStatusToDisplayType(order.orderStatus);
+};
 
 interface OrdersProps extends QueryData<(TradeOrder | LocalOrder)[]> {
   startDate: Date;
@@ -26,7 +47,7 @@ export const Orders = ({
   setStartDate,
   endDate,
   setEndDate,
-  data: transactionsData,
+  data: orderData,
   loading,
   error,
 }: OrdersProps) => {
@@ -35,12 +56,21 @@ export const Orders = ({
     TradeOrder[] | undefined
   >(undefined);
 
-  const transactionsDataFilteredBySpecifiedOrderStatuses = useMemo(() => {
-    if (!transactionsData) return [];
-    return transactionsData.filter((transaction) =>
-      isOrderStatusToDisplayType(transaction.orderStatus)
-    );
-  }, [transactionsData]);
+  const linkedOrderData = useMemo(() => {
+    return linkSwitchBuyLegsToSells(orderData);
+  }, [orderData]);
+
+  const filteredAndSortedOrders = useMemo(() => {
+    if (!linkedOrderData) return [];
+    return linkedOrderData
+      .filter((order) => filterOrders(order))
+      .sort(
+        //latest first
+        (oA, oB) =>
+          new Date(oA.transactionDate) < new Date(oB.transactionDate) ? 1 : -1
+      );
+  }, [linkedOrderData]);
+
   const isLargeScreen = useMatchesBreakpoint("sm");
 
   return (
@@ -63,10 +93,8 @@ export const Orders = ({
               minDate={startDate}
             />
           </div>
-          <TransactionsFilter
-            transactionsData={
-              transactionsDataFilteredBySpecifiedOrderStatuses || []
-            }
+          <OrdersFilter
+            orderData={filteredAndSortedOrders || []}
             filterHeader={t("ordersPage.transactionsFilterTitle")}
             onFilter={(filteredTransactionData) => {
               setFilteredTransactionData(filteredTransactionData);

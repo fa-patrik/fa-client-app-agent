@@ -6,9 +6,10 @@ interface CardProps {
   header?: ReactNode;
   onClick?: () => void;
   id?: string;
+  center?: boolean;
 }
 
-export const Card = ({ children, header, onClick, id }: CardProps) => (
+export const Card = ({ children, header, onClick, id, center }: CardProps) => (
   <div
     id={id}
     className={classNames(

@@ -10,12 +10,16 @@ export const getNameFromBackendTranslations = (
 
 export const getTransactionColor = (
   amountEffect: number,
-  cashFlowEffect: number
-) =>
-  amountEffect > 0 && cashFlowEffect < 0
+  cashFlowEffect: number,
+  isSwitch?: boolean
+) => {
+  return isSwitch
+    ? "green"
+    : amountEffect > 0 && cashFlowEffect < 0
     ? ("blue" as const)
     : amountEffect < 0 && cashFlowEffect > 0
     ? ("red" as const)
     : amountEffect === 0 && cashFlowEffect > 0
     ? ("green" as const)
     : ("gray" as const);
+};

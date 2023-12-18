@@ -2,6 +2,7 @@ import { SecurityDetailsPosition } from "api/holdings/types";
 import { SecurityData } from "api/overview/types";
 import { ReactComponent as MinusCircle } from "assets/minus-circle.svg";
 import { ReactComponent as PlusCircle } from "assets/plus-circle.svg";
+import { ReactComponent as SwitchHorizontalOutlinedIcon } from "assets/switch-horizontal-outlined.svg";
 import {
   Card,
   DetailsHeading,
@@ -12,6 +13,10 @@ import {
 import { useModal } from "components/Modal/useModal";
 import { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
 import { SellModalInitialData } from "components/TradingModals/SellModalContent/SellModalContent";
+import {
+  SwitchModalContent,
+  SwitchModalInitialData,
+} from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +24,7 @@ import {
   canPortfolioTrade,
   usePermission,
   tradableTag,
+  switchableTag,
 } from "services/permissions/usePermission";
 import { getNameFromBackendTranslations } from "utils/transactions";
 import { addProtocolToUrl } from "utils/url";
@@ -69,7 +75,15 @@ export const HoldingDetails = ({
     contentProps: sellModalContentProps,
   } = useModal<SellModalInitialData>();
 
+  const {
+    onOpen: onSwitchModalOpen,
+    modalProps: switchModalProps,
+    contentProps: switchModalContentProps,
+  } = useModal<SwitchModalInitialData>();
+
   const userInvestedInThisHolding = holding != null;
+
+  const canSwitch = tagsAsSet.includes(switchableTag);
 
   return (
     <div className="flex overflow-hidden flex-col h-full">
@@ -146,15 +160,30 @@ export const HoldingDetails = ({
                       {t("holdingsPage.buy")}
                     </Button>
                     {userInvestedInThisHolding && (
-                      <Button
-                        LeftIcon={MinusCircle}
-                        variant="Red"
-                        onClick={() => onSellModalOpen(security)}
-                      >
-                        {t("holdingsPage.sell")}
-                      </Button>
+                      <>
+                        <Button
+                          LeftIcon={MinusCircle}
+                          variant="Red"
+                          onClick={() => onSellModalOpen(security)}
+                        >
+                          {t("holdingsPage.sell")}
+                        </Button>
+                      </>
                     )}
                   </div>
+                  {userInvestedInThisHolding && canSwitch && (
+                    <div className="grid grid-flow-col gap-2">
+                      <Button
+                        LeftIcon={SwitchHorizontalOutlinedIcon}
+                        variant="Dark"
+                        onClick={() =>
+                          onSwitchModalOpen({ sellSecurityId: security.id })
+                        }
+                      >
+                        {t("holdingsPage.switch")}
+                      </Button>
+                    </div>
+                  )}
                   <Modal
                     {...buyModalProps}
                     header={t("tradingModal.buyModalHeader")}
@@ -166,6 +195,12 @@ export const HoldingDetails = ({
                     header={t("tradingModal.sellModalHeader")}
                   >
                     <SellModalContent {...sellModalContentProps} />
+                  </Modal>
+                  <Modal
+                    {...switchModalProps}
+                    header={t("switchOrderModal.header")}
+                  >
+                    <SwitchModalContent {...switchModalContentProps} />
                   </Modal>
                 </>
               )}

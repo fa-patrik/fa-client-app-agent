@@ -12,6 +12,7 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
     shortName
     currency {
       securityCode
+      amountDecimalCount
     }
     portfolioGroups {
       id
@@ -27,6 +28,7 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
       shortName
       currency {
         securityCode
+        amountDecimalCount
       }
       portfolioGroups {
         id
@@ -85,9 +87,11 @@ export enum PortfolioGroups {
   TRADE = "CP_TRADING",
   HIDE = "CP_HIDE_PF",
   MONTHLY_INVESTMENTS = "CP_MONTHLYINVESTMENTS",
+  MONTHLY_SAVINGS = "CP_MONTHLYSAVINGS",
 }
 
 export interface PortfolioGroup {
+  id: number;
   code: PortfolioGroups;
 }
 
@@ -117,6 +121,7 @@ export interface Portfolio {
   portfolios: Portfolio[]; //sub portfolios
   currency: {
     securityCode: string;
+    amountDecimalCount: number;
   };
   portfolioGroups: PortfolioGroup[];
 }
@@ -158,16 +163,16 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
     loading: loading,
     error: error,
     data: data && {
-      contactId: data.contact?.id,
-      _contactId: data.contact?.contactId,
+      contactId: data?.contact?.id,
+      _contactId: data?.contact?.contactId,
       portfolios: activeAndPassivePortfolios,
-      locale: data.contact?.language?.locale || fallbackLanguage,
+      locale: data?.contact?.language?.locale || fallbackLanguage,
       // all contact portfolios have same currency
       portfoliosCurrency:
-        data.contact?.portfolios?.[0]?.currency.securityCode || "",
+        data?.contact?.portfolios?.[0]?.currency?.securityCode,
       representees: data?.contact?.representees,
       assetManagerPortfolios: data?.contact?.assetManagerPortfolios,
-      name: data.contact?.name,
+      name: data?.contact?.name,
     },
     refetch,
   };

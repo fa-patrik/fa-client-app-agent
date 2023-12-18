@@ -4,21 +4,10 @@ import { useDownloadReport } from "api/report/useDownloadReport";
 import { TransactionDetails as TransactionDetailsType } from "api/transactions/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/document-download.svg";
 import { Button, Card, CountryFlag } from "components";
-import { useModal } from "components/Modal/useModal";
-import {
-  CancelOrderModalInitialData,
-  CancelOrderModalContent,
-} from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
-import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
-import {
-  isStatusCancellable,
-  isPortfolioAllowedToCancelOrder,
-  isTransactionTypeCancellable,
-} from "services/permissions/cancelOrder";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getTransactionColor,
@@ -49,9 +38,7 @@ export const TransactionDetails = ({
     documents,
     extInfo,
     account,
-    reference,
     securityCurrencyCode,
-    orderStatus,
     tradeAmountInAccountCurrency,
     tradeAmountInSecurityCurrency,
     grossPriceInSecurityCurrency,
@@ -61,30 +48,14 @@ export const TransactionDetails = ({
   const { t, i18n } = useModifiedTranslation();
   const { downloadDocument, downloading } = useDownloadDocument();
   const { transactionId } = useParams<{ transactionId: string }>();
-  const { orderId } = useParams<{ orderId: string }>();
   const { downloadReport, downloading: downloadingReport } =
     useDownloadReport();
   const transactionType = useGetTransactionType();
   const navigate = useNavigate();
-  const { readonly } = useKeycloak();
-
-  const {
-    Modal,
-    onOpen: onCancelOrderModalOpen,
-    modalProps: cancelOrderModalProps,
-    contentProps: cancelOrderModalContentProps,
-  } = useModal<CancelOrderModalInitialData>();
 
   const { data: transactionParentPortfolio } = useGetPortfolioBasicFieldsById(
     parentPortfolio.id
   );
-
-  const isOrderAndCancellable =
-    orderId &&
-    transactionParentPortfolio &&
-    isStatusCancellable(orderStatus) &&
-    isTransactionTypeCancellable(type.typeCode) &&
-    isPortfolioAllowedToCancelOrder(transactionParentPortfolio);
 
   return (
     <PageLayout>
@@ -280,32 +251,7 @@ export const TransactionDetails = ({
             </Button>
           </div>
         )}
-        {isOrderAndCancellable && (
-          <div>
-            <Button
-              isFullWidth
-              variant="Red"
-              disabled={readonly}
-              onClick={() =>
-                onCancelOrderModalOpen({
-                  orderId: Number(orderId),
-                  reference,
-                  transactionDate,
-                  portfolioName: transactionParentPortfolio.name,
-                  portfolioId: transactionParentPortfolio.id,
-                  securityName,
-                  type,
-                })
-              }
-            >
-              {t("transactionsPage.cancelOrderButtonLabel")}
-            </Button>
-          </div>
-        )}
       </div>
-      <Modal {...cancelOrderModalProps} header={"Cancelling order"}>
-        <CancelOrderModalContent {...cancelOrderModalContentProps} />
-      </Modal>
     </PageLayout>
   );
 };

@@ -1,6 +1,7 @@
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { SecurityTypeCode } from "api/holdings/types";
+import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { ContactOverviewQuery } from "api/overview/types";
+import { useGetContactCashFromPfReport } from "api/overview/useGetContactCashFromPfReport";
 import { useGetContactOverview } from "api/overview/useGetContactOverview";
 import { QueryLoadingWrapper } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -9,8 +10,8 @@ import { PortfolioInfoCard } from "./components/PortfolioInfoCard";
 import { TotalSummary } from "./components/TotalSummary";
 
 export const OverviewView = () => {
+  useGetContactCashFromPfReport();
   const queryData = useGetContactOverview();
-
   return <QueryLoadingWrapper {...queryData} SuccessComponent={Overview} />;
 };
 
@@ -25,26 +26,27 @@ const Overview = ({ data }: OverviewProps) => {
   const contactPortfoliosAnalysis =
     data?.contact?.analytics?.contact?.parentPortfolios;
   const breakPortfolioInfoCard = useMatchesBreakpoint("sm");
-  const { data: portfolioData } = useGetPortfolioBasicFieldsById(
-    contactPortfoliosAnalysis?.[0]?.portfolio?.id
-  );
+  const { data: cachedContactData } = useGetContactInfo();
 
   //assumption that all portfolios have same currency, so we use currency from first one
-  const currencyCode = portfolioData?.currency.securityCode || "EUR";
+  const currencyCode = cachedContactData?.portfoliosCurrency;
 
   const totalTradeAmount =
-    contactAnalysis?.analytics?.contact?.firstAnalysis?.tradeAmount || 0;
+    contactAnalysis?.analytics?.contact?.firstAnalysis?.tradeAmount;
 
   const totalMarketValue =
-    contactAnalysis?.analytics?.contact?.firstAnalysis?.marketValue || 0;
+    contactAnalysis?.analytics?.contact?.firstAnalysis?.marketValue;
+
+  const contactCash = useGetContactCashFromPfReport()?.data;
+
   return (
     <div className="grid md:grid-cols-2 gap-4 mb-4">
       <div className="grid sm:grid-cols-2 md:col-span-full gap-4">
         {breakPortfolioInfoCard ? (
           <TotalSummary
             currencyCode={currencyCode}
-            marketValue={totalMarketValue}
-            tradeAmount={totalTradeAmount}
+            marketValue={totalMarketValue} //we need to default these values to 0
+            tradeAmount={totalTradeAmount} //because empty portfolios get undefined from the api
           />
         ) : (
           <PortfolioInfoCard
@@ -53,22 +55,23 @@ const Overview = ({ data }: OverviewProps) => {
             currencyCode={currencyCode}
             tradeAmount={totalTradeAmount}
             marketValue={totalMarketValue}
+            currentBalance={contactCash}
           />
         )}
       </div>
       {contactPortfoliosAnalysis?.map((portfolioCardData) => {
-        const cash = portfolioCardData.securityTypes.find(
+        const cash = portfolioCardData?.securityTypes?.find(
           (type) => type.code === SecurityTypeCode.CURRENCY
         );
-        const currentBalance = cash?.firstAnalysis.marketValue;
+        const currentBalance = cash?.firstAnalysis?.marketValue;
         return (
           <PortfolioInfoCard
             currentBalance={currentBalance}
-            portfolioId={portfolioCardData.portfolio.id}
-            key={portfolioCardData.portfolio.id}
+            portfolioId={portfolioCardData?.portfolio?.id}
+            key={portfolioCardData?.portfolio?.id}
             currencyCode={currencyCode}
-            tradeAmount={portfolioCardData.firstAnalysis.tradeAmount}
-            marketValue={portfolioCardData.firstAnalysis.marketValue}
+            tradeAmount={portfolioCardData?.firstAnalysis?.tradeAmount}
+            marketValue={portfolioCardData?.firstAnalysis?.marketValue}
           />
         );
       })}
