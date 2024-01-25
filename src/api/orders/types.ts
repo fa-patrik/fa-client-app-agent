@@ -60,6 +60,16 @@ export interface TradeOrderDetails extends TradeOrder {
   grossPriceInAccountCurrency: number;
   reference: string;
   linkedTransaction: TradeOrderDetails | null;
+  taxType: {
+    namesAsMap: Record<string, string>;
+    id: number;
+  } | null;
+  taxType2: {
+    namesAsMap: Record<string, string>;
+    id: number;
+  } | null;
+  tax: number;
+  tax2: number;
 }
 
 export interface TradeOrderDetailsQuery {

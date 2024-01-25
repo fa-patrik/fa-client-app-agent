@@ -199,6 +199,8 @@
     "cost": "Cost",
     "description": "Description",
     "fxRate": "FX rate",
+    "tax": "Taxes",
+    "tax2": "Other taxes",
     "unitPrice": "Unit price",
     "grossTradeAmount": "Gross trade amount",
     "netTradeAmount": "Net trade amount",

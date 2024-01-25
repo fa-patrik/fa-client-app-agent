@@ -61,5 +61,15 @@ export const TRANSACTION_DETAILS_FIELDS = gql`
     grossPriceInSecurityCurrency: grossPrice
     grossPriceInAccountCurrency
     orderStatus
+    taxType {
+      namesAsMap
+      id
+    }
+    taxType2 {
+      namesAsMap
+      id
+    }
+    tax
+    tax2
   }
 `;

@@ -17,6 +17,7 @@ import {
   isPortfolioAllowedToCancelOrder,
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
+import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getOrderTypeName,
@@ -298,6 +299,41 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                     },
                   })}
                 />
+                {order?.tax && ( //api returns 0 if no tax has been defined
+                  <DataRow
+                    label={getBackendTranslation(
+                      t("transactionsPage.tax"),
+                      order?.taxType?.namesAsMap,
+                      i18n.language
+                    )}
+                    value={t("number", {
+                      value: order?.tax,
+                      formatParams: {
+                        value: {
+                          minimumFractionDigits: 2,
+                        },
+                      },
+                    })}
+                  />
+                )}
+
+                {order?.tax2 && (
+                  <DataRow
+                    label={getBackendTranslation(
+                      t("transactionsPage.tax2"),
+                      order?.taxType2?.namesAsMap,
+                      i18n.language
+                    )}
+                    value={t("number", {
+                      value: order?.tax2,
+                      formatParams: {
+                        value: {
+                          minimumFractionDigits: 2,
+                        },
+                      },
+                    })}
+                  />
+                )}
                 <div />
               </div>
             </Card>

@@ -8,6 +8,7 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
+import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getTransactionColor,
@@ -43,6 +44,10 @@ export const TransactionDetails = ({
     tradeAmountInSecurityCurrency,
     grossPriceInSecurityCurrency,
     grossPriceInAccountCurrency,
+    tax,
+    tax2,
+    taxType,
+    taxType2,
   },
 }: TransactionDetailsProps) => {
   const { t, i18n } = useModifiedTranslation();
@@ -194,6 +199,42 @@ export const TransactionDetails = ({
                   },
                 })}
               />
+              {tax && ( //api returns 0 if no tax has been defined
+                <DataRow
+                  label={getBackendTranslation(
+                    t("transactionsPage.tax"),
+                    taxType?.namesAsMap,
+                    i18n.language
+                  )}
+                  value={t("number", {
+                    value: tax,
+                    formatParams: {
+                      value: {
+                        minimumFractionDigits: 2,
+                      },
+                    },
+                  })}
+                />
+              )}
+
+              {tax2 && (
+                <DataRow
+                  label={getBackendTranslation(
+                    t("transactionsPage.tax2"),
+                    taxType2?.namesAsMap,
+                    i18n.language
+                  )}
+                  value={t("number", {
+                    value: tax2,
+                    formatParams: {
+                      value: {
+                        minimumFractionDigits: 2,
+                      },
+                    },
+                  })}
+                />
+              )}
+
               <div />
             </div>
           </Card>
