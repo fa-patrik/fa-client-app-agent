@@ -299,38 +299,30 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                     },
                   })}
                 />
-                {order?.tax && ( //api returns 0 if no tax has been defined
+                {!!order?.tax && ( //api returns 0 if no tax has been defined
                   <DataRow
                     label={getBackendTranslation(
                       t("transactionsPage.tax"),
                       order?.taxType?.namesAsMap,
                       i18n.language
                     )}
-                    value={t("number", {
+                    value={t("numberWithCurrency", {
                       value: order?.tax,
-                      formatParams: {
-                        value: {
-                          minimumFractionDigits: 2,
-                        },
-                      },
+                      currency: order?.securityCurrencyCode,
                     })}
                   />
                 )}
 
-                {order?.tax2 && (
+                {!!order?.tax2 && (
                   <DataRow
                     label={getBackendTranslation(
                       t("transactionsPage.tax2"),
                       order?.taxType2?.namesAsMap,
                       i18n.language
                     )}
-                    value={t("number", {
+                    value={t("numberWithCurrency", {
                       value: order?.tax2,
-                      formatParams: {
-                        value: {
-                          minimumFractionDigits: 2,
-                        },
-                      },
+                      currency: order?.securityCurrencyCode,
                     })}
                   />
                 )}

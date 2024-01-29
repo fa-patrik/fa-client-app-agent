@@ -199,38 +199,30 @@ export const TransactionDetails = ({
                   },
                 })}
               />
-              {tax && ( //api returns 0 if no tax has been defined
+              {!!tax && ( //api returns 0 if no tax has been defined
                 <DataRow
                   label={getBackendTranslation(
                     t("transactionsPage.tax"),
                     taxType?.namesAsMap,
                     i18n.language
                   )}
-                  value={t("number", {
+                  value={t("numberWithCurrency", {
                     value: tax,
-                    formatParams: {
-                      value: {
-                        minimumFractionDigits: 2,
-                      },
-                    },
+                    currency: securityCurrencyCode,
                   })}
                 />
               )}
 
-              {tax2 && (
+              {!!tax2 && (
                 <DataRow
                   label={getBackendTranslation(
                     t("transactionsPage.tax2"),
                     taxType2?.namesAsMap,
                     i18n.language
                   )}
-                  value={t("number", {
+                  value={t("numberWithCurrency", {
                     value: tax2,
-                    formatParams: {
-                      value: {
-                        minimumFractionDigits: 2,
-                      },
-                    },
+                    currency: securityCurrencyCode,
                   })}
                 />
               )}
