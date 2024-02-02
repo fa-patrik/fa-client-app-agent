@@ -169,7 +169,7 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
       locale: data?.contact?.language?.locale || fallbackLanguage,
       // all contact portfolios have same currency
       portfoliosCurrency:
-        data?.contact?.portfolios?.[0]?.currency?.securityCode,
+        activeAndPassivePortfolios?.[0]?.currency?.securityCode,
       representees: data?.contact?.representees,
       assetManagerPortfolios: data?.contact?.assetManagerPortfolios,
       name: data?.contact?.name,

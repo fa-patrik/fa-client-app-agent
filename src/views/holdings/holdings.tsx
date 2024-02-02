@@ -6,6 +6,7 @@ import {
   SwitchModalInitialData,
 } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
+import { useGetContractIdData } from "providers/ContractIdProvider";
 import {
   canPortfolioTrade,
   switchableTag,
@@ -42,8 +43,11 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
       ) || false
     );
   }, [data?.contact?.analytics?.contact]);
-
-  const { data: cachedContactData } = useGetContactInfo();
+  const { selectedContactId } = useGetContractIdData();
+  const { data: cachedContactData } = useGetContactInfo(
+    false,
+    selectedContactId
+  );
   const currencyCode = cachedContactData?.portfoliosCurrency;
 
   const securityTypes = data?.contact?.analytics?.contact?.securityTypes;
