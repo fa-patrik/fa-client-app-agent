@@ -226,6 +226,7 @@ const MsStepOne = () => {
               currency: portfolioCurrencyCode,
             })}
             placeholder={`${minAmount || 100}`}
+            step="any"
           />
           {minAmount && (
             <p

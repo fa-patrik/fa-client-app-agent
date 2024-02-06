@@ -396,13 +396,14 @@ export const SwitchModalContent = ({
                 })
               : ""
           }
-          type="text"
+          type="number"
           placeholder={t("switchOrderModal.shareInputPlaceholder")}
           className="w-20"
           value={inputValue}
           onChange={(e) => handleNumberInputEvent(e, setInputValue, 0, 100, 2)}
           onPaste={(e) => handleNumberPasteEvent(e, setInputValue, 0, 100, 2)}
           error={inputShareError}
+          step="any"
         />
       </div>
       <div className="flex flex-col gap-y-2 rounded-lg">

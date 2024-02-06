@@ -5,6 +5,7 @@ import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
+import { handleNumberInputEvent } from "utils/input";
 import { CashAccountSelect } from "../components/CashAccountSelect";
 import { usePortfoliosAccountsState } from "../usePortfoliosAccountsState";
 import { useWithdrawablePortfolioSelect } from "./useWithdrawablePortfolioSelect";
@@ -35,21 +36,24 @@ export const WithdrawModalContent = ({
       label = "",
       number = "",
     } = {},
-    currentExternalCashAccount: {
-      number: externalNumber = "",
-    } = {},
+    currentExternalCashAccount: { number: externalNumber = "" } = {},
   } = cashAccountSelectProps;
 
-  const [amount, setAmount] = useState(0);
-
+  const [amount, setAmount] = useState("");
+  const amountAsNr = amount ? parseFloat(amount) : 0;
+  const inputBlockSize =
+    cashAccountSelectProps.currentInternalCashAccount?.amountDecimalCount;
+  const fallBackBlockSize = 2;
   const isAmountCorrect =
-    !isNaN(availableBalance) && amount >= 0 && amount <= availableBalance;
+    !isNaN(availableBalance) &&
+    amountAsNr >= 0 &&
+    amountAsNr <= availableBalance;
 
   const { handleTrade: handleWithdraw, submitting } = useWithdrawal({
     portfolio:
       portfolios.find((portfolio) => portfolio.id === portfolioId) ||
       portfolios[0],
-    tradeAmount: amount,
+    tradeAmount: amountAsNr,
     securityName: label,
     account: number,
     currency,
@@ -71,7 +75,13 @@ export const WithdrawModalContent = ({
           ref={modalInitialFocusRef}
           value={amount || ""}
           onChange={(event) => {
-            setAmount(Number(event.currentTarget.value));
+            handleNumberInputEvent(
+              event,
+              setAmount,
+              0,
+              undefined,
+              inputBlockSize || fallBackBlockSize
+            );
           }}
           label={t("moneyModal.withdrawalAmountInputLabel", {
             currency,
@@ -82,10 +92,11 @@ export const WithdrawModalContent = ({
               ? t("moneyModal.amountInputError")
               : undefined
           }
+          step="any"
         />
         <Button
           disabled={
-            readonly || amount === 0 || accountsLoading || !isAmountCorrect
+            readonly || amountAsNr === 0 || accountsLoading || !isAmountCorrect
           }
           isLoading={submitting}
           onClick={async () => {

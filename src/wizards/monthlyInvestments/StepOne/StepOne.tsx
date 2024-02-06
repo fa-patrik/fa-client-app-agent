@@ -204,6 +204,7 @@ const StepOne = () => {
                 currency: portfolioCurrencyCode,
               })}
               placeholder={`${minAmount || 100}`}
+              step="any"
             />
             {minAmount && (
               <p

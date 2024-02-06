@@ -389,7 +389,7 @@ export const SellModalContent = ({
             ? t("tradingModal.unitsInputLabel")
             : t("tradingModal.tradeAmountSimpleInputLabel")
         }
-        type="text"
+        type="number"
         error={
           !input || inputAsNr === 0
             ? " "
@@ -399,6 +399,7 @@ export const SellModalContent = ({
             ? t("tradingModal.insufficientMarketValueError")
             : ""
         }
+        step="any"
       />
 
       {canToggleTradeType && (

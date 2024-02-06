@@ -328,7 +328,7 @@ export const BuyModalContent = ({
             ? t("tradingModal.unitsInputLabel")
             : t("tradingModal.tradeAmountSimpleInputLabel")
         }
-        type="text"
+        type="number"
         error={
           portfolioId === undefined
             ? ""
@@ -338,6 +338,7 @@ export const BuyModalContent = ({
             ? t("tradingModal.insufficientCashError")
             : ""
         }
+        step="any"
       />
 
       {canToggleTradeType && (

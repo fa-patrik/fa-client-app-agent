@@ -120,6 +120,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                       )
                     : ""
                 }
+                step="any"
               />
               <Input
                 id={!id ? undefined : `${id}-amountInput`}
@@ -161,6 +162,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                       )
                     : ""
                 }
+                step="any"
               />
             </div>
             <p
