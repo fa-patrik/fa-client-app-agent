@@ -1,5 +1,5 @@
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
-import { SecurityTypeDataWithSecurityData } from "api/overview/types";
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
+import { AnalyticsSecurityTypeDataWithSecurityData } from "api/holdings/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/file-excel-regular.svg";
 import { Button } from "components";
 import useExcelDownloader from "hooks/useExcelDownloader";
@@ -7,7 +7,7 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 
 interface HoldingsExcelExportButtonProps {
-  holdingsByType: SecurityTypeDataWithSecurityData[];
+  holdingsByType: AnalyticsSecurityTypeDataWithSecurityData[];
   currencyCode: string | undefined;
 }
 

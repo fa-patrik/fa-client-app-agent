@@ -1,17 +1,15 @@
 import { useMemo } from "react";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { ContactHoldingsFromAnalyticsQuery } from "api/holdings/types";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import {
   SwitchModalContent,
   SwitchModalInitialData,
 } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import {
-  canPortfolioTrade,
-  switchableTag,
-  usePermission,
-} from "services/permissions/usePermission";
+import { useParams } from "react-router-dom";
+import { useCanTradeSecurities } from "services/permissions/trading";
+
 import { useModal } from "../../components/Modal/useModal";
 import {
   BuyModalContent,
@@ -33,21 +31,29 @@ interface ContactHoldingsProps {
 export const Holdings = ({ data }: ContactHoldingsProps) => {
   const { t } = useModifiedTranslation();
   const isLargeScreen = useMatchesBreakpoint("sm");
-  const canTrade = usePermission(undefined, canPortfolioTrade);
-  const canAnyHoldingSwitch = useMemo(() => {
+  const { portfolioId } = useParams();
+  const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
+  const securityIds = useMemo(() => {
     return (
-      data?.contact?.analytics?.contact?.securityTypes?.some((t) =>
-        t?.securities?.some((s) =>
-          s?.security?.tagsAsList?.includes(switchableTag)
-        )
-      ) || false
+      data?.contact.analytics.contact.securityTypes.reduce((prev, curr) => {
+        const ids = curr.securities.reduce((prevS, currS) => {
+          prevS.push(currS.security.id);
+          return prevS;
+        }, [] as number[]);
+        return [...prev, ...ids];
+      }, [] as number[]) || []
     );
-  }, [data?.contact?.analytics?.contact]);
+  }, [data?.contact.analytics.contact.securityTypes]);
+
+  const { canTradeSecurity: canTrade, canSwitchSecurity: canAnyHoldingSwitch } =
+    useCanTradeSecurities(securityIds, portfolioIdAsNr);
+
   const { selectedContactId } = useGetContractIdData();
   const { data: cachedContactData } = useGetContactInfo(
     false,
     selectedContactId
   );
+
   const currencyCode = cachedContactData?.portfoliosCurrency;
 
   const securityTypes = data?.contact?.analytics?.contact?.securityTypes;

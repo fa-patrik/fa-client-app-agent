@@ -1,8 +1,6 @@
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
-import {
-  PortfolioData,
-  SecurityTypeDataWithSecurityData,
-} from "api/overview/types";
+import { useMemo } from "react";
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
+import { PortfolioData } from "api/overview/types";
 import {
   SwitchModalContent,
   SwitchModalInitialData,
@@ -10,11 +8,7 @@ import {
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
-import {
-  canPortfolioTrade,
-  switchableTag,
-  usePermission,
-} from "services/permissions/usePermission";
+import { useCanTradeSecurities } from "services/permissions/trading";
 import HoldingsExcelExportButton from "views/holdings/components/HoldingsExcelExportButton";
 import { useModal } from "../../../components/Modal/useModal";
 import {
@@ -34,11 +28,23 @@ interface PortfolioHoldingsViewProps {
 
 export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
   const isLargeScreen = useMatchesBreakpoint("sm");
-  const canTrade = usePermission(undefined, canPortfolioTrade);
-  const canAnyHoldingSwitch =
-    data?.securityTypes.some((t) =>
-      t.securities.some((s) => s.security.tagsAsList.includes(switchableTag))
-    ) ?? false;
+  const { portfolioId } = useParams();
+  const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
+  const securityIds = useMemo(() => {
+    return (
+      data?.securityTypes.reduce((prev, curr) => {
+        const ids = curr.securities.reduce((prevS, currS) => {
+          prevS.push(currS.security.id);
+          return prevS;
+        }, [] as number[]);
+        return [...prev, ...ids];
+      }, [] as number[]) || []
+    );
+  }, [data?.securityTypes]);
+
+  const { canTradeSecurity: canTrade, canSwitchSecurity: canAnyHoldingSwitch } =
+    useCanTradeSecurities(securityIds, portfolioIdAsNr);
+
   const { t } = useModifiedTranslation();
   const {
     Modal,
@@ -59,8 +65,6 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
     contentProps: switchModalContentProps,
   } = useModal<SwitchModalInitialData>();
 
-  const { portfolioId } = useParams();
-  const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
   const { data: portfolioData } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
   const currencyCode = portfolioData?.currency.securityCode;
@@ -78,7 +82,7 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
             />
           </div>
         )}
-        {data?.securityTypes.map((group: SecurityTypeDataWithSecurityData) => (
+        {data?.securityTypes.map((group) => (
           <HoldingsGroupedByType
             key={group.code}
             currency={currencyCode}

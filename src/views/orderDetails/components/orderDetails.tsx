@@ -1,5 +1,5 @@
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { useDownloadDocument } from "api/documents/useDownloadDocument";
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { TradeOrderDetails } from "api/orders/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/document-download.svg";
 import { Button, Card, CountryFlag } from "components";

@@ -1,13 +1,10 @@
-import { MutableRefObject, useEffect, useMemo, useState } from "react";
+import { MutableRefObject, useMemo, useState } from "react";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { ExecutionMethod, OrderStatus } from "api/enums";
 import { HoldingPosition } from "api/holdings/types";
 import { useGetContactHoldingsFromPfReport } from "api/holdings/useGetContactHoldingsFromPfReport";
 import { useGetPortfolioHoldingsFromPfReport } from "api/holdings/useGetPortfolioHoldingsFromPfReport";
-/* import { useGetSecurityFx } from "api/trading/useGetSecurityFx"; */
-import {
-  TradableSecurity,
-  useGetTradebleSecurities,
-} from "api/trading/useGetTradebleSecurities";
+import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { useSwitch } from "api/trading/useSwitch";
 import { TransactionType } from "api/transactions/enums";
 import { LimitedSwitchOrderDTOInput } from "api/types";
@@ -22,15 +19,20 @@ import {
 import { LabeledDivFlex } from "components/LabeledDiv/LabeledDivFlex";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useUniqueReference } from "hooks/useUniqueReference";
+import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { switchableTag } from "services/permissions/usePermission";
+import {
+  switchableTag,
+  useGetPermittedSecurities,
+} from "services/permissions/trading";
 import { getBackendTranslation } from "utils/backTranslations";
-import { findPortfolioOptionById } from "utils/filtering";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import { round } from "utils/number";
 import { getTradeAmountTooltip } from "utils/trading";
 import { addProtocolToUrl } from "utils/url";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
+import useBuySecuritySelector from "./useBuySecuritySelector";
+import useSellSecuritySelector from "./useSellSecuritySelector";
 
 export interface SwitchModalInitialData {
   sellSecurityId: number;
@@ -42,7 +44,7 @@ interface SwitchModalProps extends SwitchModalInitialData {
   onClose: () => void;
 }
 
-//place holder options
+//place holder empty options
 const defaultSellSecurityOption: Option = {
   id: -2,
   label: "",
@@ -62,39 +64,44 @@ export const SwitchModalContent = ({
   const [submitting, setSubmitting] = useState(false);
   const shareToSell = inputValue ? Number(inputValue) : 0;
 
-  const { data: switchableSecurities, loading: loadingSecurities } =
-    useGetTradebleSecurities(undefined, [switchableTag]);
-
   const {
     setPortfolioId,
     portfolioOptions: tradablePortfolioOptions,
     portfolioId,
   } = useTradablePortfolioSelect();
 
+  const { selectedContactId } = useGetContractIdData();
+  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
+    false,
+    selectedContactId
+  );
+
+  const selectedPortfolio = useMemo(() => {
+    return portfolios.find((p) => p.id === portfolioId);
+  }, [portfolios, portfolioId]);
+
   const {
-    loading: loadingHoldings,
-    data: portfolioHoldings,
-    /* refetch: refetchPortfolioPositions, */
-  } = useGetPortfolioHoldingsFromPfReport(portfolioId);
+    data: portfolioAllowedSwitchableSecurities,
+    loading: loadingSecurities,
+  } = useGetPermittedSecurities({ tags: [switchableTag] }, portfolioId);
+
+  const { loading: loadingHoldings, data: portfolioHoldings } =
+    useGetPortfolioHoldingsFromPfReport(portfolioId);
 
   //poll fresh position data from server every 5min
   //goes on for as long as this component is mounted
   const POLL_INTERVAL = 5 * 60 * 1000;
   useGetContactHoldingsFromPfReport(POLL_INTERVAL);
 
-  const selectedPortfolio = portfolioId
-    ? findPortfolioOptionById(tradablePortfolioOptions, portfolioId)?.details
-    : undefined;
-
   const selectedPortfolioCurrency = selectedPortfolio?.currency.securityCode;
 
   //allows indexing into the specific security quicker
   const switchableSecuritiesMap = useMemo(() => {
-    return switchableSecurities?.reduce((prev, currSec) => {
+    return portfolioAllowedSwitchableSecurities?.reduce((prev, currSec) => {
       prev[currSec.id] = currSec;
       return prev;
     }, {} as Record<number, TradableSecurity>);
-  }, [switchableSecurities]);
+  }, [portfolioAllowedSwitchableSecurities]);
 
   //allows indexing into the specific portfolio holding quicker
   const portfolioHoldingsMap = useMemo(() => {
@@ -106,7 +113,7 @@ export const SwitchModalContent = ({
 
   //'from' securities
   const switchablePositionsAsOptions: Option[] | undefined = useMemo(() => {
-    return switchableSecurities?.reduce((prev, currSec) => {
+    return portfolioAllowedSwitchableSecurities?.reduce((prev, currSec) => {
       const securityId = currSec.id as number | null;
       const holding = securityId
         ? portfolioHoldingsMap?.[securityId]
@@ -127,26 +134,30 @@ export const SwitchModalContent = ({
       return prev;
     }, [] as Option[]);
   }, [
-    switchableSecurities,
+    portfolioAllowedSwitchableSecurities,
     portfolioHoldingsMap,
     i18n.language,
     t,
     selectedPortfolioCurrency,
   ]);
 
-  const [selectedSellSecurityOption, setSelectedSellSecurityOption] = useState<
-    Option | undefined
-  >(() => switchablePositionsAsOptions?.find((s) => s.id === sellSecurityId));
+  const { selectedSellSecurityOption, setSelectedSellSecurityOption } =
+    useSellSecuritySelector(
+      switchablePositionsAsOptions,
+      sellSecurityId,
+      defaultSellSecurityOption
+    );
+
   const selectedSellSecurityId = selectedSellSecurityOption?.id as
     | number
-    | null;
+    | undefined;
   const selectedSellSecurity = selectedSellSecurityId
     ? switchableSecuritiesMap?.[selectedSellSecurityId]
     : undefined;
 
   //'to' securities
   const selectableBuySecuritiesAsOptions: Option[] | undefined = useMemo(() => {
-    return switchableSecurities
+    return portfolioAllowedSwitchableSecurities
       ?.filter(
         (s) =>
           !switchablePositionsAsOptions?.length || //no switchable positions --> allow all possible buy securities
@@ -164,11 +175,16 @@ export const SwitchModalContent = ({
     i18n.language,
     selectedSellSecurityId,
     switchablePositionsAsOptions?.length,
-    switchableSecurities,
+    portfolioAllowedSwitchableSecurities,
   ]);
 
-  const [selectedBuySecurityOption, setSelectedToSecurityOption] =
-    useState<Option>(defaultBuySecurityOption);
+  const { selectedBuySecurityOption, setSelectedBuySecurityOption } =
+    useBuySecuritySelector(
+      selectedSellSecurityId,
+      selectableBuySecuritiesAsOptions,
+      defaultBuySecurityOption
+    );
+
   const selectedBuySecurityId = selectedBuySecurityOption?.id as number | null;
 
   const selectedBuySecurity = selectedBuySecurityId
@@ -206,115 +222,50 @@ export const SwitchModalContent = ({
         )
       : undefined;
 
-  //get fx rate security to buy --> portfolio currency
-  /* const { data: buySecurityFxData, loading: loadingSecurityFx } =
-    useGetSecurityFx(
-      selectedBuySecurity?.currency.securityCode,
-      portfolioCurrency
-    ); */
+  const loading = loadingHoldings || loadingSecurities;
 
-  /* const buySecurityToPortfolioFx = buySecurityFxData?.[0]?.fxRate; */
-
-  /* const buySecurityMinTradeAmountInPfCurrency =
-    buySecurityToPortfolioFx &&
-    selectedBuySecurity?.minTradeAmount &&
-    selectedBuySecurity?.minTradeAmount * buySecurityToPortfolioFx; */
-
-  /* //there is no min trade amount or the sell trade amount is larger
-  const isBuyMinTradeAmountSatisfied =
-    !selectedBuySecurity?.minTradeAmount ||
-    (approximateSellTradeAmountInPfCurrency || 0) >=
-      (buySecurityMinTradeAmountInPfCurrency || 0); */
-
-  //validate and update the sell security
-  useEffect(() => {
-    //set the security that the modal launched with if no selected security
-    if (switchablePositionsAsOptions?.length && !selectedSellSecurityOption) {
-      setSelectedSellSecurityOption(
-        switchablePositionsAsOptions.find((o) => o.id === sellSecurityId) ||
-          defaultSellSecurityOption
-      );
-      //the currently selected security is not part of portfolio holdings
-    } else if (
-      selectedSellSecurityOption?.id &&
-      portfolioHoldingsMap &&
-      !(selectedSellSecurityOption?.id in portfolioHoldingsMap)
-    ) {
-      //empty the selector
-      setSelectedSellSecurityOption(defaultSellSecurityOption);
-    } else if (
-      //refresh the already selected security
-      selectedSellSecurityOption?.id &&
-      portfolioHoldingsMap &&
-      selectedSellSecurityOption?.id in portfolioHoldingsMap
-    ) {
-      //set an updated option since the currently selected one might include
-      //the prev selected portfolio's market value
-      const updatedOption = switchablePositionsAsOptions?.find(
-        (o) => o.id === selectedSellSecurityOption?.id
-      );
-      setSelectedSellSecurityOption(updatedOption || defaultSellSecurityOption);
-    }
-  }, [
-    switchablePositionsAsOptions,
-    portfolioHoldingsMap,
-    selectedSellSecurityOption,
-    sellSecurityId,
-  ]);
-
-  //validate and update the to security
-  useEffect(() => {
-    if (selectedSellSecurityId === selectedBuySecurityOption?.id) {
-      //if the selected buy is one of the portfolio's positions --> default the selector
-      setSelectedToSecurityOption(defaultBuySecurityOption);
-    }
-  }, [selectedBuySecurityOption?.id, selectedSellSecurityId]);
-
-  //const loadingRefetchOfHoldings = networkStatus === 4;
-
-  const loading =
-    loadingHoldings || loadingSecurities; /* || loadingSecurityFx */
-
-  const portfolioSelectError =
+  const noSwitchablePositions =
     !loading && !switchablePositionsAsOptions?.length;
 
-  const sellPositionSelectError =
+  const noSelectedPortfolio = !loading && !selectedPortfolio;
+
+  const noSelectedSell =
     !loading && switchablePositionsAsOptions?.length && !selectedSellSecurity
       ? true
       : false;
 
-  const noBuySecuritiesError =
-    !loading && !selectableBuySecuritiesAsOptions?.length;
+  const noBuySecurities = !loading && !selectableBuySecuritiesAsOptions?.length;
 
-  const noBuySecuritySelectedError =
-    !loading && selectableBuySecuritiesAsOptions?.length && !selectedBuySecurity
+  const noSecuritySelected =
+    switchablePositionsAsOptions?.length &&
+    !loading &&
+    selectableBuySecuritiesAsOptions?.length &&
+    !selectedBuySecurity
       ? true
       : false;
-
-  const buySecuritySelectError =
-    noBuySecuritiesError || noBuySecuritySelectedError;
 
   const inputShareError =
     shareToSell > 100 || shareToSell < 0 || shareToSell === 0 ? " " : "";
 
   const inputShareErrorBool = inputShareError.length > 0;
 
-  /* const minTradeAmountError = !loading && !isBuyMinTradeAmountSatisfied; */
-  const tradeAmountError = !loading && !approximateSellTradeAmountInPfCurrency;
-  const unitsToSellError = !loading && !unitsToSell;
+  const invalidTradeAmount =
+    !loading && !approximateSellTradeAmountInPfCurrency;
+  const invalidUnits = !loading && !unitsToSell;
 
   //disable the confirm button when...
   const disableConfirm = () => {
     return impersonating ||
       loading ||
       submitting ||
-      portfolioSelectError ||
-      sellPositionSelectError ||
-      buySecuritySelectError ||
+      noSelectedPortfolio ||
+      noSwitchablePositions ||
+      noSelectedSell ||
+      noBuySecurities ||
+      noSecuritySelected ||
       inputShareErrorBool ||
-      /* minTradeAmountError || */
-      tradeAmountError ||
-      unitsToSellError
+      invalidTradeAmount ||
+      invalidUnits
       ? true
       : false;
   };
@@ -331,8 +282,7 @@ export const SwitchModalContent = ({
         )
       : undefined;
 
-  const getUniqueReference = useUniqueReference();
-  const reference = getUniqueReference();
+  const reference = useUniqueReference()?.();
 
   const switchOrder: LimitedSwitchOrderDTOInput = {
     sell: {
@@ -357,11 +307,13 @@ export const SwitchModalContent = ({
   const { handleCreateSwitch } = useSwitch(switchOrder);
 
   return (
-    <div className="flex flex-col gap-y-2 min-w-[min(84vw,_375px)]">
+    <div className="flex flex-col gap-y-2 max-w-sm">
       <PortfolioSelect
         id="switchOrderModal-portfolioSelect"
         error={
-          portfolioSelectError
+          noSelectedPortfolio
+            ? t("switchOrderModal.noPortfolioSelectedError")
+            : noSwitchablePositions
             ? t("switchOrderModal.noSwitchableHoldingsError")
             : ""
         }
@@ -373,16 +325,13 @@ export const SwitchModalContent = ({
 
       <ComboBox
         loading={!submitting && (loadingSecurities || loadingHoldings)}
-        error={
-          sellPositionSelectError
-            ? t("switchOrderModal.selectSecurityError")
-            : ""
-        }
+        error={noSelectedSell ? t("switchOrderModal.selectSecurityError") : ""}
         id="switchOrderModal-sellSecuritySelect"
         label={t("switchOrderModal.fromSecuritySelectorLabel")}
         value={selectedSellSecurityOption}
         onChange={setSelectedSellSecurityOption}
         options={switchablePositionsAsOptions}
+        disabled={noSelectedPortfolio}
       />
 
       <div className="max-w-[100px]">
@@ -410,17 +359,18 @@ export const SwitchModalContent = ({
         <ComboBox
           loading={loadingSecurities}
           error={
-            noBuySecuritiesError
+            noBuySecurities
               ? t("switchOrderModal.noSwitchableSecuritiesInSystemError")
-              : noBuySecuritySelectedError
+              : noSecuritySelected
               ? t("switchOrderModal.selectSecurityError")
               : ""
           }
           id="switchOrderModal-buySecuritySelect"
           label={t("switchOrderModal.toSecuritySelectorLabel")}
           value={selectedBuySecurityOption}
-          onChange={setSelectedToSecurityOption}
+          onChange={setSelectedBuySecurityOption}
           options={selectableBuySecuritiesAsOptions}
+          disabled={noSelectedPortfolio}
         />
 
         {selectedBuySecurity && (
@@ -436,17 +386,6 @@ export const SwitchModalContent = ({
                 </div>
               </>
             )}
-            {/*  {selectedBuySecurity.minTradeAmount > 0 && (
-              <div className="text-gray-700 w-fit">
-                <span>{t("switchOrderModal.minTradeAmount")} </span>
-                <span id="switchOrderModal-minTradeAmount">
-                  {t("numberWithCurrency", {
-                    value: selectedBuySecurity?.minTradeAmount,
-                    currency: selectedBuySecurity?.currency.securityCode,
-                  })}
-                </span>
-              </div>
-            )} */}
           </div>
         )}
       </div>
@@ -457,26 +396,19 @@ export const SwitchModalContent = ({
             <LoadingIndicator size="md" center />
           ) : (
             <LabeledDivFlex
-              /*  error={
-                minTradeAmountError
-                  ? t("switchOrderModal.minTradeAmountError", {
-                      minTradeAmount: t("numberWithCurrency", {
-                        value: buySecurityMinTradeAmountInPfCurrency,
-                        currency: portfolioCurrency,
-                      }),
-                    })
-                  : ""
-              } */
               alignText="center"
               tooltipContent={tradeAmountTooltip}
               id="switchOrderModal-tradeAmount"
               label={t("switchOrderModal.approximateTradeAmount")}
               className="text-2xl font-semibold"
             >
-              {t("numberWithCurrency", {
-                value: approximateSellTradeAmountInPfCurrency || 0,
-                currency: selectedPortfolioCurrency,
-              })}
+              {approximateSellTradeAmountInPfCurrency &&
+              selectedPortfolioCurrency
+                ? t("numberWithCurrency", {
+                    value: approximateSellTradeAmountInPfCurrency,
+                    currency: selectedPortfolioCurrency,
+                  })
+                : "-"}
             </LabeledDivFlex>
           )}
         </div>
@@ -486,10 +418,6 @@ export const SwitchModalContent = ({
         onClick={async () => {
           setSubmitting(true);
           await handleCreateSwitch();
-          //update portfolio position figures after new orders
-          //nice thing to have in the future when
-          //the api returns the updated tradable units
-          //await refetchPortfolioPositions();
           onClose();
         }}
         disabled={submitting || disableConfirm()}

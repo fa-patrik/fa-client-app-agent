@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Portfolio, useGetContactInfo } from "api/initial/useGetContactInfo";
+import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
 
 export const getSubPortfolioIds = (portfolio: Portfolio | undefined) => {
   if (!portfolio) return [];

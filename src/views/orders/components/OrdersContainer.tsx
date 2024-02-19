@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApolloClient } from "@apollo/client";
-import { PORTFOLIO_QUERY } from "api/generic/useGetPortfolioBasicFieldsById";
+import { PORTFOLIO_QUERY } from "api/common/useGetPortfolioBasicFieldsById";
 import { TradeOrder } from "api/orders/types";
 import { useModal } from "components/Modal/useModal";
 import {

@@ -1,4 +1,4 @@
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { Badge } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -17,7 +17,7 @@ export const TransactionsListWithOneLineRow = ({
 }: TransactionsListProps) => {
   const { portfolioId } = useParams();
   const showPortfolioLabel = !portfolioId;
-  
+
   const { t } = useModifiedTranslation();
   const navigate = useNavigateToDetails(type);
 

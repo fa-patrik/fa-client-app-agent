@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
-import { SecurityData } from "api/overview/types";
+import { AnalyticsSecurityData } from "api/holdings/types";
 import { Card, GainLoseColoring } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate } from "react-router";
 
 interface ListedSecuritiesCardProps {
-  securities: SecurityData[];
+  securities: AnalyticsSecurityData[];
   label: ReactNode;
   currency: string | undefined;
 }

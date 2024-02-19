@@ -1,5 +1,5 @@
 import { MutableRefObject, useState } from "react";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { useDeposit } from "api/money/useDeposit";
 import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";

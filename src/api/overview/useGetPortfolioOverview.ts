@@ -1,11 +1,11 @@
 import { gql, useLazyQuery } from "@apollo/client";
-import { useGetSubPortfolioIds } from "api/generic/useGetSubPortfolioIds";
-import { getFetchPolicyOptions } from "api/utils";
-import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useGetSubPortfolioIds } from "api/common/useGetSubPortfolioIds";
 import {
   SECURITY_DATA_FRAGMENT,
   SECURITY_TYPE_WITH_SECURITIES_FRAGMENT,
-} from "./fragments";
+} from "api/holdings/fragments";
+import { getFetchPolicyOptions } from "api/utils";
+import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PortfolioOverviewQuery } from "./types";
 
 /**

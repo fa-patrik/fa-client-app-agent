@@ -127,3 +127,12 @@ export interface LimitedSwitchOrderResponseDTO {
    */
   sell: LimitedTradeOrderDTO;
 }
+
+/**
+ * A group assigned to a security.
+ */
+export interface SecurityGroup {
+  id: number;
+  code: string;
+  name: string;
+}

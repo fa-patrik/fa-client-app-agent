@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { usePortfolioSelect } from "hooks/usePortfolioSelect";
-import { filterPortfolioOptionsByFunction } from "utils/filtering";
+import { filterPortfolioOptionsByFunction } from "utils/options";
 
 export const useFilteredPortfolioSelect = (
   filterFunction: (PortfolioOption: PortfolioOption) => boolean

@@ -1,5 +1,7 @@
-import { SecurityDetailsPosition } from "api/holdings/types";
-import { SecurityData } from "api/overview/types";
+import {
+  AnalyticsSecurityData,
+  SecurityDetailsPosition,
+} from "api/holdings/types";
 import { ReactComponent as MinusCircle } from "assets/minus-circle.svg";
 import { ReactComponent as PlusCircle } from "assets/plus-circle.svg";
 import { ReactComponent as SwitchHorizontalOutlinedIcon } from "assets/switch-horizontal-outlined.svg";
@@ -19,13 +21,11 @@ import {
 } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-  canPortfolioTrade,
-  usePermission,
-  tradableTag,
-  switchableTag,
-} from "services/permissions/usePermission";
+  isSecuritySwitchable,
+  useCanTradeSecurity,
+} from "services/permissions/trading";
 import { getNameFromBackendTranslations } from "utils/transactions";
 import { addProtocolToUrl } from "utils/url";
 import { DataRow } from "./components/DataRow";
@@ -37,7 +37,7 @@ import { PerformanceRows } from "./components/PerformanceRows";
 
 interface HoldingDetailsProps {
   data: {
-    holding?: SecurityData;
+    holding?: AnalyticsSecurityData;
     security: SecurityDetailsPosition;
   };
 }
@@ -58,9 +58,12 @@ export const HoldingDetails = ({
   } = security;
   const navigate = useNavigate();
   const { i18n, t } = useModifiedTranslation();
-
-  const canTrade = usePermission(undefined, canPortfolioTrade);
-  const isTradable = tagsAsSet.includes(tradableTag);
+  const { portfolioId } = useParams();
+  const portfolioIdNumber = portfolioId ? parseInt(portfolioId, 10) : undefined;
+  const { canTradeSecurity } = useCanTradeSecurity(
+    security.id,
+    portfolioIdNumber
+  );
 
   const {
     Modal,
@@ -82,8 +85,7 @@ export const HoldingDetails = ({
   } = useModal<SwitchModalInitialData>();
 
   const userInvestedInThisHolding = holding != null;
-
-  const canSwitch = tagsAsSet.includes(switchableTag);
+  const canSwitch = isSecuritySwitchable(tagsAsSet);
 
   return (
     <div className="flex overflow-hidden flex-col h-full">
@@ -150,7 +152,7 @@ export const HoldingDetails = ({
                   ))}
                 </div>
               </Card>
-              {isTradable && canTrade && (
+              {canTradeSecurity && (
                 <>
                   <div className="grid grid-flow-col gap-2">
                     <Button

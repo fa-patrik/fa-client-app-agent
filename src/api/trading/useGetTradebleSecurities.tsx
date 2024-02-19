@@ -1,11 +1,12 @@
 import { useReducer, useState } from "react";
 import { ApolloError, gql, OperationVariables, useQuery } from "@apollo/client";
 import { useApolloClient } from "@apollo/client";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
+import { SecurityGroup } from "api/types";
 import { Option } from "components/Select/Select";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import { tradableTag } from "services/permissions/usePermission";
+import { tradableTag } from "services/permissions/trading";
 import { getBackendTranslation } from "utils/backTranslations";
 import { SecurityTypeCode } from "../holdings/types";
 import { getFetchPolicyOptions } from "../utils";
@@ -54,11 +55,17 @@ const TRADABLE_SECURITIES_QUERY = gql`
         id
         securityCode
       }
+      groups {
+        id
+        code
+        name
+      }
       managementFee
       managementFeePercentage
       minTradeAmount
       fxRate(quoteCurrency: $currency)
       amountDecimalCount
+      tagsAsSet
     }
   }
 `;
@@ -103,6 +110,8 @@ export interface TradableSecurity {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
   amountDecimalCount: number;
+  groups: SecurityGroup[];
+  tagsAsSet: string[];
 }
 
 export interface TradableSecuritiesQuery {
@@ -141,6 +150,11 @@ const initialFilters = {
 const filterOptionsInitial = {
   country: [emptyOption],
   type: [emptyOption],
+};
+
+export type GetTradableSecuritiesProps = {
+  currencyCode?: string;
+  tags?: string[];
 };
 
 export const useGetTradebleSecurities = (

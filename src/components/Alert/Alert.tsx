@@ -1,12 +1,13 @@
+import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import {
-  faCircleInfo,
-  faCircleCheck,
-  faCircleExclamation,
-  faTriangleExclamation,
-  IconDefinition,
+  faInfoCircle,
+  faCheckCircle,
+  faExclamationCircle,
+  faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
+import Icon from "components/Icon/Icon";
+
 type Severity = "Error" | "Success" | "Warning" | "Info";
 
 export interface AlertProps {
@@ -17,35 +18,25 @@ export interface AlertProps {
   icon?: IconDefinition;
 }
 
-const Icon = ({
-  severity,
-  icon,
-}: {
-  severity: string;
-  icon?: IconDefinition;
-}) => (
-  <FontAwesomeIcon
-    className={classNames("text-md", {
-      "text-primary-800": severity === "Info",
-      "text-green-600": severity === "Success",
-      "text-red-800": severity === "Error",
-      "text-amber-500": severity === "Warning",
-    })}
-    icon={
-      icon
-        ? icon
-        : severity === "Info"
-        ? faCircleInfo
-        : severity === "Success"
-        ? faCircleCheck
-        : severity === "Error"
-        ? faCircleExclamation
-        : faTriangleExclamation
-    }
-  />
-);
+const Alert = ({ severity, title, content, id, icon }: AlertProps) => {
+  let defaultIcon: IconDefinition;
 
-const Alert = ({ severity, icon, title, content, id }: AlertProps) => {
+  switch (severity) {
+    case "Error":
+      defaultIcon = faExclamationCircle;
+      break;
+    case "Success":
+      defaultIcon = faCheckCircle;
+      break;
+    case "Warning":
+      defaultIcon = faExclamationTriangle;
+      break;
+    case "Info":
+    default:
+      defaultIcon = faInfoCircle;
+      break;
+  }
+
   return (
     <div
       id={id}
@@ -60,7 +51,8 @@ const Alert = ({ severity, icon, title, content, id }: AlertProps) => {
       )}
     >
       <div className="flex flex-row gap-x-2 items-start">
-        {<Icon severity={severity} icon={icon} />}
+        <Icon severity={severity} icon={icon ?? defaultIcon} />{" "}
+        {/* use the Icon component */}
         <p
           className={classNames("text-xs font-semibold", {
             "text-primary-800": severity === "Info",
@@ -85,4 +77,5 @@ const Alert = ({ severity, icon, title, content, id }: AlertProps) => {
     </div>
   );
 };
+
 export default Alert;

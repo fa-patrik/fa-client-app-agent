@@ -1,18 +1,18 @@
 import { useMemo } from "react";
-import { SecurityTypeCode } from "api/holdings/types";
 import {
-  SecurityData,
-  SecurityTypeDataWithSecurityData,
-} from "api/overview/types";
+  AnalyticsSecurityData,
+  AnalyticsSecurityTypeDataWithSecurityData,
+  SecurityTypeCode,
+} from "api/holdings/types";
 
 export const useSecuritiesSummary = (
-  securityTypes: SecurityTypeDataWithSecurityData[] | undefined
+  securityTypes: AnalyticsSecurityTypeDataWithSecurityData[] | undefined
 ) => {
   const securities = securityTypes?.reduce((prev, currSecurityTypeData) => {
     if (currSecurityTypeData.code !== SecurityTypeCode.CURRENCY)
       prev.push(...currSecurityTypeData.securities);
     return prev;
-  }, [] as SecurityData[]);
+  }, [] as AnalyticsSecurityData[]);
   const topSecurities = useMemo(() => {
     return getTopSecurities(securities);
   }, [securities]);
@@ -24,7 +24,7 @@ export const useSecuritiesSummary = (
   return { topSecurities, worstSecurities };
 };
 
-const getTopSecurities = (positions: SecurityData[] | undefined) => {
+const getTopSecurities = (positions: AnalyticsSecurityData[] | undefined) => {
   if (!positions?.length) return [];
   return [...positions]
     .sort(function (a, b) {
@@ -39,7 +39,7 @@ const getTopSecurities = (positions: SecurityData[] | undefined) => {
     .slice(0, 3);
 };
 
-const getWorstSecurities = (positions: SecurityData[] | undefined) => {
+const getWorstSecurities = (positions: AnalyticsSecurityData[] | undefined) => {
   if (!positions?.length) return [];
   return [...positions]
     .sort(function (a, b) {

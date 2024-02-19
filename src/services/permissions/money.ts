@@ -1,14 +1,11 @@
-import { Portfolio, useGetContactInfo } from "api/initial/useGetContactInfo";
+import { Portfolio, PortfolioGroups } from "api/common/useGetContactInfo";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
-import { useGetContractIdData } from "providers/ContractIdProvider";
+import { isPortfolioInGroup, isPortfolioOptionInGroup } from "./common";
+import { PermissionMode, usePermission } from "./usePermission";
 
-export const DepositPermissionGroup = "CP_DEPOSIT" as const;
-export const WithdrawalPermissionGroup = "CP_WITHDRAWAL" as const;
-
-export const isPortfolioDepositable = (portfolio: Portfolio) =>
-  portfolio.portfolioGroups.some(
-    (group) => group.code === DepositPermissionGroup
-  );
+export const isPortfolioDepositable = (portfolio: Portfolio) => {
+  return isPortfolioInGroup(portfolio, PortfolioGroups.DEPOSIT);
+};
 
 export const isPortfolioOptionDepositable = (
   portfolioOption: PortfolioOption
@@ -20,30 +17,18 @@ export const isPortfolioOptionDepositable = (
 };
 
 export const useCanDeposit = () => {
-  const { selectedContactId } = useGetContractIdData();
-  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
-    false,
-    selectedContactId
-  );
-  return portfolios.some(isPortfolioDepositable);
+  return usePermission(PermissionMode.ANY, isPortfolioDepositable);
 };
 
 export const isPortfolioWithdrawable = (portfolio: Portfolio) =>
-  portfolio.portfolioGroups.some(
-    (group) => group.code === WithdrawalPermissionGroup
-  );
+  isPortfolioInGroup(portfolio, PortfolioGroups.WITHDRAW);
 
 export const isPortfolioOptionWithdrawable = (
   portfolioOption: PortfolioOption
 ) => {
-  const isWithdrawable =
-    portfolioOption.details && isPortfolioWithdrawable(portfolioOption.details);
-  if (isWithdrawable) return true;
-  return false;
+  return isPortfolioOptionInGroup(portfolioOption, PortfolioGroups.WITHDRAW);
 };
 
 export const useCanWithdraw = () => {
-  const { selectedContactId } = useGetContractIdData();
-  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(false, selectedContactId);
-  return portfolios.some(isPortfolioWithdrawable);
+  return usePermission(PermissionMode.ANY, isPortfolioWithdrawable);
 };

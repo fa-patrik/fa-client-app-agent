@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   useGetPortfolioBasicFieldsById,
   useGetPortfolioBasicFieldsByIdLazy,
-} from "api/generic/useGetPortfolioBasicFieldsById";
+} from "api/common/useGetPortfolioBasicFieldsById";
 import { Transaction } from "api/transactions/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/file-excel-regular.svg";
 import { Button } from "components";

@@ -1,5 +1,5 @@
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { SecurityTypeCode } from "api/holdings/types";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { ContactOverviewQuery } from "api/overview/types";
 import { useGetContactCashFromPfReport } from "api/overview/useGetContactCashFromPfReport";
 import { useGetContactOverview } from "api/overview/useGetContactOverview";

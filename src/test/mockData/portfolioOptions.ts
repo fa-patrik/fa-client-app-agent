@@ -1,4 +1,4 @@
-import { Portfolio } from "api/initial/useGetContactInfo";
+import { Portfolio } from "api/common/useGetContactInfo";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
 export const portfolioOptionsMock = [

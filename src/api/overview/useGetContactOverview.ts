@@ -1,12 +1,12 @@
 import { gql, useQuery } from "@apollo/client";
+import {
+  SECURITY_DATA_FRAGMENT,
+  SECURITY_TYPE_WITH_SECURITIES_FRAGMENT,
+} from "api/holdings/fragments";
 import { getFetchPolicyOptions } from "api/utils";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import {
-  PORTFOLIO_DATA_FRAGMENT,
-  SECURITY_DATA_FRAGMENT,
-  SECURITY_TYPE_WITH_SECURITIES_FRAGMENT,
-} from "./fragments";
+import { PORTFOLIO_DATA_FRAGMENT } from "./fragments";
 import { ContactOverviewQuery } from "./types";
 
 /**

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
+import { SecurityGroup } from "api/types";
 import { fallbackLanguage } from "i18n";
 import { useKeycloak } from "providers/KeycloakProvider";
 
@@ -18,6 +19,11 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
       id
       code
     }
+    securityGroups {
+      id
+      code
+      name
+    }
     parentPortfolios {
       id
     }
@@ -34,11 +40,15 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
         id
         code
       }
+      securityGroups {
+        id
+        code
+        name
+      }
     }
   }
 `;
 
-//maximum of 2 sub portfolio depth
 export const CONTACT_INFO_QUERY = gql`
   ${PORTFOLIO_BASIC_FIELDS}
   query GetContactInfo($contactId: Long) {
@@ -124,6 +134,7 @@ export interface Portfolio {
     amountDecimalCount: number;
   };
   portfolioGroups: PortfolioGroup[];
+  securityGroups: SecurityGroup[];
 }
 
 export interface ContactInfoQuery {

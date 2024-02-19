@@ -1,5 +1,5 @@
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { useDownloadDocument } from "api/documents/useDownloadDocument";
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { useDownloadReport } from "api/report/useDownloadReport";
 import { TransactionDetails as TransactionDetailsType } from "api/transactions/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/document-download.svg";

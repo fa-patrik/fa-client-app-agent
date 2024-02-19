@@ -1,7 +1,8 @@
 import { MutableRefObject, useEffect, useMemo, useState } from "react";
+import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
 import { ExecutionMethod } from "api/enums";
 import { SecurityTypeCode } from "api/holdings/types";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { useGetSecurityFx } from "api/trading/useGetSecurityFx";
 import { useGetSellData } from "api/trading/useGetSellData";
 import { useTrade } from "api/trading/useTrade";
 import {
@@ -10,7 +11,6 @@ import {
   Button,
   Input,
   LabeledDiv,
-  LoadingIndicator,
 } from "components/index";
 import { LabeledDivFlex } from "components/LabeledDiv/LabeledDivFlex";
 import Toggle from "components/Toggle/Toggle";
@@ -27,6 +27,7 @@ import {
 } from "utils/trading";
 import { addProtocolToUrl } from "utils/url";
 import { useGetSecurityDetails } from "../../../api/holdings/useGetSecurityDetails";
+import PortfolioLock from "../PortfolioLock";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 import { useGetSellTradeType } from "./useGetSellTradeType";
 
@@ -81,12 +82,23 @@ export const SellModalContent = ({
   const inputAsNr = input ? parseFloat(input) : 0;
 
   const { t, i18n } = useModifiedTranslation();
+
+  const { data: security, loading: loadingSecurity } = useGetSecurityDetails(
+    securityId.toString()
+  );
+
   const { selectedContactId } = useGetContractIdData();
   const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
     false,
     selectedContactId
   );
-  const { portfolioId, setPortfolioId, portfolioOptions } =
+
+  const {
+    setPortfolioId,
+    portfolioOptions: portfolioOptionsThatCantTradeTheSecurity,
+    portfolioId,
+  } = useTradablePortfolioSelect(security?.groups);
+  const { portfolioOptions: portfolioOptionsThatCanTrade } =
     useTradablePortfolioSelect();
 
   const selectedPortfolioId = portfolioId;
@@ -98,10 +110,12 @@ export const SellModalContent = ({
 
   const portfolioCurrency = selectedPortfolio?.currency.securityCode;
 
-  const { data: security, loading: loadingSecurity } = useGetSecurityDetails(
-    securityId.toString(),
+  const { data: securityFxData, loading: securityFxLoading } = useGetSecurityFx(
+    security?.securityCode,
     portfolioCurrency
   );
+
+  const securityFx = securityFxData?.[0].fxRate || 1;
 
   const { loading: loadingPfReport, data: sellData } = useGetSellData(
     selectedPortfolioId,
@@ -145,7 +159,7 @@ export const SellModalContent = ({
   const percentagDecimalCount = FALLBACK_DECIMAL_COUNT;
 
   const securityCurrency = security?.currency.securityCode;
-  const securityToPortfolioFxRate = security?.fxRate || 1;
+  const securityToPortfolioFxRate = securityFx || 1;
   const securityPrice = security?.latestMarketData?.price;
   const securityPriceInPfCurrency =
     securityPrice !== undefined
@@ -214,9 +228,7 @@ export const SellModalContent = ({
 
   const { handleTrade: handleSell } = useTrade({
     tradeType: getTradeType(security?.type.code),
-    portfolio:
-      portfolios.find((portfolio) => portfolio.id === portfolioId) ||
-      portfolios[0],
+    portfolio: selectedPortfolio ?? ({} as Portfolio),
     securityName,
     units: isTradeInUnits ? unitsToSell : undefined,
     tradeAmount: !isTradeInUnits
@@ -232,7 +244,7 @@ export const SellModalContent = ({
 
   const { readonly } = useKeycloak();
 
-  const loading = loadingPfReport && loadingSecurity;
+  const loading = loadingPfReport && loadingSecurity && securityFxLoading;
 
   const tradeAmountTooltip =
     unitsToSell !== undefined &&
@@ -270,7 +282,7 @@ export const SellModalContent = ({
       ? getBlockSizeErrorTooltip(
           blockSizeMinTradeAmountInPfCurrency,
           security,
-          security.fxRate,
+          securityFx,
           portfolioCurrency,
           i18n.language,
           t,
@@ -313,17 +325,18 @@ export const SellModalContent = ({
     );
   };
 
+  const areSomePortfoliosProhibitedToTradeTheSecurity =
+    portfolioOptionsThatCanTrade?.length !==
+    portfolioOptionsThatCantTradeTheSecurity?.length;
+
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
-      {!loadingSecurity && securityName && (
-        <LabeledDiv
-          label={t("tradingModal.securityName")}
-          className="text-2xl font-semibold"
-        >
-          {securityName ?? "-"}
-        </LabeledDiv>
-      )}
-      {loadingSecurity && <LoadingIndicator size="sm" />}
+      <LabeledDiv
+        label={t("tradingModal.securityName")}
+        className="text-2xl font-semibold"
+      >
+        {securityName ?? "-"}
+      </LabeledDiv>
 
       {security?.url2 && (
         <div className="w-fit">
@@ -333,27 +346,28 @@ export const SellModalContent = ({
           />
         </div>
       )}
+
       <div className="z-10">
         <PortfolioSelect
-          portfolioOptions={portfolioOptions}
+          portfolioOptions={portfolioOptionsThatCantTradeTheSecurity}
           portfolioId={portfolioId}
           onChange={(newPortfolio) => setPortfolioId(newPortfolio.id)}
           label={t("tradingModal.portfolio")}
           error={!portfolioId ? t("tradingModal.selectPortfolioError") : ""}
         />
       </div>
-      {!loadingPfReport && isTradeInUnits && (
+      {areSomePortfoliosProhibitedToTradeTheSecurity && <PortfolioLock />}
+
+      {isTradeInUnits && (
         <LabeledDiv
           label={t("tradingModal.currentUnits")}
           className="text-xl font-semibold text-gray-700"
         >
-          {portfolioCurrency !== undefined && units !== undefined
-            ? t("number", { value: units })
-            : "0"}
+          {units !== undefined ? t("number", { value: units }) : "0"}
         </LabeledDiv>
       )}
 
-      {!loadingPfReport && !isTradeInUnits && (
+      {!isTradeInUnits && (
         <LabeledDiv
           label={t("tradingModal.currentMarketValue")}
           className="text-xl font-semibold text-gray-700"
@@ -366,7 +380,7 @@ export const SellModalContent = ({
             : "0"}
         </LabeledDiv>
       )}
-      {loadingPfReport && <LoadingIndicator size="sm" />}
+
       <Input
         disabled={!portfolioId}
         ref={modalInitialFocusRef}
@@ -391,7 +405,9 @@ export const SellModalContent = ({
         }
         type="number"
         error={
-          !input || inputAsNr === 0
+          portfolioId === undefined
+            ? ""
+            : !input || inputAsNr === 0
             ? " "
             : insufficientFunds && isTradeInUnits
             ? t("tradingModal.insufficientUnitsError")
@@ -499,29 +515,35 @@ export const SellModalContent = ({
           <LabeledDivFlex
             alignText="center"
             tooltipContent={tradeAmountTooltip || blockSizeTradeAmountError}
-            id="sellOrderModal-tradeAmount"
+            id="sellOrderModal-tradeAmountInPfCurrency"
             label={t("tradingModal.approximateTradeAmount")}
             className="text-2xl font-semibold"
           >
-            {t("numberWithCurrency", {
-              value: estimatedTradeAmountInPfCurrency || 0,
-              currency: portfolioCurrency,
-            })}
+            {estimatedTradeAmountInPfCurrency !== undefined &&
+            portfolioCurrency !== undefined
+              ? t("numberWithCurrency", {
+                  value: estimatedTradeAmountInPfCurrency,
+                  currency: portfolioCurrency,
+                })
+              : "-"}
           </LabeledDivFlex>
           {securityCurrency &&
             portfolioCurrency &&
             portfolioCurrency !== securityCurrency && (
               <LabeledDivFlex
                 alignText="center"
-                id="buyOrderModal-tradeAmount"
+                id="sellOrderModal-tradeAmountInSecurityCurrency"
                 label={""}
                 className="text-md"
               >
                 (
-                {t("numberWithCurrency", {
-                  value: estimatedTradeAmountInSecurityCurrency || 0,
-                  currency: securityCurrency,
-                })}
+                {estimatedTradeAmountInSecurityCurrency !== undefined &&
+                securityCurrency !== undefined
+                  ? t("numberWithCurrency", {
+                      value: estimatedTradeAmountInSecurityCurrency,
+                      currency: securityCurrency,
+                    })
+                  : "-"}
                 )
               </LabeledDivFlex>
             )}

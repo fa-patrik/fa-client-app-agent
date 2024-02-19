@@ -4,11 +4,12 @@ import { Button, GainLoseColoring, Grid } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate } from "react-router";
-import { getGridColsClass } from "utils/tailwindClasses";
+import { useParams } from "react-router-dom";
 import {
-  switchableTag,
-  tradableTag,
-} from "../../../services/permissions/usePermission";
+  isSecuritySwitchable,
+  useCanTradeSecurity,
+} from "services/permissions/trading";
+import { getGridColsClass } from "utils/tailwindClasses";
 import { GroupedHoldings, HoldingProps } from "./HoldingsGroupedByType";
 import { NameWithFlag } from "./NameWithFlag";
 
@@ -18,7 +19,7 @@ export const HoldingsListWithOneLineRow = ({
   currency,
   tradeProps,
 }: GroupedHoldings) => {
-  const { canTrade, canAnyHoldingSwitch } = tradeProps;
+  const { canAnyHoldingSwitch, canTrade } = tradeProps;
   const { t } = useModifiedTranslation();
   const navigate = useNavigate();
 
@@ -83,7 +84,7 @@ const HoldingLg = ({
   currency,
   tradeProps,
 }: HoldingProps) => {
-  const { isinCode, countryCode, tagsAsList } = security;
+  const { isinCode, countryCode } = security;
   const {
     canTrade,
     onBuyModalOpen,
@@ -91,14 +92,18 @@ const HoldingLg = ({
     onSwitchModalOpen,
     canAnyHoldingSwitch,
   } = tradeProps;
-  const isTradable = tagsAsList.includes(tradableTag);
   const { t } = useModifiedTranslation();
   //no isin comes back as " "
   const codeToDisplay = isinCode && isinCode !== " " ? isinCode : code ?? "-";
   const isLgVersion = useMatchesBreakpoint("lg");
   const isXlVersion = useMatchesBreakpoint("xl");
-  const canSwitch = security.tagsAsList.includes(switchableTag);
-
+  const canSwitch = isSecuritySwitchable(security.tagsAsList);
+  const { portfolioId } = useParams();
+  const portfolioIdNumber = portfolioId ? parseInt(portfolioId, 10) : undefined;
+  const { canTradeSecurity } = useCanTradeSecurity(
+    security.id,
+    portfolioIdNumber
+  );
   const valueChange =
     firstAnalysis?.marketValue !== undefined &&
     firstAnalysis?.tradeAmount !== undefined
@@ -115,7 +120,7 @@ const HoldingLg = ({
               canTrade && !canAnyHoldingSwitch,
           })}
         >
-          {canTrade && isTradable && (
+          {canTradeSecurity && (
             <div className="flex gap-2 items-start">
               <Button
                 size="xs"
@@ -152,7 +157,7 @@ const HoldingLg = ({
               )}
             </div>
           )}
-          {canTrade && !isTradable && <div className="text-center grow">-</div>}
+          {!canTradeSecurity && <div className="text-center grow"></div>}
           <NameWithFlag
             name={name}
             countryCode={countryCode}

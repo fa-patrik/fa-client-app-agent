@@ -58,6 +58,7 @@ export const useGetSellData = (
       portfolioId,
       quoteCurrency,
     },
+    skip: !portfolioId,
     ...getFetchPolicyOptions(`GetSellData.${portfolioId}.${quoteCurrency}`),
   });
 

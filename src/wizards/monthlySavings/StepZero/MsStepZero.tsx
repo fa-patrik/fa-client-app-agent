@@ -16,8 +16,8 @@ import { useWizard } from "providers/WizardProvider";
 import {
   canPortfolioMonthlySave,
   canPortfolioOptionMonthlySave,
-} from "services/permissions/usePermission";
-import { getDefaultValueAsNumber } from "utils/faBackProfiles/general";
+} from "services/permissions/trading";
+import { getDefaultValueAsNumber } from "utils/faBackProfiles/common";
 import {
   MonthlySavings,
   MonthlySavingsFieldId,

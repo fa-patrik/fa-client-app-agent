@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { SecurityTypeCode } from "api/holdings/types";
 import { PortfolioData } from "api/overview/types";
 import { useGetPortfolioOverviewSmart } from "api/overview/useGetPortfolioOverviewSmart";

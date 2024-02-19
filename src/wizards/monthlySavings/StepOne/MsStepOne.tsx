@@ -5,7 +5,7 @@ import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
-import { canPortfolioOptionMonthlySave } from "services/permissions/usePermission";
+import { canPortfolioOptionMonthlySave } from "services/permissions/trading";
 import { addMonthlySavingsToPortfolios } from "utils/faBackProfiles/monthlySavings";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import OnError from "../components/OnError";
