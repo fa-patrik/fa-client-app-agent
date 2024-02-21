@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
+import { useGetContractIdData } from "providers/ContractIdProvider";
 
 export const getSubPortfolioIds = (portfolio: Portfolio | undefined) => {
   if (!portfolio) return [];
@@ -19,7 +20,8 @@ export const getSubPortfolioIds = (portfolio: Portfolio | undefined) => {
  * @returns list of ids of the the sub portfolios to the parent portfolio.
  */
 export const useGetSubPortfolioIds = (id: number | undefined) => {
-  const { data } = useGetContactInfo();
+  const { selectedContactId } = useGetContractIdData();
+  const { data } = useGetContactInfo(false, selectedContactId);
   return useMemo(() => {
     if (!id) return [];
     const subIds = getSubPortfolioIds(
