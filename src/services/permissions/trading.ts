@@ -277,8 +277,18 @@ export const useCanTradeSecurities = (
   portfolioId?: number
 ) => {
   const linkedSecurities = useGetLinkedSecurities(portfolioId);
-
+  const { selectedContactId } = useGetContractIdData();
+  const { data: contactData } = useGetContactInfo(false, selectedContactId);
+  const portfolio = portfolioId
+    ? contactData?.portfolios.find((p) => p.id === portfolioId)
+    : undefined;
+  const isPortfolioTradable = useMemo(() => {
+    return portfolio ? canPortfolioTrade(portfolio) : false;
+  }, [portfolio]);
   const tradableHoldings = useMemo(() => {
+    if (portfolio && !isPortfolioTradable) {
+      return [];
+    }
     return (
       securities.reduce((prev, curr) => {
         if (isSecurityTradable(curr.tagsAsList)) {
@@ -287,7 +297,7 @@ export const useCanTradeSecurities = (
         return prev;
       }, [] as AnalyticsSecurity[]) || []
     );
-  }, [securities]);
+  }, [securities, portfolio, isPortfolioTradable]);
 
   const switchableHoldings = useMemo(() => {
     return tradableHoldings?.filter((s) => isSecuritySwitchable(s.tagsAsList));
