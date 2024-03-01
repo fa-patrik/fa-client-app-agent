@@ -30,20 +30,19 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
   const isLargeScreen = useMatchesBreakpoint("sm");
   const { portfolioId } = useParams();
   const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
-  const securityIds = useMemo(() => {
+
+  const holdings = useMemo(() => {
     return (
-      data?.securityTypes.reduce((prev, curr) => {
-        const ids = curr.securities.reduce((prevS, currS) => {
-          prevS.push(currS.security.id);
-          return prevS;
-        }, [] as number[]);
-        return [...prev, ...ids];
-      }, [] as number[]) || []
+      data?.securityTypes
+        .map((group) => group.securities.map((s) => s.security))
+        .flat() || []
     );
   }, [data?.securityTypes]);
 
-  const { canTradeSecurity: canTrade, canSwitchSecurity: canAnyHoldingSwitch } =
-    useCanTradeSecurities(securityIds, portfolioIdAsNr);
+  const { canSwitchAnyHolding, canTradeAnyHolding } = useCanTradeSecurities(
+    holdings,
+    portfolioIdAsNr
+  );
 
   const { t } = useModifiedTranslation();
   const {
@@ -87,8 +86,8 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
             key={group.code}
             currency={currencyCode}
             tradeProps={{
-              canAnyHoldingSwitch,
-              canTrade,
+              canAnyHoldingSwitch: canSwitchAnyHolding,
+              canTrade: canTradeAnyHolding,
               onBuyModalOpen,
               onSellModalOpen,
               onSwitchModalOpen,
@@ -97,7 +96,7 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
           />
         ))}
       </div>
-      {canTrade && (
+      {canTradeAnyHolding && (
         <>
           <Modal {...buyModalProps} header={t("tradingModal.buyModalHeader")}>
             <BuyModalContent {...buyModalContentProps} />
@@ -105,10 +104,12 @@ export const Holdings = ({ data }: PortfolioHoldingsViewProps) => {
           <Modal {...sellModalProps} header={t("tradingModal.sellModalHeader")}>
             <SellModalContent {...sellModalContentProps} />
           </Modal>
-          <Modal {...switchModalProps} header={t("switchOrderModal.header")}>
-            <SwitchModalContent {...switchModalContentProps} />
-          </Modal>
         </>
+      )}
+      {canSwitchAnyHolding && (
+        <Modal {...switchModalProps} header={t("switchOrderModal.header")}>
+          <SwitchModalContent {...switchModalContentProps} />
+        </Modal>
       )}
     </>
   );

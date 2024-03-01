@@ -23,6 +23,9 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
       id
       code
       name
+      securities {
+        id
+      }
     }
     parentPortfolios {
       id
@@ -44,6 +47,9 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
         id
         code
         name
+        securities {
+          id
+        }
       }
     }
   }

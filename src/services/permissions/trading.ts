@@ -9,8 +9,6 @@ import { SecurityGroup } from "api/types";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { isPortfolioInGroup, isPortfolioOptionInGroup } from "./common";
-import { useGetSecuritiesPermissionDetails } from "./useGetSecuritiesPermissionDetails";
-import { useGetSecurityPermissionDetails } from "./useGetSecurityPermissionDetails";
 
 export const CLIENT_PORTAL_SECURITY_GROUP_PREFIX = "CP_";
 export const tradableTag = "Tradeable";
@@ -228,128 +226,86 @@ export const useGetPermittedSecurities = (
   };
 };
 
-/**
- * Checks whether the security is tradable by either the contact or (if provided) the portfolio.
- * Queries FA Back for details.
- * Takes into consideration portfolio groups and security tags.
- * @param securityId id of the security
- * @param portfolioId portfolio to check (contact if omitted)
- * @returns true if the securitiy can be traded, else false
- */
-export const useCanTradeSecurity = (
-  securityId: number,
-  portfolioId?: number
-) => {
-  const [loading, setLoading] = useState(false);
+export const useGetLinkedSecurities = (portfolioId?: number) => {
   const { selectedContactId } = useGetContractIdData();
-  const {
-    data: contactData,
-    loading: loadingContactData,
-    error: contactError,
-  } = useGetContactInfo(false, selectedContactId);
-  const portfolio = portfolioId
-    ? contactData?.portfolios.find((p) => p.id === portfolioId)
-    : undefined;
-  const {
-    data: securitiesData,
-    loading: loadingSecurity,
-    error: securityError,
-  } = useGetSecurityPermissionDetails(securityId);
-  const canTradeSecurity = !!useMemo(() => {
-    setLoading(true);
-    try {
-      /* const canTrade = securitiesData
-        ? portfolio
-          ? canPortfolioTradeSecurity(portfolio, securitiesData)
-          : contactData?.portfolios?.some((p) =>
-              canPortfolioTradeSecurity(p, securitiesData)
-            )
-        : false; */
-      const canTrade =
-        securitiesData && portfolio
-          ? canPortfolioTradeSecurity(portfolio, securitiesData)
-          : false;
-      setLoading(false);
-      return canTrade;
-    } catch (e) {
-      console.error(e);
-      setLoading(false);
-      return false;
-    }
-  }, [/* contactData?.portfolios, */ portfolio, securitiesData]);
+  const { data: contactData } = useGetContactInfo(false, selectedContactId);
+  const portfolioToTradableSecuritiesMap = getPortfolioToTradableSecuritiesMap(
+    contactData?.portfolios
+  );
+  const securityIdsDistinct = useMemo(() => {
+    if (portfolioId)
+      return portfolioToTradableSecuritiesMap.get(portfolioId) || [];
+    return Array.from(
+      new Set(Array.from(portfolioToTradableSecuritiesMap.values()).flat())
+    );
+  }, [portfolioToTradableSecuritiesMap, portfolioId]);
 
-  const error = contactError || securityError;
-
-  return {
-    canTradeSecurity,
-    loading: loadingContactData || loadingSecurity || loading,
-    error,
-  };
+  return securityIdsDistinct;
 };
 
 /**
- * Checks whether any security in the list is tradable by either the contact or (if provided) the portfolio.
- * Queries FA Back for details.
- * Takes into consideration portfolio groups and security tags.
- * @param securityIds list of security ids
- * @param portfolioId portfolio to check (contact if omitted)
- * @returns true if any of the securities can be traded, else false
+ * Creates a map of portfolios and their tradable securities
+ * based on their linked security groups starting with CP_.
+ * @param portfolios
+ * @returns a map [portfolioId: [securityId, securityId, ...]]
  */
+export const getPortfolioToTradableSecuritiesMap = (
+  portfolios: Portfolio[] | undefined
+) => {
+  if (!portfolios) return new Map<Portfolio["id"], number[]>();
+  const result = new Map<Portfolio["id"], number[]>();
+  portfolios.forEach((portfolio) => {
+    const tradableSecurities = portfolio.securityGroups
+      .filter((sg) => sg.code.startsWith(CLIENT_PORTAL_SECURITY_GROUP_PREFIX))
+      .map((sg) => sg.securities)
+      .flat();
+    result.set(
+      portfolio.id,
+      tradableSecurities.map((s) => s.id)
+    );
+  });
+  return result;
+};
+
+type AnalyticsSecurity = {
+  id: number;
+  tagsAsList: string[];
+};
+
 export const useCanTradeSecurities = (
-  securityIds: number[],
+  securities: AnalyticsSecurity[],
   portfolioId?: number
 ) => {
-  const [loading, setLoading] = useState(false);
-  const { selectedContactId } = useGetContractIdData();
-  const {
-    data: contactData,
-    loading: loadingContactData,
-    error: contactError,
-  } = useGetContactInfo(false, selectedContactId);
-  const portfolio = portfolioId
-    ? contactData?.portfolios?.find((p) => p.id === portfolioId)
-    : undefined;
+  const linkedSecurities = useGetLinkedSecurities(portfolioId);
 
-  const {
-    loading: loadingSecurityPermissions,
-    data: securitiesData,
-    error: securitiesPermissionError,
-  } = useGetSecuritiesPermissionDetails(securityIds);
+  const tradableHoldings = useMemo(() => {
+    return (
+      securities.reduce((prev, curr) => {
+        if (isSecurityTradable(curr.tagsAsList)) {
+          return [...prev, curr];
+        }
+        return prev;
+      }, [] as AnalyticsSecurity[]) || []
+    );
+  }, [securities]);
 
-  const canTradeSecurity = !!useMemo(() => {
-    setLoading(true);
-    try {
-      /*  const canTrade = securitiesData
-        ? portfolio
-          ? securitiesData.some((s) => canPortfolioTradeSecurity(portfolio, s))
-          : contactData?.portfolios?.some((p) =>
-              securitiesData.some((s) => canPortfolioTradeSecurity(p, s))
-            )
-        : false; */
-      const canTrade =
-        securitiesData && portfolio
-          ? securitiesData.some((s) => canPortfolioTradeSecurity(portfolio, s))
-          : false;
-      setLoading(false);
-      return canTrade;
-    } catch (e) {
-      console.error(e);
-      setLoading(false);
-      return false;
-    }
-  }, [/* contactData?.portfolios,  */ portfolio, securitiesData]);
+  const switchableHoldings = useMemo(() => {
+    return tradableHoldings?.filter((s) => isSecuritySwitchable(s.tagsAsList));
+  }, [tradableHoldings]);
 
-  const canSwitchSecurity = !!useMemo(() => {
-    return securitiesData?.some((s) => isSecuritySwitchable(s.tagsAsSet));
-  }, [securitiesData]);
+  const canTradeAnyHolding = useMemo(() => {
+    if (!linkedSecurities?.length && tradableHoldings.length) return true;
+    return linkedSecurities?.some((sId) => {
+      return tradableHoldings?.some((h) => h.id === sId);
+    });
+  }, [linkedSecurities, tradableHoldings]);
 
-  const error = contactError || securitiesPermissionError;
+  const canSwitchAnyHolding = useMemo(() => {
+    if (!linkedSecurities?.length && switchableHoldings.length) return true;
+    return linkedSecurities?.some((sId) => {
+      return switchableHoldings?.some((h) => h.id === sId);
+    });
+  }, [linkedSecurities, switchableHoldings]);
 
-  return {
-    canTradeSecurity,
-    canSwitchSecurity,
-    canSellSecurity: false,
-    loading: loadingContactData || loadingSecurityPermissions || loading,
-    error,
-  };
+  return { canSwitchAnyHolding, canTradeAnyHolding };
 };

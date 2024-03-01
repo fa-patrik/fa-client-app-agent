@@ -22,10 +22,7 @@ import {
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  isSecuritySwitchable,
-  useCanTradeSecurity,
-} from "services/permissions/trading";
+import { useCanTradeSecurities } from "services/permissions/trading";
 import { getNameFromBackendTranslations } from "utils/transactions";
 import { addProtocolToUrl } from "utils/url";
 import { DataRow } from "./components/DataRow";
@@ -53,15 +50,15 @@ export const HoldingDetails = ({
     currency: { securityCode: currency },
     url,
     url2,
-    tagsAsSet,
     documents,
   } = security;
   const navigate = useNavigate();
   const { i18n, t } = useModifiedTranslation();
   const { portfolioId } = useParams();
   const portfolioIdNumber = portfolioId ? parseInt(portfolioId, 10) : undefined;
-  const { canTradeSecurity } = useCanTradeSecurity(
-    security.id,
+  const hasSelectedPortfolio = !!portfolioIdNumber;
+  const { canSwitchAnyHolding, canTradeAnyHolding } = useCanTradeSecurities(
+    holding?.security ? [holding.security] : [],
     portfolioIdNumber
   );
 
@@ -85,7 +82,6 @@ export const HoldingDetails = ({
   } = useModal<SwitchModalInitialData>();
 
   const userInvestedInThisHolding = holding != null;
-  const canSwitch = isSecuritySwitchable(tagsAsSet);
 
   return (
     <div className="flex overflow-hidden flex-col h-full">
@@ -152,7 +148,7 @@ export const HoldingDetails = ({
                   ))}
                 </div>
               </Card>
-              {canTradeSecurity && (
+              {hasSelectedPortfolio && canTradeAnyHolding && (
                 <>
                   <div className="grid grid-flow-col gap-2">
                     <Button
@@ -173,7 +169,7 @@ export const HoldingDetails = ({
                       </>
                     )}
                   </div>
-                  {userInvestedInThisHolding && canSwitch && (
+                  {userInvestedInThisHolding && canSwitchAnyHolding && (
                     <div className="grid grid-flow-col gap-2">
                       <Button
                         LeftIcon={SwitchHorizontalOutlinedIcon}

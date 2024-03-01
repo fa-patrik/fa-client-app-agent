@@ -135,4 +135,7 @@ export interface SecurityGroup {
   id: number;
   code: string;
   name: string;
+  securities: {
+    id: number;
+  }[];
 }

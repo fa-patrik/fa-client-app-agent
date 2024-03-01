@@ -32,21 +32,17 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
   const { t } = useModifiedTranslation();
   const isLargeScreen = useMatchesBreakpoint("sm");
   const { portfolioId } = useParams();
-  const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
-  const securityIds = useMemo(() => {
+  const portfolioIdNr = portfolioId ? parseInt(portfolioId) : undefined;
+  const hasSelectedPortfolio = !!portfolioIdNr;
+  const holdings = useMemo(() => {
     return (
-      data?.contact.analytics.contact.securityTypes.reduce((prev, curr) => {
-        const ids = curr.securities.reduce((prevS, currS) => {
-          prevS.push(currS.security.id);
-          return prevS;
-        }, [] as number[]);
-        return [...prev, ...ids];
-      }, [] as number[]) || []
+      data?.contact?.analytics?.contact?.securityTypes
+        .map((group) => group.securities.map((security) => security.security))
+        .flat() || []
     );
-  }, [data?.contact.analytics.contact.securityTypes]);
-
-  const { canTradeSecurity: canTrade, canSwitchSecurity: canAnyHoldingSwitch } =
-    useCanTradeSecurities(securityIds, portfolioIdAsNr);
+  }, [data?.contact?.analytics?.contact?.securityTypes]);
+  const { canSwitchAnyHolding, canTradeAnyHolding } =
+    useCanTradeSecurities(holdings);
 
   const { selectedContactId } = useGetContractIdData();
   const { data: cachedContactData } = useGetContactInfo(
@@ -97,8 +93,8 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
             key={group.code}
             currency={currencyCode}
             tradeProps={{
-              canAnyHoldingSwitch,
-              canTrade,
+              canAnyHoldingSwitch: canSwitchAnyHolding && hasSelectedPortfolio,
+              canTrade: canTradeAnyHolding && hasSelectedPortfolio,
               onBuyModalOpen,
               onSellModalOpen,
               onSwitchModalOpen,
@@ -108,7 +104,7 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
         ))}
       </div>
 
-      {canTrade && (
+      {hasSelectedPortfolio && canTradeAnyHolding && (
         <>
           <Modal {...buyModalProps} header={t("tradingModal.buyModalHeader")}>
             <BuyModalContent {...buyModalContentProps} />
@@ -116,10 +112,12 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
           <Modal {...sellModalProps} header={t("tradingModal.sellModalHeader")}>
             <SellModalContent {...sellModalContentProps} />
           </Modal>
-          <Modal {...switchModalProps} header={t("switchOrderModal.header")}>
-            <SwitchModalContent {...switchModalContentProps} />
-          </Modal>
         </>
+      )}
+      {hasSelectedPortfolio && canSwitchAnyHolding && (
+        <Modal {...switchModalProps} header={t("switchOrderModal.header")}>
+          <SwitchModalContent {...switchModalContentProps} />
+        </Modal>
       )}
     </>
   );
