@@ -197,8 +197,8 @@ export const getBlockSizeErrorTooltip = (
       } else {
         const breakdown: string = t(
           buy
-            ? "tradingModal.buyBlockSizeErrorWithFx"
-            : "tradingModal.sellBlockSizeErrorWithFx",
+            ? "tradingModal.buyBlockSizeError"
+            : "tradingModal.sellBlockSizeError",
           {
             tradeAmount: t("numberWithCurrency", {
               value: securityPriceInPfCurrency,

@@ -1,4 +1,4 @@
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { TradeOrder } from "api/orders/types";
 import { Badge } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";

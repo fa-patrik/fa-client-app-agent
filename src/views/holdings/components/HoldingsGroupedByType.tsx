@@ -1,7 +1,7 @@
 import {
-  SecurityData,
-  SecurityTypeDataWithSecurityData,
-} from "api/overview/types";
+  AnalyticsSecurityData,
+  AnalyticsSecurityTypeDataWithSecurityData,
+} from "api/holdings/types";
 import { Card, GainLoseColoring } from "components";
 import { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
 import { SellModalInitialData } from "components/TradingModals/SellModalContent/SellModalContent";
@@ -19,19 +19,20 @@ interface TradeProps {
   onSwitchModalOpen: (initialData?: SwitchModalInitialData) => void;
 }
 
-interface HoldingsGroupedByTypeProps extends SecurityTypeDataWithSecurityData {
+interface HoldingsGroupedByTypeProps
+  extends AnalyticsSecurityTypeDataWithSecurityData {
   currency: string | undefined;
   tradeProps: TradeProps;
 }
 
 export interface GroupedHoldings {
-  securities: SecurityData[];
+  securities: AnalyticsSecurityData[];
   groupCode: string;
   currency: string | undefined;
   tradeProps: TradeProps;
 }
 
-export interface HoldingProps extends SecurityData {
+export interface HoldingProps extends AnalyticsSecurityData {
   onClick?: () => void;
   showFlag: boolean;
   currency: string | undefined;
@@ -47,6 +48,7 @@ export const HoldingsGroupedByType = ({
   tradeProps,
 }: HoldingsGroupedByTypeProps) => {
   const hasOneLineRow = useMatchesBreakpoint("md");
+  //pass map of tradable securities to the list
 
   const HoldingsList = hasOneLineRow
     ? HoldingsListWithOneLineRow

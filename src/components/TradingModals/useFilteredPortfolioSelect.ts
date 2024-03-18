@@ -3,7 +3,7 @@ import { Option } from "components/ComboBox/ComboBox";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetPortfolioOptions } from "hooks/useGetPortfolioOptions";
 import { useParams } from "react-router-dom";
-import { filterPortfolioOptionsByFunction } from "utils/filtering";
+import { filterPortfolioOptionsByFunction } from "utils/options";
 
 /**
  * Helper function to check whether portfolioId exists in a list of options.
@@ -68,13 +68,13 @@ export const useFilteredPortfolioSelect = (
 
   const [filteredPortfolioId, setFilteredPortfolioId] = useState(() => {
     if (portfolioId && portfolioIdIsInFiltered) {
-      // If the main portfolio selector has chosen a tradeable portfolio
+      // If the main portfolio selector has chosen an elegible portfolio
       return portfolioId;
     } else if (getNrOfPortfolioOptions(filteredOptions) === 1) {
-      // If there is only one tradeable portfolio
+      // If there is only one elegible portfolio
       return filteredOptions[0].id;
     } else {
-      // If there are multiple tradeable portfolios, let the user select a portfolio
+      // If there are multiple elegible portfolios, let the user select a portfolio
       return undefined;
     }
   });

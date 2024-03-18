@@ -1,5 +1,5 @@
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { useDownloadDocument } from "api/documents/useDownloadDocument";
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { TradeOrderDetails } from "api/orders/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/document-download.svg";
 import { Button, Card, CountryFlag } from "components";
@@ -17,6 +17,7 @@ import {
   isPortfolioAllowedToCancelOrder,
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
+import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getOrderTypeName,
@@ -298,6 +299,33 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                     },
                   })}
                 />
+                {!!order?.tax && ( //api returns 0 if no tax has been defined
+                  <DataRow
+                    label={getBackendTranslation(
+                      t("transactionsPage.tax"),
+                      order?.taxType?.namesAsMap,
+                      i18n.language
+                    )}
+                    value={t("numberWithCurrency", {
+                      value: order?.tax,
+                      currency: order?.securityCurrencyCode,
+                    })}
+                  />
+                )}
+
+                {!!order?.tax2 && (
+                  <DataRow
+                    label={getBackendTranslation(
+                      t("transactionsPage.tax2"),
+                      order?.taxType2?.namesAsMap,
+                      i18n.language
+                    )}
+                    value={t("numberWithCurrency", {
+                      value: order?.tax2,
+                      currency: order?.securityCurrencyCode,
+                    })}
+                  />
+                )}
                 <div />
               </div>
             </Card>

@@ -1,4 +1,4 @@
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import classNames from "classnames";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useKeycloak } from "providers/KeycloakProvider";

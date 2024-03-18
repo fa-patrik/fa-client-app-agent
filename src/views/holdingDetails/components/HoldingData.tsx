@@ -1,13 +1,12 @@
-import { SecurityTypeCode } from "api/holdings/types";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
-import { SecurityData } from "api/overview/types";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
+import { AnalyticsSecurityData, SecurityTypeCode } from "api/holdings/types";
 import { Card, GainLoseColoring } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { DataRow } from "./DataRow";
 import { HoldingHeader } from "./HoldingHeader";
 
-type HoldingDataProps = SecurityData & {
+type HoldingDataProps = AnalyticsSecurityData & {
   typeCode: SecurityTypeCode;
 };
 

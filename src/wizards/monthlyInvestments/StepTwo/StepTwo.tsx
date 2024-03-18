@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import {
-  TradableSecurity,
-  useGetTradebleSecurities,
-} from "api/trading/useGetTradebleSecurities";
+import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { SUPPORTED_ROWS_MONTHLY_INVESTMENTS } from "api/trading/useSetMonthlyInvestments";
 import { Card, ComboBox, Input, QueryLoadingWrapper } from "components";
 import { Option } from "components/ComboBox/ComboBox";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { toast } from "react-toastify";
+import { useGetPermittedSecurities } from "services/permissions/trading";
 import TradableSecurityTable from "wizards/monthlyInvestments/StepTwo/components/TradableSecurityTable";
 import { MonthlyInvestmentsWizardState } from "../types";
 
@@ -25,10 +23,15 @@ const StepTwo = () => {
   //however, that results in extra api requests
   //here we just get the filterOptions and the initially selected filter option
   //and then handle the filtering separately in this component
+  const currency =
+    monthlyInvestmentsWizardState.selectedPortfolioOption?.details?.currency
+      ?.securityCode;
   const { filters, filterOptions, data, loading, error } =
-    useGetTradebleSecurities(
-      monthlyInvestmentsWizardState.selectedPortfolioOption?.details?.currency
-        ?.securityCode
+    useGetPermittedSecurities(
+      {
+        currencyCode: currency,
+      },
+      monthlyInvestmentsWizardState.selectedPortfolioOption?.id
     );
   const [selectedCountry, setSelectedCountry] = useState<Option>(
     filters.country

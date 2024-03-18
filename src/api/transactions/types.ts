@@ -70,6 +70,16 @@ export interface TransactionDetails extends Transaction {
   grossPriceInSecurityCurrency: number;
   grossPriceInAccountCurrency: number;
   reference: string;
+  taxType: {
+    namesAsMap: Record<string, string>;
+    id: number;
+  } | null;
+  taxType2: {
+    namesAsMap: Record<string, string>;
+    id: number;
+  } | null;
+  tax: number;
+  tax2: number;
 }
 
 export interface TransactionDetailsQuery {

@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Disclosure, Transition } from "@headlessui/react";
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import { ReactComponent as ChevronDown } from "assets/chevron-down.svg";
 import { ReactComponent as ChevronUp } from "assets/chevron-up.svg";

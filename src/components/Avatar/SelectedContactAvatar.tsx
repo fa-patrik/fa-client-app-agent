@@ -1,4 +1,4 @@
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import theme from "tailwindTheme";
 import { Avatar } from "./Avatar";

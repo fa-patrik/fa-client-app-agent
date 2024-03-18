@@ -5,7 +5,7 @@ import { portfolioOptionsMock } from "test/mockData/portfolioOptions";
 import { useTradablePortfolioSelect } from "./useTradablePortfolioSelect";
 
 //used by useGetPortfolioOptions
-jest.mock("api/initial/useGetContactInfo", () => ({
+jest.mock("api/common/useGetContactInfo", () => ({
   useGetContactInfo: jest.fn(() => ({ data: { portfolios: [] } })),
   PortfolioGroups: {
     CANCEL_ORDER: "CP_CANCEL",

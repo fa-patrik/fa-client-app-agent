@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { NoPortfolios } from "./components/NoPortfolios";
 

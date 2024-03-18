@@ -1,13 +1,13 @@
 import { gql, useQuery } from "@apollo/client";
 import {
-  PORTFOLIO_EXTENDED_FIELDS,
-  PortfolioWithProfileAndFigures,
-} from "api/generic/useGetPortfoliosWithProfileAndFigures";
-import { getSubPortfolioIds } from "api/generic/useGetSubPortfolioIds";
-import {
   PORTFOLIO_BASIC_FIELDS,
   useGetContactInfo,
-} from "api/initial/useGetContactInfo";
+} from "api/common/useGetContactInfo";
+import {
+  PORTFOLIO_EXTENDED_FIELDS,
+  PortfolioWithProfileAndFigures,
+} from "api/common/useGetPortfoliosWithProfileAndFigures";
+import { getSubPortfolioIds } from "api/common/useGetSubPortfolioIds";
 import {
   ACCOUNT_CAT_EXTERNAL,
   CashAccount,

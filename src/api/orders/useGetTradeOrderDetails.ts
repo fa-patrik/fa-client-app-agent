@@ -8,7 +8,7 @@ import { TradeOrderDetailsQuery } from "./types";
 const TRADE_ORDER_QUERY_BY_ID = gql`
   ${TRADE_ORDERS_DETAILS}
   ${TRADE_ORDERS_EXTENDED_DETAILS}
-  query GetTradeOrderById($orderId: Long, $filterTags: [String]) {
+  query GetTradeOrderDetails($orderId: Long, $filterTags: [String]) {
     order: transaction(id: $orderId) {
       ...TradeOrdersDetails
       ...TradeOrderExtendedDetails

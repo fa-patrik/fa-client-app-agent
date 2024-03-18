@@ -3,7 +3,7 @@ import { useGetContactOverview } from "./useGetContactOverview";
 import { useLazyGetPortfolioOverview } from "./useGetPortfolioOverview";
 
 /**
- * A hook that attempt to get portfolio analytics data first from cached data
+ * A hook that attempts to get portfolio analytics data first from cached data
  * Otherwise makes a one-off request to FA to get it.
  * @param id id of portfolio
  * @returns portfolio data required for the Overview and Holdings view

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import classNames from "classnames";
 import { GainLoseColoring } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";

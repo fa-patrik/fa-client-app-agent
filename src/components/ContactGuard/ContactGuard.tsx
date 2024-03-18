@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo } from "react";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { LoadingIndicator } from "components";
 import { useFeedI18nextWithLocale } from "hooks/useFeedI18nextWithLocale";
 import { useGetContractIdData } from "providers/ContractIdProvider";

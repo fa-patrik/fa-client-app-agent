@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
+import { Portfolio } from "api/common/useGetContactInfo";
 import {
   PortfolioWithProfileAndFigures,
   useGetPortfoliosWithProfileAndFigures,
-} from "api/generic/useGetPortfoliosWithProfileAndFigures";
-import { Portfolio } from "api/initial/useGetContactInfo";
+} from "api/common/useGetPortfoliosWithProfileAndFigures";
 import {
   TradableSecurity,
   useGetTradebleSecurityLazy,
@@ -25,7 +25,7 @@ import { useWizard } from "providers/WizardProvider";
 import {
   canPortfolioMonthlyInvest,
   canPortfolioOptionMonthlyInvest,
-} from "services/permissions/usePermission";
+} from "services/permissions/trading";
 import {
   MonthlyInvestments,
   MonthlyInvestmentsFieldId,

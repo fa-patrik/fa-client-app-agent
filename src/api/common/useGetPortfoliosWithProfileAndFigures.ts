@@ -1,12 +1,12 @@
 import { gql, useQuery } from "@apollo/client";
-import { getSubPortfolioIds } from "api/generic/useGetSubPortfolioIds";
+import { getSubPortfolioIds } from "api/common/useGetSubPortfolioIds";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import {
   PORTFOLIO_BASIC_FIELDS,
   Portfolio,
   useGetContactInfo,
-} from "../initial/useGetContactInfo";
+} from "./useGetContactInfo";
 
 export const PORTFOLIO_EXTENDED_FIELDS = gql`
   fragment PortfolioWithProfileAndFigures on Portfolio {

@@ -1,5 +1,5 @@
+import { AnalyticsSecurityTypeDataWithSecurityData } from "api/holdings/types";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
-import { SecurityTypeDataWithSecurityData } from "api/overview/types";
 import { useGetPortfolioOverviewSmart } from "api/overview/useGetPortfolioOverviewSmart";
 import { QueryLoadingWrapper } from "components";
 import { useParams } from "react-router-dom";
@@ -7,7 +7,9 @@ import { HoldingDetails } from "views/holdingDetails/holdingDetails";
 import { NotFoundView } from "views/notFoundView/notFoundView";
 
 const findHolding = (
-  holdingsGroupedByType: SecurityTypeDataWithSecurityData[] | undefined,
+  holdingsGroupedByType:
+    | AnalyticsSecurityTypeDataWithSecurityData[]
+    | undefined,
   securityId: string | undefined
 ) => {
   if (!holdingsGroupedByType || !securityId) return;

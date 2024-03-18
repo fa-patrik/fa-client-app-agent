@@ -7,13 +7,17 @@ import { ReactComponent as ExclamationIcon } from "assets/exclamation-circle.svg
 import { ReactComponent as PlusIcon } from "assets/plus-circle.svg";
 import { Badge, Button, Card, LoadingIndicator } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
+import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { getPortfolioOption } from "hooks/useGetPortfolioOptions";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
-import { canPortfolioMonthlySave } from "services/permissions/usePermission";
-import { getDefaultValueAsNumber } from "utils/faBackProfiles/general";
+import {
+  canPortfolioMonthlySave,
+  canPortfolioOptionMonthlySave,
+} from "services/permissions/trading";
+import { getDefaultValueAsNumber } from "utils/faBackProfiles/common";
 import {
   MonthlySavings,
   MonthlySavingsFieldId,
@@ -117,6 +121,7 @@ const MsStepZero = () => {
         step: 1,
         backDisabled: false,
         data: {
+          isEditing: true,
           selectedPortfolioOption: getPortfolioOption(portfolio),
           selectedMonths: getSelectedMonthsAsMap(existingMonthlySavingsProfile),
           selectedDate: getDefaultValueAsNumber(
@@ -133,6 +138,11 @@ const MsStepZero = () => {
   };
 
   const loading = loadingPortfolioData && !portfoliosWithMonthlySavings;
+  const { portfolioOptions } = useFilteredPortfolioSelect(
+    canPortfolioOptionMonthlySave
+  );
+  const allowCreateNew =
+    portfolioOptions?.length !== portfoliosWithMonthlySavings?.length;
 
   const NoAccountWarning = ({ id }: { id: string }) => {
     return (
@@ -324,7 +334,7 @@ const MsStepZero = () => {
           />
         </div>
         <WizardBottomNavigationReplica>
-          <AddNewPlanButton />
+          {allowCreateNew && <AddNewPlanButton />}
         </WizardBottomNavigationReplica>
       </>
     );

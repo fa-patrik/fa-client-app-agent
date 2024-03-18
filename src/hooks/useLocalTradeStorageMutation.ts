@@ -1,5 +1,5 @@
+import { Portfolio } from "api/common/useGetContactInfo";
 import { OrderStatus } from "api/enums";
-import { Portfolio } from "api/initial/useGetContactInfo";
 import { depositType } from "api/money/useDeposit";
 import { withdrawalType } from "api/money/useWithdrawal";
 import { TradeOrder, TradeOrderType } from "api/orders/types";

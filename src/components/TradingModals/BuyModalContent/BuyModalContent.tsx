@@ -1,9 +1,10 @@
 import { MutableRefObject, useState, useEffect, useMemo } from "react";
+import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
 import { ExecutionMethod } from "api/enums";
 import { SecurityTypeCode } from "api/holdings/types";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { useGetBuyData } from "api/trading/useGetBuyData";
+import { useGetSecurityFx } from "api/trading/useGetSecurityFx";
 import { useTrade } from "api/trading/useTrade";
 import {
   PortfolioSelect,
@@ -11,7 +12,6 @@ import {
   Button,
   Input,
   LabeledDiv,
-  LoadingIndicator,
 } from "components/index";
 import { LabeledDivFlex } from "components/LabeledDiv/LabeledDivFlex";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -26,6 +26,7 @@ import {
   getTradeAmountTooltip,
 } from "utils/trading";
 import { addProtocolToUrl } from "utils/url";
+import PortfolioLock from "../PortfolioLock";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 import { useGetBuyTradeType } from "./useGetBuyTradeType";
 
@@ -54,23 +55,34 @@ export const BuyModalContent = ({
 }: BuyModalProps) => {
   const [submitting, setSubmitting] = useState(false);
   const { t, i18n } = useModifiedTranslation();
+
+  const { data: security, loading: loadingSecurity } = useGetSecurityDetails(
+    securityId.toString()
+  );
+  const {
+    setPortfolioId,
+    portfolioOptions: portfolioOptionsThatCantTradeTheSecurity,
+    portfolioId,
+  } = useTradablePortfolioSelect(security?.groups);
+  const { portfolioOptions: portfolioOptionsThatCanTrade } =
+    useTradablePortfolioSelect();
+
   const { selectedContactId } = useGetContractIdData();
   const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
     false,
     selectedContactId
   );
-  const { setPortfolioId, portfolioOptions, portfolioId } =
-    useTradablePortfolioSelect();
 
   const selectedPortfolioId = portfolioId;
   const selectedPortfolio = useMemo(() => {
     return portfolios.find((p) => p.id === portfolioId);
   }, [portfolios, portfolioId]);
-
-  const { data: security, loading: loadingSecurity } = useGetSecurityDetails(
-    securityId.toString(),
+  const { data: securityFxData, loading: securityFxLoading } = useGetSecurityFx(
+    security?.securityCode,
     selectedPortfolio?.currency?.securityCode
   );
+
+  const securityFx = securityFxData?.[0].fxRate || 1;
 
   const { loading: loadingCash, data: portfolioData } = useGetBuyData(
     selectedPortfolioId,
@@ -119,7 +131,7 @@ export const BuyModalContent = ({
         )
       : undefined;
 
-  const securityToPortfolioFxRate = security?.fxRate || 1;
+  const securityToPortfolioFxRate = securityFx || 1;
   const securityPrice = security?.latestMarketData?.price;
 
   const securityPriceInPfCurrency =
@@ -180,7 +192,7 @@ export const BuyModalContent = ({
 
   const { handleTrade: handleBuy } = useTrade({
     tradeType: getTradeType(security?.type.code),
-    portfolio: selectedPortfolio || portfolios[0],
+    portfolio: selectedPortfolio ?? ({} as Portfolio),
     securityName: securityName || "-",
     units: isTradeInUnits ? unitsToBuy : undefined,
     tradeAmount: !isTradeInUnits
@@ -196,7 +208,7 @@ export const BuyModalContent = ({
 
   const availableCash =
     portfolioData?.portfolioReport.accountBalanceAdjustedWithOpenTradeOrders;
-  const portfolioCurrency = selectedPortfolio?.currency.securityCode;
+  const portfolioCurrency = selectedPortfolio?.currency?.securityCode;
   const securityCurrency = security?.currency.securityCode;
 
   const insufficientCash =
@@ -211,7 +223,7 @@ export const BuyModalContent = ({
       ? getTradeAmountTooltip(
           unitsToBuy,
           security,
-          security.fxRate,
+          securityFx,
           portfolioCurrency,
           i18n.language,
           t
@@ -242,7 +254,7 @@ export const BuyModalContent = ({
       ? getBlockSizeErrorTooltip(
           blockSizeMinTradeAmountInPfCurrency,
           security,
-          security.fxRate,
+          securityFx,
           portfolioCurrency,
           i18n.language,
           t,
@@ -259,7 +271,7 @@ export const BuyModalContent = ({
     );
   }, [inputBlockSize]);
 
-  const loading = loadingCash || loadingSecurity;
+  const loading = loadingCash || loadingSecurity || securityFxLoading;
 
   const disableBuyButton = () => {
     return (
@@ -273,17 +285,18 @@ export const BuyModalContent = ({
     );
   };
 
+  const areSomePortfoliosProhibitedToTradeTheSecurity =
+    portfolioOptionsThatCanTrade?.length !==
+    portfolioOptionsThatCantTradeTheSecurity?.length;
+
   return (
-    <div className="grid gap-2 min-w-[min(84vw,_375px)]">
-      {securityName && (
-        <LabeledDiv
-          label={t("tradingModal.securityName")}
-          className="text-2xl font-semibold"
-        >
-          {securityName}
-        </LabeledDiv>
-      )}
-      {loadingSecurity && <LoadingIndicator size="sm" />}
+    <div className="grid gap-2 max-w-sm">
+      <LabeledDiv
+        label={t("tradingModal.securityName")}
+        className="text-2xl font-semibold"
+      >
+        {securityName ?? "-"}
+      </LabeledDiv>
       {security?.url2 && (
         <div className="w-fit">
           <DownloadableDocument
@@ -292,27 +305,29 @@ export const BuyModalContent = ({
           />
         </div>
       )}
+
       <PortfolioSelect
-        portfolioOptions={portfolioOptions}
+        portfolioOptions={portfolioOptionsThatCantTradeTheSecurity}
         portfolioId={portfolioId}
         onChange={(newPortfolio) => setPortfolioId(newPortfolio.id)}
         label={t("tradingModal.portfolio")}
         error={!portfolioId ? t("tradingModal.selectPortfolioError") : ""}
       />
-      {!loadingCash && (
-        <LabeledDiv
-          label={t("tradingModal.availableCash")}
-          className="text-xl font-semibold text-gray-700"
-        >
-          {availableCash !== undefined && portfolioCurrency !== undefined
-            ? t("numberWithCurrency", {
-                value: availableCash,
-                currency: portfolioCurrency,
-              })
-            : "-"}
-        </LabeledDiv>
-      )}
-      {loadingCash && <LoadingIndicator size="xs" />}
+
+      {areSomePortfoliosProhibitedToTradeTheSecurity && <PortfolioLock />}
+
+      <LabeledDiv
+        label={t("tradingModal.availableCash")}
+        className="text-xl font-semibold text-gray-700"
+      >
+        {availableCash !== undefined && portfolioCurrency !== undefined
+          ? t("numberWithCurrency", {
+              value: availableCash,
+              currency: portfolioCurrency,
+            })
+          : "-"}
+      </LabeledDiv>
+
       <Input
         disabled={!portfolioId}
         ref={modalInitialFocusRef}
@@ -328,7 +343,7 @@ export const BuyModalContent = ({
             ? t("tradingModal.unitsInputLabel")
             : t("tradingModal.tradeAmountSimpleInputLabel")
         }
-        type="text"
+        type="number"
         error={
           portfolioId === undefined
             ? ""
@@ -338,6 +353,7 @@ export const BuyModalContent = ({
             ? t("tradingModal.insufficientCashError")
             : ""
         }
+        step="any"
       />
 
       {canToggleTradeType && (
@@ -364,8 +380,9 @@ export const BuyModalContent = ({
         </>
       )}
 
-      <hr className="my-2" />
-      <div className="flex flex-col gap-4 items-stretch ">
+      <hr className="my-1" />
+
+      <div className="flex flex-col gap-4 items-stretch">
         <div>
           <LabeledDivFlex
             alignText="center"
@@ -401,6 +418,7 @@ export const BuyModalContent = ({
               </LabeledDivFlex>
             )}
         </div>
+
         <Button
           disabled={disableBuyButton()}
           isLoading={submitting}
@@ -415,7 +433,9 @@ export const BuyModalContent = ({
           {t("tradingModal.buyButtonLabel")}
         </Button>
       </div>
+
       <hr className="my-1" />
+
       <div className="text-xs text-center text-gray-600 max-w-[375px]">
         {t("tradingModal.buyDisclaimer")}
       </div>

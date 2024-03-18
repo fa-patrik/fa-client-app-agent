@@ -1,5 +1,5 @@
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { useDownloadDocument } from "api/documents/useDownloadDocument";
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { useDownloadReport } from "api/report/useDownloadReport";
 import { TransactionDetails as TransactionDetailsType } from "api/transactions/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/document-download.svg";
@@ -8,6 +8,7 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
+import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getTransactionColor,
@@ -43,6 +44,10 @@ export const TransactionDetails = ({
     tradeAmountInSecurityCurrency,
     grossPriceInSecurityCurrency,
     grossPriceInAccountCurrency,
+    tax,
+    tax2,
+    taxType,
+    taxType2,
   },
 }: TransactionDetailsProps) => {
   const { t, i18n } = useModifiedTranslation();
@@ -194,6 +199,34 @@ export const TransactionDetails = ({
                   },
                 })}
               />
+              {!!tax && ( //api returns 0 if no tax has been defined
+                <DataRow
+                  label={getBackendTranslation(
+                    t("transactionsPage.tax"),
+                    taxType?.namesAsMap,
+                    i18n.language
+                  )}
+                  value={t("numberWithCurrency", {
+                    value: tax,
+                    currency: securityCurrencyCode,
+                  })}
+                />
+              )}
+
+              {!!tax2 && (
+                <DataRow
+                  label={getBackendTranslation(
+                    t("transactionsPage.tax2"),
+                    taxType2?.namesAsMap,
+                    i18n.language
+                  )}
+                  value={t("numberWithCurrency", {
+                    value: tax2,
+                    currency: securityCurrencyCode,
+                  })}
+                />
+              )}
+
               <div />
             </div>
           </Card>

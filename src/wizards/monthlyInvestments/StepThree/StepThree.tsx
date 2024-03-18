@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { Button, Card, LabeledDiv } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
@@ -305,27 +305,42 @@ const StepThree = () => {
 
   //enable/disable next if amount distributed
   //or any security is below its min trade amount
-  useEffect(() => {
-    const isAnySelectedSecurityUnderMinAmount =
-      monthlyInvestmentsWizardState.selectedSecurities?.some(
-        (security: TradableSecurity) => {
-          const amountInputOnSecurity = amountInputs[security.id];
-          const amountInputOnSecurityAsNr =
-            amountInputOnSecurity !== undefined
-              ? Number(amountInputOnSecurity)
-              : 0;
-          return (
-            !!amountInputOnSecurityAsNr &&
-            amountInputOnSecurityAsNr <
-              security.minTradeAmount * security.fxRate
-          );
-        }
-      );
 
+  const isAnySelectedSecurityUnderMinAmount = useMemo(() => {
+    return monthlyInvestmentsWizardState.selectedSecurities?.some(
+      (security: TradableSecurity) => {
+        const amountInputOnSecurity = amountInputs[security.id];
+        const amountInputOnSecurityAsNr =
+          amountInputOnSecurity !== undefined
+            ? Number(amountInputOnSecurity)
+            : 0;
+        return (
+          !!amountInputOnSecurityAsNr &&
+          amountInputOnSecurityAsNr < security.minTradeAmount * security.fxRate
+        );
+      }
+    );
+  }, [amountInputs, monthlyInvestmentsWizardState.selectedSecurities]);
+
+  const isAnySecurityZero = useMemo(() => {
+    return monthlyInvestmentsWizardState.selectedSecurities?.some(
+      (security: TradableSecurity) => {
+        const amountInputOnSecurity = amountInputs[security.id];
+        const amountInputOnSecurityAsNr =
+          amountInputOnSecurity !== undefined
+            ? Number(amountInputOnSecurity)
+            : 0;
+        return amountInputOnSecurityAsNr === 0;
+      }
+    );
+  }, [amountInputs, monthlyInvestmentsWizardState.selectedSecurities]);
+
+  useEffect(() => {
     const disableNext =
       round(sumOfAmountInputs, CURRENCY_BLOCK_SIZE) !==
         monthlyInvestmentsWizardState.amountToInvest ||
-      isAnySelectedSecurityUnderMinAmount;
+      isAnySelectedSecurityUnderMinAmount ||
+      isAnySecurityZero;
 
     const disableBack = false;
     setWizardData((prevState) => ({
@@ -340,6 +355,8 @@ const StepThree = () => {
     monthlyInvestmentsWizardState.selectedSecurities,
     amountInputs,
     CURRENCY_BLOCK_SIZE,
+    isAnySelectedSecurityUnderMinAmount,
+    isAnySecurityZero,
   ]);
 
   return (
@@ -380,6 +397,13 @@ const StepThree = () => {
                 diffPercentage={
                   100 - round(sumOfPercentageInputs, PERCENTAGE_BLOCK_SIZE)
                 }
+                overrideError={
+                  isAnySecurityZero
+                    ? t(
+                        "wizards.monthlyInvestments.stepThree.securityAllocatedZeroError"
+                      )
+                    : undefined
+                }
               />
             )}
           </div>
@@ -396,7 +420,10 @@ const StepThree = () => {
             setInput={setInput}
             percentageInputs={percentageInputs}
             amountInputs={amountInputs}
-            portfolioCurrencyCode={portfolioCurrencyCode}
+            currency={
+              monthlyInvestmentsWizardState.selectedPortfolioOption?.details
+                ?.currency
+            }
           />
         </div>
       )}

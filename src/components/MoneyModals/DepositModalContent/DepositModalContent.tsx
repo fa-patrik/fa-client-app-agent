@@ -1,10 +1,11 @@
 import { MutableRefObject, useState } from "react";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { useDeposit } from "api/money/useDeposit";
 import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
+import { handleNumberInputEvent } from "utils/input";
 import { CashAccountSelect } from "../components/CashAccountSelect";
 import { usePortfoliosAccountsState } from "../usePortfoliosAccountsState";
 import { useDepositablePortfolioSelect } from "./useDepositablePortfolioSelect";
@@ -35,20 +36,21 @@ export const DepositModalContent = ({
       label = "",
       number = "",
     } = {},
-    currentExternalCashAccount: {
-      number: externalNumber = "",
-    } = {},
+    currentExternalCashAccount: { number: externalNumber = "" } = {},
   } = cashAccountSelectProps;
+  const inputBlockSize =
+    cashAccountSelectProps.currentInternalCashAccount?.amountDecimalCount;
+  const fallBackBlockSize = 2;
+  const [amount, setAmount] = useState("");
+  const amountAsNr = amount ? parseFloat(amount) : 0;
 
-  const [amount, setAmount] = useState(0);
-
-  const isAmountCorrect = !isNaN(availableBalance) && amount >= 0;
+  const isAmountCorrect = !isNaN(availableBalance) && amountAsNr >= 0;
 
   const { handleTrade: handleDeposit, submitting } = useDeposit({
     portfolio:
       portfolios.find((portfolio) => portfolio.id === portfolioId) ||
       portfolios[0],
-    tradeAmount: amount,
+    tradeAmount: amountAsNr,
     securityName: label,
     account: number,
     currency,
@@ -67,9 +69,15 @@ export const DepositModalContent = ({
       <div className="flex flex-col gap-4 items-stretch ">
         <Input
           ref={modalInitialFocusRef}
-          value={amount || ""}
+          value={amount}
           onChange={(event) => {
-            setAmount(Number(event.currentTarget.value));
+            handleNumberInputEvent(
+              event,
+              setAmount,
+              0,
+              undefined,
+              inputBlockSize || fallBackBlockSize
+            );
           }}
           label={t("moneyModal.depositAmountInputLabel", {
             currency: currency,
@@ -80,10 +88,11 @@ export const DepositModalContent = ({
               ? t("moneyModal.amountInputError")
               : undefined
           }
+          step="any"
         />
         <Button
           disabled={
-            readonly || amount === 0 || accountsLoading || !isAmountCorrect
+            readonly || amountAsNr === 0 || accountsLoading || !isAmountCorrect
           }
           isLoading={submitting}
           onClick={async () => {

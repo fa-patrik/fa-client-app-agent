@@ -3,7 +3,14 @@ import { QueryLoadingWrapper } from "components";
 import { Holdings } from "views/holdings/holdings";
 
 export const HoldingsPage = () => {
-  const queryData = useGetContactHoldingsFromAnalytics();
+  const analytics = useGetContactHoldingsFromAnalytics();
 
-  return <QueryLoadingWrapper {...queryData} SuccessComponent={Holdings} />;
+  return (
+    <QueryLoadingWrapper
+      loading={analytics.loading}
+      error={analytics.error}
+      data={analytics.data}
+      SuccessComponent={Holdings}
+    />
+  );
 };
