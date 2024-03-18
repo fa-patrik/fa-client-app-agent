@@ -1,12 +1,17 @@
-import { ReactComponent as CheckIcon } from "assets/check.svg";
-import { ReactComponent as CloseIcon } from "assets/close.svg";
-import { ReactComponent as GlassHourIcon } from "assets/glassHour.svg";
-import classNames from "classnames";
+import {
+  faScaleUnbalanced,
+  faScaleUnbalancedFlip,
+} from "@fortawesome/free-solid-svg-icons";
+import Alert from "components/Alert/Alert";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 interface DistributeInfoProps {
   diffAmount: number;
   diffPercentage: number;
+  /**
+   * If provided, is displayed and sets the component style to error.
+   */
+  overrideError?: string;
 }
 
 /**
@@ -18,6 +23,7 @@ interface DistributeInfoProps {
 const DistributeInfo = ({
   diffAmount,
   diffPercentage,
+  overrideError,
 }: DistributeInfoProps) => {
   const { i18n, t } = useModifiedTranslation();
 
@@ -33,51 +39,42 @@ const DistributeInfo = ({
   });
 
   return (
-    <div
-      className={classNames(
-        "flex flex-row gap-x-4 items-center py-4 px-6 rounded-lg h-14 max-w-sm",
-        {
-          "bg-primary-200": diffAmount > 0,
-          "bg-green-300": diffAmount === 0,
-          "bg-red-400": diffAmount < 0,
-        }
-      )}
-    >
-      {diffAmount > 0 ? (
-        <>
-          <GlassHourIcon />
-          <p
-            className="text-xs"
-            id="monthlyInvestmentsWizard-distributeMoreDisclaimer"
-          >
-            {t("wizards.monthlyInvestments.stepThree.distributeMore", {
-              diffAmountFormatted,
-              diffPercentageFormatted,
-            })}
-          </p>
-        </>
+    <>
+      {overrideError ? (
+        <Alert
+          id="distributeInfo-alert-error"
+          severity="Warning"
+          content={overrideError}
+          title={t("wizards.monthlyInvestments.stepThree.unableToProceed")}
+        />
+      ) : diffAmount > 0 ? (
+        <Alert
+          icon={faScaleUnbalanced}
+          id="distributeInfo-alert-distributeMore"
+          severity="Info"
+          content={t("wizards.monthlyInvestments.stepThree.distributeMore", {
+            diffAmountFormatted,
+            diffPercentageFormatted,
+          })}
+          title={t("wizards.monthlyInvestments.stepThree.distributeMoreTitle")}
+        />
       ) : diffAmount < 0 ? (
-        <>
-          <CloseIcon />
-          <p
-            className="text-xs"
-            id="monthlyInvestmentsWizard-distributeLessDisclaimer"
-          >
-            {t("wizards.monthlyInvestments.stepThree.distributeLess")}
-          </p>
-        </>
+        <Alert
+          icon={faScaleUnbalancedFlip}
+          id="distributeInfo-alert-distributeLess"
+          severity="Error"
+          content={t("wizards.monthlyInvestments.stepThree.distributeLess")}
+          title={t("wizards.monthlyInvestments.stepThree.distributeLessTitle")}
+        />
       ) : (
-        <>
-          <CheckIcon />
-          <p
-            className="text-xs"
-            id="monthlyInvestmentsWizard-distributeOkDisclaimer"
-          >
-            {t("wizards.monthlyInvestments.stepThree.distributeOk")}
-          </p>
-        </>
+        <Alert
+          id="distributeInfo-alert-distributeOk"
+          severity="Success"
+          content={t("wizards.monthlyInvestments.stepThree.distributeOk")}
+          title={t("wizards.monthlyInvestments.stepThree.distributedTitle")}
+        />
       )}
-    </div>
+    </>
   );
 };
 export default DistributeInfo;

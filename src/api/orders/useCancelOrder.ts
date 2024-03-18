@@ -1,6 +1,6 @@
 import { gql, useMutation, useApolloClient } from "@apollo/client";
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { OrderStatus } from "api/enums";
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
 import { OrderMutationResponse } from "api/orders/types";
 import { TRADE_ORDERS_QUERY } from "api/orders/useGetAllTradeOrders";
 import { useGetTradeOrder } from "api/orders/useGetTradeOrder";

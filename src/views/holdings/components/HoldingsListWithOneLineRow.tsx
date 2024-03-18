@@ -4,11 +4,9 @@ import { Button, GainLoseColoring, Grid } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate } from "react-router";
+import { useParams } from "react-router-dom";
+import { useCanTradeSecurities } from "services/permissions/trading";
 import { getGridColsClass } from "utils/tailwindClasses";
-import {
-  switchableTag,
-  tradableTag,
-} from "../../../services/permissions/usePermission";
 import { GroupedHoldings, HoldingProps } from "./HoldingsGroupedByType";
 import { NameWithFlag } from "./NameWithFlag";
 
@@ -18,7 +16,7 @@ export const HoldingsListWithOneLineRow = ({
   currency,
   tradeProps,
 }: GroupedHoldings) => {
-  const { canTrade, canAnyHoldingSwitch } = tradeProps;
+  const { canAnyHoldingSwitch, canTrade } = tradeProps;
   const { t } = useModifiedTranslation();
   const navigate = useNavigate();
 
@@ -83,7 +81,7 @@ const HoldingLg = ({
   currency,
   tradeProps,
 }: HoldingProps) => {
-  const { isinCode, countryCode, tagsAsList } = security;
+  const { isinCode, countryCode } = security;
   const {
     canTrade,
     onBuyModalOpen,
@@ -91,13 +89,18 @@ const HoldingLg = ({
     onSwitchModalOpen,
     canAnyHoldingSwitch,
   } = tradeProps;
-  const isTradable = tagsAsList.includes(tradableTag);
   const { t } = useModifiedTranslation();
   //no isin comes back as " "
   const codeToDisplay = isinCode && isinCode !== " " ? isinCode : code ?? "-";
   const isLgVersion = useMatchesBreakpoint("lg");
   const isXlVersion = useMatchesBreakpoint("xl");
-  const canSwitch = security.tagsAsList.includes(switchableTag);
+  const { portfolioId } = useParams();
+  const portfolioIdNumber = portfolioId ? parseInt(portfolioId, 10) : undefined;
+  const hasSelectedPortfolio = !!portfolioIdNumber;
+  const { canSwitchAnyHolding, canTradeAnyHolding } = useCanTradeSecurities(
+    security ? [security] : [],
+    portfolioIdNumber
+  );
 
   const valueChange =
     firstAnalysis?.marketValue !== undefined &&
@@ -110,12 +113,12 @@ const HoldingLg = ({
         <div
           className={classNames("col-span-2", {
             "grid gap-3 grid-cols-[148px_auto]":
-              canTrade && canAnyHoldingSwitch,
+              hasSelectedPortfolio && canTrade && canAnyHoldingSwitch,
             "grid gap-3 grid-cols-[84px_auto]":
-              canTrade && !canAnyHoldingSwitch,
+              hasSelectedPortfolio && canTrade && !canAnyHoldingSwitch,
           })}
         >
-          {canTrade && isTradable && (
+          {hasSelectedPortfolio && canTradeAnyHolding && (
             <div className="flex gap-2 items-start">
               <Button
                 size="xs"
@@ -136,7 +139,7 @@ const HoldingLg = ({
               >
                 {t("holdingsPage.sellButton")}
               </Button>
-              {canSwitch && (
+              {hasSelectedPortfolio && canSwitchAnyHolding && (
                 <Button
                   size="xs"
                   variant="Dark"
@@ -152,7 +155,7 @@ const HoldingLg = ({
               )}
             </div>
           )}
-          {canTrade && !isTradable && <div className="text-center grow">-</div>}
+          {!canTradeAnyHolding && <div className="text-center grow"></div>}
           <NameWithFlag
             name={name}
             countryCode={countryCode}

@@ -1,36 +1,4 @@
-export interface SecurityTypeData {
-  code: string;
-  name: string;
-  firstAnalysis: {
-    marketValue: number;
-    tradeAmount: number;
-    shareOfTotal: number;
-  } | null;
-}
-
-export interface SecurityData {
-  security: {
-    id: number;
-    isinCode: string;
-    countryCode: string;
-    currencyCode: string;
-    tagsAsList: string[];
-    securityTypeCode: string;
-  };
-  code: string;
-  name: string;
-  firstAnalysis: {
-    marketValue: number;
-    tradeAmount: number;
-    amount: number;
-    accruedInterest: number;
-    purchaseTradeAmount: number;
-  } | null;
-}
-
-export interface SecurityTypeDataWithSecurityData extends SecurityTypeData {
-  securities: SecurityData[];
-}
+import { AnalyticsSecurityTypeDataWithSecurityData } from "api/holdings/types";
 
 export interface PortfolioData {
   portfolio: {
@@ -40,7 +8,7 @@ export interface PortfolioData {
     marketValue: number;
     tradeAmount: number;
   } | null;
-  securityTypes: SecurityTypeDataWithSecurityData[];
+  securityTypes: AnalyticsSecurityTypeDataWithSecurityData[];
 }
 
 export interface ContactOverviewQuery {

@@ -1,9 +1,4 @@
-import {
-  Portfolio,
-  PortfolioGroups,
-  useGetContactInfo,
-} from "api/initial/useGetContactInfo";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useParams } from "react-router-dom";
 
@@ -13,68 +8,32 @@ export enum PermissionMode {
   SELECTED_ANY,
 }
 
-export const isPortfolioInGroup = (
-  portfolio: Portfolio,
-  groupCode: PortfolioGroups
-) => portfolio.portfolioGroups.some((group) => group.code === groupCode);
+const doesAnyPortfolioHavePermission = (
+  portfolios: Portfolio[],
+  filterFunction: (portfolio: Portfolio) => boolean
+) => portfolios.some(filterFunction);
 
-export const isPortfolioOptionInGroup = (
-  portfolioOption: PortfolioOption,
-  groupCode: PortfolioGroups
-) => {
-  const itCan =
-    portfolioOption?.details &&
-    isPortfolioInGroup(portfolioOption?.details, groupCode);
-  if (itCan) return true;
-  return false;
-};
-
-//Monthly investments
-export const canPortfolioMonthlyInvest = (portfolio: Portfolio) => {
-  return isPortfolioInGroup(portfolio, PortfolioGroups.MONTHLY_INVESTMENTS);
-};
-
-export const canPortfolioOptionMonthlyInvest = (
-  portfolioOption: PortfolioOption
-) => {
-  return isPortfolioOptionInGroup(
-    portfolioOption,
-    PortfolioGroups.MONTHLY_INVESTMENTS
+const selectedPortfolio = (
+  portfolios: Portfolio[],
+  portfolioId: string | undefined
+) =>
+  portfolios.filter(
+    (portfolio) =>
+      portfolioId !== undefined && portfolio.id === parseInt(portfolioId, 10)
   );
-};
 
-//Monthly savings
-export const canPortfolioMonthlySave = (portfolio: Portfolio) => {
-  return isPortfolioInGroup(portfolio, PortfolioGroups.MONTHLY_SAVINGS);
-};
-
-export const canPortfolioOptionMonthlySave = (
-  portfolioOption: PortfolioOption
-) => {
-  return isPortfolioOptionInGroup(
-    portfolioOption,
-    PortfolioGroups.MONTHLY_SAVINGS
-  );
-};
-
-//Trading
-export const canPortfolioTrade = (portfolio: Portfolio) => {
-  return isPortfolioInGroup(portfolio, PortfolioGroups.TRADE);
-};
-
-export const canPortfolioOptionTrade = (portfolioOption: PortfolioOption) => {
-  return isPortfolioOptionInGroup(portfolioOption, PortfolioGroups.TRADE);
-};
-
-export const tradableTag = "Tradeable";
-export const switchableTag = "Switchable";
+const doesSelectedPortfolioHavePermission = (
+  portfolios: Portfolio[],
+  portfolioId: string | undefined,
+  filterFunction: (portfolio: Portfolio) => boolean
+) => selectedPortfolio(portfolios, portfolioId).some(filterFunction);
 
 /*
  * Checks if user or portfolio is eligible
  * @param mode: mode to apply when checking if eligible
  * SELECTED - check only the selected portfolio
  * ANY - check any of the user's portfolios
- * SELECTED_ANY - use SELECTED_ONLY if there is a selected portfolio, else do ANY
+ * SELECTED_ANY - use SELECTED if there is a selected portfolio, else do ANY
  * @param filterFunction: predicate function that can return false or true for a given Portfolio
  * @return boolean - whether user can
  */
@@ -89,25 +48,23 @@ export const usePermission = (
     selectedContactId
   );
 
-  const doesAnyPortfolioHavePermission = portfolios.some((p) =>
-    filterFunction(p)
-  );
-  const selectedPortfolio = portfolios.filter(
-    (portfolio) =>
-      portfolioId !== undefined && portfolio.id === parseInt(portfolioId, 10)
-  );
-  const doesSelectedPortfolioHavePermission = selectedPortfolio.some((p) =>
-    filterFunction(p)
-  );
-
   switch (mode) {
     case PermissionMode.ANY:
-      return doesAnyPortfolioHavePermission;
+      return doesAnyPortfolioHavePermission(portfolios, filterFunction);
     case PermissionMode.SELECTED:
-      return doesSelectedPortfolioHavePermission;
+      return doesSelectedPortfolioHavePermission(
+        portfolios,
+        portfolioId,
+        filterFunction
+      );
     case PermissionMode.SELECTED_ANY:
-      if (portfolioId !== undefined) return doesSelectedPortfolioHavePermission;
-      return doesAnyPortfolioHavePermission;
+      if (portfolioId !== undefined)
+        return doesSelectedPortfolioHavePermission(
+          portfolios,
+          portfolioId,
+          filterFunction
+        );
+      return doesAnyPortfolioHavePermission(portfolios, filterFunction);
     default:
       return false;
   }

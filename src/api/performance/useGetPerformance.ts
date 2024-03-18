@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { useGetSubPortfolioIds } from "api/generic/useGetSubPortfolioIds";
+import { useGetSubPortfolioIds } from "api/common/useGetSubPortfolioIds";
 import { PERFORMANCE_PORTFOLIO_INDEXED_VALUE } from "./fragments";
 import { PerformanceQuery } from "./types";
 

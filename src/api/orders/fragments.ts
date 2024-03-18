@@ -40,6 +40,16 @@ export const TRADE_ORDERS_DETAILS = gql`
       reference
       extId
     }
+    taxType {
+      namesAsMap
+      id
+    }
+    taxType2 {
+      namesAsMap
+      id
+    }
+    tax
+    tax2
   }
 `;
 

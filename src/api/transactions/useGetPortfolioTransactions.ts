@@ -1,5 +1,5 @@
 import { gql, QueryHookOptions, useQuery } from "@apollo/client";
-import { useGetSubPortfolioIds } from "api/generic/useGetSubPortfolioIds";
+import { useGetSubPortfolioIds } from "api/common/useGetSubPortfolioIds";
 import { useGlobalDateRange } from "hooks/useGlobalDateRange";
 import { toShortISOString } from "utils/date";
 import { TRANSACTION_FIELDS } from "./fragments";

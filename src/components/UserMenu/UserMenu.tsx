@@ -5,11 +5,11 @@ import {
   useState,
 } from "react";
 import { Menu, Transition } from "@headlessui/react";
+import { Representee, useGetContactInfo } from "api/common/useGetContactInfo";
 import {
   Process,
   useGetContactProcesses,
 } from "api/flowable/useGetContactProcesses";
-import { Representee, useGetContactInfo } from "api/initial/useGetContactInfo";
 import { ReactComponent as CalendarIcon } from "assets/calendar-outlined.svg";
 import { ReactComponent as CheckIcon } from "assets/check.svg";
 import { ReactComponent as DepositIcon } from "assets/deposit.svg";
@@ -34,6 +34,8 @@ import { useCanDeposit, useCanWithdraw } from "services/permissions/money";
 import {
   canPortfolioMonthlyInvest,
   canPortfolioMonthlySave,
+} from "services/permissions/trading";
+import {
   PermissionMode,
   usePermission,
 } from "services/permissions/usePermission";

@@ -1,4 +1,4 @@
-import { Attribute } from "api/generic/useGetPortfoliosWithProfileAndFigures";
+import { Attribute } from "api/common/useGetPortfoliosWithProfileAndFigures";
 
 /**
  * Profile values can be stored as strings

@@ -1,14 +1,14 @@
+import { Portfolio } from "api/common/useGetContactInfo";
 import {
   Attribute,
   Profile,
-} from "api/generic/useGetPortfoliosWithProfileAndFigures";
-import { Portfolio } from "api/initial/useGetContactInfo";
+} from "api/common/useGetPortfoliosWithProfileAndFigures";
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { PortfolioMonthlyInvestmentsDTOInput } from "api/trading/useSetMonthlyInvestments";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { getPortfolioOption } from "hooks/useGetPortfolioOptions";
 import { MonthlyInvestmentsWizardState } from "wizards/monthlyInvestments/types";
-import { getDefaultValueAsNumber } from "./general";
+import { getDefaultValueAsNumber } from "./common";
 
 export enum MonthlyInvestmentsFieldId {
   ENABLE = "enable",

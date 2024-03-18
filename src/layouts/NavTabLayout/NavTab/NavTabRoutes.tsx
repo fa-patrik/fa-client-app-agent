@@ -1,6 +1,6 @@
 import { Navigate, useRoutes } from "react-router-dom";
+import { canPortfolioTrade } from "services/permissions/trading";
 import {
-  canPortfolioTrade,
   PermissionMode,
   usePermission,
 } from "services/permissions/usePermission";

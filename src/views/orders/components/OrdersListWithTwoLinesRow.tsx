@@ -1,4 +1,4 @@
-import { useGetPortfolioBasicFieldsById } from "api/generic/useGetPortfolioBasicFieldsById";
+import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { Badge, Grid } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";

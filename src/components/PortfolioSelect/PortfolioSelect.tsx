@@ -1,4 +1,4 @@
-import { Portfolio } from "api/initial/useGetContactInfo";
+import { Portfolio } from "api/common/useGetContactInfo";
 import { ComboBox } from "../ComboBox/ComboBox";
 
 export interface PortfolioOption {

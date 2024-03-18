@@ -7,7 +7,7 @@ import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { LoadingIndicator } from "components/LoadingIndicator/LoadingIndicator";
 import Fade from "components/Transition/Fade";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { filterOptionsByQuery } from "utils/filtering";
+import { filterOptionsByQuery } from "utils/options";
 import { usePopper } from "../../hooks/usePopper";
 export interface Option {
   id: number | string | null;
@@ -182,7 +182,7 @@ export const ComboBox = <TOption extends Option>({
             leaveFrom="transform scale-100 opacity-100"
             leaveTo="transform scale-95 opacity-0"
           >
-            <Combobox.Options className="overflow-y-auto py-1 max-h-96 text-base list-none bg-white rounded divide-y divide-gray-100 shadow">
+            <Combobox.Options className="overflow-y-auto py-1 max-h-48 text-base list-none bg-white rounded divide-y divide-gray-100 shadow">
               {renderOptions(filteredOptions, value, id)}
             </Combobox.Options>
           </Transition>

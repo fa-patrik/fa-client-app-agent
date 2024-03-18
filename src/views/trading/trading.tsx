@@ -1,14 +1,27 @@
 import { useCallback } from "react";
-import { useGetTradebleSecurities } from "api/trading/useGetTradebleSecurities";
 import { Card, Input, QueryLoadingWrapper, ComboBox } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useStateWithDebounceCallback } from "hooks/useStateWithDebounceCallback";
+import { useParams } from "react-router-dom";
+import { useGetPermittedSecurities } from "services/permissions/trading";
 import { TradableSecuritiesList } from "./components/TradableSecuritiesList";
 
 export const TradingView = () => {
   const { t } = useModifiedTranslation();
-  const { filters, setFilters, filterOptions, ...queryData } =
-    useGetTradebleSecurities();
+
+  const { portfolioId } = useParams();
+  const portfolioIdAsNumber = portfolioId
+    ? parseInt(portfolioId, 10)
+    : undefined;
+
+  const {
+    filters,
+    setFilters,
+    filterOptions,
+    data: tradableSecurities,
+    loading,
+    error,
+  } = useGetPermittedSecurities(undefined, portfolioIdAsNumber);
 
   const { value, setValue } = useStateWithDebounceCallback(
     useCallback(
@@ -47,7 +60,9 @@ export const TradingView = () => {
         </div>
       </Card>
       <QueryLoadingWrapper
-        {...queryData}
+        data={tradableSecurities}
+        loading={loading}
+        error={error}
         SuccessComponent={TradableSecuritiesList}
       />
     </div>

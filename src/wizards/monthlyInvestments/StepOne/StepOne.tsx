@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   PortfolioWithProfileAndFigures,
   useGetPortfoliosWithProfileAndFigures,
-} from "api/generic/useGetPortfoliosWithProfileAndFigures";
+} from "api/common/useGetPortfoliosWithProfileAndFigures";
 import {
   Button,
   Card,
@@ -15,7 +15,7 @@ import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
-import { canPortfolioOptionMonthlyInvest } from "services/permissions/usePermission";
+import { canPortfolioOptionMonthlyInvest } from "services/permissions/trading";
 import { addMonthlyInvestmentsToPortfolios } from "utils/faBackProfiles/monthlyInvestments";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import { MonthlyInvestmentsWizardState } from "../types";
@@ -204,6 +204,7 @@ const StepOne = () => {
                 currency: portfolioCurrencyCode,
               })}
               placeholder={`${minAmount || 100}`}
+              step="any"
             />
             {minAmount && (
               <p

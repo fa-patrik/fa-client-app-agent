@@ -3,7 +3,7 @@ import {
   Portfolio,
   PortfolioGroups,
   useGetContactInfo,
-} from "api/initial/useGetContactInfo";
+} from "api/common/useGetContactInfo";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";

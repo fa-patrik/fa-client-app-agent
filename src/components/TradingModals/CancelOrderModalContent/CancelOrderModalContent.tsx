@@ -1,5 +1,5 @@
 import { useState, MutableRefObject } from "react";
-import { Portfolio } from "api/initial/useGetContactInfo";
+import { Portfolio } from "api/common/useGetContactInfo";
 import { TradeOrder } from "api/orders/types";
 import { useCancelOrder } from "api/orders/useCancelOrder";
 import { Badge } from "components";

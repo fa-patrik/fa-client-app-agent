@@ -1,3 +1,5 @@
+import { SecurityGroup } from "api/types";
+
 export interface MarketHistoryDataPoint {
   price: number;
   date: string;
@@ -45,8 +47,6 @@ export interface SecurityDetailsPosition {
     namesAsMap: Record<string, string>;
     name: string;
   };
-  fxRate: number;
-  // misnamed on backend, should be tagsAsList
   tagsAsSet: string[];
   documents: {
     fileName: string;
@@ -54,6 +54,7 @@ export interface SecurityDetailsPosition {
     mimeType: string;
   }[];
   amountDecimalCount: number;
+  groups: SecurityGroup[];
 }
 
 export interface SecurityDetailsQuery {
@@ -116,6 +117,7 @@ export interface AnalyticsSecurityData {
     currencyCode: string;
     tagsAsList: string[];
     securityTypeCode: string;
+    groups: SecurityGroup[];
   };
   code: string;
   name: string;

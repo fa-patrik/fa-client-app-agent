@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { SecurityTypeDataWithSecurityData } from "api/overview/types";
+import { AnalyticsSecurityTypeDataWithSecurityData } from "api/holdings/types";
 
 export const useGetChartData = (
-  securityTypes: SecurityTypeDataWithSecurityData[] | undefined
+  securityTypes: AnalyticsSecurityTypeDataWithSecurityData[] | undefined
 ) => {
   return useMemo(() => {
     if (!securityTypes?.length) return { series: [], labels: [] };

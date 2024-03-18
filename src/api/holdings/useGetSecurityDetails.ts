@@ -1,14 +1,8 @@
 import { gql, useQuery } from "@apollo/client";
-import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useGetContactInfo } from "../initial/useGetContactInfo";
 import { SecurityDetailsQuery } from "./types";
 
 const SECURITY_DETAILS_QUERY = gql`
-  query GetSecurityDetails(
-    $securityId: Long
-    $currency: String
-    $filterTags: [String]
-  ) {
+  query GetSecurityDetails($securityId: Long, $documentTags: [String]) {
     security(id: $securityId) {
       id
       name
@@ -32,33 +26,29 @@ const SECURITY_DETAILS_QUERY = gql`
         namesAsMap
         name
       }
-      fxRate(quoteCurrency: $currency)
       tagsAsSet
-      documents(filterTags: $filterTags) {
+      documents(filterTags: $documentTags) {
         fileName
         identifier
         mimeType
+      }
+      groups {
+        id
+        code
+        name
       }
       amountDecimalCount
     }
   }
 `;
 
-export const useGetSecurityDetails = (
-  securityId: string | undefined,
-  currencyCode?: string
-) => {
-  const { selectedContactId } = useGetContractIdData();
-  const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
-    useGetContactInfo(false, selectedContactId);
-
+export const useGetSecurityDetails = (securityId: string | undefined) => {
   const { loading, error, data } = useQuery<SecurityDetailsQuery>(
     SECURITY_DETAILS_QUERY,
     {
       variables: {
         securityId: securityId,
-        currency: currencyCode || portfoliosCurrency,
-        filterTags: ["Online"],
+        documentTags: ["Online"],
       },
     }
   );

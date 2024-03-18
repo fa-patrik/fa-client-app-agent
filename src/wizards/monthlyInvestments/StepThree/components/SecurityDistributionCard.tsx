@@ -26,7 +26,12 @@ interface SecurityDistributionCardProps {
   setInput: (input: string, securityId: number, mode: string) => void;
   percentageInputs: Record<string, string | undefined>;
   amountInputs: Record<string, string | undefined>;
-  portfolioCurrencyCode: string | undefined;
+  currency:
+    | {
+        securityCode: string;
+        amountDecimalCount: number;
+      }
+    | undefined;
   id?: string;
 }
 
@@ -36,7 +41,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
   setInput,
   percentageInputs,
   amountInputs,
-  portfolioCurrencyCode,
+  currency,
   id,
 }) => {
   const { i18n } = useModifiedTranslation();
@@ -115,13 +120,14 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                       )
                     : ""
                 }
+                step="any"
               />
               <Input
                 id={!id ? undefined : `${id}-amountInput`}
                 label={t(
                   "wizards.monthlyInvestments.stepThree.amountInputLabel",
                   {
-                    currency: portfolioCurrencyCode,
+                    currency: currency?.securityCode,
                   }
                 )}
                 type="number"
@@ -134,7 +140,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                     wrapSetValue(setInput, security.id, "absolute"),
                     0,
                     undefined,
-                    2
+                    currency?.amountDecimalCount || 2
                   )
                 }
                 onPaste={(event) =>
@@ -143,7 +149,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                     wrapSetValue(setInput, security.id, "absolute"),
                     0,
                     undefined,
-                    2
+                    currency?.amountDecimalCount || 2
                   )
                 }
                 error={
@@ -156,6 +162,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                       )
                     : ""
                 }
+                step="any"
               />
             </div>
             <p
@@ -163,12 +170,15 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
               className="text-sm font-thin"
             >
               {t("wizards.monthlyInvestments.stepThree.minDisclaimer", {
-                amount: security.minTradeAmount.toLocaleString(i18n.language, {
-                  style: "currency",
-                  currency: security.currency.securityCode,
-                }),
+                amount: minTradeAmountInPfCurrency.toLocaleString(
+                  i18n.language,
+                  {
+                    style: "currency",
+                    currency: currency?.securityCode,
+                    maximumFractionDigits: currency?.amountDecimalCount,
+                  }
+                ),
               })}
-              {}
             </p>
           </div>
         </div>

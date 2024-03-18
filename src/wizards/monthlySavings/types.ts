@@ -9,6 +9,7 @@ import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
  * before being imported.
  */
 export interface MonthlySavingsWizardState {
+  isEditing?: boolean;
   selectedPortfolioOption: PortfolioOption | undefined;
   selectedAccount: CashAccount | undefined;
   amountToSave: number | undefined;

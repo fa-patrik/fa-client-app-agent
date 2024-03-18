@@ -10,6 +10,7 @@ export const PORTFOLIO_ACCOUNTS_FRAGMENT = gql`
       number
       currency {
         securityCode
+        amountDecimalCount
       }
       cashAccount
       category
@@ -25,6 +26,7 @@ export const PORTFOLIO_REPORT_ACCOUNTS_FRAGMENT = gql`
         accountName
         currency {
           securityCode
+          amountDecimalCount
         }
         account {
           cashAccount
@@ -60,6 +62,7 @@ export interface PortfolioReportAccount {
   accountName: string;
   currency: {
     securityCode: string;
+    amountDecimalCount: number;
   };
   accountId: number | null;
   amountAfterOpenTradeOrders: number;
@@ -78,6 +81,7 @@ export interface PortfolioAccount {
   number: string;
   currency: {
     securityCode: string;
+    amountDecimalCount: number;
   };
   cashAccount: boolean;
   balance: number;
@@ -103,6 +107,7 @@ export interface CashAccount {
   number: string;
   currency: string;
   currentBalance: number;
+  amountDecimalCount: number;
   availableBalance: number;
 }
 
@@ -114,6 +119,7 @@ export const mapCashAccount = (
   number: account.number,
   currency: account.currency.securityCode,
   currentBalance: account.balance ?? 0,
+  amountDecimalCount: account.currency.amountDecimalCount,
   availableBalance: account.amountAfterOpenTradeOrders ?? 0,
 });
 

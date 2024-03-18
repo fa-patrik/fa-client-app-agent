@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
+import { SecurityGroup } from "api/types";
 import { fallbackLanguage } from "i18n";
 import { useKeycloak } from "providers/KeycloakProvider";
 
@@ -18,6 +19,14 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
       id
       code
     }
+    securityGroups {
+      id
+      code
+      name
+      securities {
+        id
+      }
+    }
     parentPortfolios {
       id
     }
@@ -34,11 +43,18 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
         id
         code
       }
+      securityGroups {
+        id
+        code
+        name
+        securities {
+          id
+        }
+      }
     }
   }
 `;
 
-//maximum of 2 sub portfolio depth
 export const CONTACT_INFO_QUERY = gql`
   ${PORTFOLIO_BASIC_FIELDS}
   query GetContactInfo($contactId: Long) {
@@ -124,6 +140,7 @@ export interface Portfolio {
     amountDecimalCount: number;
   };
   portfolioGroups: PortfolioGroup[];
+  securityGroups: SecurityGroup[];
 }
 
 export interface ContactInfoQuery {
@@ -169,7 +186,7 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
       locale: data?.contact?.language?.locale || fallbackLanguage,
       // all contact portfolios have same currency
       portfoliosCurrency:
-        data?.contact?.portfolios?.[0]?.currency?.securityCode,
+        activeAndPassivePortfolios?.[0]?.currency?.securityCode,
       representees: data?.contact?.representees,
       assetManagerPortfolios: data?.contact?.assetManagerPortfolios,
       name: data?.contact?.name,

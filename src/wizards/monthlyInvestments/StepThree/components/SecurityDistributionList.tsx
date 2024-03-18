@@ -8,17 +8,22 @@ interface SecurityDistributionListProps {
   setInput: (input: string, securityId: number, mode: string) => void;
   percentageInputs: Record<string, string | undefined>;
   amountInputs: Record<string, string | undefined>;
-  portfolioCurrencyCode: string | undefined;
+  currency:
+    | {
+        securityCode: string;
+        amountDecimalCount: number;
+      }
+    | undefined;
   id?: string;
 }
 
 const SecurityDistributionList: React.FC<SecurityDistributionListProps> = ({
+  currency,
   selectedSecurities,
   handleRemove,
   setInput,
   percentageInputs,
   amountInputs,
-  portfolioCurrencyCode,
   id,
 }) => {
   return (
@@ -33,7 +38,7 @@ const SecurityDistributionList: React.FC<SecurityDistributionListProps> = ({
               setInput={setInput}
               percentageInputs={percentageInputs}
               amountInputs={amountInputs}
-              portfolioCurrencyCode={portfolioCurrencyCode}
+              currency={currency}
             />
           </RenderWhenInView>
         );

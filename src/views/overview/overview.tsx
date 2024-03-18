@@ -1,18 +1,26 @@
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { SecurityTypeCode } from "api/holdings/types";
-import { useGetContactInfo } from "api/initial/useGetContactInfo";
 import { ContactOverviewQuery } from "api/overview/types";
 import { useGetContactCashFromPfReport } from "api/overview/useGetContactCashFromPfReport";
 import { useGetContactOverview } from "api/overview/useGetContactOverview";
 import { QueryLoadingWrapper } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useMatchesBreakpoint } from "../../hooks/useMatchesBreakpoint";
 import { PortfolioInfoCard } from "./components/PortfolioInfoCard";
 import { TotalSummary } from "./components/TotalSummary";
 
 export const OverviewView = () => {
   useGetContactCashFromPfReport();
-  const queryData = useGetContactOverview();
-  return <QueryLoadingWrapper {...queryData} SuccessComponent={Overview} />;
+  const analytics = useGetContactOverview();
+  return (
+    <QueryLoadingWrapper
+      loading={analytics.loading}
+      error={analytics.error}
+      data={analytics.data}
+      SuccessComponent={Overview}
+    />
+  );
 };
 
 interface OverviewProps {
@@ -26,11 +34,14 @@ const Overview = ({ data }: OverviewProps) => {
   const contactPortfoliosAnalysis =
     data?.contact?.analytics?.contact?.parentPortfolios;
   const breakPortfolioInfoCard = useMatchesBreakpoint("sm");
-  const { data: cachedContactData } = useGetContactInfo();
+  const { selectedContactId } = useGetContractIdData();
+  const { data: cachedContactData } = useGetContactInfo(
+    false,
+    selectedContactId
+  );
 
   //assumption that all portfolios have same currency, so we use currency from first one
   const currencyCode = cachedContactData?.portfoliosCurrency;
-
   const totalTradeAmount =
     contactAnalysis?.analytics?.contact?.firstAnalysis?.tradeAmount;
 
