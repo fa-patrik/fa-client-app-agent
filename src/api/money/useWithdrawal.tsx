@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { ApolloError, FetchResult, gql, useMutation } from "@apollo/client";
+import { OrderStatus } from "api/enums";
+import { OrderMutationResponse } from "api/orders/types";
 import { TransactionType } from "api/transactions/enums";
 import {
   LocalTradeOrderDetails,
@@ -29,14 +31,14 @@ const IMPORT_WITHDRAWAL_MUTATION = gql`
         type: $transactionTypeCode
         parentPortfolio: $portfolioShortName
         account: $account
-        status: "4"
+        status: "${OrderStatus.Open}"
         intInfo: $intInfo
       }
     )
   }
 `;
 
-interface ImportTransactionQueryVariables {
+interface ImportTradeOrderQueryVariables {
   currency: string;
   portfolioShortName: string;
   reference: string;
@@ -49,17 +51,11 @@ interface ImportTransactionQueryVariables {
 
 const errorStatus = "ERROR" as const;
 
-interface ImportTransactionQueryResponse {
-  importTradeOrder: ({
-    importStatus: "OK" | typeof errorStatus;
-  } & unknown)[];
-}
-
 export const withdrawalType = "withdrawal" as const;
 
 export const useWithdrawal = (
-  newTransaction: Omit<
-    ImportTransactionQueryVariables,
+  newOrder: Omit<
+    ImportTradeOrderQueryVariables,
     | "transactionTypeCode"
     | "transactionDate"
     | "reference"
@@ -70,8 +66,8 @@ export const useWithdrawal = (
   const { t } = useModifiedTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [handleAPITrade] = useMutation<
-    ImportTransactionQueryResponse,
-    ImportTransactionQueryVariables
+    OrderMutationResponse,
+    ImportTradeOrderQueryVariables
   >(IMPORT_WITHDRAWAL_MUTATION, {
     refetchQueries: ["GetAllPortfoliosTradeOrders", "GetPortfolioTradeOrders"],
   });
@@ -82,18 +78,18 @@ export const useWithdrawal = (
   const handleTrade = async () => {
     setSubmitting(true);
     try {
-      const { portfolio, account } = newTransaction;
+      const { portfolio, account } = newOrder;
       if (!portfolio || !account) {
         return;
       }
-      const transactionReference = getUniqueReference();
+      const orderReference = getUniqueReference();
 
       const apiResponse = await handleAPITrade({
         variables: {
-          ...newTransaction,
+          ...newOrder,
           transactionDate: new Date(),
           transactionTypeCode: TransactionType.WITHDRAWAL,
-          reference: transactionReference,
+          reference: orderReference,
           portfolioShortName: portfolio.shortName,
         },
       });
@@ -101,9 +97,9 @@ export const useWithdrawal = (
       handleBadAPIResponse(apiResponse);
 
       await saveToLocalTradeOrders({
-        ...newTransaction,
+        ...newOrder,
         tradeType: withdrawalType,
-        reference: transactionReference,
+        reference: orderReference,
       });
 
       setSubmitting(false);
@@ -124,16 +120,16 @@ export const useWithdrawal = (
 
 const handleBadAPIResponse = (
   apiResponse: FetchResult<
-    ImportTransactionQueryResponse,
+    OrderMutationResponse,
     Record<string, unknown>,
     Record<string, unknown>
   >
 ) => {
-  if (!apiResponse.data || !apiResponse.data.importTradeOrder?.[0]) {
+  if (!apiResponse.data?.importTradeOrder?.[0]) {
     throw new Error("Empty response");
   }
 
-  if (apiResponse.data.importTradeOrder[0].importStatus === errorStatus) {
+  if (apiResponse.data.importTradeOrder[0]?.importStatus === errorStatus) {
     let errorMessage = "Bad request: \n";
     Object.entries(apiResponse.data.importTradeOrder[0]).forEach(
       ([key, value]) => {

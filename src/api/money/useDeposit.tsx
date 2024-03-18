@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { ApolloError, FetchResult, gql, useMutation } from "@apollo/client";
+import { OrderStatus } from "api/enums";
+import { OrderMutationResponse } from "api/orders/types";
 import { TransactionType } from "api/transactions/enums";
 import {
   LocalTradeOrderDetails,
@@ -20,8 +22,8 @@ const IMPORT_DEPOSIT_MUTATION = gql`
     $account: String
     $intInfo: String
   ) {
-    importTransaction(
-      transaction: {
+    importTradeOrder(
+      tradeOrder: {
         tradeAmount: $tradeAmount
         currency: $currency
         reference: $reference
@@ -29,7 +31,7 @@ const IMPORT_DEPOSIT_MUTATION = gql`
         type: $transactionTypeCode
         parentPortfolio: $portfolioShortName
         account: $account
-        status: "NF"
+        status: "${OrderStatus.Open}"
         intInfo: $intInfo
       }
     )
@@ -49,16 +51,10 @@ interface ImportDepositQueryVariables {
 
 const errorStatus = "ERROR" as const;
 
-interface ImportDepositQueryResponse {
-  importTransaction: ({
-    importStatus: "OK" | typeof errorStatus;
-  } & unknown)[];
-}
-
 export const depositType = "deposit" as const;
 
 export const useDeposit = (
-  newTransaction: Omit<
+  newTradeOrder: Omit<
     ImportDepositQueryVariables,
     | "transactionTypeCode"
     | "transactionDate"
@@ -70,7 +66,7 @@ export const useDeposit = (
   const { t } = useModifiedTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [handleAPITrade] = useMutation<
-    ImportDepositQueryResponse,
+    OrderMutationResponse,
     ImportDepositQueryVariables
   >(IMPORT_DEPOSIT_MUTATION, {
     refetchQueries: ["GetAllPortfoliosTradeOrders", "GetPortfolioTradeOrders"],
@@ -82,18 +78,18 @@ export const useDeposit = (
   const handleTrade = async () => {
     setSubmitting(true);
     try {
-      const { portfolio, account } = newTransaction;
+      const { portfolio, account } = newTradeOrder;
       if (!portfolio || !account) {
         return;
       }
-      const transactionReference = getUniqueReference();
+      const orderReference = getUniqueReference();
 
       const apiResponse = await handleAPITrade({
         variables: {
-          ...newTransaction,
+          ...newTradeOrder,
           transactionDate: new Date(),
           transactionTypeCode: TransactionType.DEPOSIT,
-          reference: transactionReference,
+          reference: orderReference,
           portfolioShortName: portfolio.shortName,
         },
       });
@@ -101,9 +97,9 @@ export const useDeposit = (
       handleBadAPIResponse(apiResponse);
 
       await saveToLocalTradeOrders({
-        ...newTransaction,
+        ...newTradeOrder,
         tradeType: depositType,
-        reference: transactionReference,
+        reference: orderReference,
       });
 
       setSubmitting(false);
@@ -124,18 +120,18 @@ export const useDeposit = (
 
 const handleBadAPIResponse = (
   apiResponse: FetchResult<
-    ImportDepositQueryResponse,
+    OrderMutationResponse,
     Record<string, unknown>,
     Record<string, unknown>
   >
 ) => {
-  if (!apiResponse.data || !apiResponse.data.importTransaction?.[0]) {
+  if (!apiResponse.data?.importTradeOrder?.[0]) {
     throw new Error("Empty response");
   }
 
-  if (apiResponse.data.importTransaction[0].importStatus === errorStatus) {
+  if (apiResponse.data.importTradeOrder[0].importStatus === errorStatus) {
     let errorMessage = "Bad request: \n";
-    Object.entries(apiResponse.data.importTransaction[0]).forEach(
+    Object.entries(apiResponse.data.importTradeOrder[0]).forEach(
       ([key, value]) => {
         if (value.includes("ERROR") && key !== "importStatus") {
           errorMessage += `${key}: ${value}; \n`;
