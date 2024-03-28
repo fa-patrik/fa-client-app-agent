@@ -124,7 +124,7 @@ const HoldingLg = ({
                 size="xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onBuyModalOpen(security);
+                  onBuyModalOpen({ ...security, name });
                 }}
               >
                 {t("holdingsPage.buyButton")}
@@ -134,7 +134,7 @@ const HoldingLg = ({
                 variant="Red"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onSellModalOpen(security);
+                  onSellModalOpen({ ...security, name });
                 }}
               >
                 {t("holdingsPage.sellButton")}
