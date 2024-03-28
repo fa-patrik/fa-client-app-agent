@@ -91,6 +91,9 @@ const StepFour = () => {
             )}
             onChange={handleDateInput}
             value={selectedDate}
+            placeholder={t(
+              "wizards.monthlyInvestments.stepFour.buyDateInputPlaceholder"
+            )}
           />
 
           <SelectMonthsGrid

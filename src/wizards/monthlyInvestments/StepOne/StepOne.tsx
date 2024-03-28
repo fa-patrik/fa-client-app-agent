@@ -88,7 +88,7 @@ const StepOne = () => {
     ) {
       return minAmount.toString();
     }
-    return monthlyInvestmentsWizardState.amountToInvest?.toString() || "100";
+    return monthlyInvestmentsWizardState.amountToInvest?.toString() ?? "";
   });
   const [inputError, setInputError] = useState("");
 
@@ -203,10 +203,12 @@ const StepOne = () => {
               label={t("wizards.monthlyInvestments.stepOne.amountInputLabel", {
                 currency: portfolioCurrencyCode,
               })}
-              placeholder={`${minAmount || 100}`}
+              placeholder={t(
+                "wizards.monthlyInvestments.stepOne.amountInputPlaceholder"
+              )}
               step="any"
             />
-            {minAmount && (
+            {!!minAmount && (
               <p
                 id="monthlyInvestmentsWizard-minAmountDisclaimer"
                 className="text-sm font-thin"

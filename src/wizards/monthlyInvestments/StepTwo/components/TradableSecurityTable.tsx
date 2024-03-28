@@ -357,35 +357,35 @@ const TradableSecurityTable = ({
   useEffect(() => {
     const fetchData = async () => {
       setLoadingPerformanceData(true);
-      console.debug(
+      /* console.debug(
         "Running for ids",
         rowsToDisplay.map((s) => s.id)
-      );
+      ); */
       for (const security of rowsToDisplay) {
         const variables = {
           securityId: security.id,
           timePeriodCodes: [TimePeriod["YEARS-1"]],
         };
-        console.debug(`Requesting data for security ID: ${security.id}`);
+        /* console.debug(`Requesting data for security ID: ${security.id}`); */
         const cacheResponse = cache.readQuery<PerformanceBySecurityQuery>({
           query: PERFORMANCE_BY_SECURITY_QUERY,
           variables,
         });
         if (cacheResponse) {
-          console.debug(
+          /* console.debug(
             `Cache hit for ${security.name} (${security.id}), received data:`,
             cacheResponse.security
-          );
+          ); */
           setPerformanceData((prev) => ({
             ...prev,
             ...transformMap(cacheResponse),
           }));
         } else {
           const response = await getPerformanceBySecurity(variables);
-          console.debug(
+          /* console.debug(
             `Fetched data for ${security.name} (${security.id}), received data:`,
             response?.data?.security
-          );
+          ); */
           if (response) {
             setPerformanceData((prev) => ({
               ...prev,
