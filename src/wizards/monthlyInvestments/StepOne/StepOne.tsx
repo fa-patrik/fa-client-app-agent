@@ -78,7 +78,6 @@ const StepOne = () => {
   ]?.value as number;
 
   const portfolioCurrencyCode = portfolio?.currency.securityCode;
-  const CURRENCY_BLOCK_SIZE = portfolio?.currency.amountDecimalCount;
 
   const [inputValue, setInputValue] = useState<string>(() => {
     if (
@@ -182,22 +181,10 @@ const StepOne = () => {
               type="number"
               value={inputValue}
               onChange={(e) =>
-                handleNumberInputEvent(
-                  e,
-                  setInputValue,
-                  0,
-                  undefined,
-                  CURRENCY_BLOCK_SIZE
-                )
+                handleNumberInputEvent(e, setInputValue, 0, undefined, 0)
               }
               onPaste={(e) =>
-                handleNumberPasteEvent(
-                  e,
-                  setInputValue,
-                  0,
-                  undefined,
-                  CURRENCY_BLOCK_SIZE
-                )
+                handleNumberPasteEvent(e, setInputValue, 0, undefined, 0)
               }
               className="text-black rounded-lg"
               label={t("wizards.monthlyInvestments.stepOne.amountInputLabel", {

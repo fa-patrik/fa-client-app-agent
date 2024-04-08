@@ -18,6 +18,9 @@ const StepTwo = () => {
   const { wizardData, setWizardData } =
     useWizard<MonthlyInvestmentsWizardState>();
   const monthlyInvestmentsWizardState = wizardData.data;
+  const amountDistribution = monthlyInvestmentsWizardState.amountDistribution;
+  const percentageDistribution =
+    monthlyInvestmentsWizardState.percentageDistribution;
   const { t } = useModifiedTranslation();
   //useGetTradebleSecurities has its own api for filtering securities
   //however, that results in extra api requests
@@ -97,14 +100,12 @@ const StepTwo = () => {
 
   const [displayCategoryFilter, setDisplayCategoryFilter] = useState(false);
 
-  const nrOfFiltersApplied =
-    selectedCountry.id && selectedType?.id
-      ? 2
-      : selectedCountry.id
-      ? 1
-      : selectedType?.id
-      ? 1
-      : 0;
+  let nrOfFiltersApplied = 0;
+  if (selectedCountry.id && selectedType?.id) {
+    nrOfFiltersApplied = 2;
+  } else if (selectedCountry.id || selectedType?.id) {
+    nrOfFiltersApplied = 1;
+  }
 
   //the setter is given to the table in order for it
   //to be able to add or remove, by the user, clicked on securities
@@ -143,6 +144,49 @@ const StepTwo = () => {
       };
     });
   }, [displayedMaxNrSecuritiesWarning, selectedSecurities, setWizardData]);
+
+  useEffect(() => {
+    const newAmountDistribution = { ...amountDistribution };
+    const newPercentageDistribution = { ...percentageDistribution };
+
+    //remove those that are not in the selected securities anymore
+    const selectedSecuritiesIds = new Set(
+      selectedSecurities?.map((security) => security.id.toString())
+    );
+    const amountDistributionIds = Object.keys(newAmountDistribution);
+    const idsToRemove = amountDistributionIds.filter(
+      (id) => !selectedSecuritiesIds.has(id)
+    );
+    idsToRemove.forEach((id) => {
+      delete newAmountDistribution[id];
+      delete newPercentageDistribution[id];
+    });
+
+    //find selected that are not in the distribution yet
+    const selectedSecuritiesNotInDistribution = selectedSecurities?.filter(
+      (security) => !(security.id.toString() in newAmountDistribution)
+    );
+
+    //add them with value 0
+    selectedSecuritiesNotInDistribution?.forEach((security) => {
+      const newAmountValue = 0;
+      const newPercentageValue = 0;
+      newAmountDistribution[security.id] = newAmountValue.toString();
+      newPercentageDistribution[security.id] = newPercentageValue.toString();
+    });
+
+    setWizardData((prevState) => {
+      return {
+        ...prevState,
+        data: {
+          ...prevState.data,
+          amountDistribution: newAmountDistribution,
+          percentageDistribution: newPercentageDistribution,
+        },
+      };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSecurities]);
 
   return (
     <div className="flex overflow-y-auto flex-col gap-y-4 p-4 mx-auto w-full max-w-3xl">

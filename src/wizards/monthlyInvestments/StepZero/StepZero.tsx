@@ -247,7 +247,7 @@ const StepZero = () => {
           {portfoliosWithMonthlyInvestments.map((portfolio, index) => {
             const monthlyInvestmentsProfile = portfolio.monthlyInvestments;
             const securitiesInProfile: TradableSecurity[] = [];
-            const amountDistribution: Record<TradableSecurity["id"], number> =
+            const amountDistribution: MonthlyInvestmentsWizardState["amountDistribution"] =
               {};
             const securityIdToDate: Record<TradableSecurity["id"], number> = {};
             let totalAmount = 0;
@@ -267,7 +267,7 @@ const StepZero = () => {
                   : undefined;
                 if (amount && date && security) {
                   securitiesInProfile.push(security);
-                  amountDistribution[security?.id] = amount;
+                  amountDistribution[security?.id] = amount.toString();
                   totalAmount += amount;
                   if (date) securityIdToDate[security?.id] = date;
                 }
@@ -279,8 +279,8 @@ const StepZero = () => {
                 securitiesInProfile?.sort(
                   (secA: TradableSecurity, secB: TradableSecurity) => {
                     const numericalOrder =
-                      (amountDistribution?.[secB.id] || 0) -
-                      (amountDistribution?.[secA.id] || 0);
+                      (Number(amountDistribution?.[secB.id]) || 0) -
+                      (Number(amountDistribution?.[secA.id]) || 0);
                     if (numericalOrder === 0) {
                       //equally large- sort by name
                       return secA.name

@@ -12,6 +12,7 @@ interface DistributeInfoProps {
    * If provided, is displayed and sets the component style to error.
    */
   overrideError?: string;
+  currencyDecimalCount: number;
 }
 
 /**
@@ -24,18 +25,19 @@ const DistributeInfo = ({
   diffAmount,
   diffPercentage,
   overrideError,
+  currencyDecimalCount,
 }: DistributeInfoProps) => {
   const { i18n, t } = useModifiedTranslation();
 
   const diffAmountFormatted = diffAmount.toLocaleString(i18n.language, {
     style: "decimal",
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
+    maximumFractionDigits: currencyDecimalCount,
+    minimumFractionDigits: currencyDecimalCount,
   });
   const diffPercentageFormatted = diffPercentage.toLocaleString(i18n.language, {
     style: "decimal",
     maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 2,
   });
 
   return (

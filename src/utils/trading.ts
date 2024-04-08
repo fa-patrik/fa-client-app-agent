@@ -11,12 +11,12 @@ import { getBackendTranslation } from "./backTranslations";
  * @returns A list of suggested trade amounts that should always summarize
  * to exactly the total.
  */
-export function distributeTradeAmount(
+export function distributeAmount(
   total: number,
   numSecurities: number,
   decimals = 2
 ): number[] {
-  if (total <= 0 || numSecurities <= 0) {
+  if (numSecurities <= 0) {
     return [];
   }
 
