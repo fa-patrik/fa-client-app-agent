@@ -38,14 +38,14 @@ interface AllocationsQuery {
         marketValue: number;
         tradeAmount: number;
       };
-      group: Array<Group & { subGroup: Group[] }>;
+      group: Group[];
     };
   };
 }
 
 const PERIOD_IN_DAYS = 1;
 const ALLOCATIONS_QUERY = gql`
-  fragment SubGroup on GrouppedAnalyticsDTO {
+  fragment AnalyticsGroup on GrouppedAnalyticsDTO {
     group: grouppedAnalytics {
       code
       name
@@ -54,18 +54,6 @@ const ALLOCATIONS_QUERY = gql`
         tradeAmount
         shareOfTotal
       }
-    }
-  }
-  fragment Group on GrouppedAnalyticsDTO {
-    group: grouppedAnalytics {
-      code
-      name
-      firstAnalysis {
-        marketValue
-        tradeAmount
-        shareOfTotal
-      }
-      ...SubGroup
     }
   }
   query GetAllocations(
@@ -103,7 +91,7 @@ const ALLOCATIONS_QUERY = gql`
           marketValue
           tradeAmount
         }
-        ...Group
+        ...AnalyticsGroup
       }
     }
   }
@@ -144,13 +132,7 @@ const PieChartLazy = ({
 
   const Pie = ({ data }: { data: AllocationsQuery | undefined }) => {
     const { series: chartSeries, labels: chartLabels } = useMemo(() => {
-      const hasSubGroup =
-        !!data?.analytics.grouppedAnalytics.group[0]?.subGroup?.length;
-      return generateSeriesAndLabels(
-        hasSubGroup
-          ? data?.analytics.grouppedAnalytics.group[0]?.subGroup
-          : data?.analytics.grouppedAnalytics.group
-      );
+      return generateSeriesAndLabels(data?.analytics.grouppedAnalytics.group);
     }, [data]);
 
     return (
