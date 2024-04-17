@@ -155,7 +155,7 @@ const Overview = ({ data }: OverviewProps) => {
               groupCode={
                 config?.pages?.portfolio?.overview?.piechart?.groupCode
               }
-              portfolioIds={portfolioId ? [Number(portfolioId)] : undefined}
+              portfolioId={portfolioId ? Number(portfolioId) : undefined}
             />
           </div>
         </Card>

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { ApexOptions } from "apexcharts";
+import { useGetSubPortfolioIds } from "api/common/useGetSubPortfolioIds";
 import { AnalyticsGroupBy } from "api/types";
 import { getFetchPolicyOptions } from "api/utils";
 import { QueryLoadingWrapper } from "components/QueryLoadingWrapper/QueryLoadingWrapper";
@@ -101,15 +102,16 @@ interface PieChartProps {
   groupBy: AnalyticsGroupBy | undefined;
   groupCode: string | undefined;
   options?: ApexOptions;
-  portfolioIds: number[] | undefined;
+  portfolioId: number | undefined;
 }
 
 const PieChartLazy = ({
   groupBy = AnalyticsGroupBy.TYPE,
   groupCode,
   options,
-  portfolioIds,
+  portfolioId,
 }: PieChartProps) => {
+  const portfolioIds = useGetSubPortfolioIds(portfolioId);
   const { i18n } = useModifiedTranslation();
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - PERIOD_IN_DAYS);
