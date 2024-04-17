@@ -10,7 +10,7 @@ interface Config {
                 | {
                     piechart:
                       | {
-                          groupBy: AnalyticsGroupBy[] | undefined;
+                          groupBy: AnalyticsGroupBy | undefined;
                           groupCode: string | undefined;
                         }
                       | undefined;

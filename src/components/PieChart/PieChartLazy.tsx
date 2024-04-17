@@ -98,14 +98,14 @@ const ALLOCATIONS_QUERY = gql`
 `;
 
 interface PieChartProps {
-  groupBy: AnalyticsGroupBy[] | undefined;
+  groupBy: AnalyticsGroupBy | undefined;
   groupCode: string | undefined;
   options?: ApexOptions;
   portfolioIds: number[] | undefined;
 }
 
 const PieChartLazy = ({
-  groupBy = [AnalyticsGroupBy.TYPE],
+  groupBy = AnalyticsGroupBy.TYPE,
   groupCode,
   options,
   portfolioIds,
@@ -124,7 +124,7 @@ const PieChartLazy = ({
         startDate: startDate.toLocaleDateString("sv-SE"),
         endDate: endDate.toLocaleDateString("sv-SE"),
         groupCode: groupCode,
-        groupBy: groupBy,
+        groupBy: [groupBy],
       },
       ...getFetchPolicyOptions(`GetAllocations.${portfolioIds}`),
     }

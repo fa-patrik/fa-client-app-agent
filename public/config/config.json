@@ -3,7 +3,7 @@
     "portfolio": {
       "overview": {
         "piechart": {
-          "groupBy": ["TYPE"],
+          "groupBy": "TYPE",
           "groupCode": ""
         }
       }
