@@ -15,14 +15,14 @@ import {
   QueryLoadingWrapper,
 } from "components";
 import { Option } from "components/ButtonRadio/ButtonRadio";
-import { PieChart } from "components/PieChart/PieChart";
+import PieChartLazy from "components/PieChart/PieChartLazy";
+import { useConfig } from "hooks/useConfig";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import { PortfolioInfoCard } from "../../overview/components/PortfolioInfoCard";
 import { ListedSecuritiesCard } from "./components/ListedSecuritiesCard";
 import { PortfolioSummary } from "./components/PortfolioSummary";
-import { useGetChartData } from "./hooks/useGetChartData";
 import { useSecuritiesSummary } from "./hooks/useSecuritiesSummary";
 
 export const chartRangeOptions = [
@@ -78,8 +78,6 @@ const Overview = ({ data }: OverviewProps) => {
     data?.securityTypes
   );
 
-  const chartData = useGetChartData(data?.securityTypes);
-
   const [timeValue, setTimeValue] = useState<Option>(() => ({
     id: TimePeriodForGraph["DAYS-7"],
     label: "1W",
@@ -107,6 +105,8 @@ const Overview = ({ data }: OverviewProps) => {
       return [];
     }
   }, [performanceChartData]);
+
+  const config = useConfig();
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
@@ -150,7 +150,13 @@ const Overview = ({ data }: OverviewProps) => {
       <div>
         <Card header={t("overviewPage.pieChartLabel")}>
           <div className="pt-4 grow min-h-[300px]">
-            <PieChart {...chartData} />
+            <PieChartLazy
+              groupBy={config?.pages?.portfolio?.overview?.piechart?.groupBy}
+              groupCode={
+                config?.pages?.portfolio?.overview?.piechart?.groupCode
+              }
+              portfolioId={portfolioId ? Number(portfolioId) : undefined}
+            />
           </div>
         </Card>
       </div>

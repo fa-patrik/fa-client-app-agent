@@ -1,0 +1,12 @@
+{
+  "pages": {
+    "portfolio": {
+      "overview": {
+        "piechart": {
+          "groupBy": "TYPE",
+          "groupCode": ""
+        }
+      }
+    }
+  }
+}
