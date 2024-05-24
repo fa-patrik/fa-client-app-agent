@@ -19,7 +19,14 @@ interface Config {
             }
           | undefined;
       }
-    | undefined
+    | undefined;
+  banner:
+    | {
+        title: string | undefined;
+        description: string | undefined;
+        dismissable: boolean | undefined;
+        severity: string | undefined;
+      }
     | undefined;
 }
 
