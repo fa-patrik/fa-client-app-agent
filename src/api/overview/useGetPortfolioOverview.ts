@@ -31,7 +31,7 @@ const PORTFOLIO_OVERVIEW_QUERY = gql`
         paramsSet: {
           key: "portfolioOverview"
           timePeriodCodes: "GIVEN"
-          grouppedByProperties: [TYPE, SECURITY]
+          grouppedByProperties: [TYPE, POSITION]
           includeData: false
           includeChildren: true
           drilldownEnabled: false

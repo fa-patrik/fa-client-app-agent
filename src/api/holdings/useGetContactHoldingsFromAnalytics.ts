@@ -32,7 +32,7 @@ const CONTACT_HOLDING_QUERY = gql`
           paramsSet: {
             key: "contactHoldings"
             timePeriodCodes: "GIVEN"
-            grouppedByProperties: [TYPE, SECURITY]
+            grouppedByProperties: [TYPE, POSITION]
             includeData: false
             includeChildren: true
             drilldownEnabled: false

@@ -34,7 +34,7 @@ const CONTACT_OVERVIEW_QUERY = gql`
           paramsSet: {
             key: "contactOverview"
             timePeriodCodes: "GIVEN"
-            grouppedByProperties: [PORTFOLIO, TYPE, SECURITY]
+            grouppedByProperties: [PORTFOLIO, TYPE, POSITION]
             includeData: false
             includeChildren: true
             drilldownEnabled: false
