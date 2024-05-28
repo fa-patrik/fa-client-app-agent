@@ -29,13 +29,13 @@ const doesSelectedPortfolioHavePermission = (
 ) => selectedPortfolio(portfolios, portfolioId).some(filterFunction);
 
 /*
- * Checks if user or portfolio is eligible
+ * Checks if user's contact or portfolio is eligible
  * @param mode: mode to apply when checking if eligible
  * SELECTED - check only the selected portfolio
- * ANY - check any of the user's portfolios
+ * ANY - check any of the user's contact's portfolios
  * SELECTED_ANY - use SELECTED if there is a selected portfolio, else do ANY
  * @param filterFunction: predicate function that can return false or true for a given Portfolio
- * @return boolean - whether user can
+ * @return boolean - whether user's contact can
  */
 export const usePermission = (
   mode = PermissionMode.SELECTED,

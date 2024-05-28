@@ -7,6 +7,9 @@
   "impersonate-roles": {
     "fa-clientportal": ["ROLE_IMPERSONATE"]
   },
+  "advisor-roles": {
+    "fa-advisor": ["ROLE_USER"]
+  },
   "public-client": true,
   "verify-token-audience": true,
   "use-resource-role-mappings": true,

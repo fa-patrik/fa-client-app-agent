@@ -39,6 +39,7 @@ import {
   PermissionMode,
   usePermission,
 } from "services/permissions/usePermission";
+import { useRolePermissions } from "services/permissions/useRolePermissions";
 import StepFive from "wizards/monthlyInvestments/StepFive/StepFive";
 import StepFour from "wizards/monthlyInvestments/StepFour/StepFour";
 import StepOne from "wizards/monthlyInvestments/StepOne/StepOne";
@@ -178,7 +179,7 @@ const getMenuItems = (
 };
 
 export const UserMenu = () => {
-  const { readonly } = useKeycloak();
+  const { canTrade } = useRolePermissions();
   const { selectedContactId, setSelectedContactId, setSelectedContact } =
     useGetContractIdData();
   const { t } = useModifiedTranslation();
@@ -255,7 +256,7 @@ export const UserMenu = () => {
               canWithdraw,
               canMonthlyInvest,
               canMonthlySave,
-              readonly ? [] : processes,
+              !canTrade ? [] : processes,
               contactData?.representees || [],
               {
                 id: contactData?.contactId,

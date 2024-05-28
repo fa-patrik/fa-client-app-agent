@@ -11,12 +11,12 @@ import { useFilteredPortfolioSelect } from "components/TradingModals/useFiltered
 import { getPortfolioOption } from "hooks/useGetPortfolioOptions";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
-import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
 import {
   canPortfolioMonthlySave,
   canPortfolioOptionMonthlySave,
 } from "services/permissions/trading";
+import { useRolePermissions } from "services/permissions/useRolePermissions";
 import { getDefaultValueAsNumber } from "utils/faBackProfiles/common";
 import {
   MonthlySavings,
@@ -41,7 +41,7 @@ import {
  * and a button to add a new one.
  */
 const MsStepZero = () => {
-  const { impersonating } = useKeycloak();
+  const { canSave } = useRolePermissions();
   const { setWizardData, wizardData } = useWizard();
   const {
     data: portfolioData,
@@ -330,7 +330,7 @@ const MsStepZero = () => {
             setIsOpen={setConfirmDialogOpen}
             loading={loadingDelete}
             confirmButtonVariant="Red"
-            disabled={impersonating}
+            disabled={!canSave}
           />
         </div>
         <WizardBottomNavigationReplica>

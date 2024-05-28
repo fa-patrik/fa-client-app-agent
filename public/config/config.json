@@ -10,7 +10,7 @@
     }
   },
   "banner": {
-    "title": "",
+    "title": "WARNING",
     "description": "",
     "severity": "Info",
     "dismissable": true

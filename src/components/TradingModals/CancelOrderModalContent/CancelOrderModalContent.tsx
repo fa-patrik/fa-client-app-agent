@@ -5,7 +5,7 @@ import { useCancelOrder } from "api/orders/useCancelOrder";
 import { Badge } from "components";
 import { Button, LabeledDiv } from "components/index";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useKeycloak } from "providers/KeycloakProvider";
+import { useRolePermissions } from "services/permissions/useRolePermissions";
 import {
   getOrderTypeName,
   getSwitchDetails,
@@ -49,7 +49,7 @@ export const CancelOrderModalContent = ({
     return <Badge colorScheme={typeColor}>{typeTranslated}</Badge>;
   };
 
-  const { readonly } = useKeycloak();
+  const { canTrade } = useRolePermissions();
 
   //the order
   const { handleOrderCancel: cancelOrder1 } = useCancelOrder({
@@ -135,7 +135,7 @@ export const CancelOrderModalContent = ({
         </Button>
 
         <Button
-          disabled={readonly || submitting}
+          disabled={!canTrade || submitting}
           isLoading={submitting}
           isFullWidth
           onClick={async () => {

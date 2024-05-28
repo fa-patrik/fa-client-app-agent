@@ -1,10 +1,9 @@
 import { ReactNode } from "react";
 import { UserMenu, BackNavigationButton, Logo } from "components";
 import { SelectedContactAvatar } from "components/Avatar/SelectedContactAvatar";
+import { AccessModeBanner } from "components/Banner/AccessModeBanner";
 import ConfiguredBanner from "components/Banner/ConfiguredBanner";
-import { ImpersonationBanner } from "components/Banner/ImpersonationBanner";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
-import { useKeycloak } from "providers/KeycloakProvider";
 
 export interface HeadingProps {
   children: ReactNode;
@@ -16,10 +15,9 @@ export const DetailsHeading = ({
   onBackButtonClick,
 }: HeadingProps) => {
   const showLogoAndUserMenu = useMatchesBreakpoint("md");
-  const { impersonating } = useKeycloak();
   return (
     <div className="z-20 bg-white border-b border-gray-200 shadow-md">
-      {impersonating && <ImpersonationBanner />}
+      <AccessModeBanner />
       <ConfiguredBanner />
       <div className="container flex gap-2 justify-between items-center py-2 px-2 mx-auto">
         {showLogoAndUserMenu && <Logo />}
