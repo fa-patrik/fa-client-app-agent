@@ -16,7 +16,7 @@ import {
 import { LabeledDivFlex } from "components/LabeledDiv/LabeledDivFlex";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useRolePermissions } from "services/permissions/useRolePermissions";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { getBackendTranslation } from "utils/backTranslations";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import { round, roundDown } from "utils/number";
@@ -217,7 +217,7 @@ export const BuyModalContent = ({
   const insufficientCash =
     (availableCash || 0) < (estimatedTradeAmountInPfCurrency || 0); // less than trying to buy for
 
-  const { canTrade } = useRolePermissions();
+  const { access } = useKeycloak();
 
   const tradeAmountTooltip =
     unitsToBuy !== undefined &&
@@ -282,7 +282,7 @@ export const BuyModalContent = ({
       inputAsNr === 0 ||
       insufficientCash ||
       !!blockSizeTradeAmountError ||
-      !canTrade ||
+      !access.buy ||
       !selectedPortfolio ||
       submitting
     );

@@ -3,18 +3,32 @@
   "auth-server-url": "https://fadev.clientportal.fasolutions.com/auth",
   "ssl-required": "external",
   "resource": "fa-clientportal",
-  "write-roles": { "fa-clientportal": ["ROLE_CLIENT_ACCESS"] },
-  "impersonate-roles": {
-    "fa-clientportal": ["ROLE_IMPERSONATE"]
-  },
-  "advisor-roles": {
+  "enableSell": { "fa-clientportal": ["ROLE_CLIENT_ACCESS"] },
+  "enableBuy": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
     "fa-advisor": ["ROLE_USER"]
   },
-  "enableSell": ["ROLE_CLIENT_ACCESS"],
-  "enableBuy": ["ROLE_CLIENT_ACCESS", "ROLE_USER"],
-  "enableDeposit": ["ROLE_CLIENT_ACCESS", "ROLE_USER"],
-  "enableWithdraw": ["ROLE_USER"],
-  "enableImpersonate": ["ROLE_IMPERSONATE", "ROLE_USER"],
+  "enableSwitch": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
+  "enableDeposit": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
+  "enableWithdraw": { "fa-advisor": ["ROLE_USER"] },
+  "enableImpersonate": {
+    "fa-clientportal": ["ROLE_IMPERSONATE"],
+    "fa-advisor": ["ROLE_USER"]
+  },
+  "enableCancelOrder": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
+  "enableAdvisor": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
   "public-client": true,
   "verify-token-audience": true,
   "use-resource-role-mappings": true,

@@ -20,11 +20,11 @@ import { LabeledDivFlex } from "components/LabeledDiv/LabeledDivFlex";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useUniqueReference } from "hooks/useUniqueReference";
 import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useKeycloak } from "providers/KeycloakProvider";
 import {
   switchableTag,
   useGetPermittedSecurities,
 } from "services/permissions/trading";
-import { useRolePermissions } from "services/permissions/useRolePermissions";
 import { getBackendTranslation } from "utils/backTranslations";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import { round } from "utils/number";
@@ -58,7 +58,7 @@ export const SwitchModalContent = ({
   onClose,
   sellSecurityId,
 }: SwitchModalProps) => {
-  const { canTrade } = useRolePermissions();
+  const { access } = useKeycloak();
   const { t, i18n } = useModifiedTranslation();
   const [inputValue, setInputValue] = useState<string>("100");
   const [submitting, setSubmitting] = useState(false);
@@ -255,7 +255,7 @@ export const SwitchModalContent = ({
 
   //disable the confirm button when...
   const disableConfirm = () => {
-    return !canTrade ||
+    return !access.switch ||
       loading ||
       submitting ||
       noSelectedPortfolio ||

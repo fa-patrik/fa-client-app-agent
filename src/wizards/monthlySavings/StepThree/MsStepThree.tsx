@@ -9,8 +9,8 @@ import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
-import { useRolePermissions } from "services/permissions/useRolePermissions";
 import { SelectMonthsGrid, months } from "../components/SelectedMonthsGrid";
 import { MonthlySavingsWizardState } from "../types";
 
@@ -20,7 +20,7 @@ import { MonthlySavingsWizardState } from "../types";
  * An API request is made to FA Back.
  */
 const MsStepThree = () => {
-  const { canSave } = useRolePermissions();
+  const { access } = useKeycloak();
   const { wizardData, setWizardData } = useWizard<MonthlySavingsWizardState>();
   const { t, i18n } = useModifiedTranslation();
   numbro.setLanguage(i18n.language);
@@ -203,7 +203,7 @@ const MsStepThree = () => {
         isOpen={confirmDialogOpen}
         setIsOpen={setConfirmDialogOpen}
         loading={loadingFinish}
-        disabled={!canSave}
+        disabled={!access}
       />
     </div>
   );

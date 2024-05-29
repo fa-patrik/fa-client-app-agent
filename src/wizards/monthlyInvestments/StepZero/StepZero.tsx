@@ -21,12 +21,12 @@ import { Severity } from "components/Alert/Alert";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
 import {
   canPortfolioMonthlyInvest,
   canPortfolioOptionMonthlyInvest,
 } from "services/permissions/trading";
-import { useRolePermissions } from "services/permissions/useRolePermissions";
 import {
   MonthlyInvestments,
   MonthlyInvestmentsFieldId,
@@ -47,7 +47,7 @@ import { MonthlyInvestmentsWizardState } from "../types";
  */
 const StepZero = () => {
   const [isMounted, setIsMounted] = useState(true);
-  const { canTrade } = useRolePermissions();
+  const { access } = useKeycloak();
   const { wizardData, setWizardData } = useWizard<
     MonthlyInvestmentsWizardState | undefined
   >();
@@ -370,7 +370,7 @@ const StepZero = () => {
             setIsOpen={setConfirmDialogOpen}
             loading={loadingDelete}
             confirmButtonVariant="Red"
-            disabled={!canTrade}
+            disabled={!access.buy}
           />
         </div>
         <WizardBottomNavigationReplica>

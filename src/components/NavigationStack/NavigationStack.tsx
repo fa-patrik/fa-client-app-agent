@@ -6,7 +6,6 @@ import {
 import { DetailProvider } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { PersistedApolloProvider } from "providers/PersistedApolloProvider";
-import { useRolePermissions } from "services/permissions/useRolePermissions";
 import { NotFoundView } from "views/notFoundView/notFoundView";
 
 /**
@@ -14,8 +13,7 @@ import { NotFoundView } from "views/notFoundView/notFoundView";
  * and deducts which routes to expose to the user.
  */
 export const NavigationStack = () => {
-  const { linkedContact } = useKeycloak();
-  const { isImpersonator } = useRolePermissions();
+  const { linkedContact, access } = useKeycloak();
   const NoLinkedContactStack = () => {
     return (
       <PersistedApolloProvider>
@@ -44,7 +42,7 @@ export const NavigationStack = () => {
     );
   };
 
-  if (isImpersonator) return <ImpersonationStack />;
+  if (access.impersonate) return <ImpersonationStack />;
 
   if (linkedContact) return <DefaultStack />;
 

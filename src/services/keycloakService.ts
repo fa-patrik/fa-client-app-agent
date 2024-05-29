@@ -13,9 +13,6 @@ import {
 } from "./pwa";
 
 const FA_USER_REALM_ROLE = "FA_ADMIN";
-const KEYCLOAK_REGULAR_ROLES = "write-roles";
-const KEYCLOAK_IMPERSONATE_ROLES = "impersonate-roles";
-const KEYCLOAK_ADVISOR_ROLES = "advisor-roles";
 
 const getSsoRedirectUri = () => {
   const url = new URL(
@@ -31,11 +28,15 @@ const keycloakInitConfig = {
   pkceMethod: "S256",
 } as const;
 
-export enum AccessMode {
-  ADVISOR = "advisor",
-  IMPERSONATOR = "impersonator",
-  REGULAR = "regular",
-  UNKNOWN = "unknown",
+export interface Access {
+  sell: boolean;
+  buy: boolean;
+  withdraw: boolean;
+  deposit: boolean;
+  impersonate: boolean;
+  cancelOrder: boolean;
+  switch: boolean;
+  advisor: boolean;
 }
 
 type FAKeycloakProfile = KeycloakProfile & {
@@ -60,7 +61,7 @@ export interface KeycloakServiceStateType {
   error?: boolean;
   linkedContact: string | undefined;
   userProfile: KeycloakProfile | undefined;
-  accessMode: AccessMode;
+  access: Access;
 }
 
 export const keycloakServiceInitialState = {
@@ -69,7 +70,16 @@ export const keycloakServiceInitialState = {
   linkedContact: undefined,
   userProfile: undefined,
   error: undefined,
-  accessMode: AccessMode.UNKNOWN,
+  access: {
+    sell: false,
+    buy: false,
+    withdraw: false,
+    deposit: false,
+    impersonate: false,
+    cancelOrder: false,
+    switch: false,
+    advisor: false,
+  },
   setLinkedContact: undefined,
 };
 
@@ -167,7 +177,7 @@ class KeycloakService {
           initialized: true,
           authenticated: authenticated,
           error: false,
-          accessMode: await this.deriveAccessMode(),
+          access: await this.deriveAccess(),
         };
 
         await this.updateLinkedContact();
@@ -290,20 +300,34 @@ class KeycloakService {
     return false;
   }
 
-  deriveAccessMode = async () => {
+  deriveAccess = async () => {
     const isAdmin = this.keycloak.hasRealmRole(FA_USER_REALM_ROLE);
-    const isRegularUser = await this.hasAnyRole(KEYCLOAK_REGULAR_ROLES);
-    const isImpersonator = await this.hasAnyRole(KEYCLOAK_IMPERSONATE_ROLES);
-    const isAdvisor = await this.hasAnyRole(KEYCLOAK_ADVISOR_ROLES);
-    if (!isAdmin && !isRegularUser && !isImpersonator && !isAdvisor)
-      throw new Error("User does not have a required role. Revoking access.");
-    if (isAdmin || isImpersonator) {
-      return AccessMode.IMPERSONATOR;
-    } else if (isAdvisor) {
-      return AccessMode.ADVISOR;
-    } else {
-      return AccessMode.REGULAR;
+    const access: Access = {
+      sell: false,
+      buy: false,
+      withdraw: false,
+      deposit: false,
+      impersonate: true,
+      cancelOrder: false,
+      switch: false,
+      advisor: false,
+    };
+    if (isAdmin) {
+      access.impersonate = true;
+      return access;
     }
+    access.buy = await this.hasAnyRole("enableBuy");
+    access.sell = await this.hasAnyRole("enableSell");
+    access.deposit = await this.hasAnyRole("enableDeposit");
+    access.withdraw = await this.hasAnyRole("enableWithdraw");
+    access.impersonate = await this.hasAnyRole("enableImpersonate");
+    access.cancelOrder = await this.hasAnyRole("enableCancelOrder");
+    access.switch = await this.hasAnyRole("enableSwitch");
+    access.advisor = await this.hasAnyRole("enableAdvisor");
+    if (Object.values(access).every((value) => value === false)) {
+      throw new Error("User does not have a required role. Revoking access.");
+    }
+    return access;
   };
 
   /**

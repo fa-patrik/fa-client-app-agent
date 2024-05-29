@@ -4,7 +4,7 @@ import { useWithdrawal } from "api/money/useWithdrawal";
 import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useRolePermissions } from "services/permissions/useRolePermissions";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { handleNumberInputEvent } from "utils/input";
 import { CashAccountSelect } from "../components/CashAccountSelect";
 import { usePortfoliosAccountsState } from "../usePortfoliosAccountsState";
@@ -60,7 +60,7 @@ export const WithdrawModalContent = ({
     intInfo: externalNumber ? `paymentAccount1=${externalNumber}` : null,
   });
 
-  const { canSave } = useRolePermissions();
+  const { access } = useKeycloak();
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
@@ -96,7 +96,10 @@ export const WithdrawModalContent = ({
         />
         <Button
           disabled={
-            !canSave || amountAsNr === 0 || accountsLoading || !isAmountCorrect
+            !access.withdraw ||
+            amountAsNr === 0 ||
+            accountsLoading ||
+            !isAmountCorrect
           }
           isLoading={submitting}
           onClick={async () => {

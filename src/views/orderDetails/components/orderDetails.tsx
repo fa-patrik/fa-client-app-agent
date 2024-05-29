@@ -10,13 +10,13 @@ import {
 } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate } from "react-router";
 import {
   isStatusCancellable,
   isPortfolioAllowedToCancelOrder,
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
-import { useRolePermissions } from "services/permissions/useRolePermissions";
 import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
@@ -37,7 +37,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
   const { t, i18n } = useModifiedTranslation();
   const { downloadDocument, downloading } = useDownloadDocument();
   const navigate = useNavigate();
-  const { canTrade } = useRolePermissions();
+  const { access } = useKeycloak();
 
   const {
     Modal,
@@ -383,7 +383,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                   <Button
                     isFullWidth
                     variant="Red"
-                    disabled={!canTrade}
+                    disabled={!access.cancelOrder}
                     onClick={() =>
                       onCancelOrderModalOpen({
                         order: order,
@@ -442,7 +442,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
             <Button
               isFullWidth
               variant="Red"
-              disabled={!canTrade}
+              disabled={!access.cancelOrder}
               onClick={() =>
                 onCancelOrderModalOpen({
                   order: order,

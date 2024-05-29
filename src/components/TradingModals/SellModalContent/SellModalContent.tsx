@@ -16,7 +16,7 @@ import { LabeledDivFlex } from "components/LabeledDiv/LabeledDivFlex";
 import Toggle from "components/Toggle/Toggle";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useRolePermissions } from "services/permissions/useRolePermissions";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { getBackendTranslation } from "utils/backTranslations";
 import { handleNumberInputEvent } from "utils/input";
 import { round, roundDown } from "utils/number";
@@ -245,7 +245,7 @@ export const SellModalContent = ({
     accountFxRate: calculatedAccountFxRate,
   });
 
-  const { canTrade } = useRolePermissions();
+  const { access } = useKeycloak();
 
   const loading = loadingPfReport && loadingSecurity && securityFxLoading;
 
@@ -317,7 +317,7 @@ export const SellModalContent = ({
 
   const disableSellButton = () => {
     return (
-      !canTrade ||
+      !access.sell ||
       inputAsNr === 0 ||
       loading ||
       !portfolioId ||

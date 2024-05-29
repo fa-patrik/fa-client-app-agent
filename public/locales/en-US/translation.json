@@ -33,8 +33,9 @@
       "percentageColumnHeader": "%",
       "amountColumnHeader": "Amount"
     },
-    "accessModeBanner": {
-      "title": "Viewing {{contactName}} as an {{userType}}"
+    "accessBanner": {
+      "title": "Viewing {{contactName}}",
+      "subtitle": "with the following access"
     }
   },
   "userMenu": {
@@ -579,9 +580,15 @@
     "switchOrder": {
       "typeName": "Switch"
     },
-    "accessMode": {
-      "advisor": "Advisor",
-      "impersonator": "Impersonator"
+    "access": {
+      "buy": "Buy",
+      "sell": "Sell",
+      "switch": "Switch",
+      "deposit": "Deposit",
+      "withdraw": "Withdraw",
+      "impersonate": "Impersonation",
+      "cancelOrder": "Cancel order",
+      "advisor": "Advisor"
     }
   }
 }

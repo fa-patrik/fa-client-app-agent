@@ -1,4 +1,4 @@
-import { AccessModeBanner } from "components/Banner/AccessModeBanner";
+import { AccessBanner } from "components/Banner/AccessBanner";
 import ConfiguredBanner from "components/Banner/ConfiguredBanner";
 import { Outlet } from "react-router-dom";
 import { PortfolioNavigationHeader } from "./PortfolioNavigationHeader/PortfolioNavigationHeader";
@@ -6,7 +6,7 @@ import { PortfolioNavigationHeader } from "./PortfolioNavigationHeader/Portfolio
 export const PortfolioNavigationHeaderLayout = () => {
   return (
     <div className="flex flex-col h-full">
-      <AccessModeBanner />
+      <AccessBanner />
       <ConfiguredBanner />
       <PortfolioNavigationHeader />
       <Outlet />

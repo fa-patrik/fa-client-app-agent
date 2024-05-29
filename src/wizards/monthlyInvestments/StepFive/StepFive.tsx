@@ -5,8 +5,8 @@ import { Card } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
-import { useRolePermissions } from "services/permissions/useRolePermissions";
 import { convertWizardStateToApiFormat } from "utils/faBackProfiles/monthlyInvestments";
 import {
   SelectMonthsGrid,
@@ -21,7 +21,7 @@ import SecurityDistributionTable from "./SecurityDistributionTable";
  * An API request is made to FA Back.
  */
 const StepFive = () => {
-  const { canTrade } = useRolePermissions();
+  const { access } = useKeycloak();
   const { wizardData, setWizardData } =
     useWizard<MonthlyInvestmentsWizardState>();
   const monthlyInvestmentsWizardState = wizardData.data;
@@ -225,7 +225,7 @@ const StepFive = () => {
         isOpen={confirmDialogOpen}
         setIsOpen={setConfirmDialogOpen}
         loading={loadingFinish}
-        disabled={!canTrade}
+        disabled={!access.buy}
       />
     </div>
   );
