@@ -68,7 +68,7 @@ const Transaction = ({
             </div>
             <div className="float-right w-max text-center">
               <Badge
-                colorScheme={getTransactionColor(amountEffect, cashFlowEffect)}
+                severity={getTransactionColor(amountEffect, cashFlowEffect)}
               >
                 {getNameFromBackendTranslations(
                   typeName,

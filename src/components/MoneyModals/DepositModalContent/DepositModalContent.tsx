@@ -58,6 +58,7 @@ export const DepositModalContent = ({
   });
 
   const { canSave } = useRolePermissions();
+
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
       <CashAccountSelect

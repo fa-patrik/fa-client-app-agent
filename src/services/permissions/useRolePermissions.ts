@@ -10,7 +10,6 @@ export const useRolePermissions = () => {
     accessMode === AccessMode.REGULAR || accessMode === AccessMode.ADVISOR;
   const isImpersonator =
     accessMode === AccessMode.IMPERSONATOR || AccessMode.ADVISOR;
-  const canSave =
-    accessMode === AccessMode.REGULAR || accessMode === AccessMode.ADVISOR;
+  const canSave = accessMode === AccessMode.REGULAR;
   return { canTrade, isImpersonator, canSave };
 };

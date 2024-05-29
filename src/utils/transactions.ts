@@ -1,3 +1,5 @@
+import { Severity } from "components/Alert/Alert";
+
 export const getNameFromBackendTranslations = (
   fallbackTranslation: string,
   locale: string,
@@ -14,12 +16,12 @@ export const getTransactionColor = (
   isSwitch?: boolean
 ) => {
   return isSwitch
-    ? "green"
+    ? Severity.Success
     : amountEffect > 0 && cashFlowEffect < 0
-    ? ("blue" as const)
+    ? Severity.Info
     : amountEffect < 0 && cashFlowEffect > 0
-    ? ("red" as const)
+    ? Severity.Error
     : amountEffect === 0 && cashFlowEffect > 0
-    ? ("green" as const)
-    : ("gray" as const);
+    ? Severity.Success
+    : Severity.Neutral;
 };

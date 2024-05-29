@@ -74,7 +74,7 @@ export const TransactionDetails = ({
                 i18n.language,
                 type.typeNamesAsMap
               )}
-              colorScheme={getTransactionColor(
+              severity={getTransactionColor(
                 type.amountEffect,
                 type.cashFlowEffect
               )}

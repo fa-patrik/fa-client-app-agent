@@ -32,6 +32,9 @@
       "securityColumHeader": "Security",
       "percentageColumnHeader": "%",
       "amountColumnHeader": "Amount"
+    },
+    "accessModeBanner": {
+      "title": "Viewing {{contactName}} as an {{userType}}"
     }
   },
   "userMenu": {
@@ -575,6 +578,10 @@
     },
     "switchOrder": {
       "typeName": "Switch"
+    },
+    "accessMode": {
+      "advisor": "Advisor",
+      "impersonator": "Impersonator"
     }
   }
 }

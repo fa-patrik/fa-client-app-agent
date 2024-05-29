@@ -80,7 +80,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
             <InfoCard
               label={t("transactionsPage.type")}
               value={getOrderTypeName(order, t, i18n.language)}
-              colorScheme={getTransactionColor(
+              severity={getTransactionColor(
                 order.type.amountEffect,
                 order.type.cashFlowEffect,
                 isPartOfSwitch

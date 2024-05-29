@@ -1,7 +1,7 @@
 import {
   faInfoCircle,
   faCheckCircle,
-  faExclamationCircle,
+  faCircleXmark,
   faExclamationTriangle,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
@@ -13,6 +13,7 @@ export enum Severity {
   Success = "Success",
   Warning = "Warning",
   Info = "Info",
+  Neutral = "Neutral",
 }
 
 export interface AlertProps {
@@ -26,7 +27,7 @@ export interface AlertProps {
 export function getIconBySeverity(severity: string): IconDefinition {
   switch (severity) {
     case "Error":
-      return faExclamationCircle;
+      return faCircleXmark;
     case "Success":
       return faCheckCircle;
     case "Warning":

@@ -10,6 +10,11 @@
   "advisor-roles": {
     "fa-advisor": ["ROLE_USER"]
   },
+  "enableSell": ["ROLE_CLIENT_ACCESS"],
+  "enableBuy": ["ROLE_CLIENT_ACCESS", "ROLE_USER"],
+  "enableDeposit": ["ROLE_CLIENT_ACCESS", "ROLE_USER"],
+  "enableWithdraw": ["ROLE_USER"],
+  "enableImpersonate": ["ROLE_IMPERSONATE", "ROLE_USER"],
   "public-client": true,
   "verify-token-audience": true,
   "use-resource-role-mappings": true,

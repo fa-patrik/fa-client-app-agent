@@ -10,9 +10,9 @@
     }
   },
   "banner": {
-    "title": "WARNING",
-    "description": "",
-    "severity": "Info",
+    "title": "Maintenance in progress",
+    "description": "Our system is currently experiencing issues. We are working to resolve this as soon as possible. We apologize for any inconvenience this may cause.",
+    "severity": "Warning",
     "dismissable": true
   }
 }

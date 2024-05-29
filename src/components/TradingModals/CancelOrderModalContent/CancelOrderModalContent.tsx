@@ -46,7 +46,7 @@ export const CancelOrderModalContent = ({
   );
 
   const TypeBadge = () => {
-    return <Badge colorScheme={typeColor}>{typeTranslated}</Badge>;
+    return <Badge severity={typeColor}>{typeTranslated}</Badge>;
   };
 
   const { canTrade } = useRolePermissions();
