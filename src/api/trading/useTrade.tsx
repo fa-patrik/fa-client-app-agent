@@ -6,9 +6,12 @@ import {
   LocalTradeOrderDetails,
   useLocalTradeStorageMutation,
 } from "hooks/useLocalTradeStorageMutation";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { toast } from "react-toastify";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 import { useUniqueReference } from "../../hooks/useUniqueReference";
+
+const ADVISOR_TAG = "Advisor";
 
 const IMPORT_TRADE_ORDER_MUTATION = gql`
   mutation ImportTradeOrder(
@@ -23,6 +26,7 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
     $unitPrice: String
     $accountFxRate: String
     $reportFxRate: String
+    $tags: String
   ) {
     importTradeOrder(
       tradeOrder: {
@@ -39,6 +43,7 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
         accountFxRate: $accountFxRate
         reference: $reference
         executionMethod: $executionMethod
+        tags: $tags
       }
     )
   }
@@ -57,6 +62,7 @@ interface ImportTradeOrderQueryVariables {
   reportFxRate?: number | string;
   accountFxRate?: number | string;
   unitPrice?: number | string;
+  tags?: string;
 }
 
 const errorStatus = "ERROR" as const;
@@ -90,6 +96,7 @@ export const useTrade = (
 
   const saveToLocalTradeOrders = useLocalTradeStorageMutation();
   const getUniqueReference = useUniqueReference();
+  const { access } = useKeycloak();
 
   const handleTrade = async () => {
     setSubmitting(true);
@@ -118,6 +125,7 @@ export const useTrade = (
           transactionTypeCode: getTradeTypeForAPI(tradeType),
           reference: transactionReference,
           portfolioShortName: portfolio.shortName,
+          tags: access.advisor ? ADVISOR_TAG : undefined,
         },
       });
 

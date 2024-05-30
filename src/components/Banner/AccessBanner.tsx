@@ -64,9 +64,6 @@ export const AccessBanner = () => {
           <AccessBadge access={access.withdraw}>
             <p className="text-xs">{t("utils.access.withdraw")}</p>
           </AccessBadge>
-          <AccessBadge access={access.impersonate}>
-            <p className="text-xs">{t("utils.access.impersonate")}</p>
-          </AccessBadge>
           <AccessBadge access={access.cancelOrder}>
             <p className="text-xs">{t("utils.access.cancelOrder")}</p>
           </AccessBadge>

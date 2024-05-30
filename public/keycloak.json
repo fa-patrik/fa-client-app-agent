@@ -3,7 +3,10 @@
   "auth-server-url": "https://fadev.clientportal.fasolutions.com/auth",
   "ssl-required": "external",
   "resource": "fa-clientportal",
-  "enableSell": { "fa-clientportal": ["ROLE_CLIENT_ACCESS"] },
+  "enableSell": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
   "enableBuy": {
     "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
     "fa-advisor": ["ROLE_USER"]
