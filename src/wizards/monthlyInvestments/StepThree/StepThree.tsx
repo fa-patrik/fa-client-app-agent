@@ -348,7 +348,7 @@ const StepThree = () => {
 
   useEffect(() => {
     const disableNext =
-      diffAmount > 0 ||
+      diffAmount !== 0 ||
       isAnySelectedSecurityUnderMinAmount ||
       isAnySecurityZero;
     const disableBack = false;
