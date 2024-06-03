@@ -8,6 +8,7 @@ export interface BannerProps {
   id: string;
   severity: Severity;
   description?: string;
+  content?: React.ReactNode;
   title?: string;
   dismissable?: boolean;
 }
@@ -18,6 +19,7 @@ const Banner = ({
   description,
   id,
   dismissable = false,
+  content,
 }: BannerProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const defaultIcon = getIconBySeverity(severity);
@@ -37,7 +39,7 @@ const Banner = ({
   return (
     <div
       id={id}
-      className={classNames("p-3 text-lg border-2 w-full", {
+      className={classNames("p-1 text-lg border-2 w-full", {
         "bg-info-bg border-info-border": severity === "Info",
         "bg-success-bg border-success-border": severity === "Success",
         "bg-error-bg border-error-border": severity === "Error",
@@ -62,6 +64,7 @@ const Banner = ({
             </div>
           )}
           {description && <p className="text-xs">{description}</p>}
+          {content}
         </div>
         <div className="flex items-center">
           {dismissable && (
