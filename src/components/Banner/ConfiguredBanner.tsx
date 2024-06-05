@@ -1,5 +1,5 @@
 import { Severity } from "components/Alert/Alert";
-import { useConfig } from "hooks/useConfig";
+import { useConfig } from "providers/ConfigProvider";
 import Banner from "./Banner";
 
 function isSeverity(severity: string | undefined): severity is Severity {

@@ -16,9 +16,9 @@ import {
 } from "components";
 import { Option } from "components/ButtonRadio/ButtonRadio";
 import PieChartLazy from "components/PieChart/PieChartLazy";
-import { useConfig } from "hooks/useConfig";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useConfig } from "providers/ConfigProvider";
 import { useParams } from "react-router-dom";
 import { PortfolioInfoCard } from "../../overview/components/PortfolioInfoCard";
 import { ListedSecuritiesCard } from "./components/ListedSecuritiesCard";

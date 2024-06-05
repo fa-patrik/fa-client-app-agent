@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { AnalyticsGroupBy } from "api/types";
 
 interface Config {
@@ -30,14 +30,24 @@ interface Config {
     | undefined;
 }
 
-export const useConfig = () => {
+export const ConfigContext = React.createContext<Config | null>(null);
+
+export const ConfigProvider: React.FC = ({ children }) => {
   const [config, setConfig] = useState<Config | null>(null);
 
   useEffect(() => {
     fetch("/config/config.json")
       .then((response) => response.json())
+      .catch((error) => console.error(error))
       .then((json) => setConfig(json));
   }, []);
 
+  return (
+    <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>
+  );
+};
+
+export const useConfig = () => {
+  const config = useContext(ConfigContext);
   return config;
 };
