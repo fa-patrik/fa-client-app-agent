@@ -8,8 +8,6 @@ import { WizardProvider } from "providers/WizardProvider";
 import { Toast } from "./components";
 import "react-toastify/dist/ReactToastify.css";
 import "styles/fonts.css";
-// eslint-disable-next-line import/order
-import { ConfigProvider } from "providers/ConfigProvider";
 
 function App() {
   return (
@@ -18,12 +16,10 @@ function App() {
         <ErrorBoundary>
           <ConfigProvider>
             <KeycloakProvider>
-              <ConfigProvider>
-                <WizardProvider>
-                  <NavigationStack />
-                  <Toast />
-                </WizardProvider>
-              </ConfigProvider>
+              <WizardProvider>
+                <NavigationStack />
+                <Toast />
+              </WizardProvider>
             </KeycloakProvider>
           </ConfigProvider>
         </ErrorBoundary>
