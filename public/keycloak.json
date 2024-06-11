@@ -19,7 +19,10 @@
     "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
     "fa-advisor": ["ROLE_USER"]
   },
-  "enableWithdraw": { "fa-advisor": ["ROLE_USER"] },
+  "enableWithdraw": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
   "enableImpersonate": {
     "fa-clientportal": ["ROLE_IMPERSONATE"],
     "fa-advisor": ["ROLE_USER"]
@@ -29,7 +32,6 @@
     "fa-advisor": ["ROLE_USER"]
   },
   "enableAdvisor": {
-    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
     "fa-advisor": ["ROLE_USER"]
   },
   "public-client": true,
