@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FetchResult, gql, useMutation } from "@apollo/client";
+import { ADVISOR_TAG } from "api/constants";
 import { ExecutionMethod } from "api/enums";
 import { TransactionType } from "api/transactions/enums";
 import {
@@ -10,8 +11,6 @@ import { useKeycloak } from "providers/KeycloakProvider";
 import { toast } from "react-toastify";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 import { useUniqueReference } from "../../hooks/useUniqueReference";
-
-const ADVISOR_TAG = "Advisor";
 
 const IMPORT_TRADE_ORDER_MUTATION = gql`
   mutation ImportTradeOrder(
