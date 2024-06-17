@@ -51,14 +51,14 @@ interface SellData {
 
 export const useGetSellData = (
   portfolioId: number | undefined,
-  quoteCurrency?: string
+  quoteCurrency: string | undefined
 ) => {
   const { loading, error, data } = useQuery<SellData>(SELL_DATA_QUERY, {
     variables: {
       portfolioId,
       quoteCurrency,
     },
-    skip: !portfolioId,
+    skip: !portfolioId || !quoteCurrency,
     ...getFetchPolicyOptions(`GetSellData.${portfolioId}.${quoteCurrency}`),
   });
 

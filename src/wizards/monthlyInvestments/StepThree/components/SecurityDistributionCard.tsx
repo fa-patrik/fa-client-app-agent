@@ -131,7 +131,9 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                   }
                 )}
                 type="number"
-                placeholder="200"
+                placeholder={t(
+                  "wizards.monthlyInvestments.stepThree.amountInputPlaceholder"
+                )}
                 className="w-40"
                 value={amount}
                 onChange={(event) =>

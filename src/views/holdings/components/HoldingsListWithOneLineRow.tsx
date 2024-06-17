@@ -108,100 +108,98 @@ const HoldingLg = ({
       ? firstAnalysis.marketValue - firstAnalysis.tradeAmount
       : undefined;
   return (
-    <>
-      <Grid.Row key={code} className="py-2 border-t" onClick={onClick}>
-        <div
-          className={classNames("col-span-2", {
-            "grid gap-3 grid-cols-[148px_auto]":
-              hasSelectedPortfolio && canTrade && canAnyHoldingSwitch,
-            "grid gap-3 grid-cols-[84px_auto]":
-              hasSelectedPortfolio && canTrade && !canAnyHoldingSwitch,
-          })}
-        >
-          {hasSelectedPortfolio && canTradeAnyHolding && (
-            <div className="flex gap-2 items-start">
+    <Grid.Row key={code} className="py-2 border-t" onClick={onClick}>
+      <div
+        className={classNames("col-span-2", {
+          "grid gap-3 grid-cols-[148px_auto]":
+            hasSelectedPortfolio && canTrade && canAnyHoldingSwitch,
+          "grid gap-3 grid-cols-[84px_auto]":
+            hasSelectedPortfolio && canTrade && !canAnyHoldingSwitch,
+        })}
+      >
+        {hasSelectedPortfolio && canTradeAnyHolding && (
+          <div className="flex gap-2 items-start">
+            <Button
+              size="xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                onBuyModalOpen({ ...security, name });
+              }}
+            >
+              {t("holdingsPage.buyButton")}
+            </Button>
+            <Button
+              size="xs"
+              variant="Red"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSellModalOpen({ ...security, name });
+              }}
+            >
+              {t("holdingsPage.sellButton")}
+            </Button>
+            {hasSelectedPortfolio && canSwitchAnyHolding && (
               <Button
                 size="xs"
+                variant="Dark"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onBuyModalOpen(security);
+                  onSwitchModalOpen({
+                    sellSecurityId: security.id,
+                  });
                 }}
               >
-                {t("holdingsPage.buyButton")}
+                {t("holdingsPage.switchButton")}
               </Button>
-              <Button
-                size="xs"
-                variant="Red"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSellModalOpen(security);
-                }}
-              >
-                {t("holdingsPage.sellButton")}
-              </Button>
-              {hasSelectedPortfolio && canSwitchAnyHolding && (
-                <Button
-                  size="xs"
-                  variant="Dark"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSwitchModalOpen({
-                      sellSecurityId: security.id,
-                    });
-                  }}
-                >
-                  {t("holdingsPage.switchButton")}
-                </Button>
-              )}
-            </div>
-          )}
-          {!canTradeAnyHolding && <div className="text-center grow"></div>}
-          <NameWithFlag
-            name={name}
-            countryCode={countryCode}
-            showFlag={showFlag}
-          />
-        </div>
-        <div className="text-xs md:text-base font-light">{codeToDisplay}</div>
-        {isLgVersion && (
-          <div className="text-base font-medium">
-            {firstAnalysis?.amount !== undefined
-              ? t("number", { value: firstAnalysis?.amount })
-              : "-"}
+            )}
           </div>
         )}
-        {isXlVersion && (
-          <div className="text-base font-medium">
-            {firstAnalysis?.purchaseTradeAmount !== undefined
-              ? t("numberWithCurrency", {
-                  value: firstAnalysis?.purchaseTradeAmount,
-                  currency: currency,
-                })
-              : "-"}
-          </div>
-        )}
+        {!canTradeAnyHolding && <div className="text-center grow"></div>}
+        <NameWithFlag
+          name={name}
+          countryCode={countryCode}
+          showFlag={showFlag}
+        />
+      </div>
+      <div className="text-xs md:text-base font-light">{codeToDisplay}</div>
+      {isLgVersion && (
         <div className="text-base font-medium">
-          {firstAnalysis?.marketValue !== undefined
+          {firstAnalysis?.amount !== undefined
+            ? t("number", { value: firstAnalysis?.amount })
+            : "-"}
+        </div>
+      )}
+      {isXlVersion && (
+        <div className="text-base font-medium">
+          {firstAnalysis?.purchaseTradeAmount !== undefined
             ? t("numberWithCurrency", {
-                value: firstAnalysis?.marketValue,
-                currency,
+                value: firstAnalysis?.purchaseTradeAmount,
+                currency: currency,
               })
             : "-"}
         </div>
-        <div className="text-xs md:text-base font-medium">
-          <GainLoseColoring value={valueChange}>
-            {valueChange !== undefined
-              ? t("numberWithCurrency", {
-                  value: valueChange,
-                  currency,
-                  formatParams: {
-                    value: { signDisplay: "always" },
-                  },
-                })
-              : "-"}
-          </GainLoseColoring>
-        </div>
-      </Grid.Row>
-    </>
+      )}
+      <div className="text-base font-medium">
+        {firstAnalysis?.marketValue !== undefined
+          ? t("numberWithCurrency", {
+              value: firstAnalysis?.marketValue,
+              currency,
+            })
+          : "-"}
+      </div>
+      <div className="text-xs md:text-base font-medium">
+        <GainLoseColoring value={valueChange}>
+          {valueChange !== undefined
+            ? t("numberWithCurrency", {
+                value: valueChange,
+                currency,
+                formatParams: {
+                  value: { signDisplay: "always" },
+                },
+              })
+            : "-"}
+        </GainLoseColoring>
+      </div>
+    </Grid.Row>
   );
 };

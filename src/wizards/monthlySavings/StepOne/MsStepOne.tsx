@@ -95,7 +95,7 @@ const MsStepOne = () => {
     ) {
       return minAmount.toString();
     }
-    return wizardData?.data?.amountToSave?.toString() || "100";
+    return wizardData?.data?.amountToSave?.toString() ?? "";
   });
   const [inputError, setInputError] = useState("");
 
@@ -140,7 +140,7 @@ const MsStepOne = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue, minAmount, externalAcc]);
 
-  const CURRENCY_BLOCK_SIZE = portfolio?.currency.amountDecimalCount || 2;
+  const CURRENCY_BLOCK_SIZE = portfolio?.currency.amountDecimalCount ?? 2;
 
   const NoAccountWarning = useCallback(() => {
     return (
@@ -225,10 +225,12 @@ const MsStepOne = () => {
             label={t("wizards.monthlySavings.stepOne.amountInputLabel", {
               currency: portfolioCurrencyCode,
             })}
-            placeholder={`${minAmount || 100}`}
+            placeholder={t(
+              "wizards.monthlySavings.stepOne.amountInputPlaceholder"
+            )}
             step="any"
           />
-          {minAmount && (
+          {!!minAmount && (
             <p
               className="text-sm font-thin"
               id="monthlySavingsWizard-minAmountDisclaimer"

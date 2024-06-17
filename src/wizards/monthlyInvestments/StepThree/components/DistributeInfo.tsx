@@ -2,7 +2,7 @@ import {
   faScaleUnbalanced,
   faScaleUnbalancedFlip,
 } from "@fortawesome/free-solid-svg-icons";
-import Alert from "components/Alert/Alert";
+import Alert, { Severity } from "components/Alert/Alert";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 interface DistributeInfoProps {
@@ -12,6 +12,7 @@ interface DistributeInfoProps {
    * If provided, is displayed and sets the component style to error.
    */
   overrideError?: string;
+  currencyDecimalCount: number;
 }
 
 /**
@@ -24,18 +25,19 @@ const DistributeInfo = ({
   diffAmount,
   diffPercentage,
   overrideError,
+  currencyDecimalCount,
 }: DistributeInfoProps) => {
   const { i18n, t } = useModifiedTranslation();
 
   const diffAmountFormatted = diffAmount.toLocaleString(i18n.language, {
     style: "decimal",
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
+    maximumFractionDigits: currencyDecimalCount,
+    minimumFractionDigits: currencyDecimalCount,
   });
   const diffPercentageFormatted = diffPercentage.toLocaleString(i18n.language, {
     style: "decimal",
     maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 2,
   });
 
   return (
@@ -43,7 +45,7 @@ const DistributeInfo = ({
       {overrideError ? (
         <Alert
           id="distributeInfo-alert-error"
-          severity="Warning"
+          severity={Severity.Error}
           content={overrideError}
           title={t("wizards.monthlyInvestments.stepThree.unableToProceed")}
         />
@@ -51,7 +53,7 @@ const DistributeInfo = ({
         <Alert
           icon={faScaleUnbalanced}
           id="distributeInfo-alert-distributeMore"
-          severity="Info"
+          severity={Severity.Info}
           content={t("wizards.monthlyInvestments.stepThree.distributeMore", {
             diffAmountFormatted,
             diffPercentageFormatted,
@@ -62,14 +64,14 @@ const DistributeInfo = ({
         <Alert
           icon={faScaleUnbalancedFlip}
           id="distributeInfo-alert-distributeLess"
-          severity="Error"
+          severity={Severity.Error}
           content={t("wizards.monthlyInvestments.stepThree.distributeLess")}
           title={t("wizards.monthlyInvestments.stepThree.distributeLessTitle")}
         />
       ) : (
         <Alert
           id="distributeInfo-alert-distributeOk"
-          severity="Success"
+          severity={Severity.Success}
           content={t("wizards.monthlyInvestments.stepThree.distributeOk")}
           title={t("wizards.monthlyInvestments.stepThree.distributedTitle")}
         />

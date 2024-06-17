@@ -140,3 +140,19 @@ export const findPortfolioOptionById = (
     }
   }
 };
+
+export const getHeightClass = (screenHeight: number) => {
+  if (screenHeight <= 400) {
+    // xs
+    return "max-h-24";
+  } else if (screenHeight <= 768) {
+    // sm
+    return "max-h-40";
+  } else if (screenHeight <= 1024) {
+    // md
+    return "max-h-52";
+  } else {
+    // lg
+    return "max-h-64";
+  }
+};

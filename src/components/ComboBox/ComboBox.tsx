@@ -7,8 +7,9 @@ import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { LoadingIndicator } from "components/LoadingIndicator/LoadingIndicator";
 import Fade from "components/Transition/Fade";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { filterOptionsByQuery } from "utils/options";
+import { filterOptionsByQuery, getHeightClass } from "utils/options";
 import { usePopper } from "../../hooks/usePopper";
+
 export interface Option {
   id: number | string | null;
   label: string;
@@ -29,6 +30,7 @@ interface ComboBoxProps<T> {
    */
   tooltipContent?: string;
   error?: string;
+  height?: string;
 }
 
 const renderOptions = (
@@ -76,7 +78,9 @@ export const ComboBox = <TOption extends Option>({
   disabled,
   error,
   loading,
+  height,
 }: ComboBoxProps<TOption>) => {
+  const [defaultHeight, setDefaultHeight] = useState("h-48");
   const [query, setQuery] = useState("");
   const { t } = useModifiedTranslation();
   const [trigger, container] = usePopper({
@@ -113,6 +117,26 @@ export const ComboBox = <TOption extends Option>({
     }
   }, [value]);
 
+  useEffect(() => {
+    // Function to update height state
+    const updateHeight = () => {
+      const screenHeight = window.innerHeight;
+      const heightClass = getHeightClass(screenHeight);
+      setDefaultHeight(heightClass);
+    };
+
+    // Update height state on mount
+    updateHeight();
+
+    // Add event listener for resize event
+    window.addEventListener("resize", updateHeight);
+
+    // Remove event listener on unmount
+    return () => {
+      window.removeEventListener("resize", updateHeight);
+    };
+  }, []);
+
   return (
     <div className="flex flex-col">
       <Combobox
@@ -131,15 +155,13 @@ export const ComboBox = <TOption extends Option>({
               {label}
             </Combobox.Label>
             {tooltipContent && (
-              <>
-                <div
-                  id={!id ? undefined : `${id}-tooltipDialogButton`}
-                  className="cursor-help"
-                  onClick={() => setConfirmDialogOpen(true)}
-                >
-                  <InfoIcon />
-                </div>
-              </>
+              <div
+                id={!id ? undefined : `${id}-tooltipDialogButton`}
+                className="cursor-help"
+                onClick={() => setConfirmDialogOpen(true)}
+              >
+                <InfoIcon />
+              </div>
             )}
           </div>
         )}
@@ -182,7 +204,11 @@ export const ComboBox = <TOption extends Option>({
             leaveFrom="transform scale-100 opacity-100"
             leaveTo="transform scale-95 opacity-0"
           >
-            <Combobox.Options className="overflow-y-auto py-1 max-h-48 text-base list-none bg-white rounded divide-y divide-gray-100 shadow">
+            <Combobox.Options
+              className={`overflow-y-auto py-1 text-base list-none bg-white rounded divide-y divide-gray-100 shadow ${
+                height ?? defaultHeight
+              }`}
+            >
               {renderOptions(filteredOptions, value, id)}
             </Combobox.Options>
           </Transition>

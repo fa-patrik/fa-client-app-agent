@@ -35,13 +35,7 @@ const StepFive = () => {
     monthlyInvestmentsWizardState.selectedPortfolioOption;
   const amountToInvest = monthlyInvestmentsWizardState.amountToInvest || 0;
   const amountDistribution = monthlyInvestmentsWizardState.amountDistribution;
-  const selectedSecurities =
-    monthlyInvestmentsWizardState.selectedSecurities?.filter(
-      (security: TradableSecurity) => {
-        //remove securities for which the user has input 0 as amount
-        return amountDistribution && amountDistribution[security.id] > 0;
-      }
-    );
+  const selectedSecurities = monthlyInvestmentsWizardState.selectedSecurities;
 
   const selectedDate = monthlyInvestmentsWizardState.selectedDate;
   const [selectedMonths] = useState<Record<string, boolean>>(
@@ -107,8 +101,8 @@ const StepFive = () => {
   const selectedSecuritiesSortedByAmountDistribution = selectedSecurities?.sort(
     (secA: TradableSecurity, secB: TradableSecurity) => {
       const numericalOrder =
-        (amountDistribution?.[secB.id] || 0) -
-        (amountDistribution?.[secA.id] || 0);
+        (Number(amountDistribution?.[secB.id]) || 0) -
+        (Number(amountDistribution?.[secA.id]) || 0);
       if (numericalOrder === 0) {
         //equally large- sort by name
         return secA.name.toLowerCase().localeCompare(secB.name.toLowerCase());

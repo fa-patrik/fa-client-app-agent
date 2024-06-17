@@ -91,6 +91,9 @@ const MsStepTwo = () => {
             )}
             onChange={handleDateInput}
             value={selectedDate}
+            placeholder={t(
+              "wizards.monthlySavings.stepTwo.paymentDateInputPlaceholder"
+            )}
           />
 
           <SelectMonthsGrid

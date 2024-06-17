@@ -17,6 +17,7 @@ interface PortfolioSelectProps {
   onChange: (option: PortfolioOption) => void;
   label?: string;
   error?: string;
+  height?: string;
 }
 
 export const PortfolioSelect = ({
@@ -26,6 +27,7 @@ export const PortfolioSelect = ({
   onChange,
   label,
   error,
+  height,
 }: PortfolioSelectProps) => {
   const currentPortfolioOption = getCurrentPortfolioOption(
     portfolioOptions,
@@ -39,6 +41,7 @@ export const PortfolioSelect = ({
       options={portfolioOptions}
       label={label}
       error={error}
+      height={height}
     />
   );
 };

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useGetContactOverview } from "./useGetContactOverview";
 import { useLazyGetPortfolioOverview } from "./useGetPortfolioOverview";
 
@@ -16,12 +16,13 @@ export const useGetPortfolioOverviewSmart = (id: number | undefined) => {
     loading: contactDataLoading,
   } = useGetContactOverview(true);
 
-  const portfolioDataFromContactDataCache =
-    contactData?.contact?.analytics?.contact?.parentPortfolios?.find(
+  const portfolioDataFromContactDataCache = useMemo(() => {
+    return contactData?.contact?.analytics?.contact?.parentPortfolios?.find(
       (parentPortfolio) => {
         return parentPortfolio?.portfolio?.id === id;
       }
     );
+  }, [contactData, id]);
 
   const {
     getPortfolioOverview,

@@ -7,6 +7,7 @@ import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { PortfolioMonthlyInvestmentsDTOInput } from "api/trading/useSetMonthlyInvestments";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { getPortfolioOption } from "hooks/useGetPortfolioOptions";
+import { round } from "utils/number";
 import { MonthlyInvestmentsWizardState } from "wizards/monthlyInvestments/types";
 import { getDefaultValueAsNumber } from "./common";
 
@@ -245,13 +246,14 @@ export const getUniqueSecurityCodes = (
  */
 export const getDistribution = (
   monthlyInvestments: MonthlyInvestmentsProfile,
-  securities: Record<TradableSecurity["securityCode"], TradableSecurity>
+  securities: Record<TradableSecurity["securityCode"], TradableSecurity>,
+  amountDecimalCount: number
 ) => {
   const totalAmountToInvest = getAmountToInvest(monthlyInvestments);
 
   const securityRows = monthlyInvestments?.rows;
-  const amountDistribution: Record<TradableSecurity["id"], number> = {};
-  const percentageDistribution: Record<TradableSecurity["id"], number> = {};
+  const amountDistribution: Record<string, number> = {};
+  const percentageDistribution: Record<string, number> = {};
 
   if (securityRows) {
     for (const row of Object.values(monthlyInvestments.rows)) {
@@ -268,8 +270,10 @@ export const getDistribution = (
           amountDistribution[securityId] = 0;
         }
         amountDistribution[securityId] += rowAmount;
-        percentageDistribution[securityId] =
-          (amountDistribution[securityId] / (totalAmountToInvest || 1)) * 100;
+        percentageDistribution[securityId] = round(
+          (amountDistribution[securityId] / (totalAmountToInvest || 1)) * 100,
+          amountDecimalCount
+        );
       }
     }
   }
@@ -311,7 +315,7 @@ export const convertWizardStateToApiFormat = (
         date: Number(selectedDate),
         selectedMonths: selectedMonths,
         security: security.securityCode,
-        amount: amountDistribution?.[security.id] || 0,
+        amount: Number(amountDistribution?.[security.id]),
       });
     }
   }
@@ -338,13 +342,32 @@ export const convertMonthlyInvestmentsProfileToWizardState = (
     const selectedPortfolioOption: PortfolioOption | undefined =
       getPortfolioOption(portfolioWithMonthlyInvestments);
 
+    const portfolioCurrencyAmountDecimalCount =
+      selectedPortfolioOption?.details?.currency?.amountDecimalCount ?? 2;
+
     //sum up the total amount to invest through all security row amounts
     const amountToInvest = getAmountToInvest(monthlyInvestmentsProfile);
 
     const { amountDistribution, percentageDistribution } = getDistribution(
       monthlyInvestmentsProfile,
-      securities
+      securities,
+      portfolioCurrencyAmountDecimalCount
     );
+
+    const amountDistributionWithStringValues = Object.keys(
+      amountDistribution
+    ).reduce((prev, curr) => {
+      prev[curr] = amountDistribution[curr].toString();
+      return prev;
+    }, {} as Record<string, string>);
+
+    const percentageDistributionWithStringValues = Object.keys(
+      percentageDistribution
+    ).reduce((prev, curr) => {
+      prev[curr] = percentageDistribution[curr].toString();
+      return prev;
+    }, {} as Record<string, string>);
+
     const securityCodes = getUniqueSecurityCodes([
       portfolioWithMonthlyInvestments,
     ]);
@@ -360,15 +383,19 @@ export const convertMonthlyInvestmentsProfileToWizardState = (
     const selectedDate = getSelectedDate(monthlyInvestmentsProfile);
     const selectedMonths = getSelectedMonthsAsMap(monthlyInvestmentsProfile);
 
-    return {
+    const wizardState: MonthlyInvestmentsWizardState = {
+      isEditing: false,
       selectedPortfolioOption,
       amountToInvest,
-      amountDistribution,
-      percentageDistribution,
+      amountToInvestPrev: amountToInvest,
+      amountDistribution: amountDistributionWithStringValues,
+      percentageDistribution: percentageDistributionWithStringValues,
       selectedDate,
       selectedMonths,
       selectedSecurities,
     };
+
+    return wizardState;
   }
 };
 
