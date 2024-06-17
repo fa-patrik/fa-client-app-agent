@@ -28,11 +28,13 @@ import {
 import { addProtocolToUrl } from "utils/url";
 import { useGetSecurityDetails } from "../../../api/holdings/useGetSecurityDetails";
 import PortfolioLock from "../PortfolioLock";
+import TradeTypeToggleButtons from "../TradeTypeToggleButtons";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 import { useGetSellTradeType } from "./useGetSellTradeType";
 
 export interface SellModalInitialData {
   id: number;
+  name: string;
 }
 
 interface SellModalProps extends SellModalInitialData {
@@ -75,6 +77,7 @@ export const SellModalContent = ({
   modalInitialFocusRef,
   onClose,
   id: securityId,
+  name,
 }: SellModalProps) => {
   const [submitting, setSubmitting] = useState(false);
   const [isPercentageMode, setIsPercentageMode] = useState(false);
@@ -217,19 +220,19 @@ export const SellModalContent = ({
     (estimatedTradeAmountInSecurityCurrency || 0) /
     (estimatedTradeAmountInAccountCurrency || 1);
 
-  const securityName =
+  const securityNameTranslated =
     security !== undefined
       ? getBackendTranslation(
           security?.name,
           security?.namesAsMap,
           i18n.language
         )
-      : "-";
+      : undefined;
 
   const { handleTrade: handleSell } = useTrade({
     tradeType: getTradeType(security?.type.code),
     portfolio: selectedPortfolio ?? ({} as Portfolio),
-    securityName,
+    securityName: securityNameTranslated ?? name,
     units: isTradeInUnits ? unitsToSell : undefined,
     tradeAmount: !isTradeInUnits
       ? estimatedTradeAmountInSecurityCurrency
@@ -330,22 +333,24 @@ export const SellModalContent = ({
     portfolioOptionsThatCantTradeTheSecurity?.length;
 
   return (
-    <div className="grid gap-2 min-w-[min(84vw,_375px)]">
-      <LabeledDiv
-        label={t("tradingModal.securityName")}
-        className="text-2xl font-semibold"
-      >
-        {securityName ?? "-"}
-      </LabeledDiv>
+    <div className="grid gap-2 max-w-md min-w-[min(84vw,_375px)]">
+      <div className="h-20">
+        <LabeledDiv
+          label={t("tradingModal.securityName")}
+          className="text-2xl font-semibold"
+        >
+          {securityNameTranslated ?? name ?? "-"}
+        </LabeledDiv>
 
-      {security?.url2 && (
-        <div className="w-fit">
-          <DownloadableDocument
-            url={addProtocolToUrl(security.url2)}
-            label={t("tradingModal.kiid")}
-          />
-        </div>
-      )}
+        {security?.url2 && (
+          <div className="w-fit">
+            <DownloadableDocument
+              url={addProtocolToUrl(security.url2)}
+              label={t("tradingModal.kiid")}
+            />
+          </div>
+        )}
+      </div>
 
       <div className="z-10">
         <PortfolioSelect
@@ -357,29 +362,30 @@ export const SellModalContent = ({
         />
       </div>
       {areSomePortfoliosProhibitedToTradeTheSecurity && <PortfolioLock />}
+      <div className="h-14 ">
+        {isTradeInUnits && (
+          <LabeledDiv
+            label={t("tradingModal.currentUnits")}
+            className="text-xl font-semibold text-gray-700"
+          >
+            {units !== undefined ? t("number", { value: units }) : "-"}
+          </LabeledDiv>
+        )}
 
-      {isTradeInUnits && (
-        <LabeledDiv
-          label={t("tradingModal.currentUnits")}
-          className="text-xl font-semibold text-gray-700"
-        >
-          {units !== undefined ? t("number", { value: units }) : "0"}
-        </LabeledDiv>
-      )}
-
-      {!isTradeInUnits && (
-        <LabeledDiv
-          label={t("tradingModal.currentMarketValue")}
-          className="text-xl font-semibold text-gray-700"
-        >
-          {marketValue !== undefined && portfolioCurrency !== undefined
-            ? t("numberWithCurrency", {
-                value: marketValue,
-                currency: portfolioCurrency,
-              })
-            : "0"}
-        </LabeledDiv>
-      )}
+        {!isTradeInUnits && (
+          <LabeledDiv
+            label={t("tradingModal.currentMarketValue")}
+            className="text-xl font-semibold text-gray-700"
+          >
+            {marketValue !== undefined && portfolioCurrency !== undefined
+              ? t("numberWithCurrency", {
+                  value: marketValue,
+                  currency: portfolioCurrency,
+                })
+              : "-"}
+          </LabeledDiv>
+        )}
+      </div>
 
       <Input
         disabled={!portfolioId}
@@ -418,33 +424,11 @@ export const SellModalContent = ({
         step="any"
       />
 
-      {canToggleTradeType && (
-        <>
-          <div className="flex overflow-hidden font-medium leading-5 bg-gray-50 rounded-md divide-x ring-1 shadow-sm pointer-events-auto select-none divide-slate-400/20 text-[0.8125rem] ring-slate-700/10">
-            <button
-              className={`text-center cursor-pointer py-2 px-4 flex-1 ${
-                isTradeInUnits ? "bg-gray-200" : ""
-              }`}
-              onClick={() => {
-                setIsTradeInUnits(true);
-              }}
-            >
-              {t("tradingModal.unitsButtonLabel")}
-            </button>
-
-            <button
-              className={`text-center cursor-pointer py-2 px-4 flex-1 ${
-                !isTradeInUnits ? "bg-gray-200" : ""
-              }`}
-              onClick={() => {
-                setIsTradeInUnits(false);
-              }}
-            >
-              {t("tradingModal.tradeAmountButtonLabel")}
-            </button>
-          </div>
-        </>
-      )}
+      <TradeTypeToggleButtons
+        canToggleTradeType={canToggleTradeType}
+        setIsTradeInUnits={setIsTradeInUnits}
+        isTradeInUnits={isTradeInUnits}
+      />
 
       <div className="flex justify-between items-end h-8">
         <div className="flex gap-1 items-center">
@@ -510,58 +494,60 @@ export const SellModalContent = ({
       </div>
 
       <hr />
-      <div className="flex flex-col gap-4 items-stretch ">
-        <div>
-          <LabeledDivFlex
-            alignText="center"
-            tooltipContent={tradeAmountTooltip || blockSizeTradeAmountError}
-            id="sellOrderModal-tradeAmountInPfCurrency"
-            label={t("tradingModal.approximateTradeAmount")}
-            className="text-2xl font-semibold"
-          >
-            {estimatedTradeAmountInPfCurrency !== undefined &&
-            portfolioCurrency !== undefined
-              ? t("numberWithCurrency", {
-                  value: estimatedTradeAmountInPfCurrency,
-                  currency: portfolioCurrency,
-                })
-              : "-"}
-          </LabeledDivFlex>
-          {securityCurrency &&
-            portfolioCurrency &&
-            portfolioCurrency !== securityCurrency && (
-              <LabeledDivFlex
-                alignText="center"
-                id="sellOrderModal-tradeAmountInSecurityCurrency"
-                label={""}
-                className="text-md"
-              >
-                (
-                {estimatedTradeAmountInSecurityCurrency !== undefined &&
-                securityCurrency !== undefined
-                  ? t("numberWithCurrency", {
-                      value: estimatedTradeAmountInSecurityCurrency,
-                      currency: securityCurrency,
-                    })
-                  : "-"}
-                )
-              </LabeledDivFlex>
-            )}
+      <div className="h-20">
+        <div className="flex flex-col gap-4 items-stretch ">
+          <div>
+            <LabeledDivFlex
+              alignText="center"
+              tooltipContent={tradeAmountTooltip || blockSizeTradeAmountError}
+              id="sellOrderModal-tradeAmountInPfCurrency"
+              label={t("tradingModal.approximateTradeAmount")}
+              className="text-2xl font-semibold"
+            >
+              {estimatedTradeAmountInPfCurrency !== undefined &&
+              portfolioCurrency !== undefined
+                ? t("numberWithCurrency", {
+                    value: estimatedTradeAmountInPfCurrency,
+                    currency: portfolioCurrency,
+                  })
+                : "-"}
+            </LabeledDivFlex>
+            {securityCurrency &&
+              portfolioCurrency &&
+              portfolioCurrency !== securityCurrency && (
+                <LabeledDivFlex
+                  alignText="center"
+                  id="sellOrderModal-tradeAmountInSecurityCurrency"
+                  label={""}
+                  className="text-md"
+                >
+                  (
+                  {estimatedTradeAmountInSecurityCurrency !== undefined &&
+                  securityCurrency !== undefined
+                    ? t("numberWithCurrency", {
+                        value: estimatedTradeAmountInSecurityCurrency,
+                        currency: securityCurrency,
+                      })
+                    : "-"}
+                  )
+                </LabeledDivFlex>
+              )}
+          </div>
         </div>
-        <Button
-          disabled={disableSellButton()}
-          isLoading={submitting}
-          onClick={async () => {
-            setSubmitting(true);
-            const response = await handleSell();
-            if (response) {
-              onClose();
-            }
-          }}
-        >
-          {t("tradingModal.sellModalHeader")}
-        </Button>
       </div>
+      <Button
+        disabled={disableSellButton()}
+        isLoading={submitting}
+        onClick={async () => {
+          setSubmitting(true);
+          const response = await handleSell();
+          if (response) {
+            onClose();
+          }
+        }}
+      >
+        {t("tradingModal.sellModalHeader")}
+      </Button>
     </div>
   );
 };

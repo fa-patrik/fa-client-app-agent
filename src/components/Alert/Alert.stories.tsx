@@ -1,5 +1,5 @@
 import { Story, Meta } from "@storybook/react";
-import Alert, { AlertProps } from "./Alert";
+import Alert, { AlertProps, Severity } from "./Alert";
 export default {
   title: "UX/Alert",
   component: Alert,
@@ -10,7 +10,7 @@ const Template: Story<AlertProps> = (args) => <Alert {...args} />;
 export const Info = Template.bind({});
 Info.args = {
   id: "info-alert",
-  severity: "Info",
+  severity: Severity.Info,
   title: "Info Alert",
   content: "This is an informational message.",
 };
@@ -18,7 +18,7 @@ Info.args = {
 export const Success = Template.bind({});
 Success.args = {
   id: "success-alert",
-  severity: "Success",
+  severity: Severity.Success,
   title: "Success Alert",
   content: "This is a success message.",
 };
@@ -26,7 +26,7 @@ Success.args = {
 export const Warning = Template.bind({});
 Warning.args = {
   id: "warning-alert",
-  severity: "Warning",
+  severity: Severity.Warning,
   title: "Warning Alert",
   content: "This is a warning message.",
 };
@@ -34,7 +34,7 @@ Warning.args = {
 export const Error = Template.bind({});
 Error.args = {
   id: "error-alert",
-  severity: "Error",
+  severity: Severity.Error,
   title: "Error Alert",
   content: "This is an error message.",
 };

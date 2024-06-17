@@ -24,6 +24,30 @@ module.exports = {
         avatar_7: "#00636B",
         avatar_8: "#660033",
         avatar_9: "#000066",
+        error: {
+          default: colors.red,
+          bg: colors.red[100],
+          border: colors.red[200],
+          text: colors.red[800],
+        },
+        success: {
+          default: colors.green,
+          bg: colors.green[100],
+          border: colors.green[200],
+          text: colors.green[600],
+        },
+        warning: {
+          default: colors.amber,
+          bg: colors.amber[100],
+          border: colors.amber[200],
+          text: colors.amber[500],
+        },
+        info: {
+          default: colors.blue,
+          bg: colors.blue[100],
+          border: colors.blue[200],
+          text: colors.blue[800],
+        },
       },
       fontSize: {
         xs: ["0.75rem", "150%"],

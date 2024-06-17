@@ -1,14 +1,19 @@
-import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import {
   faInfoCircle,
   faCheckCircle,
   faExclamationCircle,
   faExclamationTriangle,
+  IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import classNames from "classnames";
 import Icon from "components/Icon/Icon";
 
-type Severity = "Error" | "Success" | "Warning" | "Info";
+export enum Severity {
+  Error = "Error",
+  Success = "Success",
+  Warning = "Warning",
+  Info = "Info",
+}
 
 export interface AlertProps {
   id: string;
@@ -18,24 +23,22 @@ export interface AlertProps {
   icon?: IconDefinition;
 }
 
-const Alert = ({ severity, title, content, id, icon }: AlertProps) => {
-  let defaultIcon: IconDefinition;
-
+export function getIconBySeverity(severity: string): IconDefinition {
   switch (severity) {
     case "Error":
-      defaultIcon = faExclamationCircle;
-      break;
+      return faExclamationCircle;
     case "Success":
-      defaultIcon = faCheckCircle;
-      break;
+      return faCheckCircle;
     case "Warning":
-      defaultIcon = faExclamationTriangle;
-      break;
+      return faExclamationTriangle;
     case "Info":
     default:
-      defaultIcon = faInfoCircle;
-      break;
+      return faInfoCircle;
   }
+}
+
+const Alert = ({ severity, title, content, id, icon }: AlertProps) => {
+  const defaultIcon = getIconBySeverity(severity);
 
   return (
     <div
@@ -43,37 +46,27 @@ const Alert = ({ severity, title, content, id, icon }: AlertProps) => {
       className={classNames(
         "flex flex-col p-1.5 text-sm rounded-lg flex-1 border-2 max-w-xl",
         {
-          "bg-primary-100 border-primary-200": severity === "Info",
-          "bg-green-100 border-green-200": severity === "Success",
-          "bg-red-100 border-red-200": severity === "Error",
-          "bg-amber-100 border-amber-200": severity === "Warning",
+          "bg-info-bg border-info-border": severity === "Info",
+          "bg-success-bg border-success-border": severity === "Success",
+          "bg-error-bg border-error-border": severity === "Error",
+          "bg-warning-bg border-warning-border": severity === "Warning",
         }
       )}
     >
       <div className="flex flex-row gap-x-2 items-start">
         <Icon severity={severity} icon={icon ?? defaultIcon} />{" "}
-        {/* use the Icon component */}
         <p
           className={classNames("text-xs font-semibold", {
-            "text-primary-800": severity === "Info",
-            "text-green-600": severity === "Success",
-            "text-red-800": severity === "Error",
-            "text-amber-500": severity === "Warning",
+            "text-info-text": severity === "Info",
+            "text-success-text": severity === "Success",
+            "text-error-text": severity === "Error",
+            "text-warning-text": severity === "Warning",
           })}
         >
           {title}
         </p>
       </div>
-      <p
-        className={classNames("text-xs pl-0.5", {
-          "text-primary-900": severity === "Info",
-          "text-green-900": severity === "Success",
-          "text-red-900": severity === "Error",
-          "text-amber-900": severity === "Warning",
-        })}
-      >
-        {content}
-      </p>
+      <p className="pl-0.5 text-xs">{content}</p>
     </div>
   );
 };

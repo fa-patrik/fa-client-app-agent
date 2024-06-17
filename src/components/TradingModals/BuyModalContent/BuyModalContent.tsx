@@ -27,11 +27,13 @@ import {
 } from "utils/trading";
 import { addProtocolToUrl } from "utils/url";
 import PortfolioLock from "../PortfolioLock";
+import TradeTypeToggleButtons from "../TradeTypeToggleButtons";
 import { useTradablePortfolioSelect } from "../useTradablePortfolioSelect";
 import { useGetBuyTradeType } from "./useGetBuyTradeType";
 
 export interface BuyModalInitialData {
   id: number;
+  name: string;
 }
 
 interface BuyModalProps extends BuyModalInitialData {
@@ -52,6 +54,7 @@ export const BuyModalContent = ({
   modalInitialFocusRef,
   onClose,
   id: securityId,
+  name,
 }: BuyModalProps) => {
   const [submitting, setSubmitting] = useState(false);
   const { t, i18n } = useModifiedTranslation();
@@ -122,7 +125,7 @@ export const BuyModalContent = ({
     ? securityAmountDecimalCount
     : portfolioCurrencyAmountDecimalCount;
 
-  const securityName =
+  const securityNameTranslated =
     security !== undefined
       ? getBackendTranslation(
           security?.name,
@@ -193,7 +196,7 @@ export const BuyModalContent = ({
   const { handleTrade: handleBuy } = useTrade({
     tradeType: getTradeType(security?.type.code),
     portfolio: selectedPortfolio ?? ({} as Portfolio),
-    securityName: securityName || "-",
+    securityName: securityNameTranslated ?? name ?? "-",
     units: isTradeInUnits ? unitsToBuy : undefined,
     tradeAmount: !isTradeInUnits
       ? estimatedTradeAmountInSecurityCurrency
@@ -290,21 +293,23 @@ export const BuyModalContent = ({
     portfolioOptionsThatCantTradeTheSecurity?.length;
 
   return (
-    <div className="grid gap-2 max-w-sm">
-      <LabeledDiv
-        label={t("tradingModal.securityName")}
-        className="text-2xl font-semibold"
-      >
-        {securityName ?? "-"}
-      </LabeledDiv>
-      {security?.url2 && (
-        <div className="w-fit">
-          <DownloadableDocument
-            url={addProtocolToUrl(security?.url2)}
-            label={t("tradingModal.kiid")}
-          />
-        </div>
-      )}
+    <div className="grid gap-2 max-w-md min-w-[min(84vw,_375px)]">
+      <div className="h-20">
+        <LabeledDiv
+          label={t("tradingModal.securityName")}
+          className="text-2xl font-semibold"
+        >
+          {securityNameTranslated ?? name ?? "-"}
+        </LabeledDiv>
+        {security?.url2 && (
+          <div className="w-fit">
+            <DownloadableDocument
+              url={addProtocolToUrl(security?.url2)}
+              label={t("tradingModal.kiid")}
+            />
+          </div>
+        )}
+      </div>
 
       <PortfolioSelect
         portfolioOptions={portfolioOptionsThatCantTradeTheSecurity}
@@ -315,18 +320,19 @@ export const BuyModalContent = ({
       />
 
       {areSomePortfoliosProhibitedToTradeTheSecurity && <PortfolioLock />}
-
-      <LabeledDiv
-        label={t("tradingModal.availableCash")}
-        className="text-xl font-semibold text-gray-700"
-      >
-        {availableCash !== undefined && portfolioCurrency !== undefined
-          ? t("numberWithCurrency", {
-              value: availableCash,
-              currency: portfolioCurrency,
-            })
-          : "-"}
-      </LabeledDiv>
+      <div className="h-14 ">
+        <LabeledDiv
+          label={t("tradingModal.availableCash")}
+          className="text-xl font-semibold text-gray-700"
+        >
+          {availableCash !== undefined && portfolioCurrency !== undefined
+            ? t("numberWithCurrency", {
+                value: availableCash,
+                currency: portfolioCurrency,
+              })
+            : "-"}
+        </LabeledDiv>
+      </div>
 
       <Input
         disabled={!portfolioId}
@@ -356,83 +362,65 @@ export const BuyModalContent = ({
         step="any"
       />
 
-      {canToggleTradeType && (
-        <>
-          <div className="flex overflow-hidden font-medium leading-5 bg-gray-50 rounded-md divide-x ring-1 shadow-sm pointer-events-auto select-none divide-slate-400/20 text-[0.8125rem] ring-slate-700/10">
-            <button
-              className={`text-center cursor-pointer py-2 px-4 flex-1 ${
-                isTradeInUnits ? "bg-gray-200" : ""
-              }`}
-              onClick={() => setIsTradeInUnits(true)}
-            >
-              {t("tradingModal.unitsButtonLabel")}
-            </button>
-
-            <button
-              className={`text-center cursor-pointer py-2 px-4 flex-1 ${
-                !isTradeInUnits ? "bg-gray-200" : ""
-              }`}
-              onClick={() => setIsTradeInUnits(false)}
-            >
-              {t("tradingModal.tradeAmountButtonLabel")}
-            </button>
-          </div>
-        </>
-      )}
+      <TradeTypeToggleButtons
+        canToggleTradeType={canToggleTradeType}
+        setIsTradeInUnits={setIsTradeInUnits}
+        isTradeInUnits={isTradeInUnits}
+      />
 
       <hr className="my-1" />
-
-      <div className="flex flex-col gap-4 items-stretch">
-        <div>
-          <LabeledDivFlex
-            alignText="center"
-            tooltipContent={tradeAmountTooltip || blockSizeTradeAmountError}
-            id="buyOrderModal-tradeAmount"
-            label={t("tradingModal.approximateTradeAmount")}
-            className="text-2xl font-semibold"
-          >
-            {portfolioCurrency !== undefined &&
-            estimatedTradeAmountInPfCurrency !== undefined
-              ? `${t("number", {
-                  value: estimatedTradeAmountInPfCurrency,
-                })} ${portfolioCurrency} `
-              : "-"}
-          </LabeledDivFlex>
-          {securityCurrency &&
-            portfolioCurrency &&
-            portfolioCurrency !== securityCurrency && (
-              <LabeledDivFlex
-                alignText="center"
-                id="buyOrderModal-tradeAmount"
-                label={""}
-                className="text-md"
-              >
-                (
-                {estimatedTradeAmountInSecurityCurrency !== undefined &&
-                securityCurrency !== undefined
-                  ? `${t("number", {
-                      value: estimatedTradeAmountInSecurityCurrency,
-                    })} ${securityCurrency}`
-                  : "-"}
-                )
-              </LabeledDivFlex>
-            )}
+      <div className="h-20 ">
+        <div className="flex flex-col gap-4 items-stretch">
+          <div>
+            <LabeledDivFlex
+              alignText="center"
+              tooltipContent={tradeAmountTooltip || blockSizeTradeAmountError}
+              id="buyOrderModal-tradeAmount"
+              label={t("tradingModal.approximateTradeAmount")}
+              className="text-2xl font-semibold"
+            >
+              {portfolioCurrency !== undefined &&
+              estimatedTradeAmountInPfCurrency !== undefined
+                ? `${t("number", {
+                    value: estimatedTradeAmountInPfCurrency,
+                  })} ${portfolioCurrency} `
+                : "-"}
+            </LabeledDivFlex>
+            {securityCurrency &&
+              portfolioCurrency &&
+              portfolioCurrency !== securityCurrency && (
+                <LabeledDivFlex
+                  alignText="center"
+                  id="buyOrderModal-tradeAmount"
+                  label={""}
+                  className="text-md"
+                >
+                  (
+                  {estimatedTradeAmountInSecurityCurrency !== undefined &&
+                  securityCurrency !== undefined
+                    ? `${t("number", {
+                        value: estimatedTradeAmountInSecurityCurrency,
+                      })} ${securityCurrency}`
+                    : "-"}
+                  )
+                </LabeledDivFlex>
+              )}
+          </div>
         </div>
-
-        <Button
-          disabled={disableBuyButton()}
-          isLoading={submitting}
-          onClick={async () => {
-            setSubmitting(true);
-            const response = await handleBuy();
-            if (response) {
-              onClose();
-            }
-          }}
-        >
-          {t("tradingModal.buyButtonLabel")}
-        </Button>
       </div>
+      <Button
+        disabled={disableBuyButton()}
+        isLoading={submitting}
+        onClick={async () => {
+          setSubmitting(true);
+          const response = await handleBuy();
+          if (response) {
+            onClose();
+          }
+        }}
+      >
+        {t("tradingModal.buyButtonLabel")}
+      </Button>
 
       <hr className="my-1" />
 

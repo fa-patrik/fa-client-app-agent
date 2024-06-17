@@ -54,10 +54,10 @@ const InputPlain = (
           id={id}
           ref={ref}
           className={classNames(
-            "block p-2 w-full text-sm  bg-gray-50  border border-gray-300 focus:border-primary-400",
+            "block p-2 w-full text-sm bg-gray-50 border border-gray-300 focus:outline-none",
             className,
             {
-              "text-red-900 placeholder-red-700 bg-red-50 focus:border-red-500 border-red-500 rounded-lg":
+              "text-red-900 placeholder-red-700 bg-red-50 focus:border-red-500 border-red-500 rounded-lg focus:ring-1 focus:ring-red-500":
                 !!error,
               "cursor-not-allowed": inputAttributes.disabled,
               "text-green-400 w-5 h-5 rounded-full":

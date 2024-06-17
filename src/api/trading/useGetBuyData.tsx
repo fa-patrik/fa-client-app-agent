@@ -54,14 +54,14 @@ interface BuyData {
 
 export const useGetBuyData = (
   portfolioId: number | undefined,
-  quoteCurrency?: string
+  quoteCurrency: string | undefined
 ) => {
   const { loading, error, data } = useQuery<BuyData>(BUY_DATA_QUERY, {
     variables: {
       portfolioId,
       quoteCurrency,
     },
-    skip: !portfolioId,
+    skip: !portfolioId || !quoteCurrency,
     ...getFetchPolicyOptions(`useGetBuyData.${portfolioId}.${quoteCurrency}`),
   });
 

@@ -8,7 +8,7 @@ const SECURITY_NAME_MAX_LENGTH = 25;
 interface SecurityDistributionTableProps {
   id?: string;
   securities: TradableSecurity[] | undefined;
-  amountDistribution: Record<string, number> | undefined;
+  amountDistribution: Record<string, string> | undefined;
   totalAmount: number;
   portfolioCurrencyCode: string;
 }
@@ -48,14 +48,17 @@ const SecurityDistributionTable = ({
       <tbody>
         {securities?.map((security, index) => {
           const securityAmountDistribution =
-            amountDistribution?.[security.id] || 0;
+            amountDistribution?.[security.id] !== undefined
+              ? parseFloat(amountDistribution?.[security.id])
+              : 0;
           const denominator = totalAmount === 0 ? 1 : totalAmount;
           const securityPercentageDistribution =
             (securityAmountDistribution / denominator) * 100;
           const largest =
             (amountDistribution &&
               Object.values(amountDistribution).reduce((prev, curr) => {
-                if (curr > prev) return curr;
+                if (curr && !isNaN(Number(curr)) && parseFloat(curr) > prev)
+                  return parseFloat(curr);
                 return prev;
               }, 0)) ||
             0;

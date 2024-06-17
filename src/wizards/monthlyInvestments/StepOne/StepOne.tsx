@@ -78,7 +78,6 @@ const StepOne = () => {
   ]?.value as number;
 
   const portfolioCurrencyCode = portfolio?.currency.securityCode;
-  const CURRENCY_BLOCK_SIZE = portfolio?.currency.amountDecimalCount;
 
   const [inputValue, setInputValue] = useState<string>(() => {
     if (
@@ -88,7 +87,7 @@ const StepOne = () => {
     ) {
       return minAmount.toString();
     }
-    return monthlyInvestmentsWizardState.amountToInvest?.toString() || "100";
+    return monthlyInvestmentsWizardState.amountToInvest?.toString() ?? "";
   });
   const [inputError, setInputError] = useState("");
 
@@ -182,31 +181,21 @@ const StepOne = () => {
               type="number"
               value={inputValue}
               onChange={(e) =>
-                handleNumberInputEvent(
-                  e,
-                  setInputValue,
-                  0,
-                  undefined,
-                  CURRENCY_BLOCK_SIZE
-                )
+                handleNumberInputEvent(e, setInputValue, 0, undefined, 0)
               }
               onPaste={(e) =>
-                handleNumberPasteEvent(
-                  e,
-                  setInputValue,
-                  0,
-                  undefined,
-                  CURRENCY_BLOCK_SIZE
-                )
+                handleNumberPasteEvent(e, setInputValue, 0, undefined, 0)
               }
               className="text-black rounded-lg"
               label={t("wizards.monthlyInvestments.stepOne.amountInputLabel", {
                 currency: portfolioCurrencyCode,
               })}
-              placeholder={`${minAmount || 100}`}
+              placeholder={t(
+                "wizards.monthlyInvestments.stepOne.amountInputPlaceholder"
+              )}
               step="any"
             />
-            {minAmount && (
+            {!!minAmount && (
               <p
                 id="monthlyInvestmentsWizard-minAmountDisclaimer"
                 className="text-sm font-thin"
