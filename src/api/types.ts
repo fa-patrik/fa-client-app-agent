@@ -82,6 +82,10 @@ export interface LimitedTradeOrderDTOInput {
    * Whether to populate fxRate with latest known fx rate.
    */
   autoFxRate?: boolean;
+  /**
+   * A comma separated list of tags.
+   */
+  tags?: string;
 }
 
 export interface LimitedSwitchBuyOrderDTOInput {
@@ -97,6 +101,10 @@ export interface LimitedSwitchBuyOrderDTOInput {
    * Identifier of the order. Must be unique in the portfolio.
    */
   reference: string;
+  /**
+   * A comma separated list of tags.
+   */
+  tags?: string;
 }
 
 /**
