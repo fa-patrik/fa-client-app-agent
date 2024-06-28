@@ -4,7 +4,9 @@ import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
 import { portfolioOptionsMock } from "test/mockData/portfolioOptions";
 import { useTradablePortfolioSelect } from "./useTradablePortfolioSelect";
-
+jest.mock("providers/KeycloakProvider", () => ({
+  useKeycloak: jest.fn(() => ({ access: { advisor: false } })),
+}));
 //used by useGetPortfolioOptions
 jest.mock("api/common/useGetContactInfo", () => ({
   useGetContactInfo: jest.fn(() => ({ data: { portfolios: [] } })),
