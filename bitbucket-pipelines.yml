@@ -38,17 +38,11 @@ pipelines:
             - apt-get install -y zip
             - cd build && zip -r build.zip ./*
             - apt-get install -y curl
+            - echo "Deploying to $TARGET_ENVIRONMENT"
             - >
-              IFS=',' read -ra ENV_ARRAY <<< "$TARGET_ENVIRONMENTS"
-              for ENV in "${ENV_ARRAY[@]}"
-              do
-                echo "Deploying to $ENV"
-                VALUE="${ENV}_API_TOKEN_VALUE"
-                NAME="${ENV}_API_TOKEN_NAME"
-                curl -f -X POST
-                -H "fa-token-name: ${!NAME}"
-                -H "fa-token-value: ${!VALUE}"
-                -H "Content-Type: application/zip"
-                --data-binary "@build.zip"
-                https://$ENV.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip
-              done
+              curl -f -X POST
+              -H "fa-token-name: $API_TOKEN_NAME"
+              -H "fa-token-value: $API_TOKEN_VALUE"
+              -H "Content-Type: application/zip"
+              --data-binary "@build.zip"
+              https://$TARGET_ENVIRONMENT.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip
