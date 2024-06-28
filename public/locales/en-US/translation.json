@@ -32,6 +32,10 @@
       "securityColumHeader": "Security",
       "percentageColumnHeader": "%",
       "amountColumnHeader": "Amount"
+    },
+    "accessBanner": {
+      "title": "Viewing {{contactName}}",
+      "subtitle": "You can"
     }
   },
   "userMenu": {
@@ -575,6 +579,16 @@
     },
     "switchOrder": {
       "typeName": "Switch"
+    },
+    "access": {
+      "buy": "Buy",
+      "sell": "Sell",
+      "switch": "Switch",
+      "deposit": "Deposit",
+      "withdraw": "Withdraw",
+      "impersonate": "Impersonation",
+      "cancelOrder": "Cancel order",
+      "advisor": "Advisor"
     }
   }
 }

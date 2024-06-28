@@ -60,7 +60,7 @@ export const WithdrawModalContent = ({
     intInfo: externalNumber ? `paymentAccount1=${externalNumber}` : null,
   });
 
-  const { readonly } = useKeycloak();
+  const { access } = useKeycloak();
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
@@ -96,7 +96,10 @@ export const WithdrawModalContent = ({
         />
         <Button
           disabled={
-            readonly || amountAsNr === 0 || accountsLoading || !isAmountCorrect
+            !access.withdraw ||
+            amountAsNr === 0 ||
+            accountsLoading ||
+            !isAmountCorrect
           }
           isLoading={submitting}
           onClick={async () => {

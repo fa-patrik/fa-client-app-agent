@@ -178,7 +178,6 @@ const getMenuItems = (
 };
 
 export const UserMenu = () => {
-  const { readonly } = useKeycloak();
   const { selectedContactId, setSelectedContactId, setSelectedContact } =
     useGetContractIdData();
   const { t } = useModifiedTranslation();
@@ -255,7 +254,7 @@ export const UserMenu = () => {
               canWithdraw,
               canMonthlyInvest,
               canMonthlySave,
-              readonly ? [] : processes,
+              processes,
               contactData?.representees || [],
               {
                 id: contactData?.contactId,

@@ -87,7 +87,7 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
       <div className="flex flex-row gap-x-1 justify-between p-2 w-full bg-gray-100 rounded-t-md border-b">
         <div className="w-fit">
           <Badge
-            colorScheme={getTransactionColor(
+            severity={getTransactionColor(
               order.type.amountEffect,
               order.type.cashFlowEffect,
               isPartOfSwitch

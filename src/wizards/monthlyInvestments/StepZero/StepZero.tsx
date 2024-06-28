@@ -17,6 +17,7 @@ import {
   ErrorMessage,
   LoadingIndicator,
 } from "components";
+import { Severity } from "components/Alert/Alert";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -46,7 +47,7 @@ import { MonthlyInvestmentsWizardState } from "../types";
  */
 const StepZero = () => {
   const [isMounted, setIsMounted] = useState(true);
-  const { impersonating } = useKeycloak();
+  const { access } = useKeycloak();
   const { wizardData, setWizardData } = useWizard<
     MonthlyInvestmentsWizardState | undefined
   >();
@@ -369,7 +370,7 @@ const StepZero = () => {
             setIsOpen={setConfirmDialogOpen}
             loading={loadingDelete}
             confirmButtonVariant="Red"
-            disabled={impersonating}
+            disabled={!access.buy}
           />
         </div>
         <WizardBottomNavigationReplica>
@@ -381,7 +382,7 @@ const StepZero = () => {
     return (
       <div className="flex w-full h-full">
         <div className="m-auto max-w-xs">
-          <Badge colorScheme="blue">
+          <Badge severity={Severity.Info}>
             <p
               className="p-4 m-auto text-lg font-normal"
               id="monthlyInvestmentsWizard-noPlansLabel"

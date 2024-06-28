@@ -8,9 +8,11 @@ import { useGetTradebleSecurities } from "api/trading/useGetTradebleSecurities";
 import { SecurityGroup } from "api/types";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { isPortfolioInGroup, isPortfolioOptionInGroup } from "./common";
 
 export const CLIENT_PORTAL_SECURITY_GROUP_PREFIX = "CP_";
+export const CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX = "ADV_";
 export const tradableTag = "Tradeable";
 export const switchableTag = "Switchable";
 
@@ -67,11 +69,12 @@ export const isSecuritySwitchable = (tags: string[]) => {
 //In which securities can it trade (linked security groups starting with CP_)
 export const isPortfolioLinkedToSecurityGroups = (
   portfolio: Portfolio,
-  securityGroups: SecurityGroup[]
+  securityGroups: SecurityGroup[],
+  groupPrefix: string
 ) => {
   try {
     return portfolio?.securityGroups?.some((sg) => {
-      if (sg.code?.startsWith(CLIENT_PORTAL_SECURITY_GROUP_PREFIX)) {
+      if (sg.code?.startsWith(groupPrefix)) {
         return securityGroups.some(
           (securityGroup) => sg.code === securityGroup.code
         );
@@ -84,10 +87,13 @@ export const isPortfolioLinkedToSecurityGroups = (
   }
 };
 
-export const isPortfolioLinkedToAnySecurityGroup = (portfolio: Portfolio) => {
+export const isPortfolioLinkedToAnySecurityGroup = (
+  portfolio: Portfolio,
+  groupPrefix: string
+) => {
   try {
     return portfolio?.securityGroups?.some((sg) =>
-      sg.code.startsWith(CLIENT_PORTAL_SECURITY_GROUP_PREFIX)
+      sg.code.startsWith(groupPrefix)
     );
   } catch (e) {
     console.error(e);
@@ -97,13 +103,15 @@ export const isPortfolioLinkedToAnySecurityGroup = (portfolio: Portfolio) => {
 
 export const canPortfolioOptionTradeSecurity = (
   portfolioOption: PortfolioOption,
-  securityGroups: SecurityGroup[]
+  securityGroups: SecurityGroup[],
+  groupPrefix: string
 ) => {
   try {
     if (!portfolioOption.details) return false; //no data available
     return canPortfolioTradeSecurityGroups(
       portfolioOption.details,
-      securityGroups
+      securityGroups,
+      groupPrefix
     );
   } catch (e) {
     console.error(e);
@@ -113,16 +121,21 @@ export const canPortfolioOptionTradeSecurity = (
 
 export const canPortfolioTradeSecurityGroups = (
   portfolio: Portfolio,
-  securityGroups: SecurityGroup[]
+  securityGroups: SecurityGroup[],
+  groupPrefix: string
 ) => {
   try {
     if (isPortfolioInGroup(portfolio, PortfolioGroups.TRADE)) {
-      if (!isPortfolioLinkedToAnySecurityGroup(portfolio)) {
+      if (!isPortfolioLinkedToAnySecurityGroup(portfolio, groupPrefix)) {
         //can trade all securities
         return true;
       } else {
         //can trade linked securities
-        return isPortfolioLinkedToSecurityGroups(portfolio, securityGroups);
+        return isPortfolioLinkedToSecurityGroups(
+          portfolio,
+          securityGroups,
+          groupPrefix
+        );
       }
     } else {
       //can't trade
@@ -136,19 +149,24 @@ export const canPortfolioTradeSecurityGroups = (
 
 export const canPortfolioTradeSecurity = (
   portfolio: Portfolio,
-  security: Security
+  security: Security,
+  groupPrefix: string
 ) => {
   try {
     if (
       isPortfolioInGroup(portfolio, PortfolioGroups.TRADE) &&
       isSecurityTradable(security.tagsAsSet)
     ) {
-      if (!isPortfolioLinkedToAnySecurityGroup(portfolio)) {
+      if (!isPortfolioLinkedToAnySecurityGroup(portfolio, groupPrefix)) {
         //can trade all securities
         return true;
       } else {
         //can trade linked securities
-        return isPortfolioLinkedToSecurityGroups(portfolio, security.groups);
+        return isPortfolioLinkedToSecurityGroups(
+          portfolio,
+          security.groups,
+          groupPrefix
+        );
       }
     } else {
       //can't trade
@@ -176,6 +194,10 @@ export const useGetPermittedSecurities = (
   options?: GetTradableSecuritiesProps,
   portfolioId?: number
 ) => {
+  const { access } = useKeycloak();
+  const groupPrefix = access.advisor
+    ? CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX
+    : CLIENT_PORTAL_SECURITY_GROUP_PREFIX;
   const [loading, setLoading] = useState(false);
   const { selectedContactId } = useGetContractIdData();
   const {
@@ -201,10 +223,12 @@ export const useGetPermittedSecurities = (
     try {
       const result = securities
         ? portfolio
-          ? securities.filter((s) => canPortfolioTradeSecurity(portfolio, s))
+          ? securities.filter((s) =>
+              canPortfolioTradeSecurity(portfolio, s, groupPrefix)
+            )
           : securities.filter((s) =>
               contactData?.portfolios?.some((p) =>
-                canPortfolioTradeSecurity(p, s)
+                canPortfolioTradeSecurity(p, s, groupPrefix)
               )
             )
         : undefined;
@@ -215,7 +239,7 @@ export const useGetPermittedSecurities = (
       setLoading(false);
       return undefined;
     }
-  }, [contactData?.portfolios, portfolio, securities]);
+  }, [contactData?.portfolios, portfolio, securities, groupPrefix]);
   return {
     filterOptions,
     filters,
@@ -229,8 +253,13 @@ export const useGetPermittedSecurities = (
 export const useGetLinkedSecurities = (portfolioId?: number) => {
   const { selectedContactId } = useGetContractIdData();
   const { data: contactData } = useGetContactInfo(false, selectedContactId);
+  const { access } = useKeycloak();
+  const groupPrefix = access.advisor
+    ? CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX
+    : CLIENT_PORTAL_SECURITY_GROUP_PREFIX;
   const portfolioToTradableSecuritiesMap = getPortfolioToTradableSecuritiesMap(
-    contactData?.portfolios
+    contactData?.portfolios,
+    groupPrefix
   );
   const securityIdsDistinct = useMemo(() => {
     if (portfolioId)
@@ -250,13 +279,14 @@ export const useGetLinkedSecurities = (portfolioId?: number) => {
  * @returns a map [portfolioId: [securityId, securityId, ...]]
  */
 export const getPortfolioToTradableSecuritiesMap = (
-  portfolios: Portfolio[] | undefined
+  portfolios: Portfolio[] | undefined,
+  groupPrefix: string
 ) => {
   if (!portfolios) return new Map<Portfolio["id"], number[]>();
   const result = new Map<Portfolio["id"], number[]>();
   portfolios.forEach((portfolio) => {
     const tradableSecurities = portfolio.securityGroups
-      .filter((sg) => sg.code.startsWith(CLIENT_PORTAL_SECURITY_GROUP_PREFIX))
+      .filter((sg) => sg.code.startsWith(groupPrefix))
       .map((sg) => sg.securities)
       .flat();
     result.set(

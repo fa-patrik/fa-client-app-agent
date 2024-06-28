@@ -245,7 +245,7 @@ export const SellModalContent = ({
     accountFxRate: calculatedAccountFxRate,
   });
 
-  const { readonly } = useKeycloak();
+  const { access } = useKeycloak();
 
   const loading = loadingPfReport && loadingSecurity && securityFxLoading;
 
@@ -317,7 +317,7 @@ export const SellModalContent = ({
 
   const disableSellButton = () => {
     return (
-      readonly ||
+      !access.sell ||
       inputAsNr === 0 ||
       loading ||
       !portfolioId ||

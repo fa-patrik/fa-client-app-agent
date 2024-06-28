@@ -6,6 +6,7 @@ import {
 import { ReactComponent as ExclamationIcon } from "assets/exclamation-circle.svg";
 import { ReactComponent as PlusIcon } from "assets/plus-circle.svg";
 import { Badge, Button, Card, LoadingIndicator } from "components";
+import { Severity } from "components/Alert/Alert";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { getPortfolioOption } from "hooks/useGetPortfolioOptions";
@@ -41,7 +42,7 @@ import {
  * and a button to add a new one.
  */
 const MsStepZero = () => {
-  const { impersonating } = useKeycloak();
+  const { access } = useKeycloak();
   const { setWizardData, wizardData } = useWizard();
   const {
     data: portfolioData,
@@ -330,7 +331,7 @@ const MsStepZero = () => {
             setIsOpen={setConfirmDialogOpen}
             loading={loadingDelete}
             confirmButtonVariant="Red"
-            disabled={impersonating}
+            disabled={!access.deposit}
           />
         </div>
         <WizardBottomNavigationReplica>
@@ -342,7 +343,7 @@ const MsStepZero = () => {
     return (
       <div className="flex w-full h-full">
         <div className="m-auto max-w-sm">
-          <Badge colorScheme="blue">
+          <Badge severity={Severity.Info}>
             <p
               className="p-4 m-auto text-lg font-normal"
               id="monthlySavingsWizard-noPlansInfo"

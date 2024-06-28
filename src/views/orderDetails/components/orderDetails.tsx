@@ -37,7 +37,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
   const { t, i18n } = useModifiedTranslation();
   const { downloadDocument, downloading } = useDownloadDocument();
   const navigate = useNavigate();
-  const { readonly } = useKeycloak();
+  const { access } = useKeycloak();
 
   const {
     Modal,
@@ -80,7 +80,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
             <InfoCard
               label={t("transactionsPage.type")}
               value={getOrderTypeName(order, t, i18n.language)}
-              colorScheme={getTransactionColor(
+              severity={getTransactionColor(
                 order.type.amountEffect,
                 order.type.cashFlowEffect,
                 isPartOfSwitch
@@ -383,7 +383,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                   <Button
                     isFullWidth
                     variant="Red"
-                    disabled={readonly}
+                    disabled={!access.cancelOrder}
                     onClick={() =>
                       onCancelOrderModalOpen({
                         order: order,
@@ -442,7 +442,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
             <Button
               isFullWidth
               variant="Red"
-              disabled={readonly}
+              disabled={!access.cancelOrder}
               onClick={() =>
                 onCancelOrderModalOpen({
                   order: order,

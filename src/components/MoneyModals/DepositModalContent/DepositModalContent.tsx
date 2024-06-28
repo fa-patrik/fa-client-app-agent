@@ -57,7 +57,8 @@ export const DepositModalContent = ({
     intInfo: externalNumber ? `paymentAccount1=${externalNumber}` : null,
   });
 
-  const { readonly } = useKeycloak();
+  const { access } = useKeycloak();
+
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
       <CashAccountSelect
@@ -92,7 +93,10 @@ export const DepositModalContent = ({
         />
         <Button
           disabled={
-            readonly || amountAsNr === 0 || accountsLoading || !isAmountCorrect
+            !access.deposit ||
+            amountAsNr === 0 ||
+            accountsLoading ||
+            !isAmountCorrect
           }
           isLoading={submitting}
           onClick={async () => {

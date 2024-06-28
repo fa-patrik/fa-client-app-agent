@@ -85,10 +85,7 @@ const Transaction = ({
   const TypeBadge = () => {
     return (
       <Badge
-        colorScheme={getTransactionColor(
-          type.amountEffect,
-          type.cashFlowEffect
-        )}
+        severity={getTransactionColor(type.amountEffect, type.cashFlowEffect)}
       >
         {typeTranslated}
       </Badge>

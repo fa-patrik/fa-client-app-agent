@@ -1,5 +1,6 @@
 import { MutableRefObject, useMemo, useState } from "react";
 import { useGetContactInfo } from "api/common/useGetContactInfo";
+import { ADVISOR_TAG } from "api/constants";
 import { ExecutionMethod, OrderStatus } from "api/enums";
 import { HoldingPosition } from "api/holdings/types";
 import { useGetContactHoldingsFromPfReport } from "api/holdings/useGetContactHoldingsFromPfReport";
@@ -58,7 +59,7 @@ export const SwitchModalContent = ({
   onClose,
   sellSecurityId,
 }: SwitchModalProps) => {
-  const { impersonating } = useKeycloak();
+  const { access } = useKeycloak();
   const { t, i18n } = useModifiedTranslation();
   const [inputValue, setInputValue] = useState<string>("100");
   const [submitting, setSubmitting] = useState(false);
@@ -255,7 +256,7 @@ export const SwitchModalContent = ({
 
   //disable the confirm button when...
   const disableConfirm = () => {
-    return impersonating ||
+    return !access.switch ||
       loading ||
       submitting ||
       noSelectedPortfolio ||
@@ -283,24 +284,25 @@ export const SwitchModalContent = ({
       : undefined;
 
   const reference = useUniqueReference()?.();
-
   const switchOrder: LimitedSwitchOrderDTOInput = {
     sell: {
       executionMethod: ExecutionMethod.UNITS,
       security: selectedSellSecurity?.securityCode,
-      parentPortfolio: selectedPortfolio?.shortName || "",
+      parentPortfolio: selectedPortfolio?.shortName ?? "",
       status: OrderStatus.Open,
       amount: unitsToSell,
       autoUnitPrice: true,
       account: "DEFAULT",
       transactionDate: new Date().toISOString(),
       type: TransactionType.REDEMPTION,
+      tags: access.advisor ? ADVISOR_TAG : undefined,
       reference: `switchSell-${reference}`,
     },
     buy: {
-      security: selectedBuySecurity?.securityCode || "",
+      security: selectedBuySecurity?.securityCode ?? "",
       type: TransactionType.SUBSCRIPTION,
       reference: `switchBuy-${reference}`,
+      tags: access.advisor ? ADVISOR_TAG : undefined,
     },
   };
 

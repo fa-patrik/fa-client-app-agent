@@ -217,7 +217,7 @@ export const BuyModalContent = ({
   const insufficientCash =
     (availableCash || 0) < (estimatedTradeAmountInPfCurrency || 0); // less than trying to buy for
 
-  const { readonly } = useKeycloak();
+  const { access } = useKeycloak();
 
   const tradeAmountTooltip =
     unitsToBuy !== undefined &&
@@ -282,7 +282,7 @@ export const BuyModalContent = ({
       inputAsNr === 0 ||
       insufficientCash ||
       !!blockSizeTradeAmountError ||
-      readonly ||
+      !access.buy ||
       !selectedPortfolio ||
       submitting
     );

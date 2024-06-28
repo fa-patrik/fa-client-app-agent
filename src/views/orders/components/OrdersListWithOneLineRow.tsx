@@ -115,7 +115,7 @@ const Order = ({
   const TypeBadge = () => {
     return (
       <Badge
-        colorScheme={getTransactionColor(
+        severity={getTransactionColor(
           order.type.amountEffect,
           order.type.cashFlowEffect,
           isPartOfSwitch

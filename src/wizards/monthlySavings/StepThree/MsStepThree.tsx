@@ -20,7 +20,7 @@ import { MonthlySavingsWizardState } from "../types";
  * An API request is made to FA Back.
  */
 const MsStepThree = () => {
-  const { impersonating } = useKeycloak();
+  const { access } = useKeycloak();
   const { wizardData, setWizardData } = useWizard<MonthlySavingsWizardState>();
   const { t, i18n } = useModifiedTranslation();
   numbro.setLanguage(i18n.language);
@@ -203,7 +203,7 @@ const MsStepThree = () => {
         isOpen={confirmDialogOpen}
         setIsOpen={setConfirmDialogOpen}
         loading={loadingFinish}
-        disabled={impersonating}
+        disabled={!access}
       />
     </div>
   );

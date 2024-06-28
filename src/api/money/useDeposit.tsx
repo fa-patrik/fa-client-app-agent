@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ApolloError, FetchResult, gql, useMutation } from "@apollo/client";
+import { ADVISOR_TAG } from "api/constants";
 import { OrderStatus } from "api/enums";
 import { OrderMutationResponse } from "api/orders/types";
 import { TransactionType } from "api/transactions/enums";
@@ -9,6 +10,7 @@ import {
 } from "hooks/useLocalTradeStorageMutation";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useUniqueReference } from "hooks/useUniqueReference";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { toast } from "react-toastify";
 
 const IMPORT_DEPOSIT_MUTATION = gql`
@@ -21,6 +23,7 @@ const IMPORT_DEPOSIT_MUTATION = gql`
     $portfolioShortName: String
     $account: String
     $intInfo: String
+    $tags: String
   ) {
     importTradeOrder(
       tradeOrder: {
@@ -33,6 +36,7 @@ const IMPORT_DEPOSIT_MUTATION = gql`
         account: $account
         status: "${OrderStatus.Open}"
         intInfo: $intInfo
+        tags: $tags
       }
     )
   }
@@ -47,6 +51,7 @@ interface ImportDepositQueryVariables {
   transactionDate: Date;
   transactionTypeCode: string;
   intInfo: string | null;
+  tags?: string;
 }
 
 const errorStatus = "ERROR" as const;
@@ -63,6 +68,7 @@ export const useDeposit = (
   > &
     Omit<LocalTradeOrderDetails, "tradeType" | "reference">
 ) => {
+  const { access } = useKeycloak();
   const { t } = useModifiedTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [handleAPITrade] = useMutation<
@@ -91,6 +97,7 @@ export const useDeposit = (
           transactionTypeCode: TransactionType.DEPOSIT,
           reference: orderReference,
           portfolioShortName: portfolio.shortName,
+          tags: access.advisor ? ADVISOR_TAG : undefined,
         },
       });
 
