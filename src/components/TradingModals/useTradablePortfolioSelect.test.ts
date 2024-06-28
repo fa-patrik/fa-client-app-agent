@@ -1,5 +1,6 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { useGetPortfolioOptions } from "hooks/useGetPortfolioOptions";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
 import { portfolioOptionsMock } from "test/mockData/portfolioOptions";
 import { useTradablePortfolioSelect } from "./useTradablePortfolioSelect";
@@ -28,6 +29,7 @@ jest.mock("react-router-dom", () => ({
 describe("useTradablePortfolioSelect", () => {
   beforeEach(() => {
     (useGetPortfolioOptions as jest.Mock).mockReturnValue(portfolioOptionsMock);
+    (useKeycloak as jest.Mock).mockReturnValue({ access: { advisor: false } });
   });
 
   afterEach(() => {
