@@ -43,10 +43,12 @@ pipelines:
               for ENV in "${ENV_ARRAY[@]}"
               do
                 echo "Deploying to $ENV"
-                curl -f -X POST \
-                -H "fa-token-name: ${ENV}_$API_TOKEN_NAME" \
-                -H "fa-token-value: ${ENV}_$API_TOKEN_VALUE" \
-                -H "Content-Type: application/zip" \
-                --data-binary "@build.zip" \
+                VALUE="${ENV}_API_TOKEN_VALUE"
+                NAME="${ENV}_API_TOKEN_NAME"
+                curl -f -X POST
+                -H "fa-token-name: ${!NAME}"
+                -H "fa-token-value: ${!VALUE}"
+                -H "Content-Type: application/zip"
+                --data-binary "@build.zip"
                 https://$ENV.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip
               done
