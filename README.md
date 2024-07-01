@@ -81,17 +81,17 @@ Change REACT_APP_API_URL in the *.env* file to point towards your test environme
 
 #### Roles
 
-Finally, to be able to login and use FA Client Portal, assign your user the following roles:
+Finally, to be able to login and use FA Client Portal, assign your user the below roles.
 
-*Normal user*- can log in as itself and execute all features on behalf of themselves.
+##### Normal user- can log in as itself and execute all features on behalf of themselves
 * fa-clientportal: ROLE_CLIENT_ACCESS
 * fa-back: ROLE_CLIENT_PORTAL
 
-*Impersonating user*- can impersonate someone else (view from their perspective) but cannot execute any features.
+##### Impersonating user- can impersonate someone else (view from their perspective) but cannot execute any features
 * fa-clientportal: ROLE_IMPERSONATE
 * fa-back: ROLE_CLIENT_PORTAL_IMPERSONATE
 
-*Advisor user*- can impersonate someone else (view from their perspective) and execute all features on behalf of them.
+##### Advisor user- can impersonate someone else (view from their perspective) and execute all features on behalf of them
 * fa-advisor: ROLE_USER
 * fa-back: ROLE_CLIENT_PORTAL
 
