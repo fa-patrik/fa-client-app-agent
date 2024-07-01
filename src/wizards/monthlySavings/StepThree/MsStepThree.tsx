@@ -203,7 +203,7 @@ const MsStepThree = () => {
         isOpen={confirmDialogOpen}
         setIsOpen={setConfirmDialogOpen}
         loading={loadingFinish}
-        disabled={!access}
+        disabled={!access.deposit}
       />
     </div>
   );
