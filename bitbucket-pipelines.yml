@@ -6,7 +6,7 @@ definitions:
 
 pipelines:
   branches:
-    develop:
+    "{develop, release/*}":
       - step:
           name: Install dependencies
           working_directory: $WORKDIR_PRIVATE
@@ -35,14 +35,54 @@ pipelines:
           working_directory: $WORKDIR_PRIVATE
           script:
             - apt-get update
-            - apt-get install -y zip
-            - cd build && zip -r build.zip ./*
-            - apt-get install -y curl
-            - echo "Deploying to $TARGET_ENVIRONMENT"
-            - >
-              curl -f -X POST
-              -H "fa-token-name: $API_TOKEN_NAME"
-              -H "fa-token-value: $API_TOKEN_VALUE"
-              -H "Content-Type: application/zip"
-              --data-binary "@build.zip"
-              https://$TARGET_ENVIRONMENT.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip
+            - apt-get install -y zip unzip jq curl
+            - |
+              # Check if TARGET_ENVIRONMENTS is set
+              if [ -z "$TARGET_ENVIRONMENTS" ]; then
+                  echo "TARGET_ENVIRONMENTS is not set. Exiting deployment."
+                  exit 1
+              fi
+
+              echo "Deploying to $TARGET_ENVIRONMENTS"
+
+              # Prepare the build zip and deploy to each environment
+              IFS=',' read -r -a ENV_ARRAY <<< "$TARGET_ENVIRONMENTS"
+              for ENV in "${ENV_ARRAY[@]}"; do
+                  ENV=$(echo $ENV | xargs)  # Trim any leading/trailing whitespace
+                  if [ -z "$ENV" ]; then
+                      echo "Environment name is empty. Skipping."
+                      continue
+                  fi
+
+                  echo "Preparing deployment for $ENV"
+
+                  # Modify keycloak.json for the current environment
+                  jq '.["auth-server-url"] = "https://'${ENV}'.clientportal.fasolutions.com/auth"' build/keycloak.json > build/keycloak_${ENV}.json
+                  mv build/keycloak_${ENV}.json build/keycloak.json
+
+                  # Create a new zip file for the current environment
+                  zip -rq build_${ENV}.zip build/*
+
+                  echo "Deploying to $ENV"
+                  VALUE="${ENV}_API_TOKEN_VALUE"
+                  NAME="${ENV}_API_TOKEN_NAME"
+                  if [ -z "${!VALUE}" ] || [ -z "${!NAME}" ]; then
+                      echo "API token for $ENV is not set. Skipping."
+                      continue
+                  fi
+
+                  # Deploy to the current environment
+                  if curl -f -X POST \
+                      -H "fa-token-name: ${!NAME}" \
+                      -H "fa-token-value: ${!VALUE}" \
+                      -H "Content-Type: application/zip" \
+                      --data-binary "@build_${ENV}.zip" \
+                      "https://${ENV}.fasolutions.com/rs/secure/fa/api/v1.0/upload/clientportalZip"; then
+                      echo "Successfully deployed to $ENV"
+                  else
+                      echo "Failed to deploy to $ENV"
+                  fi
+
+                  # Clean up the environment-specific zip file
+                  rm build_${ENV}.zip
+              done
