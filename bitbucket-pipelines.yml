@@ -61,7 +61,7 @@ pipelines:
                   mv build/keycloak_${ENV}.json build/keycloak.json
 
                   # Create a new zip file for the current environment
-                  zip -rq build_${ENV}.zip build/*
+                  cd build && zip -rq ../build_${ENV}.zip * && cd ..
 
                   echo "Deploying to $ENV"
                   VALUE="${ENV}_API_TOKEN_VALUE"
@@ -73,6 +73,7 @@ pipelines:
 
                   # Deploy to the current environment
                   if curl -f -X POST \
+                      --http1.1 \
                       -H "fa-token-name: ${!NAME}" \
                       -H "fa-token-value: ${!VALUE}" \
                       -H "Content-Type: application/zip" \
