@@ -23,6 +23,7 @@ pipelines:
             - yarn test:CI
       - step:
           name: Build
+          size: 2x # Double the default memory limit
           working_directory: $WORKDIR_PRIVATE
           caches:
             - node-modules
