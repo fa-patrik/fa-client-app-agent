@@ -8,34 +8,6 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import { dateFromYYYYMMDD } from "utils/date";
 
-export const chartRangeOptions = [
-  {
-    id: "DAYS-6",
-    label: "1W",
-  },
-  {
-    id: "MONTHS-1",
-    label: "1M",
-  },
-  {
-    id: "MONTHS-3",
-    label: "1Q",
-  },
-  {
-    id: "CALYEAR-0",
-    label: "YTD",
-  },
-  {
-    id: "CALENDYEAR-0",
-    label: "All",
-    dateFormatting: {
-      day: "numeric",
-      month: "numeric",
-      year: "2-digit",
-    },
-  },
-];
-
 const defaultDateFormatting = {
   day: "numeric",
   month: "short",
@@ -55,11 +27,39 @@ const limitDataPoints = (data: MarketHistoryDataPoint[]) => {
 export const HoldingHistoryDataChart = () => {
   const { holdingId } = useParams();
   const { t } = useModifiedTranslation();
-  const [selectedRange, setRange] = useState(chartRangeOptions[0]);
   const isChartDetailed = useMatchesBreakpoint("lg");
 
+  const chartRangeOptions = [
+    {
+      id: "DAYS-6",
+      label: t("component.lineChart.rangeOptions.DAYS-6"),
+    },
+    {
+      id: "MONTHS-1",
+      label: t("component.lineChart.rangeOptions.MONTHS-1"),
+    },
+    {
+      id: "MONTHS-3",
+      label: t("component.lineChart.rangeOptions.MONTHS-3"),
+    },
+    {
+      id: "CALYEAR-0",
+      label: t("component.lineChart.rangeOptions.CALYEAR-0"),
+    },
+    {
+      id: "CALENDYEAR-0",
+      label: t("component.lineChart.rangeOptions.CALENDYEAR-0"),
+      dateFormatting: {
+        day: "numeric",
+        month: "numeric",
+        year: "2-digit",
+      },
+    },
+  ];
+
+  const [range, setRange] = useState(chartRangeOptions[0]);
   const { loading: securityLoading, data: securityData } =
-    useGetSecurityMarketDataHistory(holdingId, selectedRange.id);
+    useGetSecurityMarketDataHistory(holdingId, range.id);
 
   const { marketDataHistory = [] } = securityData || {};
 
@@ -81,12 +81,12 @@ export const HoldingHistoryDataChart = () => {
         <LineChart
           series={[
             {
-              name: "Price",
+              name: t("holdingsPage.lineChartTooltipLabel"),
               data: removeXDuplicates(
                 preparedMarketData.map((data) => ({
                   x: t("dateCustom", {
                     date: dateFromYYYYMMDD(data.date),
-                    ...(selectedRange.dateFormatting || defaultDateFormatting),
+                    ...(range.dateFormatting || defaultDateFormatting),
                   }),
                   y: data.price,
                 }))
@@ -98,7 +98,7 @@ export const HoldingHistoryDataChart = () => {
       </div>
       <div className="my-2.5 mx-2">
         <ButtonRadio
-          value={selectedRange}
+          value={range}
           onChange={setRange}
           options={chartRangeOptions}
         />

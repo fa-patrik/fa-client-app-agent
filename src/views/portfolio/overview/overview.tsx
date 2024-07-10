@@ -25,29 +25,6 @@ import { ListedSecuritiesCard } from "./components/ListedSecuritiesCard";
 import { PortfolioSummary } from "./components/PortfolioSummary";
 import { useSecuritiesSummary } from "./hooks/useSecuritiesSummary";
 
-export const chartRangeOptions = [
-  {
-    id: "DAYS-7",
-    label: "1W",
-  },
-  {
-    id: "MONTHS-1",
-    label: "1M",
-  },
-  {
-    id: "MONTHS-3",
-    label: "1Q",
-  },
-  {
-    id: "CALYEAR-0",
-    label: "YTD",
-  },
-  {
-    id: "GIVEN",
-    label: "All",
-  },
-];
-
 export const OverviewView = () => {
   const { portfolioId } = useParams();
   const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
@@ -70,6 +47,33 @@ const Overview = ({ data }: OverviewProps) => {
   const { portfolioId } = useParams();
   const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
   const { t } = useModifiedTranslation();
+  const chartRangeOptions = [
+    {
+      id: "DAYS-6",
+      label: t("component.lineChart.rangeOptions.DAYS-6"),
+    },
+    {
+      id: "MONTHS-1",
+      label: t("component.lineChart.rangeOptions.MONTHS-1"),
+    },
+    {
+      id: "MONTHS-3",
+      label: t("component.lineChart.rangeOptions.MONTHS-3"),
+    },
+    {
+      id: "CALYEAR-0",
+      label: t("component.lineChart.rangeOptions.CALYEAR-0"),
+    },
+    {
+      id: "CALENDYEAR-0",
+      label: t("component.lineChart.rangeOptions.CALENDYEAR-0"),
+      dateFormatting: {
+        day: "numeric",
+        month: "numeric",
+        year: "2-digit",
+      },
+    },
+  ];
   const { data: portfolioData } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
   const currencyCode = portfolioData?.currency?.securityCode;
@@ -80,7 +84,7 @@ const Overview = ({ data }: OverviewProps) => {
 
   const [timeValue, setTimeValue] = useState<Option>(() => ({
     id: TimePeriodForGraph["DAYS-7"],
-    label: "1W",
+    label: t("component.lineChart.rangeOptions.DAYS-6"),
   }));
 
   const {

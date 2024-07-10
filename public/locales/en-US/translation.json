@@ -36,6 +36,15 @@
     "accessBanner": {
       "title": "Viewing {{contactName}}",
       "subtitle": "You can"
+    },
+    "lineChart": {
+      "rangeOptions": {
+        "DAYS-6": "1W",
+        "MONTHS-1": "1M",
+        "MONTHS-3": "1Q",
+        "CALYEAR-0": "YTD",
+        "CALENDYEAR-0": "All"
+      }
     }
   },
   "userMenu": {
@@ -99,6 +108,7 @@
     "prospectus": "Prospectus",
     "kiid": "KID",
     "price": "Price",
+    "lineChartTooltipLabel": "Price",
     "security": "Security",
     "noHoldings": "No holdings",
     "performance1Y": "1Y performance",
