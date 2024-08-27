@@ -30,6 +30,10 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
     parentPortfolios {
       id
     }
+    representativeTags {
+      portfolioAssetManagers
+      portfolioContacts
+    }
     portfolios {
       id
       name
@@ -51,6 +55,10 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
           id
         }
       }
+      representativeTags {
+        portfolioAssetManagers
+        portfolioContacts
+      }
     }
   }
 `;
@@ -66,8 +74,8 @@ export const CONTACT_INFO_QUERY = gql`
         locale
       }
       representees(onlyDirectRepresentees: true) {
-        name
         id
+        name
         contactId
         portfolios {
           ...PortfolioBasicFields
@@ -77,14 +85,11 @@ export const CONTACT_INFO_QUERY = gql`
           contactId
         }
       }
-      assetManagerPortfolios {
-        primaryContact {
-          contactId
-          name
-        }
-      }
       portfolios {
         ...PortfolioBasicFields
+      }
+      representativeTags {
+        representatives
       }
     }
   }
@@ -104,6 +109,16 @@ export enum PortfolioGroups {
   HIDE = "CP_HIDE_PF",
   MONTHLY_INVESTMENTS = "CP_MONTHLYINVESTMENTS",
   MONTHLY_SAVINGS = "CP_MONTHLYSAVINGS",
+}
+
+export enum RepresentativeTag {
+  CANCEL_ORDER = "Client portal:Cancel order",
+  DEPOSIT = "Client portal:Deposit",
+  WITHDRAW = "Client portal:Withdraw",
+  TRADE = "Client portal:Trade",
+  HIDE = "Client portal:Hide",
+  MONTHLY_INVESTMENTS = "Client portal:Monthly investments",
+  MONTHLY_SAVINGS = "Client portal:Monthly savings",
 }
 
 export interface PortfolioGroup {
@@ -141,6 +156,10 @@ export interface Portfolio {
   };
   portfolioGroups: PortfolioGroup[];
   securityGroups: SecurityGroup[];
+  representativeTags: {
+    portfolioAssetManagers: Record<string, RepresentativeTag>;
+    portfolioContacts: Record<string, RepresentativeTag>;
+  };
 }
 
 export interface ContactInfoQuery {
@@ -149,11 +168,13 @@ export interface ContactInfoQuery {
     contactId: string;
     name: string;
     representees: Representee[];
-    assetManagerPortfolios: AssetManagerPortfolios[];
     language: {
       locale: string;
     };
     portfolios?: Portfolio[];
+    representativeTags: {
+      representatives: Record<string, RepresentativeTag>;
+    };
   };
 }
 
@@ -180,6 +201,7 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
     loading: loading,
     error: error,
     data: data && {
+      id: data?.contact?.id,
       contactId: data?.contact?.id,
       _contactId: data?.contact?.contactId,
       portfolios: activeAndPassivePortfolios,
@@ -188,7 +210,6 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
       portfoliosCurrency:
         activeAndPassivePortfolios?.[0]?.currency?.securityCode,
       representees: data?.contact?.representees,
-      assetManagerPortfolios: data?.contact?.assetManagerPortfolios,
       name: data?.contact?.name,
     },
     refetch,

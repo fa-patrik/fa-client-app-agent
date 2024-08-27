@@ -61,21 +61,30 @@ export const filterOptionsByQuery = (
  */
 export const filterPortfolioOptionsByFunction = (
   portfolioOptions: PortfolioOption[] | undefined,
-  filterFunction: (portfolioOption: PortfolioOption) => boolean
+  linkedContact: string | undefined,
+  filterFunction: (
+    portfolioOption: PortfolioOption,
+    linkedContact: string | undefined
+  ) => boolean
 ) => {
   if (!portfolioOptions?.length) return [];
   return portfolioOptions.reduce((prev, currOption) => {
-    if (filterFunction(currOption) && !isInOptions(prev, currOption)) {
+    if (
+      filterFunction(currOption, linkedContact) &&
+      !isInOptions(prev, currOption)
+    ) {
       prev.push({
         ...currOption,
         subOptions: filterPortfolioOptionsByFunction(
           currOption.subOptions,
+          linkedContact,
           filterFunction
         ),
       });
     }
     const matchingSubOptions = filterPortfolioOptionsByFunction(
       currOption.subOptions,
+      linkedContact,
       filterFunction
     );
     matchingSubOptions?.forEach((subOption) => {

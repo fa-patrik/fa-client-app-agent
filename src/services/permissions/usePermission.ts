@@ -1,5 +1,6 @@
 import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
 import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
 
 export enum PermissionMode {
@@ -10,8 +11,12 @@ export enum PermissionMode {
 
 const doesAnyPortfolioHavePermission = (
   portfolios: Portfolio[],
-  filterFunction: (portfolio: Portfolio) => boolean
-) => portfolios.some(filterFunction);
+  linkedContact: string | undefined,
+  filterFunction: (
+    portfolio: Portfolio,
+    linkedContact: string | undefined
+  ) => boolean
+) => portfolios.some((p) => filterFunction(p, linkedContact));
 
 const selectedPortfolio = (
   portfolios: Portfolio[],
@@ -25,8 +30,15 @@ const selectedPortfolio = (
 const doesSelectedPortfolioHavePermission = (
   portfolios: Portfolio[],
   portfolioId: string | undefined,
-  filterFunction: (portfolio: Portfolio) => boolean
-) => selectedPortfolio(portfolios, portfolioId).some(filterFunction);
+  linkedContact: string | undefined,
+  filterFunction: (
+    portfolio: Portfolio,
+    linkedContact: string | undefined
+  ) => boolean
+) =>
+  selectedPortfolio(portfolios, portfolioId).some((p) =>
+    filterFunction(p, linkedContact)
+  );
 
 /*
  * Checks if user's contact or portfolio is eligible
@@ -39,22 +51,33 @@ const doesSelectedPortfolioHavePermission = (
  */
 export const usePermission = (
   mode = PermissionMode.SELECTED,
-  filterFunction: (portfolio: Portfolio) => boolean
+  filterFunction: (
+    portfolio: Portfolio,
+    linkedContact: string | undefined
+  ) => boolean
 ) => {
+  const { linkedContact } = useKeycloak();
   const { portfolioId } = useParams();
   const { selectedContactId } = useGetContractIdData();
-  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
+  const { data: selectedContactData } = useGetContactInfo(
     false,
     selectedContactId
   );
 
+  const portfolios = selectedContactData?.portfolios ?? [];
+
   switch (mode) {
     case PermissionMode.ANY:
-      return doesAnyPortfolioHavePermission(portfolios, filterFunction);
+      return doesAnyPortfolioHavePermission(
+        portfolios,
+        linkedContact,
+        filterFunction
+      );
     case PermissionMode.SELECTED:
       return doesSelectedPortfolioHavePermission(
         portfolios,
         portfolioId,
+        linkedContact,
         filterFunction
       );
     case PermissionMode.SELECTED_ANY:
@@ -62,9 +85,14 @@ export const usePermission = (
         return doesSelectedPortfolioHavePermission(
           portfolios,
           portfolioId,
+          linkedContact,
           filterFunction
         );
-      return doesAnyPortfolioHavePermission(portfolios, filterFunction);
+      return doesAnyPortfolioHavePermission(
+        portfolios,
+        linkedContact,
+        filterFunction
+      );
     default:
       return false;
   }

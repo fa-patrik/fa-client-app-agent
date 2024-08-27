@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import {
   Portfolio,
   PortfolioGroups,
+  RepresentativeTag,
   useGetContactInfo,
 } from "api/common/useGetContactInfo";
 import { useGetTradebleSecurities } from "api/trading/useGetTradebleSecurities";
@@ -9,7 +10,11 @@ import { SecurityGroup } from "api/types";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { isPortfolioInGroup, isPortfolioOptionInGroup } from "./common";
+import {
+  doesPortfolioHaveRepresentativeTag,
+  isPortfolioInGroup,
+  isPortfolioOptionInGroup,
+} from "./common";
 
 export const CLIENT_PORTAL_SECURITY_GROUP_PREFIX = "CP_";
 export const CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX = "ADV_";
@@ -17,8 +22,18 @@ export const tradableTag = "Tradeable";
 export const switchableTag = "Switchable";
 
 //Monthly investments
-export const canPortfolioMonthlyInvest = (portfolio: Portfolio) => {
-  return isPortfolioInGroup(portfolio, PortfolioGroups.MONTHLY_INVESTMENTS);
+export const canPortfolioMonthlyInvest = (
+  portfolio: Portfolio,
+  linkedContact: string | undefined
+) => {
+  return (
+    isPortfolioInGroup(portfolio, PortfolioGroups.MONTHLY_INVESTMENTS) ||
+    doesPortfolioHaveRepresentativeTag(
+      portfolio,
+      RepresentativeTag.MONTHLY_INVESTMENTS,
+      linkedContact
+    )
+  );
 };
 
 export const canPortfolioOptionMonthlyInvest = (
@@ -31,16 +46,34 @@ export const canPortfolioOptionMonthlyInvest = (
 };
 
 //Monthly savings
-export const canPortfolioMonthlySave = (portfolio: Portfolio) => {
-  return isPortfolioInGroup(portfolio, PortfolioGroups.MONTHLY_SAVINGS);
+export const canPortfolioMonthlySave = (
+  portfolio: Portfolio,
+  linkedContact: string | undefined
+) => {
+  return (
+    isPortfolioInGroup(portfolio, PortfolioGroups.MONTHLY_SAVINGS) ||
+    doesPortfolioHaveRepresentativeTag(
+      portfolio,
+      RepresentativeTag.MONTHLY_SAVINGS,
+      linkedContact
+    )
+  );
 };
 
 export const canPortfolioOptionMonthlySave = (
-  portfolioOption: PortfolioOption
+  portfolioOption: PortfolioOption,
+  linkedContact: string | undefined
 ) => {
-  return isPortfolioOptionInGroup(
-    portfolioOption,
-    PortfolioGroups.MONTHLY_SAVINGS
+  return (
+    isPortfolioOptionInGroup(
+      portfolioOption,
+      PortfolioGroups.MONTHLY_SAVINGS
+    ) ||
+    doesPortfolioHaveRepresentativeTag(
+      portfolioOption.details,
+      RepresentativeTag.MONTHLY_SAVINGS,
+      linkedContact
+    )
   );
 };
 

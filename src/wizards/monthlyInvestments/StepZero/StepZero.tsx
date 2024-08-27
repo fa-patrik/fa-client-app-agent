@@ -47,7 +47,7 @@ import { MonthlyInvestmentsWizardState } from "../types";
  */
 const StepZero = () => {
   const [isMounted, setIsMounted] = useState(true);
-  const { access } = useKeycloak();
+  const { access, linkedContact } = useKeycloak();
   const { wizardData, setWizardData } = useWizard<
     MonthlyInvestmentsWizardState | undefined
   >();
@@ -323,7 +323,9 @@ const StepZero = () => {
                     <div className="flex justify-between">
                       <Button
                         id={`monthlyInvestmentsWizard-deletePlanButton-${index}`}
-                        disabled={!canPortfolioMonthlyInvest(portfolio)}
+                        disabled={
+                          !canPortfolioMonthlyInvest(portfolio, linkedContact)
+                        }
                         variant="Delete"
                         onClick={() => {
                           setTargetPortfolio(portfolio);
@@ -335,7 +337,9 @@ const StepZero = () => {
                         )}
                       </Button>
                       <Button
-                        disabled={!canPortfolioMonthlyInvest(portfolio)}
+                        disabled={
+                          !canPortfolioMonthlyInvest(portfolio, linkedContact)
+                        }
                         onClick={() => editMonthlyInvestmentsProfile(portfolio)}
                         id={`monthlyInvestmentsWizard-editPlanButton-${index}`}
                         variant="Secondary"

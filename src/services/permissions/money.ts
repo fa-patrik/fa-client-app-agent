@@ -1,6 +1,14 @@
-import { Portfolio, PortfolioGroups } from "api/common/useGetContactInfo";
+import {
+  Portfolio,
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
-import { isPortfolioInGroup, isPortfolioOptionInGroup } from "./common";
+import {
+  doesPortfolioHaveRepresentativeTag,
+  isPortfolioInGroup,
+  isPortfolioOptionInGroup,
+} from "./common";
 import { PermissionMode, usePermission } from "./usePermission";
 
 export const isPortfolioDepositable = (portfolio: Portfolio) => {
@@ -20,13 +28,29 @@ export const useCanDeposit = () => {
   return usePermission(PermissionMode.ANY, isPortfolioDepositable);
 };
 
-export const isPortfolioWithdrawable = (portfolio: Portfolio) =>
-  isPortfolioInGroup(portfolio, PortfolioGroups.WITHDRAW);
+export const isPortfolioWithdrawable = (
+  portfolio: Portfolio,
+  linkedContact: string | undefined
+) =>
+  isPortfolioInGroup(portfolio, PortfolioGroups.WITHDRAW) ||
+  doesPortfolioHaveRepresentativeTag(
+    portfolio,
+    RepresentativeTag.WITHDRAW,
+    linkedContact
+  );
 
 export const isPortfolioOptionWithdrawable = (
-  portfolioOption: PortfolioOption
+  portfolioOption: PortfolioOption,
+  linkedContact: string | undefined
 ) => {
-  return isPortfolioOptionInGroup(portfolioOption, PortfolioGroups.WITHDRAW);
+  return (
+    isPortfolioOptionInGroup(portfolioOption, PortfolioGroups.WITHDRAW) ||
+    doesPortfolioHaveRepresentativeTag(
+      portfolioOption.details,
+      RepresentativeTag.WITHDRAW,
+      linkedContact
+    )
+  );
 };
 
 export const useCanWithdraw = () => {

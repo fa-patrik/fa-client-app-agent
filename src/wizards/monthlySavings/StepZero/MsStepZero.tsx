@@ -42,7 +42,7 @@ import {
  * and a button to add a new one.
  */
 const MsStepZero = () => {
-  const { access } = useKeycloak();
+  const { access, linkedContact } = useKeycloak();
   const { setWizardData, wizardData } = useWizard();
   const {
     data: portfolioData,
@@ -290,7 +290,9 @@ const MsStepZero = () => {
                   <div className="flex justify-between">
                     <Button
                       id={`monthlySavingsWizard-deletePlanButton-${portfolio.id}`}
-                      disabled={!canPortfolioMonthlySave(portfolio)}
+                      disabled={
+                        !canPortfolioMonthlySave(portfolio, linkedContact)
+                      }
                       variant="Delete"
                       onClick={() => {
                         setTargetPortfolio(portfolio);
@@ -302,7 +304,9 @@ const MsStepZero = () => {
                       )}
                     </Button>
                     <Button
-                      disabled={!canPortfolioMonthlySave(portfolio)}
+                      disabled={
+                        !canPortfolioMonthlySave(portfolio, linkedContact)
+                      }
                       onClick={() => editMonthlySavingsProfile(portfolio)}
                       id={`monthlySavingsWizard-editPlanButton-${portfolio.id}`}
                       variant="Secondary"
