@@ -1,7 +1,12 @@
-import { Portfolio } from "api/common/useGetContactInfo";
+import {
+  Portfolio,
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { OrderStatus } from "api/enums";
 import { TradeOrder } from "api/orders/types";
 import { TransactionType } from "api/transactions/enums";
+import { isPortfolioEligible } from "./common";
 
 const CANCELLABLE_TRANSACTION_TYPES = [
   TransactionType.BUY,
@@ -16,12 +21,17 @@ const CANCELLABLE_STATUSES = [
   OrderStatus.Open,
 ] as OrderStatus[];
 
-export const CancelOrderPermissionGroup = "CP_CANCEL" as const;
-
-export const isPortfolioAllowedToCancelOrder = (portfolio: Portfolio) => {
-  if (!portfolio.portfolioGroups) return false;
-  return portfolio.portfolioGroups.some(
-    (group) => group.code === CancelOrderPermissionGroup
+export const isPortfolioAllowedToCancelOrder = (
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+  portfolio: Portfolio,
+  linkedContact: string | undefined
+) => {
+  return isPortfolioEligible(
+    contactRepresentativeTags,
+    portfolio,
+    linkedContact,
+    PortfolioGroups.CANCEL_ORDER,
+    RepresentativeTag.CANCEL_ORDER
   );
 };
 

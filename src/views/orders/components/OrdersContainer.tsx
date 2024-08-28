@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApolloClient } from "@apollo/client";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { PORTFOLIO_QUERY } from "api/common/useGetPortfolioBasicFieldsById";
 import { TradeOrder } from "api/orders/types";
 import { useModal } from "components/Modal/useModal";
@@ -9,6 +10,8 @@ import {
 } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useKeycloak } from "providers/KeycloakProvider";
 import {
   isPortfolioAllowedToCancelOrder,
   isTradeOrderCancellable,
@@ -34,7 +37,10 @@ export const OrdersContainer = ({
     modalProps: cancelOrderModalProps,
     contentProps: cancelOrderModalContentProps,
   } = useModal<CancelOrderModalInitialData>();
-
+  const { linkedContact } = useKeycloak();
+  const { selectedContactId } = useGetContractIdData();
+  const contactRepresentativeTags = useGetContactInfo(false, selectedContactId)
+    ?.data?.representativeTags;
   const { t } = useModifiedTranslation();
   const [isAnyOrderCancellable, setIsAnyOrderCancellable] = useState(false);
   const apolloClient = useApolloClient();
@@ -54,7 +60,11 @@ export const OrdersContainer = ({
         const orderParentPortfolio = response?.data?.portfolio;
         const cancellable =
           orderParentPortfolio &&
-          isPortfolioAllowedToCancelOrder(orderParentPortfolio) &&
+          isPortfolioAllowedToCancelOrder(
+            contactRepresentativeTags,
+            orderParentPortfolio,
+            linkedContact
+          ) &&
           isTradeOrderCancellable(order);
         if (cancellable) return setIsAnyOrderCancellable(true);
       }
@@ -62,7 +72,7 @@ export const OrdersContainer = ({
     };
 
     if (orders) checkOrdersCancellable(orders);
-  }, [apolloClient, orders]);
+  }, [apolloClient, contactRepresentativeTags, linkedContact, orders]);
 
   const hasOneLineRow = useMatchesBreakpoint("md");
 

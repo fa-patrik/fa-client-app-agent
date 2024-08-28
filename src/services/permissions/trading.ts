@@ -11,10 +11,9 @@ import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import {
-  doesContactHaveRepresentativeTag,
-  doesPortfolioHaveRepresentativeTag,
+  isPortfolioEligible,
   isPortfolioInGroup,
-  isPortfolioOptionInGroup,
+  isPortfolioOptionEligible,
 } from "./common";
 
 export const CLIENT_PORTAL_SECURITY_GROUP_PREFIX = "CP_";
@@ -28,18 +27,12 @@ export const canPortfolioMonthlyInvest = (
   portfolio: Portfolio,
   linkedContact: string | undefined
 ) => {
-  return (
-    isPortfolioInGroup(portfolio, PortfolioGroups.MONTHLY_INVESTMENTS) ||
-    doesPortfolioHaveRepresentativeTag(
-      portfolio,
-      RepresentativeTag.MONTHLY_INVESTMENTS,
-      linkedContact
-    ) ||
-    doesContactHaveRepresentativeTag(
-      contactRepresentativeTags,
-      RepresentativeTag.MONTHLY_INVESTMENTS,
-      linkedContact
-    )
+  return isPortfolioEligible(
+    contactRepresentativeTags,
+    portfolio,
+    linkedContact,
+    PortfolioGroups.MONTHLY_INVESTMENTS,
+    RepresentativeTag.MONTHLY_INVESTMENTS
   );
 };
 
@@ -48,21 +41,12 @@ export const canPortfolioOptionMonthlyInvest = (
   portfolioOption: PortfolioOption,
   linkedContact: string | undefined
 ) => {
-  return (
-    isPortfolioOptionInGroup(
-      portfolioOption,
-      PortfolioGroups.MONTHLY_INVESTMENTS
-    ) ||
-    doesPortfolioHaveRepresentativeTag(
-      portfolioOption.details,
-      RepresentativeTag.MONTHLY_INVESTMENTS,
-      linkedContact
-    ) ||
-    doesContactHaveRepresentativeTag(
-      contactRepresentativeTags,
-      RepresentativeTag.MONTHLY_INVESTMENTS,
-      linkedContact
-    )
+  return isPortfolioOptionEligible(
+    contactRepresentativeTags,
+    portfolioOption,
+    linkedContact,
+    PortfolioGroups.MONTHLY_INVESTMENTS,
+    RepresentativeTag.MONTHLY_INVESTMENTS
   );
 };
 
@@ -72,18 +56,12 @@ export const canPortfolioMonthlySave = (
   portfolio: Portfolio,
   linkedContact: string | undefined
 ) => {
-  return (
-    isPortfolioInGroup(portfolio, PortfolioGroups.MONTHLY_SAVINGS) ||
-    doesPortfolioHaveRepresentativeTag(
-      portfolio,
-      RepresentativeTag.MONTHLY_SAVINGS,
-      linkedContact
-    ) ||
-    doesContactHaveRepresentativeTag(
-      contactRepresentativeTags,
-      RepresentativeTag.MONTHLY_SAVINGS,
-      linkedContact
-    )
+  return isPortfolioEligible(
+    contactRepresentativeTags,
+    portfolio,
+    linkedContact,
+    PortfolioGroups.MONTHLY_SAVINGS,
+    RepresentativeTag.MONTHLY_SAVINGS
   );
 };
 
@@ -92,21 +70,12 @@ export const canPortfolioOptionMonthlySave = (
   portfolioOption: PortfolioOption,
   linkedContact: string | undefined
 ) => {
-  return (
-    isPortfolioOptionInGroup(
-      portfolioOption,
-      PortfolioGroups.MONTHLY_SAVINGS
-    ) ||
-    doesPortfolioHaveRepresentativeTag(
-      portfolioOption.details,
-      RepresentativeTag.MONTHLY_SAVINGS,
-      linkedContact
-    ) ||
-    doesContactHaveRepresentativeTag(
-      contactRepresentativeTags,
-      RepresentativeTag.MONTHLY_SAVINGS,
-      linkedContact
-    )
+  return isPortfolioOptionEligible(
+    contactRepresentativeTags,
+    portfolioOption,
+    linkedContact,
+    PortfolioGroups.MONTHLY_SAVINGS,
+    RepresentativeTag.MONTHLY_SAVINGS
   );
 };
 
@@ -116,18 +85,12 @@ export const canPortfolioTrade = (
   portfolio: Portfolio,
   linkedContact: string | undefined
 ) => {
-  return (
-    isPortfolioInGroup(portfolio, PortfolioGroups.TRADE) ||
-    doesPortfolioHaveRepresentativeTag(
-      portfolio,
-      RepresentativeTag.TRADE,
-      linkedContact
-    ) ||
-    doesContactHaveRepresentativeTag(
-      contactRepresentativeTags,
-      RepresentativeTag.TRADE,
-      linkedContact
-    )
+  return isPortfolioEligible(
+    contactRepresentativeTags,
+    portfolio,
+    linkedContact,
+    PortfolioGroups.TRADE,
+    RepresentativeTag.TRADE
   );
 };
 
@@ -136,18 +99,12 @@ export const canPortfolioOptionTrade = (
   portfolioOption: PortfolioOption,
   linkedContact: string | undefined
 ) => {
-  return (
-    isPortfolioOptionInGroup(portfolioOption, PortfolioGroups.TRADE) ||
-    doesPortfolioHaveRepresentativeTag(
-      portfolioOption.details,
-      RepresentativeTag.TRADE,
-      linkedContact
-    ) ||
-    doesContactHaveRepresentativeTag(
-      contactRepresentativeTags,
-      RepresentativeTag.TRADE,
-      linkedContact
-    )
+  return isPortfolioOptionEligible(
+    contactRepresentativeTags,
+    portfolioOption,
+    linkedContact,
+    PortfolioGroups.TRADE,
+    RepresentativeTag.TRADE
   );
 };
 
@@ -254,17 +211,13 @@ export const canPortfolioTradeSecurity = (
 ) => {
   try {
     if (
-      (isPortfolioInGroup(portfolio, PortfolioGroups.TRADE) ||
-        doesPortfolioHaveRepresentativeTag(
-          portfolio,
-          RepresentativeTag.TRADE,
-          linkedContact
-        ) ||
-        doesContactHaveRepresentativeTag(
-          contactRepresentativeTags,
-          RepresentativeTag.TRADE,
-          linkedContact
-        )) &&
+      isPortfolioEligible(
+        contactRepresentativeTags,
+        portfolio,
+        linkedContact,
+        PortfolioGroups.TRADE,
+        RepresentativeTag.TRADE
+      ) &&
       isSecurityTradable(security.tagsAsSet)
     ) {
       //portfolio is allowed to be traded in by the user

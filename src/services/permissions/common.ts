@@ -63,3 +63,47 @@ export const isPortfolioOptionInGroup = (
   if (itCan) return true;
   return false;
 };
+
+export const isPortfolioEligible = (
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+  portfolio: Portfolio,
+  linkedContact: string | undefined,
+  portfolioGroup: PortfolioGroups,
+  representativeTag: RepresentativeTag
+) => {
+  return (
+    isPortfolioInGroup(portfolio, portfolioGroup) ||
+    doesPortfolioHaveRepresentativeTag(
+      portfolio,
+      representativeTag,
+      linkedContact
+    ) ||
+    doesContactHaveRepresentativeTag(
+      contactRepresentativeTags,
+      representativeTag,
+      linkedContact
+    )
+  );
+};
+
+export const isPortfolioOptionEligible = (
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+  portfolioOption: PortfolioOption,
+  linkedContact: string | undefined,
+  portfolioGroup: PortfolioGroups,
+  representativeTag: RepresentativeTag
+) => {
+  return (
+    isPortfolioOptionInGroup(portfolioOption, portfolioGroup) ||
+    doesPortfolioHaveRepresentativeTag(
+      portfolioOption.details,
+      representativeTag,
+      linkedContact
+    ) ||
+    doesContactHaveRepresentativeTag(
+      contactRepresentativeTags,
+      representativeTag,
+      linkedContact
+    )
+  );
+};
