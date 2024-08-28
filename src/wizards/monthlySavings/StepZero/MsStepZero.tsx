@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import {
   PortfolioMonthlySavingsDTOInput,
   useSetMonthlySavings,
@@ -12,6 +13,7 @@ import { useFilteredPortfolioSelect } from "components/TradingModals/useFiltered
 import { getPortfolioOption } from "hooks/useGetPortfolioOptions";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
+import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
 import {
@@ -42,8 +44,11 @@ import {
  * and a button to add a new one.
  */
 const MsStepZero = () => {
+  const { selectedContactId } = useGetContractIdData();
   const { access, linkedContact } = useKeycloak();
   const { setWizardData, wizardData } = useWizard();
+  const contactRepresentativeTags = useGetContactInfo(false, selectedContactId)
+    .data?.representativeTags;
   const {
     data: portfolioData,
     refetch: refetchPortfolioData,
@@ -291,7 +296,11 @@ const MsStepZero = () => {
                     <Button
                       id={`monthlySavingsWizard-deletePlanButton-${portfolio.id}`}
                       disabled={
-                        !canPortfolioMonthlySave(portfolio, linkedContact)
+                        !canPortfolioMonthlySave(
+                          contactRepresentativeTags,
+                          portfolio,
+                          linkedContact
+                        )
                       }
                       variant="Delete"
                       onClick={() => {
@@ -305,7 +314,11 @@ const MsStepZero = () => {
                     </Button>
                     <Button
                       disabled={
-                        !canPortfolioMonthlySave(portfolio, linkedContact)
+                        !canPortfolioMonthlySave(
+                          contactRepresentativeTags,
+                          portfolio,
+                          linkedContact
+                        )
                       }
                       onClick={() => editMonthlySavingsProfile(portfolio)}
                       id={`monthlySavingsWizard-editPlanButton-${portfolio.id}`}

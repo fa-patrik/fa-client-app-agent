@@ -1,11 +1,18 @@
 import {
-  ContactInfoQuery,
   Portfolio,
   PortfolioGroups,
   RepresentativeTag,
 } from "api/common/useGetContactInfo";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
+/**
+ * Checks whether the logged in user is linked to the portfolio
+ * and whether that link has the given tag
+ * @param portfolio the portfolio to check
+ * @param tag a "Client portal:..." tag
+ * @param linkedContact the contact id of the logged in user
+ * @returns true if the portfolio has the tag
+ */
 export const doesPortfolioHaveRepresentativeTag = (
   portfolio: Portfolio | undefined,
   tag: RepresentativeTag,
@@ -23,14 +30,21 @@ export const doesPortfolioHaveRepresentativeTag = (
   );
 };
 
+/**
+ * Checks whether the logged in user is linked to the contact
+ * and whether that link has the given tag
+ * @param contactRepresentativeTags the contact's representative tags
+ * @param tag a "Client portal:..." tag
+ * @param linkedContact the contact id of the logged in user
+ * @returns true if the contact has the tag in the particular link
+ */
 export const doesContactHaveRepresentativeTag = (
-  contact: ContactInfoQuery["contact"],
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
   tag: RepresentativeTag,
   linkedContact: string | undefined
 ) => {
-  if (!linkedContact || !contact) return false;
-  const contactTags =
-    contact?.representativeTags?.representatives?.[linkedContact];
+  if (!linkedContact || !contactRepresentativeTags) return false;
+  const contactTags = contactRepresentativeTags?.[linkedContact] ?? [];
   return contactTags?.includes(tag);
 };
 

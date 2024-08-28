@@ -1,4 +1,9 @@
-import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
+import {
+  Portfolio,
+  RepresentativeTag,
+  useGetContactInfo,
+} from "api/common/useGetContactInfo";
+import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
@@ -9,14 +14,31 @@ export enum PermissionMode {
   SELECTED_ANY,
 }
 
-const doesAnyPortfolioHavePermission = (
-  portfolios: Portfolio[],
-  linkedContact: string | undefined,
-  filterFunction: (
+export interface PortfolioFilterFunction {
+  (
+    contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
     portfolio: Portfolio,
     linkedContact: string | undefined
-  ) => boolean
-) => portfolios.some((p) => filterFunction(p, linkedContact));
+  ): boolean;
+}
+
+export interface PortfolioOptionFilterFunction {
+  (
+    contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+    portfolioOption: PortfolioOption,
+    linkedContact: string | undefined
+  ): boolean;
+}
+
+const doesAnyPortfolioHavePermission = (
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+  portfolios: Portfolio[],
+  linkedContact: string | undefined,
+  filterFunction: PortfolioFilterFunction
+) =>
+  portfolios.some((p) =>
+    filterFunction(contactRepresentativeTags, p, linkedContact)
+  );
 
 const selectedPortfolio = (
   portfolios: Portfolio[],
@@ -28,16 +50,14 @@ const selectedPortfolio = (
   );
 
 const doesSelectedPortfolioHavePermission = (
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
   portfolios: Portfolio[],
   portfolioId: string | undefined,
   linkedContact: string | undefined,
-  filterFunction: (
-    portfolio: Portfolio,
-    linkedContact: string | undefined
-  ) => boolean
+  filterFunction: PortfolioFilterFunction
 ) =>
   selectedPortfolio(portfolios, portfolioId).some((p) =>
-    filterFunction(p, linkedContact)
+    filterFunction(contactRepresentativeTags, p, linkedContact)
   );
 
 /*
@@ -50,11 +70,8 @@ const doesSelectedPortfolioHavePermission = (
  * @return boolean - whether user's contact can
  */
 export const usePermission = (
-  mode = PermissionMode.SELECTED,
-  filterFunction: (
-    portfolio: Portfolio,
-    linkedContact: string | undefined
-  ) => boolean
+  mode: PermissionMode,
+  filterFunction: PortfolioFilterFunction
 ) => {
   const { linkedContact } = useKeycloak();
   const { portfolioId } = useParams();
@@ -69,12 +86,14 @@ export const usePermission = (
   switch (mode) {
     case PermissionMode.ANY:
       return doesAnyPortfolioHavePermission(
+        selectedContactData?.representativeTags,
         portfolios,
         linkedContact,
         filterFunction
       );
     case PermissionMode.SELECTED:
       return doesSelectedPortfolioHavePermission(
+        selectedContactData?.representativeTags,
         portfolios,
         portfolioId,
         linkedContact,
@@ -83,12 +102,14 @@ export const usePermission = (
     case PermissionMode.SELECTED_ANY:
       if (portfolioId !== undefined)
         return doesSelectedPortfolioHavePermission(
+          selectedContactData?.representativeTags,
           portfolios,
           portfolioId,
           linkedContact,
           filterFunction
         );
       return doesAnyPortfolioHavePermission(
+        selectedContactData?.representativeTags,
         portfolios,
         linkedContact,
         filterFunction

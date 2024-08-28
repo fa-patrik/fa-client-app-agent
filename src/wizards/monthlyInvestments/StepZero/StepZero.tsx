@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Portfolio } from "api/common/useGetContactInfo";
+import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
 import {
   PortfolioWithProfileAndFigures,
   useGetPortfoliosWithProfileAndFigures,
@@ -21,6 +21,7 @@ import { Severity } from "components/Alert/Alert";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
 import {
@@ -48,6 +49,9 @@ import { MonthlyInvestmentsWizardState } from "../types";
 const StepZero = () => {
   const [isMounted, setIsMounted] = useState(true);
   const { access, linkedContact } = useKeycloak();
+  const { selectedContactId } = useGetContractIdData();
+  const contactRepresentativeTags = useGetContactInfo(false, selectedContactId)
+    ?.data?.representativeTags;
   const { wizardData, setWizardData } = useWizard<
     MonthlyInvestmentsWizardState | undefined
   >();
@@ -324,7 +328,11 @@ const StepZero = () => {
                       <Button
                         id={`monthlyInvestmentsWizard-deletePlanButton-${index}`}
                         disabled={
-                          !canPortfolioMonthlyInvest(portfolio, linkedContact)
+                          !canPortfolioMonthlyInvest(
+                            contactRepresentativeTags,
+                            portfolio,
+                            linkedContact
+                          )
                         }
                         variant="Delete"
                         onClick={() => {
@@ -338,7 +346,11 @@ const StepZero = () => {
                       </Button>
                       <Button
                         disabled={
-                          !canPortfolioMonthlyInvest(portfolio, linkedContact)
+                          !canPortfolioMonthlyInvest(
+                            contactRepresentativeTags,
+                            portfolio,
+                            linkedContact
+                          )
                         }
                         onClick={() => editMonthlyInvestmentsProfile(portfolio)}
                         id={`monthlyInvestmentsWizard-editPlanButton-${index}`}

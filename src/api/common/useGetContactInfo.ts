@@ -101,6 +101,11 @@ export enum PortfolioStatus {
   Closed = "C",
 }
 
+/**
+ * Portfolio groups that can be assigned to a Portfolio.
+ * If a portfolio is in a group, the logged in user can perform
+ * certain actions on that portfolio.
+ */
 export enum PortfolioGroups {
   CANCEL_ORDER = "CP_CANCEL",
   DEPOSIT = "CP_DEPOSIT",
@@ -111,6 +116,13 @@ export enum PortfolioGroups {
   MONTHLY_SAVINGS = "CP_MONTHLYSAVINGS",
 }
 
+/**
+ * Tags that can be assigned in FA Back to describe the linkage Contact -> Contact and
+ * Contact -> Portfolio. They are used to govern what the logged in user is allowed
+ * to do for each Contact and Portfolio it can see in the Client portal. This allows
+ * more fine-grained control compared to the PortfolioGroups. While PortfolioGroups
+ * enables a functionality for all users, the RepresentativeTags is user specific.
+ */
 export enum RepresentativeTag {
   CANCEL_ORDER = "Client portal:Cancel order",
   DEPOSIT = "Client portal:Deposit",
@@ -210,6 +222,7 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
       portfoliosCurrency:
         activeAndPassivePortfolios?.[0]?.currency?.securityCode,
       representees: data?.contact?.representees,
+      representativeTags: data?.contact?.representativeTags?.representatives,
       name: data?.contact?.name,
     },
     refetch,

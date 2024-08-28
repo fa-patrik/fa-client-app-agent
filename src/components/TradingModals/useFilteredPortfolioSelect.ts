@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { Option } from "components/ComboBox/ComboBox";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetPortfolioOptions } from "hooks/useGetPortfolioOptions";
+import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
+import { PortfolioOptionFilterFunction } from "services/permissions/usePermission";
 import { filterPortfolioOptionsByFunction } from "utils/options";
 
 /**
@@ -51,15 +54,16 @@ const getNrOfPortfolioOptions = (
 };
 
 export const useFilteredPortfolioSelect = (
-  filterFunction: (
-    portfolioOption: PortfolioOption,
-    linkedContact: string | undefined
-  ) => boolean
+  filterFunction: PortfolioOptionFilterFunction
 ) => {
   const { linkedContact } = useKeycloak();
   const { portfolioId: portfolioIdUrl } = useParams();
   const portfolioOptions = useGetPortfolioOptions(false);
+  const { selectedContactId } = useGetContractIdData();
+  const contactRepresentativeTags = useGetContactInfo(false, selectedContactId)
+    .data?.representativeTags;
   const filteredOptions = filterPortfolioOptionsByFunction(
+    contactRepresentativeTags,
     portfolioOptions,
     linkedContact,
     filterFunction
