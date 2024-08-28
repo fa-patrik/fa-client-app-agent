@@ -147,8 +147,9 @@ const MsStepZero = () => {
   const { portfolioOptions } = useFilteredPortfolioSelect(
     canPortfolioOptionMonthlySave
   );
-  const allowCreateNew =
-    portfolioOptions?.length !== portfoliosWithMonthlySavings?.length;
+  const allowCreateNew = portfolioOptions.some((o) => {
+    return !portfoliosWithMonthlySavings?.some((p) => p.id === o.id);
+  });
 
   const NoAccountWarning = ({ id }: { id: string }) => {
     return (

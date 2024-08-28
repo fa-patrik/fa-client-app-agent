@@ -184,8 +184,10 @@ const StepZero = () => {
   const { portfolioOptions } = useFilteredPortfolioSelect(
     canPortfolioOptionMonthlyInvest
   );
-  const allowCreateNew =
-    portfolioOptions?.length !== portfoliosWithMonthlyInvestments?.length;
+
+  const allowCreateNew = portfolioOptions.some((o) => {
+    return !portfoliosWithMonthlyInvestments?.some((p) => p.id === o.id);
+  });
 
   const AddNewPlanButton = ({ disabled }: { disabled?: boolean }) => (
     <Button
