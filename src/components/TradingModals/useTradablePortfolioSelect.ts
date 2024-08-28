@@ -31,6 +31,8 @@ export const useTradablePortfolioSelect = (
       return (
         !!securityGroups &&
         canPortfolioOptionTradeSecurity(
+          contactRepresentativeTags,
+          linkedContact,
           portfolioOption,
           securityGroups,
           groupPrefix

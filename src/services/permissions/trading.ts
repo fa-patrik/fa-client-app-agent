@@ -10,11 +10,7 @@ import { SecurityGroup } from "api/types";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
-import {
-  isPortfolioEligible,
-  isPortfolioInGroup,
-  isPortfolioOptionEligible,
-} from "./common";
+import { isPortfolioEligible, isPortfolioOptionEligible } from "./common";
 
 export const CLIENT_PORTAL_SECURITY_GROUP_PREFIX = "CP_";
 export const CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX = "ADV_";
@@ -157,6 +153,8 @@ export const isPortfolioLinkedToAnySecurityGroup = (
 };
 
 export const canPortfolioOptionTradeSecurity = (
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+  linkedContact: string | undefined,
   portfolioOption: PortfolioOption,
   securityGroups: SecurityGroup[],
   groupPrefix: string
@@ -164,6 +162,8 @@ export const canPortfolioOptionTradeSecurity = (
   try {
     if (!portfolioOption.details) return false; //no data available
     return canPortfolioTradeSecurityGroups(
+      contactRepresentativeTags,
+      linkedContact,
       portfolioOption.details,
       securityGroups,
       groupPrefix
@@ -175,12 +175,22 @@ export const canPortfolioOptionTradeSecurity = (
 };
 
 export const canPortfolioTradeSecurityGroups = (
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+  linkedContact: string | undefined,
   portfolio: Portfolio,
   securityGroups: SecurityGroup[],
   groupPrefix: string
 ) => {
   try {
-    if (isPortfolioInGroup(portfolio, PortfolioGroups.TRADE)) {
+    if (
+      isPortfolioEligible(
+        contactRepresentativeTags,
+        portfolio,
+        linkedContact,
+        PortfolioGroups.TRADE,
+        RepresentativeTag.TRADE
+      )
+    ) {
       if (!isPortfolioLinkedToAnySecurityGroup(portfolio, groupPrefix)) {
         //can trade all securities
         return true;
