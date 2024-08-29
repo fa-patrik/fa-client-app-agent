@@ -283,7 +283,8 @@
     "depositSuccess": "Your deposit request was created successfully",
     "withdrawalSuccess": "Your withdrawal request was created successfully",
     "portfolio": "Portfolio",
-    "noPortfolioAvailable": "No portfolio available"
+    "noPortfolioAvailable": "No portfolio available",
+    "invalidAccountSelection": "Invalid account selection"
   },
   "tradingModal": {
     "securityName": "Security name",

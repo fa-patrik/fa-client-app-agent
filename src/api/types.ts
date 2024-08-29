@@ -12,21 +12,21 @@ export interface QueryData<TData> {
  */
 export interface LimitedTradeOrderDTO {
   account: string;
-  amount: string;
+  amount: number;
   currency: string;
-  exceutionMethod: string;
+  executionMethod: number;
   extId: string;
-  fxRate: string;
+  fxRate: number;
   parentPortfolio: string;
   prefix: string;
   reference: string;
   security: string;
   settlementDate: string;
   status: string;
-  tradeAmount: string;
+  tradeAmount: number;
   transactionDate: string;
   type: string;
-  unitPrice: string;
+  unitPrice: number;
 }
 
 /**
