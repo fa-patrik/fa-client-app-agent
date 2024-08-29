@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery, gql } from "@apollo/client";
 import { getFetchPolicyOptions } from "api/utils";
 import { useGetContractIdData } from "providers/ContractIdProvider";
@@ -109,24 +110,36 @@ export const useGetDocuments = (portfolioId?: number) => {
   const loading = loadingAllDocuments || loadingPfDocuments;
   const error = errorAllDocuments || errorPfDocuments;
 
-  const portfolioDocuments = getAllDocuments
-    ? getDocuments(dataAllDocuments?.contact?.portfolios)
-    : getDocuments(
-        dataPfDocuments?.portfolio ? [dataPfDocuments?.portfolio] : undefined
-      );
+  const allPortfolioDocuments = useMemo(() => {
+    return getDocuments(dataAllDocuments?.contact?.portfolios);
+  }, [dataAllDocuments?.contact?.portfolios]);
 
-  const contactDocuments = getAllDocuments
-    ? dataAllDocuments?.contact?.documents
-    : undefined;
+  const selectedPortfolioDocuments = useMemo(() => {
+    return getDocuments(
+      dataPfDocuments?.portfolio ? [dataPfDocuments?.portfolio] : undefined
+    );
+  }, [dataPfDocuments?.portfolio]);
 
-  const data =
-    contactDocuments?.length && portfolioDocuments?.length
-      ? [...contactDocuments, ...portfolioDocuments]
-      : contactDocuments ?? portfolioDocuments;
+  const contactDocuments = dataAllDocuments?.contact?.documents;
+
+  //we don't want to default data to an empty array, as we want to know if the data is still loading
+  let data;
+
+  if (allPortfolioDocuments?.length && contactDocuments?.length) {
+    data = [...allPortfolioDocuments, ...contactDocuments];
+  } else if (allPortfolioDocuments?.length) {
+    data = allPortfolioDocuments;
+  } else if (contactDocuments?.length) {
+    data = contactDocuments;
+  } else if (selectedPortfolioDocuments?.length) {
+    data = selectedPortfolioDocuments;
+  } else {
+    data = loadingAllDocuments || loadingPfDocuments ? undefined : [];
+  }
 
   return {
     loading,
     error,
-    data: data,
+    data,
   };
 };
