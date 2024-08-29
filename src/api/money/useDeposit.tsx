@@ -15,18 +15,18 @@ import { toast } from "react-toastify";
 
 const IMPORT_DEPOSIT_MUTATION = gql`
   mutation ImportDeposit(
-    $tradeAmount: String
+    $tradeAmount: Float
     $currency: String
     $reference: String
     $transactionDate: String
     $transactionTypeCode: String
     $portfolioShortName: String
     $account: String
-    $intInfo: String
     $tags: String
+    $externalAccount: String
   ) {
-    importTradeOrder(
-      tradeOrder: {
+    importLimitedTradeOrder(
+      limitedTradeOrder: {
         tradeAmount: $tradeAmount
         currency: $currency
         reference: $reference
@@ -35,8 +35,8 @@ const IMPORT_DEPOSIT_MUTATION = gql`
         parentPortfolio: $portfolioShortName
         account: $account
         status: "${OrderStatus.Open}"
-        intInfo: $intInfo
         tags: $tags
+        externalAccount: $externalAccount
       }
     )
   }
@@ -50,7 +50,7 @@ interface ImportDepositQueryVariables {
   tradeAmount: number;
   transactionDate: Date;
   transactionTypeCode: string;
-  intInfo: string | null;
+  externalAccount?: string;
   tags?: string;
 }
 
@@ -132,13 +132,15 @@ const handleBadAPIResponse = (
     Record<string, unknown>
   >
 ) => {
-  if (!apiResponse.data?.importTradeOrder?.[0]) {
+  if (!apiResponse.data?.importLimitedTradeOrder?.[0]) {
     throw new Error("Empty response");
   }
 
-  if (apiResponse.data.importTradeOrder[0].importStatus === errorStatus) {
+  if (
+    apiResponse.data.importLimitedTradeOrder[0].importStatus === errorStatus
+  ) {
     let errorMessage = "Bad request: \n";
-    Object.entries(apiResponse.data.importTradeOrder[0]).forEach(
+    Object.entries(apiResponse.data.importLimitedTradeOrder[0]).forEach(
       ([key, value]) => {
         if (value.includes("ERROR") && key !== "importStatus") {
           errorMessage += `${key}: ${value}; \n`;

@@ -54,10 +54,14 @@ export const DepositModalContent = ({
     securityName: label,
     account: number,
     currency,
-    intInfo: externalNumber ? `paymentAccount1=${externalNumber}` : null,
+    externalAccount: externalNumber,
   });
 
   const { access } = useKeycloak();
+
+  const invalidAccountSelection =
+    !cashAccountSelectProps.currentInternalCashAccount ||
+    !cashAccountSelectProps.currentExternalCashAccount;
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
@@ -87,7 +91,9 @@ export const DepositModalContent = ({
           error={
             !isAmountCorrect && !accountsLoading
               ? t("moneyModal.amountInputError")
-              : undefined
+              : !accountsLoading && invalidAccountSelection
+              ? t("moneyModal.invalidAccountSelection")
+              : ""
           }
           step="any"
         />
@@ -96,7 +102,8 @@ export const DepositModalContent = ({
             !access.deposit ||
             amountAsNr === 0 ||
             accountsLoading ||
-            !isAmountCorrect
+            !isAmountCorrect ||
+            invalidAccountSelection
           }
           isLoading={submitting}
           onClick={async () => {

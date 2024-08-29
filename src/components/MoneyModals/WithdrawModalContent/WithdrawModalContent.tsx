@@ -57,10 +57,14 @@ export const WithdrawModalContent = ({
     securityName: label,
     account: number,
     currency,
-    intInfo: externalNumber ? `paymentAccount1=${externalNumber}` : null,
+    externalAccount: externalNumber,
   });
 
   const { access } = useKeycloak();
+
+  const invalidAccountSelection =
+    cashAccountSelectProps.currentInternalCashAccount === undefined ||
+    cashAccountSelectProps.currentExternalCashAccount === undefined;
 
   return (
     <div className="grid gap-2 min-w-[min(84vw,_375px)]">
@@ -90,7 +94,9 @@ export const WithdrawModalContent = ({
           error={
             !isAmountCorrect && !accountsLoading
               ? t("moneyModal.amountInputError")
-              : undefined
+              : !accountsLoading && invalidAccountSelection
+              ? t("moneyModal.invalidAccountSelection")
+              : ""
           }
           step="any"
         />
@@ -99,7 +105,8 @@ export const WithdrawModalContent = ({
             !access.withdraw ||
             amountAsNr === 0 ||
             accountsLoading ||
-            !isAmountCorrect
+            !isAmountCorrect ||
+            invalidAccountSelection
           }
           isLoading={submitting}
           onClick={async () => {

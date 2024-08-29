@@ -15,18 +15,18 @@ import { toast } from "react-toastify";
 
 const IMPORT_WITHDRAWAL_MUTATION = gql`
   mutation ImportWithdrawal(
-    $tradeAmount: String
+    $tradeAmount: Float
     $currency: String
     $reference: String
     $transactionDate: String
     $transactionTypeCode: String
     $portfolioShortName: String
     $account: String
-    $intInfo: String
     $tags: String
+    $externalAccount: String
   ) {
-    importTradeOrder(
-      tradeOrder: {
+    importLimitedTradeOrder(
+      limitedTradeOrder: {
         tradeAmount: $tradeAmount
         currency: $currency
         reference: $reference
@@ -35,14 +35,14 @@ const IMPORT_WITHDRAWAL_MUTATION = gql`
         parentPortfolio: $portfolioShortName
         account: $account
         status: "${OrderStatus.Open}"
-        intInfo: $intInfo
         tags: $tags
+        externalAccount: $externalAccount
       }
     )
   }
 `;
 
-interface ImportTradeOrderQueryVariables {
+interface importLimitedTradeOrderQueryVariables {
   currency: string;
   portfolioShortName: string;
   reference: string;
@@ -50,8 +50,8 @@ interface ImportTradeOrderQueryVariables {
   tradeAmount: number;
   transactionDate: Date;
   transactionTypeCode: string;
-  intInfo: string | null;
   tags?: string;
+  externalAccount?: string;
 }
 
 const errorStatus = "ERROR" as const;
@@ -60,7 +60,7 @@ export const withdrawalType = "withdrawal" as const;
 
 export const useWithdrawal = (
   newOrder: Omit<
-    ImportTradeOrderQueryVariables,
+    importLimitedTradeOrderQueryVariables,
     | "transactionTypeCode"
     | "transactionDate"
     | "reference"
@@ -73,7 +73,7 @@ export const useWithdrawal = (
   const [submitting, setSubmitting] = useState(false);
   const [handleAPITrade] = useMutation<
     OrderMutationResponse,
-    ImportTradeOrderQueryVariables
+    importLimitedTradeOrderQueryVariables
   >(IMPORT_WITHDRAWAL_MUTATION, {
     refetchQueries: ["GetAllPortfoliosTradeOrders", "GetPortfolioTradeOrders"],
   });
@@ -132,13 +132,15 @@ const handleBadAPIResponse = (
     Record<string, unknown>
   >
 ) => {
-  if (!apiResponse.data?.importTradeOrder?.[0]) {
+  if (!apiResponse.data?.importLimitedTradeOrder?.[0]) {
     throw new Error("Empty response");
   }
 
-  if (apiResponse.data.importTradeOrder[0]?.importStatus === errorStatus) {
+  if (
+    apiResponse.data.importLimitedTradeOrder[0]?.importStatus === errorStatus
+  ) {
     let errorMessage = "Bad request: \n";
-    Object.entries(apiResponse.data.importTradeOrder[0]).forEach(
+    Object.entries(apiResponse.data.importLimitedTradeOrder[0]).forEach(
       ([key, value]) => {
         if (value.includes("ERROR") && key !== "importStatus") {
           errorMessage += `${key}: ${value}; \n`;

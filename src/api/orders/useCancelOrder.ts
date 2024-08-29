@@ -19,8 +19,8 @@ import {
 
 const CANCEL_ORDER_MUTATION = gql`
   mutation cancelOrder($portfolioShortName: String, $extId: String, $reference: String) {
-    importTradeOrder(
-      tradeOrder: {
+    importLimitedTradeOrder(
+      limitedTradeOrder: {
         parentPortfolio: $portfolioShortName, 
         extId: $extId,
         reference: $reference,
@@ -55,7 +55,7 @@ export const useCancelOrder = (cancelledTradeOrder: CancelOrderQueryProps) => {
         fields: {
           orderStatus(cachedStatus: OrderStatus) {
             //find the element with the mutation return data
-            const mutationResponseData = data?.importTradeOrder?.find(
+            const mutationResponseData = data?.importLimitedTradeOrder?.find(
               (element) => element["o.status"]
             );
 

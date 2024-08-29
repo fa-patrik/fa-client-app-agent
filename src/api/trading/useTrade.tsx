@@ -13,28 +13,30 @@ import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 import { useUniqueReference } from "../../hooks/useUniqueReference";
 
 const IMPORT_TRADE_ORDER_MUTATION = gql`
-  mutation ImportTradeOrder(
+  mutation importLimitedTradeOrder(
     $portfolioShortName: String
     $transactionDate: String
     $securityCode: String
     $transactionTypeCode: String
-    $units: String
-    $tradeAmount: String
+    $units: Float
+    $autoUnitPrice: Boolean
+    $unitPrice: Float
+    $tradeAmount: Float
     $reference: String
-    $executionMethod: String
-    $unitPrice: String
-    $accountFxRate: String
-    $reportFxRate: String
+    $executionMethod: Int
+    $accountFxRate: Float
+    $reportFxRate: Float
     $tags: String
   ) {
-    importTradeOrder(
-      tradeOrder: {
+    importLimitedTradeOrder(
+      limitedTradeOrder: {
         parentPortfolio: $portfolioShortName
         transactionDate: $transactionDate
         security: $securityCode
         type: $transactionTypeCode
         status: "4"
         amount: $units
+        autoUnitPrice: $autoUnitPrice
         tradeAmount: $tradeAmount
         account: "AUTO"
         unitPrice: $unitPrice
@@ -48,7 +50,7 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
   }
 `;
 
-interface ImportTradeOrderQueryVariables {
+interface importLimitedTradeOrderQueryVariables {
   portfolioShortName: string;
   transactionDate: Date;
   securityCode: string;
@@ -57,17 +59,17 @@ interface ImportTradeOrderQueryVariables {
   units?: number;
   tradeAmount?: number;
   executionMethod: ExecutionMethod;
-  fxRate?: number | string;
-  reportFxRate?: number | string;
-  accountFxRate?: number | string;
-  unitPrice?: number | string;
+  reportFxRate?: number;
+  accountFxRate?: number;
+  autoUnitPrice?: boolean;
+  unitPrice?: number;
   tags?: string;
 }
 
 const errorStatus = "ERROR" as const;
 
-interface ImportTradeOrderQueryResponse {
-  importTradeOrder: ({
+interface importLimitedTradeOrderQueryResponse {
+  importLimitedTradeOrder: ({
     importStatus: "OK" | typeof errorStatus;
   } & unknown)[];
 }
@@ -76,7 +78,7 @@ export type TradeType = "sell" | "buy" | "redemption" | "subscription";
 
 export const useTrade = (
   newTradeOrder: Omit<
-    ImportTradeOrderQueryVariables,
+    importLimitedTradeOrderQueryVariables,
     | "transactionTypeCode"
     | "transactionDate"
     | "reference"
@@ -89,8 +91,8 @@ export const useTrade = (
   const { t } = useModifiedTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [handleAPITrade] = useMutation<
-    ImportTradeOrderQueryResponse,
-    ImportTradeOrderQueryVariables
+    importLimitedTradeOrderQueryResponse,
+    importLimitedTradeOrderQueryVariables
   >(IMPORT_TRADE_ORDER_MUTATION);
 
   const saveToLocalTradeOrders = useLocalTradeStorageMutation();
@@ -100,26 +102,19 @@ export const useTrade = (
   const handleTrade = async () => {
     setSubmitting(true);
     try {
-      const {
-        tradeType,
-        portfolio,
-        reportFxRate,
-        accountFxRate,
-        fxRate,
-        unitPrice,
-      } = newTradeOrder;
+      const { tradeType, portfolio, reportFxRate, accountFxRate, unitPrice } =
+        newTradeOrder;
       if (!portfolio) {
         return;
       }
       const transactionReference = getUniqueReference();
-
       const apiResponse = await handleAPITrade({
         variables: {
           ...newTradeOrder,
           reportFxRate,
           accountFxRate,
-          fxRate,
-          unitPrice: unitPrice !== undefined ? unitPrice : "AUTO",
+          autoUnitPrice: unitPrice === undefined,
+          unitPrice,
           transactionDate: new Date(),
           transactionTypeCode: getTradeTypeForAPI(tradeType),
           reference: transactionReference,
@@ -152,18 +147,20 @@ export const useTrade = (
 
 const handleBadAPIResponse = (
   apiResponse: FetchResult<
-    ImportTradeOrderQueryResponse,
+    importLimitedTradeOrderQueryResponse,
     Record<string, unknown>,
     Record<string, unknown>
   >
 ) => {
-  if (!apiResponse.data || !apiResponse.data.importTradeOrder?.[0]) {
+  if (!apiResponse.data || !apiResponse.data.importLimitedTradeOrder?.[0]) {
     throw new Error("Empty response");
   }
 
-  if (apiResponse.data.importTradeOrder[0].importStatus === errorStatus) {
+  if (
+    apiResponse.data.importLimitedTradeOrder[0].importStatus === errorStatus
+  ) {
     let errorMessage = "Bad request: \n";
-    Object.entries(apiResponse.data.importTradeOrder[0]).forEach(
+    Object.entries(apiResponse.data.importLimitedTradeOrder[0]).forEach(
       ([key, value]) => {
         if (value.includes("ERROR") && key !== "importStatus") {
           errorMessage += `${key}: ${value}; \n`;
