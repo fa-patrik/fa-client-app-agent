@@ -1,32 +1,70 @@
-import { Portfolio, PortfolioGroups } from "api/common/useGetContactInfo";
+import {
+  Portfolio,
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
-import { isPortfolioInGroup, isPortfolioOptionInGroup } from "./common";
+import { isPortfolioEligible, isPortfolioOptionEligible } from "./common";
 import { PermissionMode, usePermission } from "./usePermission";
 
-export const isPortfolioDepositable = (portfolio: Portfolio) => {
-  return isPortfolioInGroup(portfolio, PortfolioGroups.DEPOSIT);
+export const isPortfolioDepositable = (
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+  portfolio: Portfolio,
+  linkedContact: string | undefined
+) => {
+  return isPortfolioEligible(
+    contactRepresentativeTags,
+    portfolio,
+    linkedContact,
+    PortfolioGroups.DEPOSIT,
+    RepresentativeTag.DEPOSIT
+  );
 };
 
 export const isPortfolioOptionDepositable = (
-  portfolioOption: PortfolioOption
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+  portfolioOption: PortfolioOption,
+  linkedContact: string | undefined
 ) => {
-  const isDepositable =
-    portfolioOption.details && isPortfolioDepositable(portfolioOption.details);
-  if (isDepositable) return true;
-  return false;
+  return isPortfolioOptionEligible(
+    contactRepresentativeTags,
+    portfolioOption,
+    linkedContact,
+    PortfolioGroups.DEPOSIT,
+    RepresentativeTag.DEPOSIT
+  );
 };
 
 export const useCanDeposit = () => {
   return usePermission(PermissionMode.ANY, isPortfolioDepositable);
 };
 
-export const isPortfolioWithdrawable = (portfolio: Portfolio) =>
-  isPortfolioInGroup(portfolio, PortfolioGroups.WITHDRAW);
+export const isPortfolioWithdrawable = (
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+  portfolio: Portfolio,
+  linkedContact: string | undefined
+) => {
+  return isPortfolioEligible(
+    contactRepresentativeTags,
+    portfolio,
+    linkedContact,
+    PortfolioGroups.WITHDRAW,
+    RepresentativeTag.WITHDRAW
+  );
+};
 
 export const isPortfolioOptionWithdrawable = (
-  portfolioOption: PortfolioOption
+  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+  portfolioOption: PortfolioOption,
+  linkedContact: string | undefined
 ) => {
-  return isPortfolioOptionInGroup(portfolioOption, PortfolioGroups.WITHDRAW);
+  return isPortfolioOptionEligible(
+    contactRepresentativeTags,
+    portfolioOption,
+    linkedContact,
+    PortfolioGroups.WITHDRAW,
+    RepresentativeTag.WITHDRAW
+  );
 };
 
 export const useCanWithdraw = () => {

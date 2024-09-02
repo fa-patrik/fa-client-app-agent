@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { RepresentativeTag } from "api/common/useGetContactInfo";
 import { SecurityGroup } from "api/types";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
@@ -20,12 +21,18 @@ export const useTradablePortfolioSelect = (
     : CLIENT_PORTAL_SECURITY_GROUP_PREFIX;
   //if securityGroups is provided, then check
   //1) portfolio is tradable
-  //2) portfolio has the linked the security groups.
+  //2) portfolio is linked to the security groups.
   const canTradeSecurityGroups = useCallback(
-    (portfolioOption: PortfolioOption) => {
+    (
+      contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+      portfolioOption: PortfolioOption,
+      linkedContact: string | undefined
+    ) => {
       return (
         !!securityGroups &&
         canPortfolioOptionTradeSecurity(
+          contactRepresentativeTags,
+          linkedContact,
           portfolioOption,
           securityGroups,
           groupPrefix

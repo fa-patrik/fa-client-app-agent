@@ -1,3 +1,4 @@
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import classNames from "classnames";
@@ -5,6 +6,8 @@ import { Badge, Card } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useGetContractIdData } from "providers/ContractIdProvider";
+import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 import {
@@ -86,6 +89,10 @@ const Order = ({
   isAnyOrderCancellable,
   onCancelOrderModalOpen,
 }: OrderProps) => {
+  const { linkedContact } = useKeycloak();
+  const { selectedContactId } = useGetContractIdData();
+  const representativeTags = useGetContactInfo(false, selectedContactId)?.data
+    ?.representativeTags;
   const isLgVersion = useMatchesBreakpoint("lg");
   const { t, i18n } = useModifiedTranslation();
 
@@ -110,7 +117,11 @@ const Order = ({
 
   const portfolioAllowedToCancel =
     orderParentPortfolio &&
-    isPortfolioAllowedToCancelOrder(orderParentPortfolio);
+    isPortfolioAllowedToCancelOrder(
+      representativeTags,
+      orderParentPortfolio,
+      linkedContact
+    );
 
   const TypeBadge = () => {
     return (

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import {
   PortfolioMonthlySavingsDTOInput,
   useSetMonthlySavings,
@@ -12,6 +13,7 @@ import { useFilteredPortfolioSelect } from "components/TradingModals/useFiltered
 import { getPortfolioOption } from "hooks/useGetPortfolioOptions";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
+import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
 import {
@@ -42,8 +44,11 @@ import {
  * and a button to add a new one.
  */
 const MsStepZero = () => {
-  const { access } = useKeycloak();
+  const { selectedContactId } = useGetContractIdData();
+  const { access, linkedContact } = useKeycloak();
   const { setWizardData, wizardData } = useWizard();
+  const contactRepresentativeTags = useGetContactInfo(false, selectedContactId)
+    .data?.representativeTags;
   const {
     data: portfolioData,
     refetch: refetchPortfolioData,
@@ -142,8 +147,9 @@ const MsStepZero = () => {
   const { portfolioOptions } = useFilteredPortfolioSelect(
     canPortfolioOptionMonthlySave
   );
-  const allowCreateNew =
-    portfolioOptions?.length !== portfoliosWithMonthlySavings?.length;
+  const allowCreateNew = portfolioOptions.some((o) => {
+    return !portfoliosWithMonthlySavings?.some((p) => p.id === o.id);
+  });
 
   const NoAccountWarning = ({ id }: { id: string }) => {
     return (
@@ -290,7 +296,13 @@ const MsStepZero = () => {
                   <div className="flex justify-between">
                     <Button
                       id={`monthlySavingsWizard-deletePlanButton-${portfolio.id}`}
-                      disabled={!canPortfolioMonthlySave(portfolio)}
+                      disabled={
+                        !canPortfolioMonthlySave(
+                          contactRepresentativeTags,
+                          portfolio,
+                          linkedContact
+                        )
+                      }
                       variant="Delete"
                       onClick={() => {
                         setTargetPortfolio(portfolio);
@@ -302,7 +314,13 @@ const MsStepZero = () => {
                       )}
                     </Button>
                     <Button
-                      disabled={!canPortfolioMonthlySave(portfolio)}
+                      disabled={
+                        !canPortfolioMonthlySave(
+                          contactRepresentativeTags,
+                          portfolio,
+                          linkedContact
+                        )
+                      }
                       onClick={() => editMonthlySavingsProfile(portfolio)}
                       id={`monthlySavingsWizard-editPlanButton-${portfolio.id}`}
                       variant="Secondary"
