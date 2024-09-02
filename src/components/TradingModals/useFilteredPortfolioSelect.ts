@@ -61,7 +61,7 @@ export const useFilteredPortfolioSelect = (
   const portfolioOptions = useGetPortfolioOptions(false);
   const { selectedContactId } = useGetContractIdData();
   const contactRepresentativeTags = useGetContactInfo(false, selectedContactId)
-    .data?.representativeTags;
+    ?.data?.representativeTags;
   const filteredOptions = filterPortfolioOptionsByFunction(
     contactRepresentativeTags,
     portfolioOptions,

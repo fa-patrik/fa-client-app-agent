@@ -48,7 +48,7 @@ const MsStepZero = () => {
   const { access, linkedContact } = useKeycloak();
   const { setWizardData, wizardData } = useWizard();
   const contactRepresentativeTags = useGetContactInfo(false, selectedContactId)
-    .data?.representativeTags;
+    ?.data?.representativeTags;
   const {
     data: portfolioData,
     refetch: refetchPortfolioData,

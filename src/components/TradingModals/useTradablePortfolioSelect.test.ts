@@ -1,13 +1,15 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { useGetPortfolioOptions } from "hooks/useGetPortfolioOptions";
+import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
 import { portfolioOptionsMock } from "test/mockData/portfolioOptions";
 import { useTradablePortfolioSelect } from "./useTradablePortfolioSelect";
+
 jest.mock("providers/KeycloakProvider", () => ({
-  useKeycloak: jest.fn(() => ({ access: { advisor: false } })),
+  useKeycloak: jest.fn(),
 }));
-//used by useGetPortfolioOptions
+
 jest.mock("api/common/useGetContactInfo", () => ({
   useGetContactInfo: jest.fn(() => ({ data: { portfolios: [] } })),
   PortfolioGroups: {
@@ -17,12 +19,23 @@ jest.mock("api/common/useGetContactInfo", () => ({
     TRADE: "CP_TRADING",
     HIDE: "CP_HIDE_PF",
     MONTHLY_INVESTMENTS: "CP_MONTHLYINVESTMENTS",
+    MONTHLY_SAVE: "CP_MONTHLYSAVINGS",
+  },
+  RepresentativeTag: {
+    CANCEL_ORDER: "Client portal: Cancel order",
+    DEPOSIT: "Client portal: Deposit",
+    WITHDRAW: "Client portal: Withdraw",
+    TRADE: "Client portal: Trade",
+    HIDE: "Client portal: Hide portfolio",
+    MONTHLY_INVESTMENTS: "Client portal: Monthly investments",
+    MONTHLY_SAVE: "Client portal: Monthly savings",
   },
 }));
-//used by useGetPortfolioOptions
+
 jest.mock("providers/ContractIdProvider", () => ({
-  useGetContractIdData: jest.fn(() => ({ selectedContactId: 1 })),
+  useGetContractIdData: jest.fn(),
 }));
+
 jest.mock("hooks/useGetPortfolioOptions");
 jest.mock("react-router-dom", () => ({
   useParams: jest.fn(),
@@ -32,6 +45,9 @@ describe("useTradablePortfolioSelect", () => {
   beforeEach(() => {
     (useGetPortfolioOptions as jest.Mock).mockReturnValue(portfolioOptionsMock);
     (useKeycloak as jest.Mock).mockReturnValue({ access: { advisor: false } });
+    (useGetContractIdData as jest.Mock).mockReturnValue({
+      selectedContactId: 1,
+    });
   });
 
   afterEach(() => {
