@@ -82,7 +82,7 @@ const Order = ({ order, onClick }: OrderProps) => {
             </div>
             <div className="float-right w-max text-center">
               <Badge
-                colorScheme={getTransactionColor(
+                severity={getTransactionColor(
                   order.type.amountEffect,
                   order.type.cashFlowEffect,
                   isPartOfSwitch

@@ -12,21 +12,21 @@ export interface QueryData<TData> {
  */
 export interface LimitedTradeOrderDTO {
   account: string;
-  amount: string;
+  amount: number;
   currency: string;
-  exceutionMethod: string;
+  executionMethod: number;
   extId: string;
-  fxRate: string;
+  fxRate: number;
   parentPortfolio: string;
   prefix: string;
   reference: string;
   security: string;
   settlementDate: string;
   status: string;
-  tradeAmount: string;
+  tradeAmount: number;
   transactionDate: string;
   type: string;
-  unitPrice: string;
+  unitPrice: number;
 }
 
 /**
@@ -82,6 +82,10 @@ export interface LimitedTradeOrderDTOInput {
    * Whether to populate fxRate with latest known fx rate.
    */
   autoFxRate?: boolean;
+  /**
+   * A comma separated list of tags.
+   */
+  tags?: string;
 }
 
 export interface LimitedSwitchBuyOrderDTOInput {
@@ -97,6 +101,10 @@ export interface LimitedSwitchBuyOrderDTOInput {
    * Identifier of the order. Must be unique in the portfolio.
    */
   reference: string;
+  /**
+   * A comma separated list of tags.
+   */
+  tags?: string;
 }
 
 /**

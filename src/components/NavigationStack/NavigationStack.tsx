@@ -13,8 +13,7 @@ import { NotFoundView } from "views/notFoundView/notFoundView";
  * and deducts which routes to expose to the user.
  */
 export const NavigationStack = () => {
-  const { linkedContact, impersonating } = useKeycloak();
-
+  const { linkedContact, access } = useKeycloak();
   const NoLinkedContactStack = () => {
     return (
       <PersistedApolloProvider>
@@ -43,7 +42,7 @@ export const NavigationStack = () => {
     );
   };
 
-  if (impersonating) return <ImpersonationStack />;
+  if (access.impersonate) return <ImpersonationStack />;
 
   if (linkedContact) return <DefaultStack />;
 

@@ -2,54 +2,20 @@ import { useMemo, useState } from "react";
 import {
   Portfolio,
   PortfolioGroups,
+  RepresentativeTag,
   useGetContactInfo,
 } from "api/common/useGetContactInfo";
 import { useGetTradebleSecurities } from "api/trading/useGetTradebleSecurities";
 import { SecurityGroup } from "api/types";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import { isPortfolioInGroup, isPortfolioOptionInGroup } from "./common";
+import { useKeycloak } from "providers/KeycloakProvider";
+import { PermissionMode, useFeature } from "./usePermission";
 
 export const CLIENT_PORTAL_SECURITY_GROUP_PREFIX = "CP_";
+export const CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX = "ADV_";
 export const tradableTag = "Tradeable";
 export const switchableTag = "Switchable";
-
-//Monthly investments
-export const canPortfolioMonthlyInvest = (portfolio: Portfolio) => {
-  return isPortfolioInGroup(portfolio, PortfolioGroups.MONTHLY_INVESTMENTS);
-};
-
-export const canPortfolioOptionMonthlyInvest = (
-  portfolioOption: PortfolioOption
-) => {
-  return isPortfolioOptionInGroup(
-    portfolioOption,
-    PortfolioGroups.MONTHLY_INVESTMENTS
-  );
-};
-
-//Monthly savings
-export const canPortfolioMonthlySave = (portfolio: Portfolio) => {
-  return isPortfolioInGroup(portfolio, PortfolioGroups.MONTHLY_SAVINGS);
-};
-
-export const canPortfolioOptionMonthlySave = (
-  portfolioOption: PortfolioOption
-) => {
-  return isPortfolioOptionInGroup(
-    portfolioOption,
-    PortfolioGroups.MONTHLY_SAVINGS
-  );
-};
-
-//Does the portfolio have the ability to trade
-export const canPortfolioTrade = (portfolio: Portfolio) => {
-  return isPortfolioInGroup(portfolio, PortfolioGroups.TRADE);
-};
-
-export const canPortfolioOptionTrade = (portfolioOption: PortfolioOption) => {
-  return isPortfolioOptionInGroup(portfolioOption, PortfolioGroups.TRADE);
-};
 
 type Security = {
   groups: SecurityGroup[];
@@ -67,12 +33,13 @@ export const isSecuritySwitchable = (tags: string[]) => {
 //In which securities can it trade (linked security groups starting with CP_)
 export const isPortfolioLinkedToSecurityGroups = (
   portfolio: Portfolio,
-  securityGroups: SecurityGroup[]
+  securityGroups: SecurityGroup[] | undefined,
+  groupPrefix: string
 ) => {
   try {
     return portfolio?.securityGroups?.some((sg) => {
-      if (sg.code?.startsWith(CLIENT_PORTAL_SECURITY_GROUP_PREFIX)) {
-        return securityGroups.some(
+      if (sg.code?.startsWith(groupPrefix)) {
+        return securityGroups?.some(
           (securityGroup) => sg.code === securityGroup.code
         );
       }
@@ -84,10 +51,13 @@ export const isPortfolioLinkedToSecurityGroups = (
   }
 };
 
-export const isPortfolioLinkedToAnySecurityGroup = (portfolio: Portfolio) => {
+export const isPortfolioLinkedToAnySecurityGroup = (
+  portfolio: Portfolio,
+  groupPrefix: string
+) => {
   try {
     return portfolio?.securityGroups?.some((sg) =>
-      sg.code.startsWith(CLIENT_PORTAL_SECURITY_GROUP_PREFIX)
+      sg.code.startsWith(groupPrefix)
     );
   } catch (e) {
     console.error(e);
@@ -97,13 +67,15 @@ export const isPortfolioLinkedToAnySecurityGroup = (portfolio: Portfolio) => {
 
 export const canPortfolioOptionTradeSecurity = (
   portfolioOption: PortfolioOption,
-  securityGroups: SecurityGroup[]
+  securityGroups: SecurityGroup[] | undefined,
+  groupPrefix: string
 ) => {
   try {
     if (!portfolioOption.details) return false; //no data available
     return canPortfolioTradeSecurityGroups(
       portfolioOption.details,
-      securityGroups
+      securityGroups,
+      groupPrefix
     );
   } catch (e) {
     console.error(e);
@@ -113,20 +85,20 @@ export const canPortfolioOptionTradeSecurity = (
 
 export const canPortfolioTradeSecurityGroups = (
   portfolio: Portfolio,
-  securityGroups: SecurityGroup[]
+  securityGroups: SecurityGroup[] | undefined,
+  groupPrefix: string
 ) => {
   try {
-    if (isPortfolioInGroup(portfolio, PortfolioGroups.TRADE)) {
-      if (!isPortfolioLinkedToAnySecurityGroup(portfolio)) {
-        //can trade all securities
-        return true;
-      } else {
-        //can trade linked securities
-        return isPortfolioLinkedToSecurityGroups(portfolio, securityGroups);
-      }
+    if (!isPortfolioLinkedToAnySecurityGroup(portfolio, groupPrefix)) {
+      //can trade all securities
+      return true;
     } else {
-      //can't trade
-      return false;
+      //can trade linked securities
+      return isPortfolioLinkedToSecurityGroups(
+        portfolio,
+        securityGroups,
+        groupPrefix
+      );
     }
   } catch (e) {
     console.error(e);
@@ -136,19 +108,21 @@ export const canPortfolioTradeSecurityGroups = (
 
 export const canPortfolioTradeSecurity = (
   portfolio: Portfolio,
-  security: Security
+  security: Security,
+  groupPrefix: string
 ) => {
   try {
-    if (
-      isPortfolioInGroup(portfolio, PortfolioGroups.TRADE) &&
-      isSecurityTradable(security.tagsAsSet)
-    ) {
-      if (!isPortfolioLinkedToAnySecurityGroup(portfolio)) {
+    if (isSecurityTradable(security.tagsAsSet)) {
+      if (!isPortfolioLinkedToAnySecurityGroup(portfolio, groupPrefix)) {
         //can trade all securities
         return true;
       } else {
         //can trade linked securities
-        return isPortfolioLinkedToSecurityGroups(portfolio, security.groups);
+        return isPortfolioLinkedToSecurityGroups(
+          portfolio,
+          security.groups,
+          groupPrefix
+        );
       }
     } else {
       //can't trade
@@ -176,6 +150,15 @@ export const useGetPermittedSecurities = (
   options?: GetTradableSecuritiesProps,
   portfolioId?: number
 ) => {
+  const { canPf: canPfTrade } = useFeature(
+    PortfolioGroups.TRADE,
+    RepresentativeTag.TRADE,
+    PermissionMode.SELECTED_ANY
+  );
+  const { access } = useKeycloak();
+  const groupPrefix = access.advisor
+    ? CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX
+    : CLIENT_PORTAL_SECURITY_GROUP_PREFIX;
   const [loading, setLoading] = useState(false);
   const { selectedContactId } = useGetContractIdData();
   const {
@@ -183,7 +166,6 @@ export const useGetPermittedSecurities = (
     loading: loadingContactData,
     error: contactError,
   } = useGetContactInfo(false, selectedContactId);
-
   const {
     filters,
     setFilters,
@@ -199,15 +181,23 @@ export const useGetPermittedSecurities = (
   const tradable = useMemo(() => {
     setLoading(true);
     try {
-      const result = securities
-        ? portfolio
-          ? securities.filter((s) => canPortfolioTradeSecurity(portfolio, s))
-          : securities.filter((s) =>
-              contactData?.portfolios?.some((p) =>
-                canPortfolioTradeSecurity(p, s)
-              )
+      let result;
+      if (securities) {
+        if (portfolio && canPfTrade(portfolio)) {
+          result = securities.filter((s) =>
+            canPortfolioTradeSecurity(portfolio, s, groupPrefix)
+          );
+        } else {
+          result = securities.filter((s) =>
+            contactData?.portfolios?.some(
+              (p) =>
+                canPfTrade(p) && canPortfolioTradeSecurity(p, s, groupPrefix)
             )
-        : undefined;
+          );
+        }
+      } else {
+        result = undefined;
+      }
       setLoading(false);
       return result;
     } catch (e) {
@@ -215,7 +205,7 @@ export const useGetPermittedSecurities = (
       setLoading(false);
       return undefined;
     }
-  }, [contactData?.portfolios, portfolio, securities]);
+  }, [securities, portfolio, canPfTrade, groupPrefix, contactData?.portfolios]);
   return {
     filterOptions,
     filters,
@@ -229,8 +219,13 @@ export const useGetPermittedSecurities = (
 export const useGetLinkedSecurities = (portfolioId?: number) => {
   const { selectedContactId } = useGetContractIdData();
   const { data: contactData } = useGetContactInfo(false, selectedContactId);
+  const { access } = useKeycloak();
+  const groupPrefix = access.advisor
+    ? CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX
+    : CLIENT_PORTAL_SECURITY_GROUP_PREFIX;
   const portfolioToTradableSecuritiesMap = getPortfolioToTradableSecuritiesMap(
-    contactData?.portfolios
+    contactData?.portfolios,
+    groupPrefix
   );
   const securityIdsDistinct = useMemo(() => {
     if (portfolioId)
@@ -250,13 +245,14 @@ export const useGetLinkedSecurities = (portfolioId?: number) => {
  * @returns a map [portfolioId: [securityId, securityId, ...]]
  */
 export const getPortfolioToTradableSecuritiesMap = (
-  portfolios: Portfolio[] | undefined
+  portfolios: Portfolio[] | undefined,
+  groupPrefix: string
 ) => {
   if (!portfolios) return new Map<Portfolio["id"], number[]>();
   const result = new Map<Portfolio["id"], number[]>();
   portfolios.forEach((portfolio) => {
     const tradableSecurities = portfolio.securityGroups
-      .filter((sg) => sg.code.startsWith(CLIENT_PORTAL_SECURITY_GROUP_PREFIX))
+      .filter((sg) => sg.code.startsWith(groupPrefix))
       .map((sg) => sg.securities)
       .flat();
     result.set(
@@ -282,9 +278,16 @@ export const useCanTradeSecurities = (
   const portfolio = portfolioId
     ? contactData?.portfolios.find((p) => p.id === portfolioId)
     : undefined;
+
+  const { canPf: canPfTrade } = useFeature(
+    PortfolioGroups.TRADE,
+    RepresentativeTag.TRADE,
+    PermissionMode.SELECTED_ANY
+  );
+
   const isPortfolioTradable = useMemo(() => {
-    return portfolio ? canPortfolioTrade(portfolio) : false;
-  }, [portfolio]);
+    return portfolio ? canPfTrade(portfolio) : false;
+  }, [canPfTrade, portfolio]);
   const tradableHoldings = useMemo(() => {
     if (portfolio && !isPortfolioTradable) {
       return [];

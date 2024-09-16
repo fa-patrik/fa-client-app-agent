@@ -1,3 +1,7 @@
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { useDownloadDocument } from "api/documents/useDownloadDocument";
 import { TradeOrderDetails } from "api/orders/types";
@@ -14,9 +18,9 @@ import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate } from "react-router";
 import {
   isStatusCancellable,
-  isPortfolioAllowedToCancelOrder,
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
@@ -37,8 +41,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
   const { t, i18n } = useModifiedTranslation();
   const { downloadDocument, downloading } = useDownloadDocument();
   const navigate = useNavigate();
-  const { readonly } = useKeycloak();
-
+  const { access } = useKeycloak();
   const {
     Modal,
     onOpen: onCancelOrderModalOpen,
@@ -68,9 +71,13 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
         ? switchDetails?.fromOrder?.type.typeCode
         : order.type.typeCode
     );
+  const { canPf: canPfCancelOrder } = useFeature(
+    PortfolioGroups.CANCEL_ORDER,
+    RepresentativeTag.CANCEL_ORDER,
+    PermissionMode.SELECTED
+  );
   const portfolioAllowedToCancel =
-    orderParentPortfolio &&
-    isPortfolioAllowedToCancelOrder(orderParentPortfolio);
+    orderParentPortfolio && canPfCancelOrder(orderParentPortfolio);
 
   return (
     <PageLayout>
@@ -80,7 +87,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
             <InfoCard
               label={t("transactionsPage.type")}
               value={getOrderTypeName(order, t, i18n.language)}
-              colorScheme={getTransactionColor(
+              severity={getTransactionColor(
                 order.type.amountEffect,
                 order.type.cashFlowEffect,
                 isPartOfSwitch
@@ -383,7 +390,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                   <Button
                     isFullWidth
                     variant="Red"
-                    disabled={readonly}
+                    disabled={!access.cancelOrder}
                     onClick={() =>
                       onCancelOrderModalOpen({
                         order: order,
@@ -442,7 +449,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
             <Button
               isFullWidth
               variant="Red"
-              disabled={readonly}
+              disabled={!access.cancelOrder}
               onClick={() =>
                 onCancelOrderModalOpen({
                   order: order,

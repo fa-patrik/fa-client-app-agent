@@ -30,6 +30,10 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
     parentPortfolios {
       id
     }
+    representativeTags {
+      portfolioAssetManagers
+      portfolioContacts
+    }
     portfolios {
       id
       name
@@ -51,6 +55,10 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
           id
         }
       }
+      representativeTags {
+        portfolioAssetManagers
+        portfolioContacts
+      }
     }
   }
 `;
@@ -66,8 +74,8 @@ export const CONTACT_INFO_QUERY = gql`
         locale
       }
       representees(onlyDirectRepresentees: true) {
-        name
         id
+        name
         contactId
         portfolios {
           ...PortfolioBasicFields
@@ -77,14 +85,11 @@ export const CONTACT_INFO_QUERY = gql`
           contactId
         }
       }
-      assetManagerPortfolios {
-        primaryContact {
-          contactId
-          name
-        }
-      }
       portfolios {
         ...PortfolioBasicFields
+      }
+      representativeTags {
+        representatives
       }
     }
   }
@@ -96,6 +101,11 @@ export enum PortfolioStatus {
   Closed = "C",
 }
 
+/**
+ * Portfolio groups that can be assigned to a Portfolio.
+ * If a portfolio is in a group, the logged in user can perform
+ * certain actions on that portfolio.
+ */
 export enum PortfolioGroups {
   CANCEL_ORDER = "CP_CANCEL",
   DEPOSIT = "CP_DEPOSIT",
@@ -104,6 +114,23 @@ export enum PortfolioGroups {
   HIDE = "CP_HIDE_PF",
   MONTHLY_INVESTMENTS = "CP_MONTHLYINVESTMENTS",
   MONTHLY_SAVINGS = "CP_MONTHLYSAVINGS",
+}
+
+/**
+ * Tags that can be assigned in FA Back to describe the linkage Contact -> Contact and
+ * Contact -> Portfolio. They are used to govern what the logged in user is allowed
+ * to do for each Contact and Portfolio it can see in the Client portal. This allows
+ * more fine-grained control compared to the PortfolioGroups. While PortfolioGroups
+ * enables a functionality for all users, the RepresentativeTags is user specific.
+ */
+export enum RepresentativeTag {
+  CANCEL_ORDER = "Client portal:Cancel order",
+  DEPOSIT = "Client portal:Deposit",
+  WITHDRAW = "Client portal:Withdraw",
+  TRADE = "Client portal:Trade",
+  HIDE = "Client portal:Hide",
+  MONTHLY_INVESTMENTS = "Client portal:Monthly investments",
+  MONTHLY_SAVINGS = "Client portal:Monthly savings",
 }
 
 export interface PortfolioGroup {
@@ -141,6 +168,10 @@ export interface Portfolio {
   };
   portfolioGroups: PortfolioGroup[];
   securityGroups: SecurityGroup[];
+  representativeTags: {
+    portfolioAssetManagers: Record<string, RepresentativeTag>;
+    portfolioContacts: Record<string, RepresentativeTag>;
+  };
 }
 
 export interface ContactInfoQuery {
@@ -149,11 +180,13 @@ export interface ContactInfoQuery {
     contactId: string;
     name: string;
     representees: Representee[];
-    assetManagerPortfolios: AssetManagerPortfolios[];
     language: {
       locale: string;
     };
     portfolios?: Portfolio[];
+    representativeTags: {
+      representatives: Record<string, RepresentativeTag>;
+    };
   };
 }
 
@@ -180,6 +213,7 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
     loading: loading,
     error: error,
     data: data && {
+      id: data?.contact?.id,
       contactId: data?.contact?.id,
       _contactId: data?.contact?.contactId,
       portfolios: activeAndPassivePortfolios,
@@ -188,7 +222,7 @@ export const useGetContactInfo = (callAPI = false, id?: string | number) => {
       portfoliosCurrency:
         activeAndPassivePortfolios?.[0]?.currency?.securityCode,
       representees: data?.contact?.representees,
-      assetManagerPortfolios: data?.contact?.assetManagerPortfolios,
+      representativeTags: data?.contact?.representativeTags?.representatives,
       name: data?.contact?.name,
     },
     refetch,

@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { Portfolio } from "api/common/useGetContactInfo";
+import {
+  Portfolio,
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import {
   PortfolioWithProfileAndFigures,
   useGetPortfoliosWithProfileAndFigures,
@@ -17,15 +21,14 @@ import {
   ErrorMessage,
   LoadingIndicator,
 } from "components";
+import { Severity } from "components/Alert/Alert";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
-import {
-  canPortfolioMonthlyInvest,
-  canPortfolioOptionMonthlyInvest,
-} from "services/permissions/trading";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
+import { getNumberOfOptions } from "utils/faBackProfiles/common";
 import {
   MonthlyInvestments,
   MonthlyInvestmentsFieldId,
@@ -46,7 +49,7 @@ import { MonthlyInvestmentsWizardState } from "../types";
  */
 const StepZero = () => {
   const [isMounted, setIsMounted] = useState(true);
-  const { impersonating } = useKeycloak();
+  const { access } = useKeycloak();
   const { wizardData, setWizardData } = useWizard<
     MonthlyInvestmentsWizardState | undefined
   >();
@@ -173,14 +176,19 @@ const StepZero = () => {
     !portfolioData &&
     !Object.keys(securities)?.length;
 
-  /**
-   * If all eligible portfolios already have an investment plan
-   */
-  const { portfolioOptions } = useFilteredPortfolioSelect(
-    canPortfolioOptionMonthlyInvest
-  );
+  const { canPfOption: canPfOptionMonthlyInvest, canPf: canPfMonthlyInvest } =
+    useFeature(
+      PortfolioGroups.MONTHLY_INVESTMENTS,
+      RepresentativeTag.MONTHLY_INVESTMENTS,
+      PermissionMode.ANY
+    );
+
+  const { portfolioOptions: portfolioOptionsThatCanMonthlyInvest } =
+    useFilteredPortfolioSelect(canPfOptionMonthlyInvest);
+
   const allowCreateNew =
-    portfolioOptions?.length !== portfoliosWithMonthlyInvestments?.length;
+    getNumberOfOptions(portfolioOptionsThatCanMonthlyInvest) >
+    (portfoliosWithMonthlyInvestments?.length ?? 0);
 
   const AddNewPlanButton = ({ disabled }: { disabled?: boolean }) => (
     <Button
@@ -322,7 +330,7 @@ const StepZero = () => {
                     <div className="flex justify-between">
                       <Button
                         id={`monthlyInvestmentsWizard-deletePlanButton-${index}`}
-                        disabled={!canPortfolioMonthlyInvest(portfolio)}
+                        disabled={!canPfMonthlyInvest(portfolio)}
                         variant="Delete"
                         onClick={() => {
                           setTargetPortfolio(portfolio);
@@ -334,7 +342,7 @@ const StepZero = () => {
                         )}
                       </Button>
                       <Button
-                        disabled={!canPortfolioMonthlyInvest(portfolio)}
+                        disabled={!canPfMonthlyInvest(portfolio)}
                         onClick={() => editMonthlyInvestmentsProfile(portfolio)}
                         id={`monthlyInvestmentsWizard-editPlanButton-${index}`}
                         variant="Secondary"
@@ -369,7 +377,7 @@ const StepZero = () => {
             setIsOpen={setConfirmDialogOpen}
             loading={loadingDelete}
             confirmButtonVariant="Red"
-            disabled={impersonating}
+            disabled={!access.buy}
           />
         </div>
         <WizardBottomNavigationReplica>
@@ -381,7 +389,7 @@ const StepZero = () => {
     return (
       <div className="flex w-full h-full">
         <div className="m-auto max-w-xs">
-          <Badge colorScheme="blue">
+          <Badge severity={Severity.Info}>
             <p
               className="p-4 m-auto text-lg font-normal"
               id="monthlyInvestmentsWizard-noPlansLabel"

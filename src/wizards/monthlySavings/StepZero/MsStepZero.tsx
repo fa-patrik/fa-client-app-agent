@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
+import {
   PortfolioMonthlySavingsDTOInput,
   useSetMonthlySavings,
 } from "api/money/useSetMonthlySavings";
 import { ReactComponent as ExclamationIcon } from "assets/exclamation-circle.svg";
 import { ReactComponent as PlusIcon } from "assets/plus-circle.svg";
 import { Badge, Button, Card, LoadingIndicator } from "components";
+import { Severity } from "components/Alert/Alert";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { getPortfolioOption } from "hooks/useGetPortfolioOptions";
@@ -13,11 +18,11 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import {
-  canPortfolioMonthlySave,
-  canPortfolioOptionMonthlySave,
-} from "services/permissions/trading";
-import { getDefaultValueAsNumber } from "utils/faBackProfiles/common";
+  getDefaultValueAsNumber,
+  getNumberOfOptions,
+} from "utils/faBackProfiles/common";
 import {
   MonthlySavings,
   MonthlySavingsFieldId,
@@ -41,7 +46,7 @@ import {
  * and a button to add a new one.
  */
 const MsStepZero = () => {
-  const { impersonating } = useKeycloak();
+  const { access } = useKeycloak();
   const { setWizardData, wizardData } = useWizard();
   const {
     data: portfolioData,
@@ -138,11 +143,19 @@ const MsStepZero = () => {
   };
 
   const loading = loadingPortfolioData && !portfoliosWithMonthlySavings;
-  const { portfolioOptions } = useFilteredPortfolioSelect(
-    canPortfolioOptionMonthlySave
-  );
+  const { canPfOption: canPfOptionMonthlySave, canPf: canPfMonthlySave } =
+    useFeature(
+      PortfolioGroups.MONTHLY_SAVINGS,
+      RepresentativeTag.MONTHLY_SAVINGS,
+      PermissionMode.ANY
+    );
+
+  const { portfolioOptions: portfolioOptionsThatCanMonthlySave } =
+    useFilteredPortfolioSelect(canPfOptionMonthlySave);
+
   const allowCreateNew =
-    portfolioOptions?.length !== portfoliosWithMonthlySavings?.length;
+    getNumberOfOptions(portfolioOptionsThatCanMonthlySave) >
+    (portfoliosWithMonthlySavings?.length ?? 0);
 
   const NoAccountWarning = ({ id }: { id: string }) => {
     return (
@@ -289,7 +302,7 @@ const MsStepZero = () => {
                   <div className="flex justify-between">
                     <Button
                       id={`monthlySavingsWizard-deletePlanButton-${portfolio.id}`}
-                      disabled={!canPortfolioMonthlySave(portfolio)}
+                      disabled={!canPfMonthlySave(portfolio)}
                       variant="Delete"
                       onClick={() => {
                         setTargetPortfolio(portfolio);
@@ -301,7 +314,7 @@ const MsStepZero = () => {
                       )}
                     </Button>
                     <Button
-                      disabled={!canPortfolioMonthlySave(portfolio)}
+                      disabled={!canPfMonthlySave(portfolio)}
                       onClick={() => editMonthlySavingsProfile(portfolio)}
                       id={`monthlySavingsWizard-editPlanButton-${portfolio.id}`}
                       variant="Secondary"
@@ -330,7 +343,7 @@ const MsStepZero = () => {
             setIsOpen={setConfirmDialogOpen}
             loading={loadingDelete}
             confirmButtonVariant="Red"
-            disabled={impersonating}
+            disabled={!access.deposit}
           />
         </div>
         <WizardBottomNavigationReplica>
@@ -342,7 +355,7 @@ const MsStepZero = () => {
     return (
       <div className="flex w-full h-full">
         <div className="m-auto max-w-sm">
-          <Badge colorScheme="blue">
+          <Badge severity={Severity.Info}>
             <p
               className="p-4 m-auto text-lg font-normal"
               id="monthlySavingsWizard-noPlansInfo"

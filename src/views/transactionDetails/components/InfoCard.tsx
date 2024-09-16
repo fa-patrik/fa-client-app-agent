@@ -1,36 +1,35 @@
 import { ReactNode } from "react";
 import classNames from "classnames";
 import { Card } from "components";
-
-type ColorScheme = "gray" | "green" | "red" | "blue";
+import { Severity } from "components/Alert/Alert";
 
 interface InfoCardProps {
   label: string;
   value: ReactNode;
-  colorScheme?: ColorScheme;
+  severity?: Severity;
   onClick?: () => void;
 }
 
 export const InfoCard = ({
   label,
   value,
-  colorScheme,
+  severity,
   onClick,
 }: InfoCardProps) => (
   <Card onClick={onClick}>
     <div
       className={classNames("p-2 h-full", {
-        "bg-primary-50": colorScheme === "blue",
-        "bg-red-50": colorScheme === "red",
-        "bg-green-50": colorScheme === "green",
+        "bg-primary-50": severity === Severity.Info,
+        "bg-red-50": severity === Severity.Error,
+        "bg-green-50": severity === Severity.Success,
       })}
     >
       <div className="text-sm font-normal">{label}</div>
       <div
         className={classNames("text-xl font-semibold", {
-          "text-primary-500": colorScheme === "blue",
-          "text-red-500": colorScheme === "red",
-          "text-green-500": colorScheme === "green",
+          "text-primary-500": severity === Severity.Info,
+          "text-red-500": severity === Severity.Error,
+          "text-green-500": severity === Severity.Success,
         })}
       >
         {value}

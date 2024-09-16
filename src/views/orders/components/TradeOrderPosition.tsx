@@ -39,7 +39,7 @@ export const TradeOrderPosition = ({
         ${t("date", { date: dateFromYYYYMMDD(transactionDate) })} - ${
           transactionParentPortfolio?.name
         }`}</div>
-        <Badge colorScheme={getTransactionColor(amountEffect, cashFlowEffect)}>
+        <Badge severity={getTransactionColor(amountEffect, cashFlowEffect)}>
           {getNameFromBackendTranslations(
             typeName,
             i18n.language,

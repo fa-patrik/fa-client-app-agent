@@ -41,6 +41,15 @@ export const CashAccountSelect = ({
     currency: internalCurrency = "EUR",
   } = currentInternalCashAccount || {};
 
+  const fromAccount = isDeposit
+    ? currentExternalCashAccount
+    : currentInternalCashAccount;
+  const fromOptions = isDeposit ? externalCashAccounts : internalCashAccounts;
+  const toAccount = isDeposit
+    ? currentInternalCashAccount
+    : currentExternalCashAccount;
+  const toOptions = isDeposit ? internalCashAccounts : externalCashAccounts;
+
   return (
     <>
       {!portfolioId && (
@@ -51,7 +60,6 @@ export const CashAccountSelect = ({
           </span>
         </div>
       )}
-
       <PortfolioSelect
         portfolioOptions={portfolioOptions}
         portfolioId={portfolioId}
@@ -61,41 +69,28 @@ export const CashAccountSelect = ({
         label={t("moneyModal.portfolio")}
       />
 
-      {(!isDeposit || externalCashAccounts.length > 1) && (
-        // Selection for the "from" account; that means external account, if it's a deposit, and internal account, if it's a withdrawal.
-        // For withdrawals, the selection is shown always. For deposits, we don't want to show the selection if there
-        // are no selections to be made for external accounts (i.e. there's one or zero of them).
-        <ComboBox
-          value={
-            isDeposit ? currentExternalCashAccount : currentInternalCashAccount
-          }
-          onChange={
-            isDeposit
-              ? setCurrentExternalCashAccount
-              : setCurrentInternalCashAccount
-          }
-          options={isDeposit ? externalCashAccounts : internalCashAccounts}
-          label={t("moneyModal.fromAccount")}
-        />
-      )}
+      <ComboBox
+        value={fromAccount}
+        onChange={
+          isDeposit
+            ? setCurrentExternalCashAccount
+            : setCurrentInternalCashAccount
+        }
+        options={fromOptions}
+        label={t("moneyModal.fromAccount")}
+      />
 
-      {(isDeposit || externalCashAccounts.length > 1) && (
-        // Selection for the "to" account; that means internal account, if it's a deposit, and external account, if it's a withdrawal.
-        // For deposits, the selection is shown always. For withdrawals, we don't want to show the selection if there
-        // are no selections to be made for internal accounts (i.e. there's one or zero of them).
-        <ComboBox
-          value={
-            isDeposit ? currentInternalCashAccount : currentExternalCashAccount
-          }
-          onChange={
-            isDeposit
-              ? setCurrentInternalCashAccount
-              : setCurrentExternalCashAccount
-          }
-          options={isDeposit ? internalCashAccounts : externalCashAccounts}
-          label={t("moneyModal.toAccount")}
-        />
-      )}
+      <ComboBox
+        value={toAccount}
+        onChange={
+          isDeposit
+            ? setCurrentInternalCashAccount
+            : setCurrentExternalCashAccount
+        }
+        options={toOptions}
+        label={t("moneyModal.toAccount")}
+      />
+
       <div className="grid grid-cols-2 divide-x">
         <LabeledDiv
           label={t("moneyModal.currentBalance")}

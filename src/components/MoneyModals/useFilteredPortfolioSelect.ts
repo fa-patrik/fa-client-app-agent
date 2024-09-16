@@ -4,14 +4,13 @@ import { usePortfolioSelect } from "hooks/usePortfolioSelect";
 import { filterPortfolioOptionsByFunction } from "utils/options";
 
 export const useFilteredPortfolioSelect = (
-  filterFunction: (PortfolioOption: PortfolioOption) => boolean
+  filterFunction: (option: PortfolioOption) => boolean
 ) => {
   const { portfolioOptions, selectedPortfolioId } = usePortfolioSelect();
   const filteredPortfolioOptions = filterPortfolioOptionsByFunction(
     portfolioOptions,
     filterFunction
   );
-
   const [portfolioId, setPortfolioId] = useState(() => {
     if (
       filteredPortfolioOptions.some(

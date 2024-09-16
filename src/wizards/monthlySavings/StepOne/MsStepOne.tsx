@@ -1,13 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { ReactComponent as ExclamationIcon } from "assets/exclamation-circle.svg";
 import { Card, ComboBox, Input, LoadingIndicator } from "components";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
-import { canPortfolioOptionMonthlySave } from "services/permissions/trading";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { addMonthlySavingsToPortfolios } from "utils/faBackProfiles/monthlySavings";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
+import { filterPortfolioOptionsByFunction } from "utils/options";
 import OnError from "../components/OnError";
 import {
   getUniqueExternalAccounts,
@@ -40,9 +45,15 @@ const MsStepOne = () => {
     refetch: refetchPortfolioData,
     networkStatus,
   } = useGetPortfoliosProfileAndFiguresAndAccounts();
-  const { portfolioOptions, portfolioId } = useFilteredPortfolioSelect(
-    canPortfolioOptionMonthlySave
+
+  const { canPfOption: canPfOptionMonthlySave } = useFeature(
+    PortfolioGroups.MONTHLY_SAVINGS,
+    RepresentativeTag.MONTHLY_SAVINGS,
+    PermissionMode.ANY
   );
+
+  const { portfolioOptions: portfolioOptionsThatCanMonthlySave, portfolioId } =
+    useFilteredPortfolioSelect(canPfOptionMonthlySave);
 
   const portfoliosWithMonthlySavings = useMemo(() => {
     return portfolioData?.portfolios
@@ -50,23 +61,21 @@ const MsStepOne = () => {
       : [];
   }, [portfolioData?.portfolios]);
 
-  const filteredPortfolioOptions = useMemo(() => {
-    if (wizardData.data.isEditing) return portfolioOptions;
-    return portfolioOptions?.filter(
-      //all pf without a valid monthly savings plan
-      (o) => portfoliosWithMonthlySavings?.every((p) => p.id !== o.id)
+  const portfolioOptionsThatCanMonthlySaveAndHaveNoPlans = useMemo(() => {
+    const options = filterPortfolioOptionsByFunction(
+      portfolioOptionsThatCanMonthlySave,
+      (option) => !portfoliosWithMonthlySavings.some((p) => p.id === option.id)
     );
-  }, [
-    portfoliosWithMonthlySavings,
-    portfolioOptions,
-    wizardData.data.isEditing,
-  ]);
+    return options;
+  }, [portfolioOptionsThatCanMonthlySave, portfoliosWithMonthlySavings]);
 
   const [selectedPortfolioOption, setSelectedPortfolioOption] =
     useState<PortfolioOption>(
       wizardData?.data?.selectedPortfolioOption ||
-        filteredPortfolioOptions.find((o) => o.id === portfolioId) ||
-        filteredPortfolioOptions[0]
+        portfolioOptionsThatCanMonthlySaveAndHaveNoPlans.find(
+          (o) => o.id === portfolioId
+        ) ||
+        portfolioOptionsThatCanMonthlySaveAndHaveNoPlans[0]
     );
 
   const portfolio = portfolioData?.portfolios?.find(
@@ -178,7 +187,7 @@ const MsStepOne = () => {
             id="monthlySavingsWizard-portfolioSelector"
             label={t("wizards.monthlySavings.stepOne.portfolioInputLabel")}
             onChange={setSelectedPortfolioOption}
-            options={filteredPortfolioOptions}
+            options={portfolioOptionsThatCanMonthlySaveAndHaveNoPlans}
             value={selectedPortfolioOption}
             disabled={wizardData.data.isEditing ?? false}
           />

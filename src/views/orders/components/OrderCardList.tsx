@@ -1,5 +1,9 @@
 import { useRef } from "react";
 import { Disclosure, Transition } from "@headlessui/react";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import { ReactComponent as ChevronDown } from "assets/chevron-down.svg";
@@ -10,10 +14,10 @@ import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
-  isPortfolioAllowedToCancelOrder,
   isStatusCancellable,
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getOrderTypeName,
@@ -69,9 +73,15 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
         ? switchDetails?.fromOrder?.type.typeCode
         : order.type.typeCode
     );
+
+  const { canPf: canPfCancelOrder } = useFeature(
+    PortfolioGroups.CANCEL_ORDER,
+    RepresentativeTag.CANCEL_ORDER,
+    PermissionMode.SELECTED
+  );
+
   const portfolioAllowedToCancel =
-    orderParentPortfolio &&
-    isPortfolioAllowedToCancelOrder(orderParentPortfolio);
+    orderParentPortfolio && canPfCancelOrder(orderParentPortfolio);
 
   const canExpandCard =
     !isLocalOrder(order) || (orderCanBeCancelled && portfolioAllowedToCancel);
@@ -87,7 +97,7 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
       <div className="flex flex-row gap-x-1 justify-between p-2 w-full bg-gray-100 rounded-t-md border-b">
         <div className="w-fit">
           <Badge
-            colorScheme={getTransactionColor(
+            severity={getTransactionColor(
               order.type.amountEffect,
               order.type.cashFlowEffect,
               isPartOfSwitch
