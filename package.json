@@ -1,7 +1,7 @@
 {
   "name": "fa-client-app",
   "homepage": "",
-  "version": "1.10.0",
+  "version": "1.10.1-SNAPSHOT",
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.5.6",
