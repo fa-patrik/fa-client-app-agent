@@ -81,7 +81,7 @@ export const getMonthlyInvestmentsFromProfile = (
 /**
  * Parses the Profile of each portfolio and
  * extracts all fields related to the monthly investments profile
- * into a map like structure, that is easier to work with. Then
+ * into a map-like structure, that is easier to work with. Then
  * adds the map structure to the portfolio as a property
  * 'monthlyInvestments'.
  * @param portfolios portfolios with Profile
@@ -102,6 +102,12 @@ export function addMonthlyInvestmentsToPortfolios<
       const portfolioWithProfile = {
         ...currPortfolio,
         monthlyInvestments: monthlyInvestmentsProfile,
+        portfolios: currPortfolio.portfolios
+          ? addMonthlyInvestmentsToPortfolios(
+              currPortfolio.portfolios as PortfolioWithProfile[],
+              removePfWithIncompleteProfiles
+            )
+          : [],
       } as T & MonthlyInvestments;
 
       if (removePfWithIncompleteProfiles) {

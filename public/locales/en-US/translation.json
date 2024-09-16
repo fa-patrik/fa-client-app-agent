@@ -32,6 +32,19 @@
       "securityColumHeader": "Security",
       "percentageColumnHeader": "%",
       "amountColumnHeader": "Amount"
+    },
+    "accessBanner": {
+      "title": "Viewing {{contactName}}",
+      "subtitle": "You can"
+    },
+    "lineChart": {
+      "rangeOptions": {
+        "DAYS-6": "1W",
+        "MONTHS-1": "1M",
+        "MONTHS-3": "1Q",
+        "CALYEAR-0": "YTD",
+        "CALENDYEAR-0": "All"
+      }
     }
   },
   "userMenu": {
@@ -95,6 +108,7 @@
     "prospectus": "Prospectus",
     "kiid": "KID",
     "price": "Price",
+    "lineChartTooltipLabel": "Price",
     "security": "Security",
     "noHoldings": "No holdings",
     "performance1Y": "1Y performance",
@@ -269,7 +283,8 @@
     "depositSuccess": "Your deposit request was created successfully",
     "withdrawalSuccess": "Your withdrawal request was created successfully",
     "portfolio": "Portfolio",
-    "noPortfolioAvailable": "No portfolio available"
+    "noPortfolioAvailable": "No portfolio available",
+    "invalidAccountSelection": "Invalid account selection"
   },
   "tradingModal": {
     "securityName": "Security name",
@@ -575,6 +590,16 @@
     },
     "switchOrder": {
       "typeName": "Switch"
+    },
+    "access": {
+      "buy": "Buy",
+      "sell": "Sell",
+      "switch": "Switch",
+      "deposit": "Deposit",
+      "withdraw": "Withdraw",
+      "impersonate": "Impersonation",
+      "cancelOrder": "Cancel order",
+      "advisor": "Advisor"
     }
   }
 }

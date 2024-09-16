@@ -18,6 +18,7 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { getBackendTranslation } from "utils/backTranslations";
+import { getNumberOfOptions } from "utils/faBackProfiles/common";
 import { handleNumberInputEvent } from "utils/input";
 import { round, roundDown } from "utils/number";
 import {
@@ -98,7 +99,7 @@ export const SellModalContent = ({
 
   const {
     setPortfolioId,
-    portfolioOptions: portfolioOptionsThatCantTradeTheSecurity,
+    portfolioOptions: portfolioOptionsThatCanTradeTheSecurity,
     portfolioId,
   } = useTradablePortfolioSelect(security?.groups);
   const { portfolioOptions: portfolioOptionsThatCanTrade } =
@@ -245,7 +246,7 @@ export const SellModalContent = ({
     accountFxRate: calculatedAccountFxRate,
   });
 
-  const { readonly } = useKeycloak();
+  const { access } = useKeycloak();
 
   const loading = loadingPfReport && loadingSecurity && securityFxLoading;
 
@@ -317,7 +318,7 @@ export const SellModalContent = ({
 
   const disableSellButton = () => {
     return (
-      readonly ||
+      !access.sell ||
       inputAsNr === 0 ||
       loading ||
       !portfolioId ||
@@ -329,8 +330,8 @@ export const SellModalContent = ({
   };
 
   const areSomePortfoliosProhibitedToTradeTheSecurity =
-    portfolioOptionsThatCanTrade?.length !==
-    portfolioOptionsThatCantTradeTheSecurity?.length;
+    getNumberOfOptions(portfolioOptionsThatCanTradeTheSecurity) !==
+    getNumberOfOptions(portfolioOptionsThatCanTrade);
 
   return (
     <div className="grid gap-2 max-w-md min-w-[min(84vw,_375px)]">
@@ -354,7 +355,7 @@ export const SellModalContent = ({
 
       <div className="z-10">
         <PortfolioSelect
-          portfolioOptions={portfolioOptionsThatCantTradeTheSecurity}
+          portfolioOptions={portfolioOptionsThatCanTradeTheSecurity}
           portfolioId={portfolioId}
           onChange={(newPortfolio) => setPortfolioId(newPortfolio.id)}
           label={t("tradingModal.portfolio")}

@@ -81,19 +81,19 @@ Change REACT_APP_API_URL in the *.env* file to point towards your test environme
 
 #### Roles
 
-Finally, to be able to login and use FA Client Portal, a user must have one of the roles specified as "write-roles" or "impersonate-roles" in the *keycloak.json* configuration file. By default, the *keycloak.json* specifies the following roles from the FA Client Portal (fa-clientportal) keycloak client:
+Finally, to be able to login and use FA Client Portal, assign your user the below roles.
 
-* "write-roles": { "fa-clientportal": ["ROLE_CLIENT_ACCESS"] }
-* "impersonate-roles": { "fa-clientportal": ["ROLE_IMPERSONATE"] }
+##### Normal user- can log in as itself and execute all features on behalf of themselves
+* fa-clientportal: ROLE_CLIENT_ACCESS
+* fa-back: ROLE_CLIENT_PORTAL
 
-Write roles give normal access to FA Client Portal, while impersonate roles force a view-only mode where a user can impersonate Contacts/other users.
+##### Impersonating user- can impersonate someone else (view from their perspective) but cannot execute any features
+* fa-clientportal: ROLE_IMPERSONATE
+* fa-back: ROLE_CLIENT_PORTAL_IMPERSONATE
 
-Furthermore, the data a user can view and modify in the Client Portal is limited by FA Back's APIs. Therefore, a user should also have sufficient view and modification rights from the FA Back (fa-back) keycloak client. FA Back comes pre-configured with two roles that may be used out of the box:
-
-* ROLE_CLIENT_PORTAL (view, modify, limited visibility)
-* ROLE_CLIENT_PORTAL_IMPERSONATE (view)
-
-Typically, you would combine ROLE_CLIENT_ACCESS and ROLE_CLIENT_PORTAL for a regular end-client user, and ROLE_IMPERSONATE and ROLE_CLIENT_PORTAL_IMPERSONATE for a supportive user that needs to be able to view the FA Client Portal from the perspective of an arbitrary end-client.
+##### Advisor user- can impersonate someone else (view from their perspective) and execute all features on behalf of them
+* fa-advisor: ROLE_USER
+* fa-back: ROLE_CLIENT_PORTAL
 
 #### Running the application
 

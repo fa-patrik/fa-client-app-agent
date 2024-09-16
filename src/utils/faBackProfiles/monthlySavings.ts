@@ -3,6 +3,7 @@ import {
   Attribute,
   Profile,
 } from "api/common/useGetPortfoliosWithProfileAndFigures";
+import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { getDefaultValueAsNumber } from "./common";
 
 export enum MonthlySavingsFieldId {
@@ -64,6 +65,12 @@ export function addMonthlySavingsToPortfolios<T extends PortfolioWithProfile>(
     const portfolioWithProfile = {
       ...currPortfolio,
       monthlySavings: monthlySavingsProfile,
+      portfolios: currPortfolio.portfolios
+        ? addMonthlySavingsToPortfolios(
+            currPortfolio.portfolios as PortfolioWithProfile[],
+            removePfWithIncompleteProfiles
+          )
+        : [],
     } as T & MonthlySavings;
 
     if (removePfWithIncompleteProfiles) {
@@ -76,6 +83,7 @@ export function addMonthlySavingsToPortfolios<T extends PortfolioWithProfile>(
     } else {
       prev.push(portfolioWithProfile);
     }
+
     return prev;
   }, []);
 }
@@ -151,4 +159,19 @@ export const getSelectedMonths = (
     }
   }
   return selectedMonths;
+};
+
+export const isPortfolioInMonthlySavings = (
+  portfolioOption: PortfolioOption,
+  portfoliosWithMonthlySavings: PortfolioWithMonthlySavings[]
+): boolean => {
+  if (portfoliosWithMonthlySavings?.some((p) => p.id === portfolioOption.id)) {
+    return true;
+  }
+  if (portfolioOption?.subOptions) {
+    return portfolioOption?.subOptions?.some((subOption) =>
+      isPortfolioInMonthlySavings(subOption, portfoliosWithMonthlySavings)
+    );
+  }
+  return false;
 };

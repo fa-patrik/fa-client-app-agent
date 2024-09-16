@@ -21,7 +21,7 @@ import SecurityDistributionTable from "./SecurityDistributionTable";
  * An API request is made to FA Back.
  */
 const StepFive = () => {
-  const { impersonating } = useKeycloak();
+  const { access } = useKeycloak();
   const { wizardData, setWizardData } =
     useWizard<MonthlyInvestmentsWizardState>();
   const monthlyInvestmentsWizardState = wizardData.data;
@@ -225,7 +225,7 @@ const StepFive = () => {
         isOpen={confirmDialogOpen}
         setIsOpen={setConfirmDialogOpen}
         loading={loadingFinish}
-        disabled={impersonating}
+        disabled={!access.buy}
       />
     </div>
   );

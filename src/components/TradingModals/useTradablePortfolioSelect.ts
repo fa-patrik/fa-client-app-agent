@@ -1,31 +1,50 @@
 import { useCallback } from "react";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { SecurityGroup } from "api/types";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
-
+import { useKeycloak } from "providers/KeycloakProvider";
 import {
-  canPortfolioOptionTrade,
+  CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX,
+  CLIENT_PORTAL_SECURITY_GROUP_PREFIX,
   canPortfolioOptionTradeSecurity,
 } from "services/permissions/trading";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { useFilteredPortfolioSelect } from "./useFilteredPortfolioSelect";
 
 export const useTradablePortfolioSelect = (
   securityGroups?: SecurityGroup[]
 ) => {
-  //if securityGroups is provided, then check
-  //1) portfolio is tradable
-  //2) portfolio has the linked the security groups.
+  const { access } = useKeycloak();
+  const { canPfOption: canPfOptionTrade } = useFeature(
+    PortfolioGroups.TRADE,
+    RepresentativeTag.TRADE,
+    PermissionMode.SELECTED_ANY
+  );
+  const groupPrefix = access.advisor
+    ? CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX
+    : CLIENT_PORTAL_SECURITY_GROUP_PREFIX;
+
   const canTradeSecurityGroups = useCallback(
     (portfolioOption: PortfolioOption) => {
       return (
-        !!securityGroups &&
-        canPortfolioOptionTradeSecurity(portfolioOption, securityGroups)
+        //portfolio can trade
+        canPfOptionTrade(portfolioOption) &&
+        //check if security group is linked to the portfolio
+        canPortfolioOptionTradeSecurity(
+          portfolioOption,
+          securityGroups,
+          groupPrefix
+        )
       );
     },
-    [securityGroups]
+    [securityGroups, groupPrefix, canPfOptionTrade]
   );
 
   const tradablePortfolioOptions = useFilteredPortfolioSelect(
-    securityGroups ? canTradeSecurityGroups : canPortfolioOptionTrade
+    securityGroups ? canTradeSecurityGroups : canPfOptionTrade
   );
   return tradablePortfolioOptions;
 };

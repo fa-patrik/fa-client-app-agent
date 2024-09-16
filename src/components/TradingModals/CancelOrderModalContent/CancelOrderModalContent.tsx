@@ -46,10 +46,10 @@ export const CancelOrderModalContent = ({
   );
 
   const TypeBadge = () => {
-    return <Badge colorScheme={typeColor}>{typeTranslated}</Badge>;
+    return <Badge severity={typeColor}>{typeTranslated}</Badge>;
   };
 
-  const { readonly } = useKeycloak();
+  const { access } = useKeycloak();
 
   //the order
   const { handleOrderCancel: cancelOrder1 } = useCancelOrder({
@@ -135,7 +135,7 @@ export const CancelOrderModalContent = ({
         </Button>
 
         <Button
-          disabled={readonly || submitting}
+          disabled={!access.cancelOrder || submitting}
           isLoading={submitting}
           isFullWidth
           onClick={async () => {

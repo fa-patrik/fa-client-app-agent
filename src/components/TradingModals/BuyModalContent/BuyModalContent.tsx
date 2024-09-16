@@ -18,6 +18,7 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { getBackendTranslation } from "utils/backTranslations";
+import { getNumberOfOptions } from "utils/faBackProfiles/common";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import { round, roundDown } from "utils/number";
 import {
@@ -64,10 +65,10 @@ export const BuyModalContent = ({
   );
   const {
     setPortfolioId,
-    portfolioOptions: portfolioOptionsThatCantTradeTheSecurity,
+    portfolioOptions: portfolioOptionsThatCanTrade,
     portfolioId,
   } = useTradablePortfolioSelect(security?.groups);
-  const { portfolioOptions: portfolioOptionsThatCanTrade } =
+  const { portfolioOptions: portfolioOptionsThatCantTradeTheSecurity } =
     useTradablePortfolioSelect();
 
   const { selectedContactId } = useGetContractIdData();
@@ -217,7 +218,7 @@ export const BuyModalContent = ({
   const insufficientCash =
     (availableCash || 0) < (estimatedTradeAmountInPfCurrency || 0); // less than trying to buy for
 
-  const { readonly } = useKeycloak();
+  const { access } = useKeycloak();
 
   const tradeAmountTooltip =
     unitsToBuy !== undefined &&
@@ -282,15 +283,15 @@ export const BuyModalContent = ({
       inputAsNr === 0 ||
       insufficientCash ||
       !!blockSizeTradeAmountError ||
-      readonly ||
+      !access.buy ||
       !selectedPortfolio ||
       submitting
     );
   };
 
   const areSomePortfoliosProhibitedToTradeTheSecurity =
-    portfolioOptionsThatCanTrade?.length !==
-    portfolioOptionsThatCantTradeTheSecurity?.length;
+    getNumberOfOptions(portfolioOptionsThatCanTrade) !==
+    getNumberOfOptions(portfolioOptionsThatCantTradeTheSecurity);
 
   return (
     <div className="grid gap-2 max-w-md min-w-[min(84vw,_375px)]">
@@ -312,7 +313,7 @@ export const BuyModalContent = ({
       </div>
 
       <PortfolioSelect
-        portfolioOptions={portfolioOptionsThatCantTradeTheSecurity}
+        portfolioOptions={portfolioOptionsThatCanTrade}
         portfolioId={portfolioId}
         onChange={(newPortfolio) => setPortfolioId(newPortfolio.id)}
         label={t("tradingModal.portfolio")}

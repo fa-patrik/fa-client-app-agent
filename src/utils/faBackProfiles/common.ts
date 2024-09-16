@@ -1,4 +1,6 @@
+import { Portfolio } from "api/common/useGetContactInfo";
 import { Attribute } from "api/common/useGetPortfoliosWithProfileAndFigures";
+import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
 /**
  * Profile values can be stored as strings
@@ -15,4 +17,28 @@ export const getDefaultValueAsNumber = (
   if (typeof value === "string" && !isNaN(Number(value))) {
     return Number(value);
   }
+};
+
+export const getNumberOfOptions = (
+  portfolioOptions: PortfolioOption[] | undefined
+) => {
+  if (!portfolioOptions?.length) return 0;
+  return portfolioOptions.reduce((prev, currTradableOption) => {
+    prev++;
+    const nrOfSubPortfolioOptions = getNumberOfOptions(
+      currTradableOption.subOptions
+    );
+    prev += nrOfSubPortfolioOptions;
+    return prev;
+  }, 0);
+};
+
+export const getNumberOfPortfolios = (portfolios: Portfolio[] | undefined) => {
+  if (!portfolios?.length) return 0;
+  return portfolios.reduce((prev, currPortfolio) => {
+    prev++;
+    const nrOfSubPortfolios = getNumberOfPortfolios(currPortfolio.portfolios);
+    prev += nrOfSubPortfolios;
+    return prev;
+  }, 0);
 };

@@ -3,9 +3,36 @@
   "auth-server-url": "https://fadev.clientportal.fasolutions.com/auth",
   "ssl-required": "external",
   "resource": "fa-clientportal",
-  "write-roles": { "fa-clientportal": ["ROLE_CLIENT_ACCESS"] },
-  "impersonate-roles": {
-    "fa-clientportal": ["ROLE_IMPERSONATE"]
+  "enableSell": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
+  "enableBuy": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
+  "enableSwitch": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
+  "enableDeposit": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
+  "enableWithdraw": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
+  "enableImpersonate": {
+    "fa-clientportal": ["ROLE_IMPERSONATE"],
+    "fa-advisor": ["ROLE_USER"]
+  },
+  "enableCancelOrder": {
+    "fa-clientportal": ["ROLE_CLIENT_ACCESS"],
+    "fa-advisor": ["ROLE_USER"]
+  },
+  "enableAdvisor": {
+    "fa-advisor": ["ROLE_USER"]
   },
   "public-client": true,
   "verify-token-audience": true,

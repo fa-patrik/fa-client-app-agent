@@ -150,7 +150,7 @@ interface OrderFromMutation {
 }
 
 export interface OrderMutationResponse {
-  importTradeOrder:
+  importLimitedTradeOrder:
     | [Record<string, string>, OrderFromMutation] //in case of success
     | [OrderFromMutation]; //in case of error
 }

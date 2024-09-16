@@ -50,7 +50,7 @@ const getNrOfPortfolioOptions = (
 };
 
 export const useFilteredPortfolioSelect = (
-  filterFunction: (portfolioOption: PortfolioOption) => boolean
+  filterFunction: (option: PortfolioOption) => boolean
 ) => {
   const { portfolioId: portfolioIdUrl } = useParams();
   const portfolioOptions = useGetPortfolioOptions(false);

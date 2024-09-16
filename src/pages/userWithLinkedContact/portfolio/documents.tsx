@@ -1,4 +1,5 @@
 import { useGetContactInfo } from "api/common/useGetContactInfo";
+import { useGetSubPortfolioIds } from "api/common/useGetSubPortfolioIds";
 import { useGetDocuments } from "api/documents/useGetDocuments";
 import { QueryLoadingWrapper } from "components";
 import { useGetContractIdData } from "providers/ContractIdProvider";
@@ -10,16 +11,20 @@ export const DocumentsPage = () => {
   const { linkedContact } = useKeycloak();
   const { selectedContactId } = useGetContractIdData();
   const { portfolioId } = useParams();
-  const portfolioIdAsNumber = portfolioId ? Number(portfolioId) : undefined;
+  const selectedPortfolioId = portfolioId ? Number(portfolioId) : undefined;
   const { data } = useGetContactInfo(false, selectedContactId ?? linkedContact);
-  const numberOfPortfolios = data?.portfolios?.length ?? 0;
+  const subPfIds = useGetSubPortfolioIds(selectedPortfolioId, false);
+
+  const parentPortfolios = data?.portfolios.filter(
+    (p) => !subPfIds.includes(p.id)
+  );
+
+  const onlyOneParentPortfolioAndItIsSelected =
+    (parentPortfolios?.length ?? 0) === 1 &&
+    selectedPortfolioId === parentPortfolios?.[0].id;
+
   const queryData = useGetDocuments(
-    //we get the portfolio specific docs if there is more than one portfolio
-    //and the user has selected a specific portfolio
-    //otherwise we get all documents, because the user cannot select 'total investments' in the dropdown
-    portfolioIdAsNumber !== undefined && numberOfPortfolios !== 1
-      ? portfolioIdAsNumber
-      : undefined
+    onlyOneParentPortfolioAndItIsSelected ? undefined : selectedPortfolioId
   );
   return <QueryLoadingWrapper {...queryData} SuccessComponent={Documents} />;
 };

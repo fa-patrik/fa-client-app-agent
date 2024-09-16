@@ -1,9 +1,9 @@
-import { Navigate, useRoutes } from "react-router-dom";
-import { canPortfolioTrade } from "services/permissions/trading";
 import {
-  PermissionMode,
-  usePermission,
-} from "services/permissions/usePermission";
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
+import { Navigate, useRoutes } from "react-router-dom";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { NavTabLayout } from "../NavTabLayout";
 import { NavTabPath } from "./types";
 
@@ -12,9 +12,10 @@ interface NavTabRoutesProps {
 }
 
 export const NavTabRoutes = ({ routes }: NavTabRoutesProps) => {
-  const canTrade = usePermission(
-    PermissionMode.SELECTED_ANY,
-    canPortfolioTrade
+  const { canFeature: canTrade } = useFeature(
+    PortfolioGroups.TRADE,
+    RepresentativeTag.TRADE,
+    PermissionMode.SELECTED_ANY
   );
 
   const filteredRoutes = routes.filter(

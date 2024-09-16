@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
+import {
   PortfolioWithProfileAndFigures,
   useGetPortfoliosWithProfileAndFigures,
 } from "api/common/useGetPortfoliosWithProfileAndFigures";
@@ -15,9 +19,10 @@ import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
-import { canPortfolioOptionMonthlyInvest } from "services/permissions/trading";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { addMonthlyInvestmentsToPortfolios } from "utils/faBackProfiles/monthlyInvestments";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
+import { filterPortfolioOptionsByFunction } from "utils/options";
 import { MonthlyInvestmentsWizardState } from "../types";
 
 //min units of money to invest
@@ -38,9 +43,15 @@ const StepOne = () => {
     refetch,
     networkStatus,
   } = useGetPortfoliosWithProfileAndFigures();
-  const { portfolioOptions, portfolioId } = useFilteredPortfolioSelect(
-    canPortfolioOptionMonthlyInvest
+  const { canPfOption: canPfOptionMonthlyInvest } = useFeature(
+    PortfolioGroups.MONTHLY_INVESTMENTS,
+    RepresentativeTag.MONTHLY_INVESTMENTS,
+    PermissionMode.ANY
   );
+  const {
+    portfolioOptions: portfolioOptionsThatCanMonthlyInvest,
+    portfolioId,
+  } = useFilteredPortfolioSelect(canPfOptionMonthlyInvest);
 
   const portfoliosWithValidMonthlyInvestments = useMemo(() => {
     return portfolioData?.portfolios
@@ -48,29 +59,32 @@ const StepOne = () => {
       : [];
   }, [portfolioData?.portfolios]);
 
-  const filteredPortfolioOptions = useMemo(() => {
-    if (wizardData.data.isEditing) return portfolioOptions;
-    return portfolioOptions?.filter(
-      //all pf without a valid monthly investments plan
-      (o) => portfoliosWithValidMonthlyInvestments.every((p) => p.id !== o.id)
+  const portfoliosThatCanMonthlyInvestAndHaveNoPlans = useMemo(() => {
+    return filterPortfolioOptionsByFunction(
+      portfolioOptionsThatCanMonthlyInvest,
+      (option) =>
+        !portfoliosWithValidMonthlyInvestments.some((p) => p.id === option.id)
     );
   }, [
-    portfolioOptions,
+    portfolioOptionsThatCanMonthlyInvest,
     portfoliosWithValidMonthlyInvestments,
-    wizardData.data.isEditing,
   ]);
 
   const [selectedPortfolioOption, setSelectedPortfolioOption] =
     useState<PortfolioOption>(
       monthlyInvestmentsWizardState.selectedPortfolioOption ||
-        filteredPortfolioOptions.find((o) => o.id === portfolioId) ||
-        filteredPortfolioOptions[0]
+        portfoliosThatCanMonthlyInvestAndHaveNoPlans?.find(
+          (o) => o?.id === portfolioId
+        ) ||
+        portfoliosThatCanMonthlyInvestAndHaveNoPlans[0]
     );
 
   const [portfolio, setPortfolio] = useState<
     PortfolioWithProfileAndFigures | undefined
   >(() =>
-    portfolioData?.portfolios?.find((p) => p.id === selectedPortfolioOption.id)
+    portfolioData?.portfolios?.find(
+      (p) => p?.id === selectedPortfolioOption?.id
+    )
   );
 
   const minAmount = portfolio?.figuresAsObject?.latestValues[
@@ -93,7 +107,7 @@ const StepOne = () => {
 
   useEffect(() => {
     const selectedPortfolio = portfolioData?.portfolios?.find(
-      (p) => p.id === selectedPortfolioOption.id
+      (p) => p?.id === selectedPortfolioOption?.id
     );
     setPortfolio(() => selectedPortfolio);
   }, [portfolioData?.portfolios, selectedPortfolioOption]);
@@ -172,7 +186,7 @@ const StepOne = () => {
                 "wizards.monthlyInvestments.stepOne.portfolioInputLabel"
               )}
               onChange={setSelectedPortfolioOption}
-              options={filteredPortfolioOptions}
+              options={portfoliosThatCanMonthlyInvestAndHaveNoPlans}
               value={selectedPortfolioOption}
             />
             <Input

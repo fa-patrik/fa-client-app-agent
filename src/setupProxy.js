@@ -9,8 +9,8 @@ module.exports = function (app) {
       target: PROXY,
       changeOrigin: true,
       logLevel: "debug",
-      onProxyReq: function(proxyReq, req, res) {
-        proxyReq.setHeader('Origin', PROXY); //replace Origin with FA env domain
+      onProxyReq: function (proxyReq, req, res) {
+        proxyReq.setHeader("Origin", PROXY); //replace Origin with FA env domain
       },
     })
   );
@@ -19,10 +19,9 @@ module.exports = function (app) {
     createProxyMiddleware({
       target: PROXY,
       changeOrigin: true,
-      onProxyReq: function(proxyReq, req, res) {
-        proxyReq.setHeader('Origin', PROXY);
+      onProxyReq: function (proxyReq, req, res) {
+        proxyReq.setHeader("Origin", PROXY);
       },
-    }),
-    
+    })
   );
 };

@@ -11,6 +11,7 @@ export interface BannerProps {
   content?: React.ReactNode;
   title?: string;
   dismissable?: boolean;
+  icon?: React.ReactElement<SVGElement>;
 }
 
 const Banner = ({
@@ -20,6 +21,7 @@ const Banner = ({
   id,
   dismissable = false,
   content,
+  icon,
 }: BannerProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const defaultIcon = getIconBySeverity(severity);
@@ -49,8 +51,13 @@ const Banner = ({
       <div className="container flex justify-between mx-auto">
         <div className="flex flex-col gap-y-1 justify-center">
           {title && (
-            <div className="flex flex-row gap-2">
-              <Icon severity={severity} icon={defaultIcon} size="large" />
+            <div className="flex flex-row gap-1 items-center">
+              <Icon
+                severity={severity}
+                icon={icon ?? defaultIcon}
+                size="large"
+              />
+
               <p
                 className={classNames("text-sm font-semibold", {
                   "text-info-text": severity === "Info",

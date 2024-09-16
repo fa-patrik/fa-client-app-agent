@@ -61,7 +61,7 @@ export const filterOptionsByQuery = (
  */
 export const filterPortfolioOptionsByFunction = (
   portfolioOptions: PortfolioOption[] | undefined,
-  filterFunction: (portfolioOption: PortfolioOption) => boolean
+  filterFunction: (option: PortfolioOption) => boolean
 ) => {
   if (!portfolioOptions?.length) return [];
   return portfolioOptions.reduce((prev, currOption) => {

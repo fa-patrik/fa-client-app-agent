@@ -19,7 +19,10 @@ export const getSubPortfolioIds = (portfolio: Portfolio | undefined) => {
  * @param id id of the parent portfolio.
  * @returns list of ids of the the sub portfolios to the parent portfolio.
  */
-export const useGetSubPortfolioIds = (id: number | undefined) => {
+export const useGetSubPortfolioIds = (
+  id: number | undefined,
+  includeId = true
+) => {
   const { selectedContactId } = useGetContractIdData();
   const { data } = useGetContactInfo(false, selectedContactId);
   return useMemo(() => {
@@ -27,6 +30,7 @@ export const useGetSubPortfolioIds = (id: number | undefined) => {
     const subIds = getSubPortfolioIds(
       data?.portfolios?.find((p) => p.id === id)
     );
+    if (!includeId) return subIds;
     return [id, ...subIds];
-  }, [id, data]);
+  }, [id, data?.portfolios, includeId]);
 };

@@ -1,3 +1,7 @@
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import classNames from "classnames";
@@ -9,9 +13,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 import {
   isStatusCancellable,
-  isPortfolioAllowedToCancelOrder,
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getOrderTypeName,
@@ -108,14 +112,19 @@ const Order = ({
         : order.type.typeCode
     );
 
+  const { canPf: canPfCancelOrder } = useFeature(
+    PortfolioGroups.CANCEL_ORDER,
+    RepresentativeTag.CANCEL_ORDER,
+    PermissionMode.SELECTED
+  );
+
   const portfolioAllowedToCancel =
-    orderParentPortfolio &&
-    isPortfolioAllowedToCancelOrder(orderParentPortfolio);
+    orderParentPortfolio && canPfCancelOrder(orderParentPortfolio);
 
   const TypeBadge = () => {
     return (
       <Badge
-        colorScheme={getTransactionColor(
+        severity={getTransactionColor(
           order.type.amountEffect,
           order.type.cashFlowEffect,
           isPartOfSwitch
