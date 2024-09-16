@@ -1,4 +1,7 @@
-import { useGetContactInfo } from "api/common/useGetContactInfo";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { useDownloadDocument } from "api/documents/useDownloadDocument";
 import { TradeOrderDetails } from "api/orders/types";
@@ -11,14 +14,13 @@ import {
 } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
-import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate } from "react-router";
 import {
   isStatusCancellable,
-  isPortfolioAllowedToCancelOrder,
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
@@ -39,10 +41,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
   const { t, i18n } = useModifiedTranslation();
   const { downloadDocument, downloading } = useDownloadDocument();
   const navigate = useNavigate();
-  const { access, linkedContact } = useKeycloak();
-  const { selectedContactId } = useGetContractIdData();
-  const contactRepresentativeTags = useGetContactInfo(false, selectedContactId)
-    ?.data?.representativeTags;
+  const { access } = useKeycloak();
   const {
     Modal,
     onOpen: onCancelOrderModalOpen,
@@ -72,13 +71,13 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
         ? switchDetails?.fromOrder?.type.typeCode
         : order.type.typeCode
     );
+  const { canPf: canPfCancelOrder } = useFeature(
+    PortfolioGroups.CANCEL_ORDER,
+    RepresentativeTag.CANCEL_ORDER,
+    PermissionMode.SELECTED
+  );
   const portfolioAllowedToCancel =
-    orderParentPortfolio &&
-    isPortfolioAllowedToCancelOrder(
-      contactRepresentativeTags,
-      orderParentPortfolio,
-      linkedContact
-    );
+    orderParentPortfolio && canPfCancelOrder(orderParentPortfolio);
 
   return (
     <PageLayout>

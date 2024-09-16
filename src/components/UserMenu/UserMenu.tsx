@@ -5,7 +5,12 @@ import {
   useState,
 } from "react";
 import { Menu, Transition } from "@headlessui/react";
-import { Representee, useGetContactInfo } from "api/common/useGetContactInfo";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+  Representee,
+  useGetContactInfo,
+} from "api/common/useGetContactInfo";
 import {
   Process,
   useGetContactProcesses,
@@ -30,15 +35,7 @@ import {
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate, To, NavigateOptions } from "react-router";
 import { keycloakService } from "services/keycloakService";
-import { useCanDeposit, useCanWithdraw } from "services/permissions/money";
-import {
-  canPortfolioMonthlyInvest,
-  canPortfolioMonthlySave,
-} from "services/permissions/trading";
-import {
-  PermissionMode,
-  usePermission,
-} from "services/permissions/usePermission";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import StepFive from "wizards/monthlyInvestments/StepFive/StepFive";
 import StepFour from "wizards/monthlyInvestments/StepFour/StepFour";
 import StepOne from "wizards/monthlyInvestments/StepOne/StepOne";
@@ -184,17 +181,28 @@ export const UserMenu = () => {
   const { linkedContact } = useKeycloak();
   const navigate = useNavigate();
   const { data: processes = [] } = useGetContactProcesses();
-  const canMonthlyInvest = usePermission(
-    PermissionMode.ANY,
-    canPortfolioMonthlyInvest
+
+  const { canFeature: canMonthlyInvest } = useFeature(
+    PortfolioGroups.MONTHLY_INVESTMENTS,
+    RepresentativeTag.MONTHLY_INVESTMENTS,
+    PermissionMode.ANY
   );
-  const canMonthlySave = usePermission(
-    PermissionMode.ANY,
-    canPortfolioMonthlySave
+  const { canFeature: canMonthlySave } = useFeature(
+    PortfolioGroups.MONTHLY_SAVINGS,
+    RepresentativeTag.MONTHLY_SAVINGS,
+    PermissionMode.ANY
+  );
+  const { canFeature: canDeposit } = useFeature(
+    PortfolioGroups.DEPOSIT,
+    RepresentativeTag.DEPOSIT,
+    PermissionMode.ANY
+  );
+  const { canFeature: canWithdraw } = useFeature(
+    PortfolioGroups.WITHDRAW,
+    RepresentativeTag.WITHDRAW,
+    PermissionMode.ANY
   );
 
-  const canDeposit = useCanDeposit();
-  const canWithdraw = useCanWithdraw();
   const { data: contactData, loading } = useGetContactInfo();
   const {
     Modal,

@@ -1,7 +1,5 @@
-import { RepresentativeTag } from "api/common/useGetContactInfo";
 import { Option } from "components/ComboBox/ComboBox";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
-import { PortfolioOptionFilterFunction } from "services/permissions/usePermission";
 
 /**
  * Helper function to check whether an option exists in a list of options.
@@ -62,31 +60,22 @@ export const filterOptionsByQuery = (
  * @returns filtered options.
  */
 export const filterPortfolioOptionsByFunction = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
   portfolioOptions: PortfolioOption[] | undefined,
-  linkedContact: string | undefined,
-  filterFunction: PortfolioOptionFilterFunction
+  filterFunction: (option: PortfolioOption) => boolean
 ) => {
   if (!portfolioOptions?.length) return [];
   return portfolioOptions.reduce((prev, currOption) => {
-    if (
-      filterFunction(contactRepresentativeTags, currOption, linkedContact) &&
-      !isInOptions(prev, currOption)
-    ) {
+    if (filterFunction(currOption) && !isInOptions(prev, currOption)) {
       prev.push({
         ...currOption,
         subOptions: filterPortfolioOptionsByFunction(
-          contactRepresentativeTags,
           currOption.subOptions,
-          linkedContact,
           filterFunction
         ),
       });
     }
     const matchingSubOptions = filterPortfolioOptionsByFunction(
-      contactRepresentativeTags,
       currOption.subOptions,
-      linkedContact,
       filterFunction
     );
     matchingSubOptions?.forEach((subOption) => {

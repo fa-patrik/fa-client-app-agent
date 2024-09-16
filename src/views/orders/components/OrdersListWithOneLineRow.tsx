@@ -1,4 +1,7 @@
-import { useGetContactInfo } from "api/common/useGetContactInfo";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import classNames from "classnames";
@@ -6,15 +9,13 @@ import { Badge, Card } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useKeycloak } from "providers/KeycloakProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 import {
   isStatusCancellable,
-  isPortfolioAllowedToCancelOrder,
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getOrderTypeName,
@@ -89,10 +90,6 @@ const Order = ({
   isAnyOrderCancellable,
   onCancelOrderModalOpen,
 }: OrderProps) => {
-  const { linkedContact } = useKeycloak();
-  const { selectedContactId } = useGetContractIdData();
-  const representativeTags = useGetContactInfo(false, selectedContactId)?.data
-    ?.representativeTags;
   const isLgVersion = useMatchesBreakpoint("lg");
   const { t, i18n } = useModifiedTranslation();
 
@@ -115,13 +112,14 @@ const Order = ({
         : order.type.typeCode
     );
 
+  const { canPf: canPfCancelOrder } = useFeature(
+    PortfolioGroups.CANCEL_ORDER,
+    RepresentativeTag.CANCEL_ORDER,
+    PermissionMode.SELECTED
+  );
+
   const portfolioAllowedToCancel =
-    orderParentPortfolio &&
-    isPortfolioAllowedToCancelOrder(
-      representativeTags,
-      orderParentPortfolio,
-      linkedContact
-    );
+    orderParentPortfolio && canPfCancelOrder(orderParentPortfolio);
 
   const TypeBadge = () => {
     return (

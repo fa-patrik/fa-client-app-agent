@@ -1,6 +1,9 @@
 import { useRef } from "react";
 import { Disclosure, Transition } from "@headlessui/react";
-import { useGetContactInfo } from "api/common/useGetContactInfo";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import { ReactComponent as ChevronDown } from "assets/chevron-down.svg";
@@ -9,14 +12,12 @@ import classNames from "classnames";
 import { Badge, Button } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useKeycloak } from "providers/KeycloakProvider";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
-  isPortfolioAllowedToCancelOrder,
   isStatusCancellable,
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getOrderTypeName,
@@ -61,11 +62,6 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
     disclosureButtonRef.current?.click();
   };
 
-  const { linkedContact } = useKeycloak();
-  const { selectedContactId } = useGetContractIdData();
-  const contactRepresentativeTags = useGetContactInfo(false, selectedContactId)
-    .data?.representativeTags;
-
   const orderCanBeCancelled =
     isStatusCancellable(
       isPartOfSwitch && switchDetails?.fromOrder?.orderStatus
@@ -77,13 +73,15 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
         ? switchDetails?.fromOrder?.type.typeCode
         : order.type.typeCode
     );
+
+  const { canPf: canPfCancelOrder } = useFeature(
+    PortfolioGroups.CANCEL_ORDER,
+    RepresentativeTag.CANCEL_ORDER,
+    PermissionMode.SELECTED
+  );
+
   const portfolioAllowedToCancel =
-    orderParentPortfolio &&
-    isPortfolioAllowedToCancelOrder(
-      contactRepresentativeTags,
-      orderParentPortfolio,
-      linkedContact
-    );
+    orderParentPortfolio && canPfCancelOrder(orderParentPortfolio);
 
   const canExpandCard =
     !isLocalOrder(order) || (orderCanBeCancelled && portfolioAllowedToCancel);

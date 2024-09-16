@@ -1,14 +1,19 @@
 import { MutableRefObject, useState } from "react";
-import { useGetContactInfo } from "api/common/useGetContactInfo";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+  useGetContactInfo,
+} from "api/common/useGetContactInfo";
 import { useDeposit } from "api/money/useDeposit";
 import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { handleNumberInputEvent } from "utils/input";
 import { CashAccountSelect } from "../components/CashAccountSelect";
+import { useFilteredPortfolioSelect } from "../useFilteredPortfolioSelect";
 import { usePortfoliosAccountsState } from "../usePortfoliosAccountsState";
-import { useDepositablePortfolioSelect } from "./useDepositablePortfolioSelect";
 
 interface DepositModalProps {
   modalInitialFocusRef: MutableRefObject<null>;
@@ -25,7 +30,12 @@ export const DepositModalContent = ({
     false,
     selectedContactId
   );
-  const portfolioSelectProps = useDepositablePortfolioSelect();
+  const { canPfOption } = useFeature(
+    PortfolioGroups.DEPOSIT,
+    RepresentativeTag.DEPOSIT,
+    PermissionMode.ANY
+  );
+  const portfolioSelectProps = useFilteredPortfolioSelect(canPfOption);
   const { portfolioId } = portfolioSelectProps;
   const { accountsLoading, ...cashAccountSelectProps } =
     usePortfoliosAccountsState(portfolioId);

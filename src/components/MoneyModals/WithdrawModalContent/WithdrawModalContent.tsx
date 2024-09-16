@@ -1,14 +1,19 @@
 import { MutableRefObject, useState } from "react";
-import { useGetContactInfo } from "api/common/useGetContactInfo";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+  useGetContactInfo,
+} from "api/common/useGetContactInfo";
 import { useWithdrawal } from "api/money/useWithdrawal";
 import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { handleNumberInputEvent } from "utils/input";
 import { CashAccountSelect } from "../components/CashAccountSelect";
+import { useFilteredPortfolioSelect } from "../useFilteredPortfolioSelect";
 import { usePortfoliosAccountsState } from "../usePortfoliosAccountsState";
-import { useWithdrawablePortfolioSelect } from "./useWithdrawablePortfolioSelect";
 
 interface WithdrawModalProps {
   modalInitialFocusRef: MutableRefObject<null>;
@@ -25,7 +30,13 @@ export const WithdrawModalContent = ({
     false,
     selectedContactId
   );
-  const portfolioSelectProps = useWithdrawablePortfolioSelect();
+  const { canPfOption: canPfOptionWithdraw } = useFeature(
+    PortfolioGroups.WITHDRAW,
+    RepresentativeTag.WITHDRAW,
+    PermissionMode.ANY
+  );
+
+  const portfolioSelectProps = useFilteredPortfolioSelect(canPfOptionWithdraw);
   const { portfolioId } = portfolioSelectProps;
   const { accountsLoading, ...cashAccountSelectProps } =
     usePortfoliosAccountsState(portfolioId);

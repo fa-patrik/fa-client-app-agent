@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { useGetContactInfo } from "api/common/useGetContactInfo";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import {
   PortfolioMonthlySavingsDTOInput,
   useSetMonthlySavings,
@@ -13,14 +16,13 @@ import { useFilteredPortfolioSelect } from "components/TradingModals/useFiltered
 import { getPortfolioOption } from "hooks/useGetPortfolioOptions";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
-import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import {
-  canPortfolioMonthlySave,
-  canPortfolioOptionMonthlySave,
-} from "services/permissions/trading";
-import { getDefaultValueAsNumber } from "utils/faBackProfiles/common";
+  getDefaultValueAsNumber,
+  getNumberOfOptions,
+} from "utils/faBackProfiles/common";
 import {
   MonthlySavings,
   MonthlySavingsFieldId,
@@ -44,11 +46,8 @@ import {
  * and a button to add a new one.
  */
 const MsStepZero = () => {
-  const { selectedContactId } = useGetContractIdData();
-  const { access, linkedContact } = useKeycloak();
+  const { access } = useKeycloak();
   const { setWizardData, wizardData } = useWizard();
-  const contactRepresentativeTags = useGetContactInfo(false, selectedContactId)
-    ?.data?.representativeTags;
   const {
     data: portfolioData,
     refetch: refetchPortfolioData,
@@ -144,12 +143,19 @@ const MsStepZero = () => {
   };
 
   const loading = loadingPortfolioData && !portfoliosWithMonthlySavings;
-  const { portfolioOptions } = useFilteredPortfolioSelect(
-    canPortfolioOptionMonthlySave
-  );
-  const allowCreateNew = portfolioOptions.some((o) => {
-    return !portfoliosWithMonthlySavings?.some((p) => p.id === o.id);
-  });
+  const { canPfOption: canPfOptionMonthlySave, canPf: canPfMonthlySave } =
+    useFeature(
+      PortfolioGroups.MONTHLY_SAVINGS,
+      RepresentativeTag.MONTHLY_SAVINGS,
+      PermissionMode.ANY
+    );
+
+  const { portfolioOptions: portfolioOptionsThatCanMonthlySave } =
+    useFilteredPortfolioSelect(canPfOptionMonthlySave);
+
+  const allowCreateNew =
+    getNumberOfOptions(portfolioOptionsThatCanMonthlySave) >
+    (portfoliosWithMonthlySavings?.length ?? 0);
 
   const NoAccountWarning = ({ id }: { id: string }) => {
     return (
@@ -296,13 +302,7 @@ const MsStepZero = () => {
                   <div className="flex justify-between">
                     <Button
                       id={`monthlySavingsWizard-deletePlanButton-${portfolio.id}`}
-                      disabled={
-                        !canPortfolioMonthlySave(
-                          contactRepresentativeTags,
-                          portfolio,
-                          linkedContact
-                        )
-                      }
+                      disabled={!canPfMonthlySave(portfolio)}
                       variant="Delete"
                       onClick={() => {
                         setTargetPortfolio(portfolio);
@@ -314,13 +314,7 @@ const MsStepZero = () => {
                       )}
                     </Button>
                     <Button
-                      disabled={
-                        !canPortfolioMonthlySave(
-                          contactRepresentativeTags,
-                          portfolio,
-                          linkedContact
-                        )
-                      }
+                      disabled={!canPfMonthlySave(portfolio)}
                       onClick={() => editMonthlySavingsProfile(portfolio)}
                       id={`monthlySavingsWizard-editPlanButton-${portfolio.id}`}
                       variant="Secondary"

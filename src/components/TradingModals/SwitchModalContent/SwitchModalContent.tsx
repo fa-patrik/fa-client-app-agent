@@ -292,6 +292,7 @@ export const SwitchModalContent = ({
       status: OrderStatus.Open,
       amount: unitsToSell,
       autoUnitPrice: true,
+      autoFxRate: true,
       account: "DEFAULT",
       transactionDate: new Date().toISOString(),
       type: TransactionType.REDEMPTION,

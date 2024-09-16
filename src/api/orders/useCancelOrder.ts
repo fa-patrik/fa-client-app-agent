@@ -1,5 +1,8 @@
 import { gql, useMutation, useApolloClient } from "@apollo/client";
-import { useGetContactInfo } from "api/common/useGetContactInfo";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { OrderStatus } from "api/enums";
 import { OrderMutationResponse } from "api/orders/types";
@@ -9,13 +12,9 @@ import { useGetTradeOrderById } from "api/orders/useGetTradeOrderById";
 import { TRANSACTION_DETAILS_QUERY } from "api/transactions/useGetTransactionDetails";
 import { useLocalStorageStore } from "hooks/useLocalStorageStore";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useKeycloak } from "providers/KeycloakProvider";
 import { toast } from "react-toastify";
-import {
-  isPortfolioAllowedToCancelOrder,
-  isTradeOrderCancellable,
-} from "services/permissions/cancelOrder";
+import { isTradeOrderCancellable } from "services/permissions/cancelOrder";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 
 const CANCEL_ORDER_MUTATION = gql`
   mutation cancelOrder($portfolioShortName: String, $extId: String, $reference: String) {
@@ -83,10 +82,13 @@ export const useCancelOrder = (cancelledTradeOrder: CancelOrderQueryProps) => {
   const apolloClient = useApolloClient();
   const { data: orderParentPortfolio } =
     useGetPortfolioBasicFieldsById(portfolioId);
-  const { linkedContact } = useKeycloak();
-  const { selectedContactId } = useGetContractIdData();
-  const representativeTags = useGetContactInfo(false, selectedContactId)?.data
-    ?.representativeTags;
+
+  const { canPf: canPfCancelOrder } = useFeature(
+    PortfolioGroups.CANCEL_ORDER,
+    RepresentativeTag.CANCEL_ORDER,
+    PermissionMode.SELECTED
+  );
+
   const handleOrderCancel = async (showToast = true) => {
     try {
       if (!orderParentPortfolio)
@@ -137,11 +139,7 @@ export const useCancelOrder = (cancelledTradeOrder: CancelOrderQueryProps) => {
           if (
             faVersionOfTradeOrder &&
             isTradeOrderCancellable(faVersionOfTradeOrder) &&
-            isPortfolioAllowedToCancelOrder(
-              representativeTags,
-              orderParentPortfolio,
-              linkedContact
-            )
+            canPfCancelOrder(orderParentPortfolio)
           ) {
             await cancelOrderInFA({
               variables: {
@@ -159,11 +157,7 @@ export const useCancelOrder = (cancelledTradeOrder: CancelOrderQueryProps) => {
             faVersionOfTradeOrder &&
             localVersionOfTradeOrder &&
             isTradeOrderCancellable(faVersionOfTradeOrder) &&
-            isPortfolioAllowedToCancelOrder(
-              representativeTags,
-              orderParentPortfolio,
-              linkedContact
-            )
+            canPfCancelOrder(orderParentPortfolio)
           ) {
             await cancelOrderInFA({
               variables: {
@@ -186,11 +180,7 @@ export const useCancelOrder = (cancelledTradeOrder: CancelOrderQueryProps) => {
           if (
             localVersionOfTradeOrder &&
             isTradeOrderCancellable(localVersionOfTradeOrder) &&
-            isPortfolioAllowedToCancelOrder(
-              representativeTags,
-              orderParentPortfolio,
-              linkedContact
-            )
+            canPfCancelOrder(orderParentPortfolio)
           ) {
             await cancelOrderInFA({
               variables: {

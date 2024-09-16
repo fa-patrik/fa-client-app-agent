@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useApolloClient } from "@apollo/client";
-import { useGetContactInfo } from "api/common/useGetContactInfo";
+import {
+  PortfolioGroups,
+  RepresentativeTag,
+} from "api/common/useGetContactInfo";
 import { PORTFOLIO_QUERY } from "api/common/useGetPortfolioBasicFieldsById";
 import { TradeOrder } from "api/orders/types";
 import { useModal } from "components/Modal/useModal";
@@ -10,12 +13,8 @@ import {
 } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useKeycloak } from "providers/KeycloakProvider";
-import {
-  isPortfolioAllowedToCancelOrder,
-  isTradeOrderCancellable,
-} from "services/permissions/cancelOrder";
+import { isTradeOrderCancellable } from "services/permissions/cancelOrder";
+import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { NoOrders } from "./NoOrders";
 import { OrderCardList } from "./OrderCardList";
 import { OrdersListWithOneLineRow } from "./OrdersListWithOneLineRow";
@@ -37,13 +36,15 @@ export const OrdersContainer = ({
     modalProps: cancelOrderModalProps,
     contentProps: cancelOrderModalContentProps,
   } = useModal<CancelOrderModalInitialData>();
-  const { linkedContact } = useKeycloak();
-  const { selectedContactId } = useGetContractIdData();
-  const contactRepresentativeTags = useGetContactInfo(false, selectedContactId)
-    ?.data?.representativeTags;
   const { t } = useModifiedTranslation();
   const [isAnyOrderCancellable, setIsAnyOrderCancellable] = useState(false);
   const apolloClient = useApolloClient();
+
+  const { canPf: canPfCancelOrder } = useFeature(
+    PortfolioGroups.CANCEL_ORDER,
+    RepresentativeTag.CANCEL_ORDER,
+    PermissionMode.SELECTED
+  );
 
   useEffect(() => {
     //run a check to see if any trade order is cancellable
@@ -60,11 +61,7 @@ export const OrdersContainer = ({
         const orderParentPortfolio = response?.data?.portfolio;
         const cancellable =
           orderParentPortfolio &&
-          isPortfolioAllowedToCancelOrder(
-            contactRepresentativeTags,
-            orderParentPortfolio,
-            linkedContact
-          ) &&
+          canPfCancelOrder(orderParentPortfolio) &&
           isTradeOrderCancellable(order);
         if (cancellable) return setIsAnyOrderCancellable(true);
       }
@@ -72,7 +69,7 @@ export const OrdersContainer = ({
     };
 
     if (orders) checkOrdersCancellable(orders);
-  }, [apolloClient, contactRepresentativeTags, linkedContact, orders]);
+  }, [apolloClient, canPfCancelOrder, orders]);
 
   const hasOneLineRow = useMatchesBreakpoint("md");
 

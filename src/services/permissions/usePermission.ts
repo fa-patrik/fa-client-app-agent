@@ -1,12 +1,15 @@
+import { useCallback } from "react";
 import {
   Portfolio,
+  PortfolioGroups,
   RepresentativeTag,
   useGetContactInfo,
 } from "api/common/useGetContactInfo";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import { useGetContactRepTagsAndLinkedContact } from "hooks/useGetContactRepTagsAndLinkedContact";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
+import { isPortfolioEligible, isPortfolioOptionEligible } from "./common";
 
 export enum PermissionMode {
   ANY,
@@ -31,14 +34,9 @@ export interface PortfolioOptionFilterFunction {
 }
 
 const doesAnyPortfolioHavePermission = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
   portfolios: Portfolio[],
-  linkedContact: string | undefined,
-  filterFunction: PortfolioFilterFunction
-) =>
-  portfolios.some((p) =>
-    filterFunction(contactRepresentativeTags, p, linkedContact)
-  );
+  filterFunction: (portfolio: Portfolio) => boolean
+) => portfolios.some((p) => filterFunction(p));
 
 const selectedPortfolio = (
   portfolios: Portfolio[],
@@ -50,15 +48,10 @@ const selectedPortfolio = (
   );
 
 const doesSelectedPortfolioHavePermission = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
   portfolios: Portfolio[],
   portfolioId: string | undefined,
-  linkedContact: string | undefined,
-  filterFunction: PortfolioFilterFunction
-) =>
-  selectedPortfolio(portfolios, portfolioId).some((p) =>
-    filterFunction(contactRepresentativeTags, p, linkedContact)
-  );
+  filterFunction: (portfolio: Portfolio) => boolean
+) => selectedPortfolio(portfolios, portfolioId).some((p) => filterFunction(p));
 
 /*
  * Checks if user's contact or portfolio is eligible
@@ -71,9 +64,8 @@ const doesSelectedPortfolioHavePermission = (
  */
 export const usePermission = (
   mode: PermissionMode,
-  filterFunction: PortfolioFilterFunction
+  filterFunction: (portfolio: Portfolio) => boolean
 ) => {
-  const { linkedContact } = useKeycloak();
   const { portfolioId } = useParams();
   const { selectedContactId } = useGetContractIdData();
   const { data: selectedContactData } = useGetContactInfo(
@@ -85,36 +77,80 @@ export const usePermission = (
 
   switch (mode) {
     case PermissionMode.ANY:
-      return doesAnyPortfolioHavePermission(
-        selectedContactData?.representativeTags,
-        portfolios,
-        linkedContact,
-        filterFunction
-      );
+      return doesAnyPortfolioHavePermission(portfolios, filterFunction);
     case PermissionMode.SELECTED:
       return doesSelectedPortfolioHavePermission(
-        selectedContactData?.representativeTags,
         portfolios,
         portfolioId,
-        linkedContact,
         filterFunction
       );
     case PermissionMode.SELECTED_ANY:
       if (portfolioId !== undefined)
         return doesSelectedPortfolioHavePermission(
-          selectedContactData?.representativeTags,
           portfolios,
           portfolioId,
-          linkedContact,
           filterFunction
         );
-      return doesAnyPortfolioHavePermission(
-        selectedContactData?.representativeTags,
-        portfolios,
-        linkedContact,
-        filterFunction
-      );
+      return doesAnyPortfolioHavePermission(portfolios, filterFunction);
     default:
       return false;
   }
+};
+
+export const useFeature = (
+  portfolioGroup: PortfolioGroups,
+  representativeTag: RepresentativeTag,
+  permissionMode: PermissionMode
+) => {
+  const { linkedContact, contactRepresentativeTags } =
+    useGetContactRepTagsAndLinkedContact();
+  /**
+   * Checks if the user's linked contact can access a feature in a specific portfolio.
+   */
+  const canPf = useCallback(
+    (portfolio: Portfolio) =>
+      isPortfolioEligible(
+        contactRepresentativeTags,
+        portfolio,
+        linkedContact,
+        portfolioGroup,
+        representativeTag
+      ),
+    [
+      contactRepresentativeTags,
+      linkedContact,
+      portfolioGroup,
+      representativeTag,
+    ]
+  );
+  /**
+   * Checks if the user's linked contact can access a feature in a specific portfolio option.
+   */
+  const canPfOption = useCallback(
+    (portfolioOption: PortfolioOption) =>
+      isPortfolioOptionEligible(
+        contactRepresentativeTags,
+        portfolioOption,
+        linkedContact,
+        portfolioGroup,
+        representativeTag
+      ),
+    [
+      contactRepresentativeTags,
+      linkedContact,
+      portfolioGroup,
+      representativeTag,
+    ]
+  );
+
+  /**
+   * Whether the user can access the feature at all in the app.
+   */
+  const canFeature = usePermission(permissionMode, canPf);
+
+  return {
+    canFeature,
+    canPf,
+    canPfOption,
+  };
 };

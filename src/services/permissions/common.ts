@@ -6,7 +6,7 @@ import {
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
 /**
- * Checks whether the logged in user is linked to the portfolio
+ * Checks whether the user's linked contact is linked to the portfolio
  * and whether that link has the given tag
  * @param portfolio the portfolio to check
  * @param tag a "Client portal:..." tag
@@ -31,7 +31,7 @@ export const doesPortfolioHaveRepresentativeTag = (
 };
 
 /**
- * Checks whether the logged in user is linked to the contact
+ * Checks whether the user's linked contact is linked to the selected contact
  * and whether that link has the given tag
  * @param contactRepresentativeTags the contact's representative tags
  * @param tag a "Client portal:..." tag

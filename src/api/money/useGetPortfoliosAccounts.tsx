@@ -150,24 +150,10 @@ export const useGetPortfoliosAccounts = (portfolioId?: string) => {
       const externalCashAccounts =
         filteredCashAccounts.external?.map(mapCashAccount);
 
-      const uncategorizedCashAccounts =
-        filteredCashAccounts.uncategorized?.map(mapCashAccount);
-
-      if (internalCashAccounts.length > 0 && externalCashAccounts.length > 0) {
-        return {
-          internalCashAccounts: internalCashAccounts,
-          externalCashAccounts: externalCashAccounts,
-        };
-      } else {
-        return {
-          internalCashAccounts: [
-            ...internalCashAccounts,
-            ...externalCashAccounts,
-            ...uncategorizedCashAccounts,
-          ],
-          externalCashAccounts: [],
-        };
-      }
+      return {
+        internalCashAccounts,
+        externalCashAccounts,
+      };
     }, [data]),
     refetch,
   };
@@ -187,10 +173,6 @@ const filterCashAccountsByCategory = (
     [];
   const externalCashAccounts: (PortfolioReportAccount | PortfolioAccount)[] =
     [];
-  const uncategorizedCashAccounts: (
-    | PortfolioReportAccount
-    | PortfolioAccount
-  )[] = [];
 
   portfolioReportAccounts.forEach((reportAccount) => {
     if (reportAccount.account?.cashAccount) {
@@ -198,26 +180,20 @@ const filterCashAccountsByCategory = (
         internalCashAccounts.push(reportAccount);
       } else if (reportAccount.account?.category === ACCOUNT_CAT_EXTERNAL) {
         externalCashAccounts.push(reportAccount);
-      } else {
-        uncategorizedCashAccounts.push(reportAccount);
       }
     }
   });
   portfolioAccounts.forEach((account) => {
     if (
       account.cashAccount &&
-      ![
-        ...internalCashAccounts,
-        ...externalCashAccounts,
-        ...uncategorizedCashAccounts,
-      ].some((reportAccount) => reportAccount?.accountId === account.accountId)
+      ![...internalCashAccounts, ...externalCashAccounts].some(
+        (reportAccount) => reportAccount?.accountId === account.accountId
+      )
     ) {
       if (account.category === ACCOUNT_CAT_INTERNAL) {
         internalCashAccounts.push(account);
       } else if (account.category === ACCOUNT_CAT_EXTERNAL) {
         externalCashAccounts.push(account);
-      } else {
-        uncategorizedCashAccounts.push(account);
       }
     }
   });
@@ -225,6 +201,5 @@ const filterCashAccountsByCategory = (
   return {
     internal: internalCashAccounts,
     external: externalCashAccounts,
-    uncategorized: uncategorizedCashAccounts,
   };
 };

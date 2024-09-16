@@ -59,7 +59,15 @@ export interface KeycloakServiceStateType {
   initialized: boolean;
   authenticated: boolean;
   error?: boolean;
+  /**
+   * The linked contact the app applies.
+   * This can be the user's linked contact OR an impersonated contact.
+   */
   linkedContact: string | undefined;
+  /**
+   * This is the contact that the user is linked to.
+   */
+  trueLinkedContact: string | undefined;
   userProfile: KeycloakProfile | undefined;
   access: Access;
 }
@@ -68,6 +76,7 @@ export const keycloakServiceInitialState = {
   initialized: false,
   authenticated: false,
   linkedContact: undefined,
+  trueLinkedContact: undefined,
   userProfile: undefined,
   error: undefined,
   access: {
@@ -204,6 +213,7 @@ class KeycloakService {
         this.state = {
           ...this.state,
           linkedContact: linkedContact,
+          trueLinkedContact: linkedContact,
           userProfile: profile,
         };
       }

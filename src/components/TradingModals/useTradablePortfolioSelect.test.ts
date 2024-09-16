@@ -1,4 +1,5 @@
 import { renderHook } from "@testing-library/react-hooks";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { useGetPortfolioOptions } from "hooks/useGetPortfolioOptions";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
@@ -11,7 +12,7 @@ jest.mock("providers/KeycloakProvider", () => ({
 }));
 
 jest.mock("api/common/useGetContactInfo", () => ({
-  useGetContactInfo: jest.fn(() => ({ data: { portfolios: [] } })),
+  useGetContactInfo: jest.fn(),
   PortfolioGroups: {
     CANCEL_ORDER: "CP_CANCEL",
     DEPOSIT: "CP_DEPOSIT",
@@ -48,6 +49,9 @@ describe("useTradablePortfolioSelect", () => {
     (useGetContractIdData as jest.Mock).mockReturnValue({
       selectedContactId: 1,
     });
+    (useGetContactInfo as jest.Mock).mockReturnValue({
+      data: { portfolios: [] },
+    });
   });
 
   afterEach(() => {
@@ -56,6 +60,7 @@ describe("useTradablePortfolioSelect", () => {
 
   it("should pre-select the parent portfolio chosen in main portfolio selector if it is tradable", () => {
     (useParams as jest.Mock).mockReturnValue({ portfolioId: 1 });
+
     const { result } = renderHook(() => useTradablePortfolioSelect());
     expect(result.current.portfolioId).toBe(1);
   });

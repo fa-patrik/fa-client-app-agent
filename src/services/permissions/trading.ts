@@ -10,99 +10,12 @@ import { SecurityGroup } from "api/types";
 import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { isPortfolioEligible, isPortfolioOptionEligible } from "./common";
+import { PermissionMode, useFeature } from "./usePermission";
 
 export const CLIENT_PORTAL_SECURITY_GROUP_PREFIX = "CP_";
 export const CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX = "ADV_";
 export const tradableTag = "Tradeable";
 export const switchableTag = "Switchable";
-
-//Monthly investments
-export const canPortfolioMonthlyInvest = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
-  portfolio: Portfolio,
-  linkedContact: string | undefined
-) => {
-  return isPortfolioEligible(
-    contactRepresentativeTags,
-    portfolio,
-    linkedContact,
-    PortfolioGroups.MONTHLY_INVESTMENTS,
-    RepresentativeTag.MONTHLY_INVESTMENTS
-  );
-};
-
-export const canPortfolioOptionMonthlyInvest = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
-  portfolioOption: PortfolioOption,
-  linkedContact: string | undefined
-) => {
-  return isPortfolioOptionEligible(
-    contactRepresentativeTags,
-    portfolioOption,
-    linkedContact,
-    PortfolioGroups.MONTHLY_INVESTMENTS,
-    RepresentativeTag.MONTHLY_INVESTMENTS
-  );
-};
-
-//Monthly savings
-export const canPortfolioMonthlySave = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
-  portfolio: Portfolio,
-  linkedContact: string | undefined
-) => {
-  return isPortfolioEligible(
-    contactRepresentativeTags,
-    portfolio,
-    linkedContact,
-    PortfolioGroups.MONTHLY_SAVINGS,
-    RepresentativeTag.MONTHLY_SAVINGS
-  );
-};
-
-export const canPortfolioOptionMonthlySave = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
-  portfolioOption: PortfolioOption,
-  linkedContact: string | undefined
-) => {
-  return isPortfolioOptionEligible(
-    contactRepresentativeTags,
-    portfolioOption,
-    linkedContact,
-    PortfolioGroups.MONTHLY_SAVINGS,
-    RepresentativeTag.MONTHLY_SAVINGS
-  );
-};
-
-//Does the portfolio have the ability to trade
-export const canPortfolioTrade = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
-  portfolio: Portfolio,
-  linkedContact: string | undefined
-) => {
-  return isPortfolioEligible(
-    contactRepresentativeTags,
-    portfolio,
-    linkedContact,
-    PortfolioGroups.TRADE,
-    RepresentativeTag.TRADE
-  );
-};
-
-export const canPortfolioOptionTrade = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
-  portfolioOption: PortfolioOption,
-  linkedContact: string | undefined
-) => {
-  return isPortfolioOptionEligible(
-    contactRepresentativeTags,
-    portfolioOption,
-    linkedContact,
-    PortfolioGroups.TRADE,
-    RepresentativeTag.TRADE
-  );
-};
 
 type Security = {
   groups: SecurityGroup[];
@@ -120,13 +33,13 @@ export const isSecuritySwitchable = (tags: string[]) => {
 //In which securities can it trade (linked security groups starting with CP_)
 export const isPortfolioLinkedToSecurityGroups = (
   portfolio: Portfolio,
-  securityGroups: SecurityGroup[],
+  securityGroups: SecurityGroup[] | undefined,
   groupPrefix: string
 ) => {
   try {
     return portfolio?.securityGroups?.some((sg) => {
       if (sg.code?.startsWith(groupPrefix)) {
-        return securityGroups.some(
+        return securityGroups?.some(
           (securityGroup) => sg.code === securityGroup.code
         );
       }
@@ -153,17 +66,13 @@ export const isPortfolioLinkedToAnySecurityGroup = (
 };
 
 export const canPortfolioOptionTradeSecurity = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
-  linkedContact: string | undefined,
   portfolioOption: PortfolioOption,
-  securityGroups: SecurityGroup[],
+  securityGroups: SecurityGroup[] | undefined,
   groupPrefix: string
 ) => {
   try {
     if (!portfolioOption.details) return false; //no data available
     return canPortfolioTradeSecurityGroups(
-      contactRepresentativeTags,
-      linkedContact,
       portfolioOption.details,
       securityGroups,
       groupPrefix
@@ -175,36 +84,21 @@ export const canPortfolioOptionTradeSecurity = (
 };
 
 export const canPortfolioTradeSecurityGroups = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
-  linkedContact: string | undefined,
   portfolio: Portfolio,
-  securityGroups: SecurityGroup[],
+  securityGroups: SecurityGroup[] | undefined,
   groupPrefix: string
 ) => {
   try {
-    if (
-      isPortfolioEligible(
-        contactRepresentativeTags,
-        portfolio,
-        linkedContact,
-        PortfolioGroups.TRADE,
-        RepresentativeTag.TRADE
-      )
-    ) {
-      if (!isPortfolioLinkedToAnySecurityGroup(portfolio, groupPrefix)) {
-        //can trade all securities
-        return true;
-      } else {
-        //can trade linked securities
-        return isPortfolioLinkedToSecurityGroups(
-          portfolio,
-          securityGroups,
-          groupPrefix
-        );
-      }
+    if (!isPortfolioLinkedToAnySecurityGroup(portfolio, groupPrefix)) {
+      //can trade all securities
+      return true;
     } else {
-      //can't trade
-      return false;
+      //can trade linked securities
+      return isPortfolioLinkedToSecurityGroups(
+        portfolio,
+        securityGroups,
+        groupPrefix
+      );
     }
   } catch (e) {
     console.error(e);
@@ -213,25 +107,12 @@ export const canPortfolioTradeSecurityGroups = (
 };
 
 export const canPortfolioTradeSecurity = (
-  contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
-  linkedContact: string | undefined,
   portfolio: Portfolio,
   security: Security,
   groupPrefix: string
 ) => {
   try {
-    if (
-      isPortfolioEligible(
-        contactRepresentativeTags,
-        portfolio,
-        linkedContact,
-        PortfolioGroups.TRADE,
-        RepresentativeTag.TRADE
-      ) &&
-      isSecurityTradable(security.tagsAsSet)
-    ) {
-      //portfolio is allowed to be traded in by the user
-
+    if (isSecurityTradable(security.tagsAsSet)) {
       if (!isPortfolioLinkedToAnySecurityGroup(portfolio, groupPrefix)) {
         //can trade all securities
         return true;
@@ -269,7 +150,12 @@ export const useGetPermittedSecurities = (
   options?: GetTradableSecuritiesProps,
   portfolioId?: number
 ) => {
-  const { access, linkedContact } = useKeycloak();
+  const { canPf: canPfTrade } = useFeature(
+    PortfolioGroups.TRADE,
+    RepresentativeTag.TRADE,
+    PermissionMode.SELECTED_ANY
+  );
+  const { access } = useKeycloak();
   const groupPrefix = access.advisor
     ? CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX
     : CLIENT_PORTAL_SECURITY_GROUP_PREFIX;
@@ -280,7 +166,6 @@ export const useGetPermittedSecurities = (
     loading: loadingContactData,
     error: contactError,
   } = useGetContactInfo(false, selectedContactId);
-  const contactRepresentativeTags = contactData?.representativeTags;
   const {
     filters,
     setFilters,
@@ -296,29 +181,23 @@ export const useGetPermittedSecurities = (
   const tradable = useMemo(() => {
     setLoading(true);
     try {
-      const result = securities
-        ? portfolio
-          ? securities.filter((s) =>
-              canPortfolioTradeSecurity(
-                contactRepresentativeTags,
-                linkedContact,
-                portfolio,
-                s,
-                groupPrefix
-              )
+      let result;
+      if (securities) {
+        if (portfolio && canPfTrade(portfolio)) {
+          result = securities.filter((s) =>
+            canPortfolioTradeSecurity(portfolio, s, groupPrefix)
+          );
+        } else {
+          result = securities.filter((s) =>
+            contactData?.portfolios?.some(
+              (p) =>
+                canPfTrade(p) && canPortfolioTradeSecurity(p, s, groupPrefix)
             )
-          : securities.filter((s) =>
-              contactData?.portfolios?.some((p) =>
-                canPortfolioTradeSecurity(
-                  contactRepresentativeTags,
-                  linkedContact,
-                  p,
-                  s,
-                  groupPrefix
-                )
-              )
-            )
-        : undefined;
+          );
+        }
+      } else {
+        result = undefined;
+      }
       setLoading(false);
       return result;
     } catch (e) {
@@ -326,14 +205,7 @@ export const useGetPermittedSecurities = (
       setLoading(false);
       return undefined;
     }
-  }, [
-    securities,
-    portfolio,
-    contactRepresentativeTags,
-    linkedContact,
-    groupPrefix,
-    contactData?.portfolios,
-  ]);
+  }, [securities, portfolio, canPfTrade, groupPrefix, contactData?.portfolios]);
   return {
     filterOptions,
     filters,
@@ -400,19 +272,22 @@ export const useCanTradeSecurities = (
   securities: AnalyticsSecurity[],
   portfolioId?: number
 ) => {
-  const { linkedContact } = useKeycloak();
   const linkedSecurities = useGetLinkedSecurities(portfolioId);
   const { selectedContactId } = useGetContractIdData();
   const { data: contactData } = useGetContactInfo(false, selectedContactId);
   const portfolio = portfolioId
     ? contactData?.portfolios.find((p) => p.id === portfolioId)
     : undefined;
-  const contactRepresentativeTags = contactData?.representativeTags;
+
+  const { canPf: canPfTrade } = useFeature(
+    PortfolioGroups.TRADE,
+    RepresentativeTag.TRADE,
+    PermissionMode.SELECTED_ANY
+  );
+
   const isPortfolioTradable = useMemo(() => {
-    return portfolio
-      ? canPortfolioTrade(contactRepresentativeTags, portfolio, linkedContact)
-      : false;
-  }, [portfolio, contactRepresentativeTags, linkedContact]);
+    return portfolio ? canPfTrade(portfolio) : false;
+  }, [canPfTrade, portfolio]);
   const tradableHoldings = useMemo(() => {
     if (portfolio && !isPortfolioTradable) {
       return [];
