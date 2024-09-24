@@ -1,8 +1,12 @@
 import { useMemo, useState } from "react";
 import { TradeOrder } from "api/orders/types";
 import { QueryData } from "api/types";
-import { Card, DatePicker, QueryLoadingWrapper } from "components";
-import { OrdersFilter } from "components/TransactionFilter/OrdersFilter";
+import {
+  Card,
+  DatePicker,
+  QueryLoadingWrapper,
+  TransactionsFilter,
+} from "components";
 import { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -93,11 +97,13 @@ export const Orders = ({
               minDate={startDate}
             />
           </div>
-          <OrdersFilter
-            orderData={filteredAndSortedOrders || []}
+          <TransactionsFilter
+            transactionsData={filteredAndSortedOrders}
             filterHeader={t("ordersPage.transactionsFilterTitle")}
             onFilter={(filteredTransactionData) => {
-              setFilteredTransactionData(filteredTransactionData);
+              setFilteredTransactionData(
+                filteredTransactionData as TradeOrder[]
+              );
             }}
           />
         </div>

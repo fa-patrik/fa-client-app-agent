@@ -197,7 +197,7 @@ export const useGetTradebleSecurities = (
         prev.country.push({
           id: securityCountry.code,
           label: getBackendTranslation(
-            securityCountry.name ?? "",
+            securityCountry.name,
             securityCountry.namesAsMap,
             locale
           ),
@@ -212,7 +212,7 @@ export const useGetTradebleSecurities = (
         prev.type.push({
           id: securityType.code,
           label: getBackendTranslation(
-            securityType.name ?? "",
+            securityType.name,
             securityType.namesAsMap,
             locale
           ),

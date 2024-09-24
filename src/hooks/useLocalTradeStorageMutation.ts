@@ -99,6 +99,11 @@ export const useLocalTradeStorageMutation = () => {
       id: LocalTradeOrderId,
       orderStatus: OrderStatus.Pending,
       securityName: securityName,
+      security: {
+        id: 0,
+        name: securityName,
+        namesAsMap: {},
+      },
       type: getOrderType(tradeType),
       transactionDate: dateToYYYYMMDD(new Date()),
       tradeAmountInPortfolioCurrency: tradeAmount,

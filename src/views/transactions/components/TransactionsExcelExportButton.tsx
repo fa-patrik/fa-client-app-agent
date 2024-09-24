@@ -9,7 +9,7 @@ import { Button } from "components";
 import useExcelDownloader from "hooks/useExcelDownloader";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
-import { getNameFromBackendTranslations } from "utils/transactions";
+import { getBackendTranslation } from "utils/backTranslations";
 
 type ExportRow = (string | number | undefined)[][];
 type ExportHeader = string[];
@@ -65,17 +65,21 @@ const TransactionsExcelExportButton = ({
       const rows: ExportRow = [];
       if (transactions?.length) {
         for (const transaction of transactions) {
-          const typeTranslated = getNameFromBackendTranslations(
-            transaction.type.typeName,
-            i18n.language,
-            transaction.type.typeNamesAsMap
+          const typeTranslated = getBackendTranslation(
+            transaction?.type?.typeName,
+            transaction?.type?.typeNamesAsMap,
+            i18n.language
           );
           //get portfolio data from cache or otherwise FA Back
           const portfolio = await getPortfolioBasicFields(
             transaction.parentPortfolio.id
           );
           rows.push([
-            transaction.securityName,
+            getBackendTranslation(
+              transaction.securityName,
+              transaction.security?.namesAsMap,
+              i18n.language
+            ),
             portfolio?.name,
             transaction.transactionDate,
             transaction.amount,

@@ -76,9 +76,11 @@ export const getTradeAmountTooltip = (
   t: (key: string, options?: TOptions<StringMap> | undefined) => any
 ): string | undefined => {
   try {
-    const securityName = security
-      ? getBackendTranslation(security.name, security.namesAsMap, locale)
-      : "";
+    const securityName = getBackendTranslation(
+      security.name,
+      security.namesAsMap,
+      locale
+    );
 
     const unitsFormatted =
       units !== undefined
@@ -147,10 +149,11 @@ export const getBlockSizeErrorTooltip = (
   buy: boolean
 ): string | undefined => {
   try {
-    const sellSecurityName = security
-      ? getBackendTranslation(security.name, security.namesAsMap, locale)
-      : "";
-
+    const sellSecurityName = getBackendTranslation(
+      security.name,
+      security.namesAsMap,
+      locale
+    );
     const sellPrice = `${security?.latestMarketData?.price} ${security.currency.securityCode}`;
 
     const sellSecurityToPortfoliofxRate = fxRate

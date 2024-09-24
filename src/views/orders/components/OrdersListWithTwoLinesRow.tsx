@@ -3,12 +3,10 @@ import { Badge, Grid } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useNavigate, useParams } from "react-router-dom";
+import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import { getSwitchDetails, isOrderPartOfSwitch } from "utils/switchOrders";
-import {
-  getNameFromBackendTranslations,
-  getTransactionColor,
-} from "utils/transactions";
+import { getTransactionColor } from "utils/transactions";
 import { OrderProps, OrdersListProps } from "./OrdersGroup";
 
 export const OrdersListWithTwoLinesRow = ({ orders }: OrdersListProps) => {
@@ -90,10 +88,10 @@ const Order = ({ order, onClick }: OrderProps) => {
               >
                 {isPartOfSwitch
                   ? "Switch"
-                  : getNameFromBackendTranslations(
-                      order.type.typeName,
-                      i18n.language,
-                      order.type.typeNamesAsMap
+                  : getBackendTranslation(
+                      order?.type?.typeName,
+                      order?.type?.typeNamesAsMap,
+                      i18n.language
                     )}
               </Badge>
             </div>

@@ -1,9 +1,10 @@
 export const getBackendTranslation = (
-    fallbackTranslation: string,
-    backendTranslationsMap: Record<string, string> = {},
-    locale: string
-  ) => {
-    return (
-      backendTranslationsMap[locale.replace("-", "_")] || fallbackTranslation
-    );
-  };
+  fallbackTranslation: string | undefined,
+  backendTranslationsMap: Record<string, string> = {},
+  locale: string
+) => {
+  if (!fallbackTranslation) return "";
+  return (
+    backendTranslationsMap[locale.replace("-", "_")] || fallbackTranslation
+  );
+};

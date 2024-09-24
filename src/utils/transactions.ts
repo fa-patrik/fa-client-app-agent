@@ -1,15 +1,5 @@
 import { Severity } from "components/Alert/Alert";
 
-export const getNameFromBackendTranslations = (
-  fallbackTranslation: string,
-  locale: string,
-  backendTranslationsMap: Record<string, string> = {}
-) => {
-  return (
-    backendTranslationsMap[locale.replace("-", "_")] || fallbackTranslation
-  );
-};
-
 export const getTransactionColor = (
   amountEffect: number,
   cashFlowEffect: number,

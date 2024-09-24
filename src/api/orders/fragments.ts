@@ -6,6 +6,11 @@ export const TRADE_ORDERS_DETAILS = gql`
     amount
     orderStatus
     securityName
+    security {
+      id
+      name
+      namesAsMap
+    }
     type {
       typeCode
       typeName
@@ -24,7 +29,11 @@ export const TRADE_ORDERS_DETAILS = gql`
       id
       amount
       orderStatus
-      securityName
+      security {
+        id
+        name
+        namesAsMap
+      }
       type {
         typeCode
         typeName
@@ -57,9 +66,12 @@ export const TRADE_ORDERS_EXTENDED_DETAILS = gql`
   fragment TradeOrderExtendedDetails on Transaction {
     id
     amount
+    securityName
     security {
       id
       isinCode
+      name
+      namesAsMap
       country {
         code
       }

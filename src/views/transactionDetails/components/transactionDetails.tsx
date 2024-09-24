@@ -10,10 +10,7 @@ import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
 import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
-import {
-  getTransactionColor,
-  getNameFromBackendTranslations,
-} from "utils/transactions";
+import { getTransactionColor } from "utils/transactions";
 import { InfoCard } from "views/transactionDetails/components/InfoCard";
 import { DataRow } from "../../holdingDetails/components/DataRow";
 import { TransactionType } from "../transactionDetailsView";
@@ -25,13 +22,13 @@ interface TransactionDetailsProps {
 
 export const TransactionDetails = ({
   data: {
+    securityName,
     amount,
     security,
     settlementDate,
     unitPriceInSecurityCurrency,
     type,
     transactionDate,
-    securityName,
     parentPortfolio,
     costInSecurityCurrency,
     accountFxRate,
@@ -69,10 +66,10 @@ export const TransactionDetails = ({
           <div className="grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fill,_minmax(175px,_1fr))]">
             <InfoCard
               label={t("transactionsPage.type")}
-              value={getNameFromBackendTranslations(
+              value={getBackendTranslation(
                 type.typeName,
-                i18n.language,
-                type.typeNamesAsMap
+                type.typeNamesAsMap,
+                i18n.language
               )}
               severity={getTransactionColor(
                 type.amountEffect,
@@ -103,8 +100,14 @@ export const TransactionDetails = ({
                 )}
                 value={
                   <div>
-                    <span>{securityName}</span>
-                    {security && security.country && (
+                    <span>
+                      {getBackendTranslation(
+                        securityName,
+                        security?.namesAsMap,
+                        i18n.language
+                      )}
+                    </span>
+                    {security?.country && (
                       <CountryFlag
                         code={security.country.code}
                         className="inline ml-1.5 align-baseline w-[20px] h-[14px]"

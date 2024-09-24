@@ -3,11 +3,9 @@ import { Badge } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
+import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
-import {
-  getNameFromBackendTranslations,
-  getTransactionColor,
-} from "utils/transactions";
+import { getTransactionColor } from "utils/transactions";
 import { useNavigateToDetails } from "../useNavigateToDetails";
 import { TransactionProps, TransactionsListProps } from "./TransactionsGroup";
 
@@ -66,9 +64,10 @@ export const TransactionsListWithOneLineRow = ({
 const Transaction = ({
   transactionDate,
   amount,
+  securityName,
   type,
   tradeAmountInPortfolioCurrency,
-  securityName,
+  security,
   parentPortfolio,
   onClick,
   showPortfolioLabel,
@@ -76,10 +75,10 @@ const Transaction = ({
   const { t, i18n } = useModifiedTranslation();
   const isLgVersion = useMatchesBreakpoint("lg");
 
-  const typeTranslated = getNameFromBackendTranslations(
-    type.typeName,
-    i18n.language,
-    type.typeNamesAsMap
+  const typeTranslated = getBackendTranslation(
+    type?.typeName,
+    type?.typeNamesAsMap,
+    i18n.language
   );
 
   const TypeBadge = () => {
@@ -102,7 +101,13 @@ const Transaction = ({
         onClick={onClick}
         className="h-12 hover:bg-primary-50 border-t transition-colors cursor-pointer"
       >
-        <td className="px-2 font-semibold text-left">{securityName}</td>
+        <td className="px-2 font-semibold text-left">
+          {getBackendTranslation(
+            securityName,
+            security?.namesAsMap,
+            i18n.language
+          )}
+        </td>
         {showPortfolioLabel && (
           <td className="px-1 text-sm md:text-base text-left text-gray-500">
             {transactionParentPortfolio?.name}

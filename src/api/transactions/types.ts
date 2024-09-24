@@ -14,6 +14,12 @@ export interface Transaction {
   };
   tradeAmountInPortfolioCurrency: number;
   securityName: string;
+  security?: {
+    //not returned for cash
+    id: number;
+    name: string;
+    namesAsMap: Record<string, string>;
+  };
   parentPortfolio: {
     id: number;
   };
@@ -36,8 +42,11 @@ export interface AllPortfoliosTransactionsQuery {
 }
 
 export interface TransactionDetails extends Transaction {
+  securityName: string;
   security?: {
     id: number;
+    name: string;
+    namesAsMap: Record<string, string>;
     isinCode: string;
     country?: {
       id: number;

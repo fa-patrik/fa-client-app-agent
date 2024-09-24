@@ -1,8 +1,11 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { TradeOrder } from "api/orders/types";
 import { Transaction } from "api/transactions/types";
 import { Button } from "components";
 import { Option, Select } from "components/Select/Select";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { getBackendTranslation } from "utils/backTranslations";
+import { getOrderTypeName } from "utils/switchOrders";
 
 /**
  * This component is used to filter the transaction data.
@@ -18,12 +21,12 @@ type TransactionsFilterProps = {
   /**
    * The transaction data to be filtered
    */
-  transactionsData: Transaction[];
+  transactionsData: Transaction[] | TradeOrder[] | undefined;
   /**
    * This function will be called when the user applies the filters.
    * @param filteredData The filtered data
    */
-  onFilter: (filteredData: Transaction[]) => void;
+  onFilter: (filteredData: (Transaction | TradeOrder)[]) => void;
   /**
    * The filter header
    * @example
@@ -34,101 +37,160 @@ type TransactionsFilterProps = {
   filterHeader?: string;
 };
 
+const isTradeOrder = (
+  transaction: Transaction | TradeOrder
+): transaction is TradeOrder => {
+  return (transaction as TradeOrder).type !== undefined;
+};
+
+const toOption = (
+  name: string
+): {
+  id: string;
+  label: string;
+  value: string;
+} => ({
+  id: name,
+  label: name,
+  value: name,
+});
+
 export const TransactionsFilter: FC<TransactionsFilterProps> = ({
   transactionsData,
   onFilter,
   filterHeader,
 }) => {
-  const { t } = useModifiedTranslation();
+  const { t, i18n } = useModifiedTranslation();
 
-  const [selectedTransactionTypes, setSelectedTransactionTypes] = useState<
-    Option[]
-  >([]);
-  const [selectedSecurityNames, setSelectedSecurityNames] = useState<Option[]>(
-    []
+  const getTypeName = useCallback(
+    (
+      transaction: Transaction | TradeOrder,
+      name: string,
+      namesAsMap: Record<string, string> | undefined = undefined
+    ) => {
+      return isTradeOrder(transaction)
+        ? getOrderTypeName(transaction, t, i18n.language)
+        : getBackendTranslation(name, namesAsMap, i18n.language);
+    },
+    [t, i18n.language]
   );
 
-  const [
-    filteredDataByBoth,
-    filteredDataBySecurityName,
-    filteredDataByTransactionType,
-  ] = useMemo(() => {
-    if (!transactionsData) return [];
-    const filteredDataByBoth = transactionsData.filter((transaction) => {
-      const isTransactionTypeMatch =
-        !selectedTransactionTypes.length ||
-        selectedTransactionTypes.some(
-          (type) => type.label === transaction.type.typeName
+  const [selectedTransactionTypeOptions, setSelectedTransactionTypeOptions] =
+    useState<Option[]>([]);
+  const [selectedSecurityNameOptions, setSelectedSecurityNameOptions] =
+    useState<Option[]>([]);
+
+  //get the transactions filtered by the selected transaction types and security names
+  const {
+    filteredTransactionsBySecurityName,
+    filteredTransactionsByTransactionType,
+    filteredTransactionsByBoth,
+  } = useMemo(() => {
+    const filteredTransactionsBySecurityName: (Transaction | TradeOrder)[] = [];
+    const filteredTransactionsByTransactionType: (Transaction | TradeOrder)[] =
+      [];
+    const filteredTransactionsByBoth: (Transaction | TradeOrder)[] = [];
+
+    if (!transactionsData)
+      return {
+        filteredTransactionsBySecurityName,
+        filteredTransactionsByTransactionType,
+        filteredTransactionsByBoth,
+      };
+
+    for (const transaction of transactionsData) {
+      const transactionTypeName = getTypeName(
+        transaction,
+        transaction.type.typeName,
+        transaction.type.typeNamesAsMap
+      );
+
+      const securityName = getBackendTranslation(
+        transaction?.securityName,
+        transaction?.security?.namesAsMap,
+        i18n.language
+      );
+
+      const matchingTransactionType =
+        !selectedTransactionTypeOptions.length ||
+        selectedTransactionTypeOptions.some(
+          (option) => option.label === transactionTypeName
         );
-      const isSecurityNameMatch =
-        !selectedSecurityNames.length ||
-        selectedSecurityNames.some(
-          (name) => name.label === transaction.securityName
+
+      const matchingSecurityName =
+        !selectedSecurityNameOptions.length ||
+        selectedSecurityNameOptions.some(
+          (option) => option.label === securityName
         );
 
-      return isTransactionTypeMatch && isSecurityNameMatch;
-    });
-
-    const filteredDataBySecurityName = transactionsData.filter(
-      (transaction) => {
-        const isSecurityNameMatch =
-          !selectedSecurityNames.length ||
-          selectedSecurityNames.some(
-            (name) => name.label === transaction.securityName
-          );
-
-        return isSecurityNameMatch;
+      if (matchingTransactionType && matchingSecurityName) {
+        filteredTransactionsByBoth.push(transaction);
       }
-    );
-
-    const filteredDataByTransactionType = transactionsData.filter(
-      (transaction) => {
-        const isTransactionTypeMatch =
-          !selectedTransactionTypes.length ||
-          selectedTransactionTypes.some(
-            (type) => type.label === transaction.type.typeName
-          );
-
-        return isTransactionTypeMatch;
+      if (matchingTransactionType) {
+        filteredTransactionsByTransactionType.push(transaction);
       }
-    );
-
-    return [
-      filteredDataByBoth,
-      filteredDataBySecurityName,
-      filteredDataByTransactionType,
-    ];
-  }, [transactionsData, selectedTransactionTypes, selectedSecurityNames]);
-
-  useEffect(() => {
-    onFilter(filteredDataByBoth || []);
-  }, [filteredDataByBoth, onFilter]);
-
-  const { transactionTypes, securityNames } = useMemo(() => {
-    const transactionTypes = filteredDataBySecurityName?.map(
-      (transaction) => transaction.type.typeName
-    );
-    const securityNames = filteredDataByTransactionType?.map(
-      (transaction) => transaction.securityName
-    );
-
-    const columnToOptions = (column: string[] | undefined) =>
-      !column
-        ? []
-        : Array.from(new Set(column))
-            .map((name, i) => ({
-              id: name,
-              label: name,
-              value: name,
-              count: column?.filter((t) => t === name).length || 0,
-            }))
-            .sort((a, b) => b.count - a.count);
+      if (matchingSecurityName) {
+        filteredTransactionsBySecurityName.push(transaction);
+      }
+    }
 
     return {
-      transactionTypes: columnToOptions(transactionTypes),
-      securityNames: columnToOptions(securityNames),
+      filteredTransactionsBySecurityName,
+      filteredTransactionsByTransactionType,
+      filteredTransactionsByBoth,
     };
-  }, [filteredDataBySecurityName, filteredDataByTransactionType]);
+  }, [
+    transactionsData,
+    getTypeName,
+    i18n.language,
+    selectedTransactionTypeOptions,
+    selectedSecurityNameOptions,
+  ]);
+
+  //next filter the available options based on the selected transaction types and security names
+  const { filteredTransactionTypeOptions, filteredSecurityNameOptions } =
+    useMemo(() => {
+      const transactionTypeSet = new Set<string>();
+      const securityNameSet = new Set<string>();
+
+      filteredTransactionsBySecurityName.forEach((transaction) => {
+        const transactionTypeName = getTypeName(
+          transaction,
+          transaction.type.typeName,
+          transaction.type.typeNamesAsMap
+        );
+
+        transactionTypeSet.add(transactionTypeName);
+      });
+
+      filteredTransactionsByTransactionType.forEach((transaction) => {
+        const securityName = getBackendTranslation(
+          transaction?.securityName,
+          transaction?.security?.namesAsMap,
+          i18n.language
+        );
+
+        securityNameSet.add(securityName);
+      });
+
+      return {
+        filteredTransactionTypeOptions:
+          Array.from(transactionTypeSet).map(toOption),
+        filteredSecurityNameOptions: Array.from(securityNameSet).map(toOption),
+      };
+    }, [
+      filteredTransactionsBySecurityName,
+      filteredTransactionsByTransactionType,
+      getTypeName,
+      i18n.language,
+    ]);
+
+  useEffect(() => {
+    if (filteredTransactionsByBoth) {
+      onFilter(filteredTransactionsByBoth);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredTransactionsByBoth]);
 
   return (
     <div
@@ -142,29 +204,30 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
         <div className="w-full sm:w-48">
           <Select
             label={t("transactionFilter.transactionType")}
-            value={selectedTransactionTypes}
-            options={transactionTypes}
-            onChangeMultiple={setSelectedTransactionTypes}
+            value={selectedTransactionTypeOptions}
+            options={filteredTransactionTypeOptions}
+            onChangeMultiple={setSelectedTransactionTypeOptions}
             selectMultiple
           />
         </div>
         <div className="w-full sm:w-48">
           <Select
             label={t("transactionFilter.securityName")}
-            value={selectedSecurityNames}
-            options={securityNames}
-            onChangeMultiple={setSelectedSecurityNames}
+            value={selectedSecurityNameOptions}
+            options={filteredSecurityNameOptions}
+            onChangeMultiple={setSelectedSecurityNameOptions}
             selectMultiple
           />
         </div>
         <div className="place-self-end sm:place-self-start pb-[1]">
           <Button
             onClick={() => {
-              setSelectedTransactionTypes([]);
-              setSelectedSecurityNames([]);
+              setSelectedTransactionTypeOptions([]);
+              setSelectedSecurityNameOptions([]);
             }}
             disabled={
-              !selectedTransactionTypes.length && !selectedSecurityNames.length
+              !selectedTransactionTypeOptions.length &&
+              !selectedSecurityNameOptions.length
             }
             variant="Secondary"
           >
