@@ -43,17 +43,17 @@ const isTradeOrder = (
   return (transaction as TradeOrder).type !== undefined;
 };
 
-const toOption = (
-  name: string
-): {
-  id: string;
-  label: string;
-  value: string;
-} => ({
-  id: name,
-  label: name,
-  value: name,
-});
+const columnToOptions = (column: string[] | undefined) =>
+  !column
+    ? []
+    : Array.from(new Set(column))
+        .map((name, i) => ({
+          id: name,
+          label: name,
+          value: name,
+          count: column?.filter((t) => t === name).length || 0,
+        }))
+        .sort((a, b) => b.count - a.count);
 
 export const TransactionsFilter: FC<TransactionsFilterProps> = ({
   transactionsData,
@@ -150,8 +150,8 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
   //next filter the available options based on the selected transaction types and security names
   const { filteredTransactionTypeOptions, filteredSecurityNameOptions } =
     useMemo(() => {
-      const transactionTypeSet = new Set<string>();
-      const securityNameSet = new Set<string>();
+      const transactionTypes: string[] = [];
+      const securityNames: string[] = [];
 
       filteredTransactionsBySecurityName.forEach((transaction) => {
         const transactionTypeName = getTypeName(
@@ -160,7 +160,7 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
           transaction.type.typeNamesAsMap
         );
 
-        transactionTypeSet.add(transactionTypeName);
+        transactionTypes.push(transactionTypeName);
       });
 
       filteredTransactionsByTransactionType.forEach((transaction) => {
@@ -170,13 +170,12 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
           i18n.language
         );
 
-        securityNameSet.add(securityName);
+        securityNames.push(securityName);
       });
 
       return {
-        filteredTransactionTypeOptions:
-          Array.from(transactionTypeSet).map(toOption),
-        filteredSecurityNameOptions: Array.from(securityNameSet).map(toOption),
+        filteredTransactionTypeOptions: columnToOptions(transactionTypes),
+        filteredSecurityNameOptions: columnToOptions(securityNames),
       };
     }, [
       filteredTransactionsBySecurityName,
