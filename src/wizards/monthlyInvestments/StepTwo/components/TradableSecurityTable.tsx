@@ -21,6 +21,7 @@ import Pagination from "components/Pagination/Pagination";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { Link, useLocation } from "react-router-dom";
+import { getBackendTranslation } from "utils/backTranslations";
 import SecurityInfoCell from "./SecurityInfoCell";
 
 interface Row {
@@ -495,11 +496,16 @@ const TradableSecurityTable = ({
                   id={!id ? undefined : `${id}-info-${security.id}`}
                   securityId={security.id}
                   countryCode={security.country?.code}
-                  name={security.name}
-                  typeName={
-                    security.type?.namesAsMap?.[i18n.language] ??
-                    security.type.name
-                  }
+                  name={getBackendTranslation(
+                    security.name,
+                    security.namesAsMap,
+                    i18n.language
+                  )}
+                  typeName={getBackendTranslation(
+                    security.type.name,
+                    security.type?.namesAsMap,
+                    i18n.language
+                  )}
                   isinCode={security.isinCode}
                 />
               </td>

@@ -76,7 +76,11 @@ const OrdersExcelExportButton = ({
             order.parentPortfolio.id
           );
           rows.push([
-            order.securityName,
+            getBackendTranslation(
+              order.securityName,
+              order.security?.namesAsMap,
+              i18n.language
+            ),
             portfolio?.name,
             order.transactionDate,
             order.amount,

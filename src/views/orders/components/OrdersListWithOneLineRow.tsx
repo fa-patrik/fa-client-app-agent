@@ -16,6 +16,7 @@ import {
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
 import { PermissionMode, useFeature } from "services/permissions/usePermission";
+import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getOrderTypeName,
@@ -161,13 +162,31 @@ const Order = ({
                     <span>{t("ordersPage.switchBuy")}</span>
                   </div>
                   <div className="flex flex-col gap-y-1 font-semibold text-black">
-                    <span>{switchDetails?.fromOrder?.securityName}</span>
-                    <span>{switchDetails?.toOrder?.securityName}</span>
+                    <span>
+                      {getBackendTranslation(
+                        switchDetails?.fromOrder?.securityName,
+                        switchDetails?.fromOrder?.security?.namesAsMap,
+                        i18n.language
+                      )}
+                    </span>
+                    <span>
+                      {getBackendTranslation(
+                        switchDetails?.toOrder?.securityName,
+                        switchDetails?.toOrder?.security?.namesAsMap,
+                        i18n.language
+                      )}
+                    </span>
                   </div>
                 </div>
               </>
             ) : (
-              <span>{order.securityName}</span>
+              <span>
+                {getBackendTranslation(
+                  order.securityName,
+                  order.security?.namesAsMap,
+                  i18n.language
+                )}
+              </span>
             )}
           </div>
         </td>

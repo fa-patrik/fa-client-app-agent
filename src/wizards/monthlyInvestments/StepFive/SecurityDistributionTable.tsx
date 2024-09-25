@@ -2,6 +2,7 @@ import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { CountryFlag } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { getBackendTranslation } from "utils/backTranslations";
 
 const SECURITY_NAME_MAX_LENGTH = 25;
 
@@ -83,7 +84,13 @@ const SecurityDistributionTable = ({
                     }
                     className="text-xs font-bold whitespace-nowrap"
                   >
-                    {truncateName(security.name)}
+                    {truncateName(
+                      getBackendTranslation(
+                        security.name,
+                        security.namesAsMap,
+                        i18n.language
+                      )
+                    )}
                   </div>
                 </div>
               </td>

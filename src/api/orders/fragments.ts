@@ -29,6 +29,7 @@ export const TRADE_ORDERS_DETAILS = gql`
       id
       amount
       orderStatus
+      securityName
       security {
         id
         name
@@ -106,6 +107,7 @@ export const TRADE_ORDERS_EXTENDED_DETAILS = gql`
     linkedTransaction {
       id
       amount
+      securityName
       security {
         id
         isinCode

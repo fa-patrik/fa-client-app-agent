@@ -7,6 +7,7 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { toast } from "react-toastify";
 import { useGetPermittedSecurities } from "services/permissions/trading";
+import { getBackendTranslation } from "utils/backTranslations";
 import TradableSecurityTable from "wizards/monthlyInvestments/StepTwo/components/TradableSecurityTable";
 import { MonthlyInvestmentsWizardState } from "../types";
 
@@ -21,7 +22,7 @@ const StepTwo = () => {
   const amountDistribution = monthlyInvestmentsWizardState.amountDistribution;
   const percentageDistribution =
     monthlyInvestmentsWizardState.percentageDistribution;
-  const { t } = useModifiedTranslation();
+  const { t, i18n } = useModifiedTranslation();
   //useGetTradebleSecurities has its own api for filtering securities
   //however, that results in extra api requests
   //here we just get the filterOptions and the initially selected filter option
@@ -91,12 +92,14 @@ const StepTwo = () => {
 
     const filteredByInput = securitiesFilteredByCategory?.filter((security) => {
       return (
-        security.name.toLowerCase().includes(inputNameOrIsin.toLowerCase()) ||
+        getBackendTranslation(security.name, security.namesAsMap, i18n.language)
+          .toLowerCase()
+          .includes(inputNameOrIsin.toLowerCase()) ||
         security.isinCode?.toLowerCase().includes(inputNameOrIsin.toLowerCase())
       );
     });
     setSecuritiesFilteredByCategoryAndInput(() => filteredByInput);
-  }, [securitiesFilteredByCategory, inputNameOrIsin]);
+  }, [securitiesFilteredByCategory, inputNameOrIsin, i18n.language]);
 
   const [displayCategoryFilter, setDisplayCategoryFilter] = useState(false);
 

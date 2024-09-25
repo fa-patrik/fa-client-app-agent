@@ -128,7 +128,13 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                     value={
                       <div>
                         <div>
-                          <span>{switchFromOrder?.securityName}</span>
+                          <span>
+                            {getBackendTranslation(
+                              switchFromOrder?.securityName,
+                              switchFromOrder?.security?.namesAsMap,
+                              i18n.language
+                            )}
+                          </span>
                           {switchFromOrder?.security?.country && (
                             <CountryFlag
                               code={switchFromOrder.security.country.code}
@@ -154,7 +160,13 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                     value={
                       <div>
                         <div>
-                          <span>{switchToOrder?.securityName}</span>
+                          <span>
+                            {getBackendTranslation(
+                              switchToOrder?.securityName,
+                              switchToOrder?.security?.namesAsMap,
+                              i18n.language
+                            )}
+                          </span>
                           {switchToOrder?.security?.country && (
                             <CountryFlag
                               code={switchToOrder.security.country.code}
@@ -186,7 +198,13 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                   value={
                     <div>
                       <div>
-                        <span>{order?.securityName}</span>
+                        <span>
+                          {getBackendTranslation(
+                            order?.securityName,
+                            order.security?.namesAsMap,
+                            i18n.language
+                          )}
+                        </span>
                         {order?.security?.country && (
                           <CountryFlag
                             code={order.security.country.code}

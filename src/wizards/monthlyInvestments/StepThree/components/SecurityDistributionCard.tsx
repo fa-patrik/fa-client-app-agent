@@ -3,6 +3,7 @@ import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import { Button, Card, Input } from "components";
 
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { getBackendTranslation } from "utils/backTranslations";
 import {
   SetValueFunc,
   handleNumberInputEvent,
@@ -61,10 +62,16 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
               id={id ?? undefined}
               securityId={security.id}
               countryCode={security.country?.code}
-              name={security.name}
-              typeName={
-                security.type?.namesAsMap?.[i18n.language] ?? security.type.name
-              }
+              name={getBackendTranslation(
+                security.name,
+                security.namesAsMap,
+                i18n.language
+              )}
+              typeName={getBackendTranslation(
+                security.type.name,
+                security.type?.namesAsMap,
+                i18n.language
+              )}
               isinCode={security.isinCode}
             />
 

@@ -344,7 +344,11 @@ export const SwitchModalContent = ({
           tooltipContent={
             selectedSellSecurity?.name
               ? t("switchOrderModal.shareInputTooltip", {
-                  securityName: selectedSellSecurity?.name,
+                  securityName: getBackendTranslation(
+                    selectedSellSecurity?.name,
+                    selectedSellSecurity?.namesAsMap,
+                    i18n.language
+                  ),
                 })
               : ""
           }

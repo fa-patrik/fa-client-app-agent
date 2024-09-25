@@ -6,6 +6,7 @@ import { Badge } from "components";
 import { Button, LabeledDiv } from "components/index";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useKeycloak } from "providers/KeycloakProvider";
+import { getBackendTranslation } from "utils/backTranslations";
 import {
   getOrderTypeName,
   getSwitchDetails,
@@ -94,13 +95,21 @@ export const CancelOrderModalContent = ({
               label={t("cancelOrderModal.switchSell")}
               className="w-1/2 font-semibold text-gray-700 text-md"
             >
-              {switchDetails?.fromOrder?.securityName}
+              {getBackendTranslation(
+                switchDetails?.fromOrder?.securityName,
+                switchDetails?.fromOrder?.security?.namesAsMap,
+                i18n.language
+              )}
             </LabeledDiv>
             <LabeledDiv
               label={t("cancelOrderModal.switchBuy")}
               className="w-1/2 font-semibold text-gray-700 text-md"
             >
-              {switchDetails?.toOrder?.securityName}
+              {getBackendTranslation(
+                switchDetails?.toOrder?.securityName,
+                switchDetails?.toOrder?.security?.namesAsMap,
+                i18n.language
+              )}
             </LabeledDiv>
           </>
         ) : (
@@ -109,7 +118,11 @@ export const CancelOrderModalContent = ({
               label={t("cancelOrderModal.security")}
               className="w-1/2 font-semibold text-gray-700 text-md"
             >
-              {order.securityName}
+              {getBackendTranslation(
+                order.securityName,
+                order.security?.namesAsMap,
+                i18n.language
+              )}
             </LabeledDiv>
 
             <LabeledDiv
