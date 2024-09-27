@@ -30,7 +30,6 @@ export const TradableSecuritiesList = ({
 }: TradableSecuritiesListProps) => {
   const { t } = useModifiedTranslation();
   const { i18n } = useModifiedTranslation();
-  const locale = i18n.language;
 
   const isSmVersion = useMatchesBreakpoint("md");
   const isXlVersion = useMatchesBreakpoint("xl");
@@ -58,16 +57,18 @@ export const TradableSecuritiesList = ({
 
   return (
     <>
-      {groupSecuritiesByType(securities, locale).map(
-        ([groupName, groupSecurities]) => (
-          <Card header={groupName} key={groupName}>
-            <TradableSecuritiesListSized
-              data={groupSecurities}
-              onBuyModalOpen={onBuyModalOpen}
-            />
-          </Card>
-        )
-      )}
+      {groupSecuritiesByType(
+        securities,
+        i18n.language,
+        i18n.resolvedLanguage
+      ).map(([groupName, groupSecurities]) => (
+        <Card header={groupName} key={groupName}>
+          <TradableSecuritiesListSized
+            data={groupSecurities}
+            onBuyModalOpen={onBuyModalOpen}
+          />
+        </Card>
+      ))}
       <Modal {...buyModalProps} header={t("tradingModal.buyModalHeader")}>
         <BuyModalContent {...buyModalContentProps} />
       </Modal>
@@ -77,14 +78,16 @@ export const TradableSecuritiesList = ({
 
 const groupSecuritiesByType = (
   securities: TradableSecurityInterface[],
-  locale: string
+  language: string,
+  resolvedLanguage: string
 ) => {
   return Object.entries(
     securities.reduce((result: Record<string, TradableSecurity[]>, current) => {
       const currentType = getBackendTranslation(
         current.type?.name,
         current.type?.namesAsMap,
-        locale
+        language,
+        resolvedLanguage
       );
       if (!result[currentType]) {
         result[currentType] = [];

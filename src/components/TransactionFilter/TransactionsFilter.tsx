@@ -69,10 +69,15 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
       namesAsMap: Record<string, string> | undefined = undefined
     ) => {
       return isTradeOrder(transaction)
-        ? getOrderTypeName(transaction, t, i18n.language)
-        : getBackendTranslation(name, namesAsMap, i18n.language);
+        ? getOrderTypeName(transaction, t, i18n.language, i18n.resolvedLanguage)
+        : getBackendTranslation(
+            name,
+            namesAsMap,
+            i18n.language,
+            i18n.resolvedLanguage
+          );
     },
-    [t, i18n.language]
+    [t, i18n]
   );
 
   const [selectedTransactionTypeOptions, setSelectedTransactionTypeOptions] =
@@ -108,7 +113,8 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
       const securityName = getBackendTranslation(
         transaction?.securityName,
         transaction?.security?.namesAsMap,
-        i18n.language
+        i18n.language,
+        i18n.resolvedLanguage
       );
 
       const matchingTransactionType =
@@ -142,7 +148,7 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
   }, [
     transactionsData,
     getTypeName,
-    i18n.language,
+    i18n,
     selectedTransactionTypeOptions,
     selectedSecurityNameOptions,
   ]);
@@ -167,7 +173,8 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
         const securityName = getBackendTranslation(
           transaction?.securityName,
           transaction?.security?.namesAsMap,
-          i18n.language
+          i18n.language,
+          i18n.resolvedLanguage
         );
 
         securityNames.push(securityName);
@@ -181,7 +188,7 @@ export const TransactionsFilter: FC<TransactionsFilterProps> = ({
       filteredTransactionsBySecurityName,
       filteredTransactionsByTransactionType,
       getTypeName,
-      i18n.language,
+      i18n,
     ]);
 
   useEffect(() => {

@@ -97,14 +97,16 @@ export const getPartOfSwitch = (order: TradeOrder): PartOfSwitch => {
 export const getOrderTypeName = (
   order: TradeOrder,
   t: (key: string, options?: TOptions<StringMap> | undefined) => string,
-  locale: string
+  locale: string,
+  resolvedLanguage: string
 ): string => {
   const typeName = isOrderPartOfSwitch(order)
     ? t("utils.switchOrder.typeName")
     : getBackendTranslation(
         order?.type?.typeName,
         order?.type?.typeNamesAsMap,
-        locale
+        locale,
+        resolvedLanguage
       );
   return typeName;
 };

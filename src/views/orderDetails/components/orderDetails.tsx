@@ -86,7 +86,12 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
           <div className="grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fill,_minmax(175px,_1fr))]">
             <InfoCard
               label={t("transactionsPage.type")}
-              value={getOrderTypeName(order, t, i18n.language)}
+              value={getOrderTypeName(
+                order,
+                t,
+                i18n.language,
+                i18n.resolvedLanguage
+              )}
               severity={getTransactionColor(
                 order.type.amountEffect,
                 order.type.cashFlowEffect,
@@ -132,7 +137,8 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                             {getBackendTranslation(
                               switchFromOrder?.securityName,
                               switchFromOrder?.security?.namesAsMap,
-                              i18n.language
+                              i18n.language,
+                              i18n.resolvedLanguage
                             )}
                           </span>
                           {switchFromOrder?.security?.country && (
@@ -164,7 +170,8 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                             {getBackendTranslation(
                               switchToOrder?.securityName,
                               switchToOrder?.security?.namesAsMap,
-                              i18n.language
+                              i18n.language,
+                              i18n.resolvedLanguage
                             )}
                           </span>
                           {switchToOrder?.security?.country && (
@@ -202,7 +209,8 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                           {getBackendTranslation(
                             order?.securityName,
                             order.security?.namesAsMap,
-                            i18n.language
+                            i18n.language,
+                            i18n.resolvedLanguage
                           )}
                         </span>
                         {order?.security?.country && (
@@ -293,13 +301,13 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                     <ValueInCurrencies
                       valueInSecurityCurrency={
                         isPartOfSwitch
-                          ? switchFromOrder?.tradeAmountInPortfolioCurrency || 0
+                          ? switchFromOrder?.tradeAmountInPortfolioCurrency ?? 0
                           : order.tradeAmountInSecurityCurrency
                       }
                       securityCurrencyCode={order.securityCurrencyCode}
                       valueInAccountCurrency={
                         isPartOfSwitch
-                          ? switchFromOrder?.tradeAmountInAccountCurrency || 0
+                          ? switchFromOrder?.tradeAmountInAccountCurrency ?? 0
                           : order.tradeAmountInAccountCurrency
                       }
                       accountCurrencyCode={
@@ -329,7 +337,8 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                     label={getBackendTranslation(
                       t("transactionsPage.tax"),
                       order?.taxType?.namesAsMap,
-                      i18n.language
+                      i18n.language,
+                      i18n.resolvedLanguage
                     )}
                     value={t("numberWithCurrency", {
                       value: order?.tax,
@@ -343,7 +352,8 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                     label={getBackendTranslation(
                       t("transactionsPage.tax2"),
                       order?.taxType2?.namesAsMap,
-                      i18n.language
+                      i18n.language,
+                      i18n.resolvedLanguage
                     )}
                     value={t("numberWithCurrency", {
                       value: order?.tax2,

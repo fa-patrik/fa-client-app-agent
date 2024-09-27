@@ -59,6 +59,10 @@ const CONTACT_OVERVIEW_QUERY = gql`
 export const useGetContactOverview = (cacheOnly = false) => {
   const { selectedContactId } = useGetContractIdData();
   const { i18n } = useModifiedTranslation();
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
   const defaultPolicies = getFetchPolicyOptions(
     `useGetContactOverview.${selectedContactId}`
   );
@@ -70,7 +74,7 @@ export const useGetContactOverview = (cacheOnly = false) => {
     {
       variables: {
         contactId: selectedContactId,
-        locale: i18n.language,
+        locale: locale,
         endDate: endDate.toLocaleDateString("sv-SE"),
         startDate: startDate.toLocaleDateString("sv-SE"),
       },

@@ -499,12 +499,14 @@ const TradableSecurityTable = ({
                   name={getBackendTranslation(
                     security.name,
                     security.namesAsMap,
-                    i18n.language
+                    i18n.language,
+                    i18n.resolvedLanguage
                   )}
                   typeName={getBackendTranslation(
                     security.type.name,
                     security.type?.namesAsMap,
-                    i18n.language
+                    i18n.language,
+                    i18n.resolvedLanguage
                   )}
                   isinCode={security.isinCode}
                 />

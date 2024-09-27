@@ -29,7 +29,8 @@ export const TradeOrderPosition = ({
           {getBackendTranslation(
             securityName,
             security?.namesAsMap,
-            i18n.language
+            i18n.language,
+            i18n.resolvedLanguage
           )}
         </div>
         <div className="text-base font-medium">
@@ -45,7 +46,12 @@ export const TradeOrderPosition = ({
           transactionParentPortfolio?.name
         }`}</div>
         <Badge severity={getTransactionColor(amountEffect, cashFlowEffect)}>
-          {getBackendTranslation(typeName, typeNamesAsMap, i18n.language)}
+          {getBackendTranslation(
+            typeName,
+            typeNamesAsMap,
+            i18n.language,
+            i18n.resolvedLanguage
+          )}
         </Badge>
       </div>
     </div>

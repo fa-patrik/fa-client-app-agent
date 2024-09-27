@@ -92,14 +92,19 @@ const StepTwo = () => {
 
     const filteredByInput = securitiesFilteredByCategory?.filter((security) => {
       return (
-        getBackendTranslation(security.name, security.namesAsMap, i18n.language)
+        getBackendTranslation(
+          security.name,
+          security.namesAsMap,
+          i18n.language,
+          i18n.resolvedLanguage
+        )
           .toLowerCase()
           .includes(inputNameOrIsin.toLowerCase()) ||
         security.isinCode?.toLowerCase().includes(inputNameOrIsin.toLowerCase())
       );
     });
     setSecuritiesFilteredByCategoryAndInput(() => filteredByInput);
-  }, [securitiesFilteredByCategory, inputNameOrIsin, i18n.language]);
+  }, [securitiesFilteredByCategory, inputNameOrIsin, i18n]);
 
   const [displayCategoryFilter, setDisplayCategoryFilter] = useState(false);
 

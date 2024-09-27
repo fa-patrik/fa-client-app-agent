@@ -69,7 +69,8 @@ export const TransactionDetails = ({
               value={getBackendTranslation(
                 type.typeName,
                 type.typeNamesAsMap,
-                i18n.language
+                i18n.language,
+                i18n.resolvedLanguage
               )}
               severity={getTransactionColor(
                 type.amountEffect,
@@ -104,7 +105,8 @@ export const TransactionDetails = ({
                       {getBackendTranslation(
                         securityName,
                         security?.namesAsMap,
-                        i18n.language
+                        i18n.language,
+                        i18n.resolvedLanguage
                       )}
                     </span>
                     {security?.country && (
@@ -207,7 +209,8 @@ export const TransactionDetails = ({
                   label={getBackendTranslation(
                     t("transactionsPage.tax"),
                     taxType?.namesAsMap,
-                    i18n.language
+                    i18n.language,
+                    i18n.resolvedLanguage
                   )}
                   value={t("numberWithCurrency", {
                     value: tax,
@@ -221,7 +224,8 @@ export const TransactionDetails = ({
                   label={getBackendTranslation(
                     t("transactionsPage.tax2"),
                     taxType2?.namesAsMap,
-                    i18n.language
+                    i18n.language,
+                    i18n.resolvedLanguage
                   )}
                   value={t("numberWithCurrency", {
                     value: tax2,

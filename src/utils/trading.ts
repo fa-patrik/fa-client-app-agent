@@ -72,6 +72,7 @@ export const getTradeAmountTooltip = (
   fxRate: number,
   portfolioCurrency: string,
   locale: string,
+  resolvedLanguage: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: (key: string, options?: TOptions<StringMap> | undefined) => any
 ): string | undefined => {
@@ -79,7 +80,8 @@ export const getTradeAmountTooltip = (
     const securityName = getBackendTranslation(
       security.name,
       security.namesAsMap,
-      locale
+      locale,
+      resolvedLanguage
     );
 
     const unitsFormatted =
@@ -144,6 +146,7 @@ export const getBlockSizeErrorTooltip = (
   fxRate: number,
   portfolioCurrency: string,
   locale: string,
+  resolvedLanguage: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: (key: string, options?: TOptions<StringMap> | undefined) => any,
   buy: boolean
@@ -152,7 +155,8 @@ export const getBlockSizeErrorTooltip = (
     const sellSecurityName = getBackendTranslation(
       security.name,
       security.namesAsMap,
-      locale
+      locale,
+      resolvedLanguage
     );
     const sellPrice = `${security?.latestMarketData?.price} ${security.currency.securityCode}`;
 

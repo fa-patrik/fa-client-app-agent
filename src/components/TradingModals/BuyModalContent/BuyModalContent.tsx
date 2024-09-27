@@ -131,7 +131,8 @@ export const BuyModalContent = ({
       ? getBackendTranslation(
           security?.name,
           security?.namesAsMap,
-          i18n.language
+          i18n.language,
+          i18n.resolvedLanguage
         )
       : undefined;
 
@@ -230,6 +231,7 @@ export const BuyModalContent = ({
           securityFx,
           portfolioCurrency,
           i18n.language,
+          i18n.resolvedLanguage,
           t
         )
       : undefined;
@@ -261,6 +263,7 @@ export const BuyModalContent = ({
           securityFx,
           portfolioCurrency,
           i18n.language,
+          i18n.resolvedLanguage,
           t,
           true
         )

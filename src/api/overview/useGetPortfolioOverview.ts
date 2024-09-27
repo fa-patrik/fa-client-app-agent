@@ -57,6 +57,10 @@ const PORTFOLIO_OVERVIEW_QUERY = gql`
 
 export const useLazyGetPortfolioOverview = (id: number | undefined) => {
   const { i18n } = useModifiedTranslation();
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
   const ids = useGetSubPortfolioIds(id);
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - PERIOD_IN_DAYS);
@@ -65,7 +69,7 @@ export const useLazyGetPortfolioOverview = (id: number | undefined) => {
     useLazyQuery<PortfolioOverviewQuery>(PORTFOLIO_OVERVIEW_QUERY, {
       variables: {
         portfolioIds: ids,
-        locale: i18n.language,
+        locale: locale,
         endDate: endDate.toLocaleDateString("sv-SE"),
         startDate: startDate.toLocaleDateString("sv-SE"),
       },

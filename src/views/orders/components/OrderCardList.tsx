@@ -104,7 +104,7 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
               isPartOfSwitch
             )}
           >
-            {getOrderTypeName(order, t, i18n.language)}
+            {getOrderTypeName(order, t, i18n.language, i18n.resolvedLanguage)}
           </Badge>
         </div>
 
@@ -113,12 +113,14 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
             ? getBackendTranslation(
                 switchDetails?.fromOrder?.securityName,
                 switchDetails?.fromOrder?.security?.namesAsMap,
-                i18n.language
+                i18n.language,
+                i18n.resolvedLanguage
               )
             : getBackendTranslation(
                 order.securityName,
                 order?.security?.namesAsMap,
-                i18n.language
+                i18n.language,
+                i18n.resolvedLanguage
               )}
         </div>
       </div>
@@ -132,7 +134,8 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
                 {getBackendTranslation(
                   switchDetails?.toOrder?.securityName,
                   switchDetails?.toOrder?.security?.namesAsMap,
-                  i18n.language
+                  i18n.language,
+                  i18n.resolvedLanguage
                 )}
               </div>
             </li>

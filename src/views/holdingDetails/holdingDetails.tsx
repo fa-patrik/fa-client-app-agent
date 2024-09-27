@@ -115,7 +115,8 @@ export const HoldingDetails = ({
                     value={getBackendTranslation(
                       typeName,
                       namesAsMap,
-                      i18n.language
+                      i18n.language,
+                      i18n.resolvedLanguage
                     )}
                   />
                   <DataRow
@@ -158,15 +159,13 @@ export const HoldingDetails = ({
                       {t("holdingsPage.buy")}
                     </Button>
                     {userInvestedInThisHolding && (
-                      <>
-                        <Button
-                          LeftIcon={MinusCircle}
-                          variant="Red"
-                          onClick={() => onSellModalOpen(security)}
-                        >
-                          {t("holdingsPage.sell")}
-                        </Button>
-                      </>
+                      <Button
+                        LeftIcon={MinusCircle}
+                        variant="Red"
+                        onClick={() => onSellModalOpen(security)}
+                      >
+                        {t("holdingsPage.sell")}
+                      </Button>
                     )}
                   </div>
                   {userInvestedInThisHolding && canSwitchAnyHolding && (

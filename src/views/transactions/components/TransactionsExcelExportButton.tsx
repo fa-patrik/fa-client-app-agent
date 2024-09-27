@@ -68,7 +68,8 @@ const TransactionsExcelExportButton = ({
           const typeTranslated = getBackendTranslation(
             transaction?.type?.typeName,
             transaction?.type?.typeNamesAsMap,
-            i18n.language
+            i18n.language,
+            i18n.resolvedLanguage
           );
           //get portfolio data from cache or otherwise FA Back
           const portfolio = await getPortfolioBasicFields(
@@ -78,7 +79,8 @@ const TransactionsExcelExportButton = ({
             getBackendTranslation(
               transaction.securityName,
               transaction.security?.namesAsMap,
-              i18n.language
+              i18n.language,
+              i18n.resolvedLanguage
             ),
             portfolio?.name,
             transaction.transactionDate,

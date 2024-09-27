@@ -1,5 +1,6 @@
 import { ApexOptions } from "apexcharts";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { StringMap, TOptions } from "i18next";
 import Chart from "react-apexcharts";
 import theme from "tailwindTheme";
 
@@ -77,24 +78,31 @@ export const LineChart = ({
   detailed = false,
   isPerformanceChart = false,
 }: LineChartProps) => {
-  const { t } = useModifiedTranslation();
+  const { i18n, t } = useModifiedTranslation();
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
 
   const isLongPeriod = series[0].data.length >= 365;
   const isVeryLongPeriod = series[0].data.length >= 365 * 4;
-  const performanceChartToolTipFormatting = {
+  const performanceChartToolTipFormatting: TOptions<StringMap> = {
     month: "short",
     year: "numeric",
     day: "numeric",
+    lng: locale,
   };
 
-  const performanceChartShortPeriodDateFormatting = {
+  const performanceChartShortPeriodDateFormatting: TOptions<StringMap> = {
     month: "short",
     day: "numeric",
+    lng: locale,
   };
 
-  const performanceChartLongPeriodDateFormatting = {
+  const performanceChartLongPeriodDateFormatting: TOptions<StringMap> = {
     month: isVeryLongPeriod ? undefined : "short",
     year: isVeryLongPeriod ? "numeric" : "2-digit",
+    lng: locale,
   };
 
   const performanceChartDateFormat = isLongPeriod

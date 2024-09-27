@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 
 export const useModifiedTranslation = () => {
   const { i18n, t } = useTranslation();
-
   // for all languages currencies are displayed as ISO code at the end of value - business decision
   const modifiedT = useCallback(
     (key: string, options?: TOptions<StringMap>) => {

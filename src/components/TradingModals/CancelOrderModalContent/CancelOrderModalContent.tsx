@@ -38,7 +38,12 @@ export const CancelOrderModalContent = ({
 
   const switchDetails = isPartOfSwitch ? getSwitchDetails(order) : undefined;
 
-  const typeTranslated = getOrderTypeName(order, t, i18n.language);
+  const typeTranslated = getOrderTypeName(
+    order,
+    t,
+    i18n.language,
+    i18n.resolvedLanguage
+  );
 
   const typeColor = getTransactionColor(
     order.type.amountEffect ?? 0,
@@ -98,7 +103,8 @@ export const CancelOrderModalContent = ({
               {getBackendTranslation(
                 switchDetails?.fromOrder?.securityName,
                 switchDetails?.fromOrder?.security?.namesAsMap,
-                i18n.language
+                i18n.language,
+                i18n.resolvedLanguage
               )}
             </LabeledDiv>
             <LabeledDiv
@@ -108,7 +114,8 @@ export const CancelOrderModalContent = ({
               {getBackendTranslation(
                 switchDetails?.toOrder?.securityName,
                 switchDetails?.toOrder?.security?.namesAsMap,
-                i18n.language
+                i18n.language,
+                i18n.resolvedLanguage
               )}
             </LabeledDiv>
           </>
@@ -121,7 +128,8 @@ export const CancelOrderModalContent = ({
               {getBackendTranslation(
                 order.securityName,
                 order.security?.namesAsMap,
-                i18n.language
+                i18n.language,
+                i18n.resolvedLanguage
               )}
             </LabeledDiv>
 

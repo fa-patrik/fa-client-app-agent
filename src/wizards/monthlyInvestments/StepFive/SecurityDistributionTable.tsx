@@ -88,7 +88,8 @@ const SecurityDistributionTable = ({
                       getBackendTranslation(
                         security.name,
                         security.namesAsMap,
-                        i18n.language
+                        i18n.language,
+                        i18n.resolvedLanguage
                       )
                     )}
                   </div>

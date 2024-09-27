@@ -26,7 +26,11 @@ const StepFive = () => {
     useWizard<MonthlyInvestmentsWizardState>();
   const monthlyInvestmentsWizardState = wizardData.data;
   const { t, i18n } = useModifiedTranslation();
-  numbro.setLanguage(i18n.language);
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
+  numbro.setLanguage(locale);
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { setMonthlyInvestments } = useSetMonthlyInvestments();

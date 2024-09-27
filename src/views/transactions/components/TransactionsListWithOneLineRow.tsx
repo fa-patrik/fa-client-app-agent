@@ -78,7 +78,8 @@ const Transaction = ({
   const typeTranslated = getBackendTranslation(
     type?.typeName,
     type?.typeNamesAsMap,
-    i18n.language
+    i18n.language,
+    i18n.resolvedLanguage
   );
 
   const TypeBadge = () => {
@@ -105,7 +106,8 @@ const Transaction = ({
           {getBackendTranslation(
             securityName,
             security?.namesAsMap,
-            i18n.language
+            i18n.language,
+            i18n.resolvedLanguage
           )}
         </td>
         {showPortfolioLabel && (
