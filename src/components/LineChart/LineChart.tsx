@@ -78,11 +78,7 @@ export const LineChart = ({
   detailed = false,
   isPerformanceChart = false,
 }: LineChartProps) => {
-  const { i18n, t } = useModifiedTranslation();
-  const locale =
-    i18n.language === i18n.resolvedLanguage
-      ? i18n.language
-      : i18n.resolvedLanguage;
+  const { t } = useModifiedTranslation();
 
   const isLongPeriod = series[0].data.length >= 365;
   const isVeryLongPeriod = series[0].data.length >= 365 * 4;
@@ -90,19 +86,16 @@ export const LineChart = ({
     month: "short",
     year: "numeric",
     day: "numeric",
-    lng: locale,
   };
 
   const performanceChartShortPeriodDateFormatting: TOptions<StringMap> = {
     month: "short",
     day: "numeric",
-    lng: locale,
   };
 
   const performanceChartLongPeriodDateFormatting: TOptions<StringMap> = {
     month: isVeryLongPeriod ? undefined : "short",
     year: isVeryLongPeriod ? "numeric" : "2-digit",
-    lng: locale,
   };
 
   const performanceChartDateFormat = isLongPeriod

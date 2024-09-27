@@ -15,10 +15,6 @@ interface DatePickerProps extends ReactDatePickerProps {
 // TODO: keep eye on react-date-picker they plan to add portalContainer prop which will simplify calendar positioning
 export const DatePicker = ({ label, ...props }: DatePickerProps) => {
   const { i18n } = useModifiedTranslation();
-  const locale =
-    i18n.language === i18n.resolvedLanguage
-      ? i18n.language
-      : i18n.resolvedLanguage;
   const { positionedElementRefCallback, targetRefCallback } =
     usePositionElementToOtherElement();
 
@@ -29,7 +25,7 @@ export const DatePicker = ({ label, ...props }: DatePickerProps) => {
         calendarIcon={<CalendarIcon />}
         clearIcon={null}
         className="px-2 pt-2 pb-1.5 text-base font-normal text-gray-500 bg-gray-50 rounded-lg border border-gray-300"
-        locale={locale}
+        locale={i18n.language}
         showLeadingZeros
         inputRef={positionedElementRefCallback}
         {...props}
