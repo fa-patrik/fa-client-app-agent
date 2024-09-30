@@ -181,14 +181,11 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
               className="text-sm font-thin"
             >
               {t("wizards.monthlyInvestments.stepThree.minDisclaimer", {
-                amount: minTradeAmountInPfCurrency.toLocaleString(
-                  i18n.language,
-                  {
-                    style: "currency",
-                    currency: currency?.securityCode,
-                    maximumFractionDigits: currency?.amountDecimalCount,
-                  }
-                ),
+                amount: t("numberWithCurrency", {
+                  value: minTradeAmountInPfCurrency,
+                  currency: currency?.securityCode,
+                  maximumFractionDigits: currency?.amountDecimalCount,
+                }),
               })}
             </p>
           </div>

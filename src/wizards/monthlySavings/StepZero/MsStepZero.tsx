@@ -69,7 +69,7 @@ const MsStepZero = () => {
       }
     });
 
-  const { t, i18n } = useModifiedTranslation();
+  const { t } = useModifiedTranslation();
   const { setMonthlySavings } = useSetMonthlySavings("Delete");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
@@ -247,8 +247,8 @@ const MsStepZero = () => {
                       className="font-bold"
                       id={`monthlySavingsWizard-amountToSave-${portfolio.id}`}
                     >
-                      {amount?.toLocaleString(i18n.language, {
-                        style: "currency",
+                      {t("numberWithCurrency", {
+                        value: amount,
                         currency: portfolio.currency.securityCode,
                       })}
                     </span>

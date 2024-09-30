@@ -18,9 +18,8 @@ export const getBackendTranslation = (
   resolvedLanguage: string
 ) => {
   if (!fallbackTranslation) return "";
-  const canTheAppUseTheBackendTranslations = resolvedLanguage === language;
-  if (!canTheAppUseTheBackendTranslations) return fallbackTranslation;
+  if (language !== resolvedLanguage) return fallbackTranslation;
   return (
-    backendTranslationsMap?.[language.replace("-", "_")] ?? fallbackTranslation
+    backendTranslationsMap[language.replace("-", "_")] || fallbackTranslation
   );
 };

@@ -17,7 +17,10 @@ export const DatePicker = ({ label, ...props }: DatePickerProps) => {
   const { i18n } = useModifiedTranslation();
   const { positionedElementRefCallback, targetRefCallback } =
     usePositionElementToOtherElement();
-
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
   return (
     <div className="flex flex-col gap-0 w-full" ref={targetRefCallback}>
       {label && <label className="mb-1 text-sm font-normal">{label}</label>}
@@ -25,7 +28,7 @@ export const DatePicker = ({ label, ...props }: DatePickerProps) => {
         calendarIcon={<CalendarIcon />}
         clearIcon={null}
         className="px-2 pt-2 pb-1.5 text-base font-normal text-gray-500 bg-gray-50 rounded-lg border border-gray-300"
-        locale={i18n.language}
+        locale={locale}
         showLeadingZeros
         inputRef={positionedElementRefCallback}
         {...props}

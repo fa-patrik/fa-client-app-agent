@@ -10,6 +10,7 @@ import useExcelDownloader from "hooks/useExcelDownloader";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import { getBackendTranslation } from "utils/backTranslations";
+import { getOrderTypeName } from "utils/switchOrders";
 
 type ExportRow = (string | number | undefined)[][];
 type ExportHeader = string[];
@@ -28,6 +29,10 @@ const OrdersExcelExportButton = ({
   loading,
 }: OrdersExcelExportButtonProps) => {
   const { t, i18n } = useModifiedTranslation();
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
   const [exportRows, setExportRows] = useState<ExportRow>([]);
   const { getPortfolioBasicFields } = useGetPortfolioBasicFieldsByIdLazy();
   //Excel export
@@ -38,9 +43,9 @@ const OrdersExcelExportButton = ({
   const selectedPortfolioName = selectedPortfolio?.name;
   const excelFileName = `${t(
     "ordersPage.excelFileName"
-  )}_${startDate.toLocaleDateString(
-    i18n.language
-  )}_${endDate.toLocaleDateString(i18n.language)}.xlsx`;
+  )}_${startDate.toLocaleDateString(locale)}_${endDate.toLocaleDateString(
+    locale
+  )}.xlsx`;
   const excelSheetName = t("ordersPage.excelSheetName");
   const { downloadExcel, loading: excelLoading } = useExcelDownloader(
     selectedPortfolioName
@@ -66,9 +71,9 @@ const OrdersExcelExportButton = ({
       const rows: ExportRow = [];
       if (orders?.length) {
         for (const order of orders) {
-          const typeTranslated = getBackendTranslation(
-            order?.type?.typeName,
-            order?.type?.typeNamesAsMap,
+          const typeTranslated = getOrderTypeName(
+            order,
+            t,
             i18n.language,
             i18n.resolvedLanguage
           );

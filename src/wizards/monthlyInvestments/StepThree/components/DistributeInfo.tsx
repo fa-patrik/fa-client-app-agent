@@ -27,15 +27,16 @@ const DistributeInfo = ({
   overrideError,
   currencyDecimalCount,
 }: DistributeInfoProps) => {
-  const { i18n, t } = useModifiedTranslation();
+  const { t } = useModifiedTranslation();
 
-  const diffAmountFormatted = diffAmount.toLocaleString(i18n.language, {
-    style: "decimal",
+  const diffAmountFormatted = t("number", {
+    value: diffAmount,
     maximumFractionDigits: currencyDecimalCount,
     minimumFractionDigits: currencyDecimalCount,
   });
-  const diffPercentageFormatted = diffPercentage.toLocaleString(i18n.language, {
-    style: "decimal",
+
+  const diffPercentageFormatted = t("number", {
+    value: diffPercentage,
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,
   });

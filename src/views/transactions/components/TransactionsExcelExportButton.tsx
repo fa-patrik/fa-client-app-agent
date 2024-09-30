@@ -28,6 +28,10 @@ const TransactionsExcelExportButton = ({
   loading,
 }: TransactionsExcelExportButtonProps) => {
   const { t, i18n } = useModifiedTranslation();
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
   const [exportRows, setExportRows] = useState<ExportRow>([]);
   const { getPortfolioBasicFields } = useGetPortfolioBasicFieldsByIdLazy();
   //Excel export
@@ -38,9 +42,9 @@ const TransactionsExcelExportButton = ({
   const selectedPortfolioName = selectedPortfolio?.name;
   const excelFileName = `${t(
     "transactionsPage.excelFileName"
-  )}_${startDate.toLocaleDateString(
-    i18n.language
-  )}_${endDate.toLocaleDateString(i18n.language)}.xlsx`;
+  )}_${startDate.toLocaleDateString(locale)}_${endDate.toLocaleDateString(
+    locale
+  )}.xlsx`;
   const excelSheetName = t("transactionsPage.excelSheetName");
   const { downloadExcel, loading: excelLoading } = useExcelDownloader(
     selectedPortfolioName

@@ -4,12 +4,17 @@ import { useTranslation } from "react-i18next";
 
 export const useModifiedTranslation = () => {
   const { i18n, t } = useTranslation();
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
   // for all languages currencies are displayed as ISO code at the end of value - business decision
   const modifiedT = useCallback(
     (key: string, options?: TOptions<StringMap>) => {
       if (key === "number") {
         return `${t("number", {
           ...options,
+          locale: locale,
           maximumFractionDigits: 8,
         })}`;
       }
@@ -18,6 +23,7 @@ export const useModifiedTranslation = () => {
         return `${
           t("number", {
             ...options,
+            locale: locale,
             maximumFractionDigits: 2,
           }) + "%"
         }`;
@@ -30,6 +36,7 @@ export const useModifiedTranslation = () => {
             ...optionsWOCurrency,
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
+            locale: locale,
           })}\xa0${currency}`;
         }
       }
@@ -41,13 +48,14 @@ export const useModifiedTranslation = () => {
             ...optionsWOCurrency,
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
+            locale: locale,
           })}\xa0${currency}`;
         }
       }
 
-      return t(key, options);
+      return t(key, { ...options, locale });
     },
-    [t]
+    [t, locale]
   );
 
   return { i18n, t: modifiedT };

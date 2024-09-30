@@ -17,7 +17,7 @@ const months = Array(12)
  */
 const MsStepTwo = () => {
   const { wizardData, setWizardData } = useWizard<MonthlySavingsWizardState>();
-  const { t, i18n } = useModifiedTranslation();
+  const { t } = useModifiedTranslation();
   const [selectedDate, setSelectedDate] = useState<string>(
     wizardData.data.selectedDate || "1"
   );
@@ -107,8 +107,8 @@ const MsStepTwo = () => {
             className="font-semibold"
             label={t("wizards.monthlySavings.stepTwo.totalSavingsPerYear")}
           >
-            {yearlySavingsAmount.toLocaleString(i18n.language, {
-              style: "currency",
+            {t("numberWithCurrency", {
+              value: yearlySavingsAmount,
               currency:
                 wizardData.data.selectedPortfolioOption?.details?.currency
                   ?.securityCode,

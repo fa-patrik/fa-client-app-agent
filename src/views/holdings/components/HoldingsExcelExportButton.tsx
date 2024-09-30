@@ -16,6 +16,10 @@ const HoldingsExcelExportButton = ({
   currencyCode,
 }: HoldingsExcelExportButtonProps) => {
   const { t, i18n } = useModifiedTranslation();
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
   const { portfolioId } = useParams();
   const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
   const { data: selectedPortfolio } =
@@ -23,7 +27,7 @@ const HoldingsExcelExportButton = ({
   const selectedPortfolioName = selectedPortfolio?.name;
   const excelFileName = `${t(
     "holdingsPage.excelFileName"
-  )}_${new Date().toLocaleDateString(i18n.language)}.xlsx`;
+  )}_${new Date().toLocaleDateString(locale)}.xlsx`;
   const excelSheetName = t("holdingsPage.excelSheetName");
   const { downloadExcel, loading: excelLoading } = useExcelDownloader(
     selectedPortfolioName

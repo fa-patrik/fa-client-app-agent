@@ -531,10 +531,10 @@ const TradableSecurityTable = ({
                       })}
                     >
                       {performanceOneYear !== undefined
-                        ? performanceOneYear.toLocaleString(i18n.language, {
-                            style: "percent",
-                            minimumFractionDigits: 2,
+                        ? t("numberWithPercent", {
+                            value: performanceOneYear,
                             maximumFractionDigits: 2,
+                            minimumFractionDigits: 2,
                           })
                         : "-"}
                     </span>
@@ -551,8 +551,9 @@ const TradableSecurityTable = ({
                       "text-green-400": security.managementFee > 0,
                     })}
                   >
-                    {security.managementFee.toLocaleString(i18n.language, {
-                      style: "percent",
+                    {t("numberWithCurrency", {
+                      value: security.managementFee,
+                      currency: security.currency.securityCode,
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
@@ -573,8 +574,8 @@ const TradableSecurityTable = ({
                             : `${id}-minTradeAmount-${security.id}`
                         }
                       >
-                        {security.minTradeAmount.toLocaleString(i18n.language, {
-                          style: "currency",
+                        {t("numberWithCurrency", {
+                          value: security.minTradeAmount,
                           currency: security.currency.securityCode,
                         })}
                       </span>

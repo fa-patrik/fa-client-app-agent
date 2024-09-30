@@ -103,8 +103,8 @@ const SecurityDistributionTable = ({
                 }
                 className="p-1 text-sm text-right"
               >
-                {securityPercentageDistribution.toLocaleString(i18n.language, {
-                  style: "decimal",
+                {t("number", {
+                  value: securityPercentageDistribution,
                   maximumFractionDigits: 2,
                   minimumFractionDigits: 2,
                 })}
@@ -113,13 +113,10 @@ const SecurityDistributionTable = ({
                 id={id ? `${id}-row-${index}-amount` : `row-${index}-amount`}
                 className="p-1 text-sm text-right"
               >
-                {(amountDistribution?.[security.id] || 0).toLocaleString(
-                  i18n.language,
-                  {
-                    style: "currency",
-                    currency: portfolioCurrencyCode,
-                  }
-                )}
+                {t("numberWithCurrency", {
+                  value: securityAmountDistribution ?? 0,
+                  currency: portfolioCurrencyCode,
+                })}
               </td>
             </tr>
           );

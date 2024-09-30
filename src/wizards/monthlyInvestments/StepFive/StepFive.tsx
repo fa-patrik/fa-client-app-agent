@@ -142,8 +142,8 @@ const StepFive = () => {
                   id="monthlyInvestmentsWizard-amountToInvest"
                   className="font-semibold"
                 >
-                  {amountToInvest?.toLocaleString(i18n.language, {
-                    style: "currency",
+                  {t("numberWithCurrency", {
+                    value: amountToInvest,
                     currency:
                       monthlyInvestmentsWizardState.selectedPortfolioOption
                         ?.details?.currency?.securityCode,
@@ -156,8 +156,8 @@ const StepFive = () => {
                   id="monthlyInvestmentsWizard-yearlyAmountToInvest"
                   className="font-semibold"
                 >
-                  {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
-                    style: "currency",
+                  {t("numberWithCurrency", {
+                    value: yearlyInvestmentAmount,
                     currency:
                       monthlyInvestmentsWizardState.selectedPortfolioOption
                         ?.details?.currency?.securityCode,
