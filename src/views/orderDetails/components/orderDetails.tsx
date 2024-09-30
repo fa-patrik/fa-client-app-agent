@@ -490,7 +490,7 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
           </div>
         )}
       </div>
-      <Modal {...cancelOrderModalProps} header={"Cancelling order"}>
+      <Modal {...cancelOrderModalProps} header={t("cancelOrderModal.header")}>
         <CancelOrderModalContent {...cancelOrderModalContentProps} />
       </Modal>
     </PageLayout>

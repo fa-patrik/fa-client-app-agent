@@ -2,6 +2,7 @@ import { SecurityDetailsPosition, SecurityTradeType } from "api/holdings/types";
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { TOptions, StringMap } from "i18next";
 import { getBackendTranslation } from "./backTranslations";
+import { dateFromYYYYMMDD } from "./date";
 
 /**
  * Distributes a trade amount with arbitrary decimals precision.
@@ -98,7 +99,8 @@ export const getTradeAmountTooltip = (
 
     const securityPriceDate =
       security.latestMarketData?.date !== undefined
-        ? new Date(security.latestMarketData?.date).toLocaleDateString(locale, {
+        ? t("dateCustom", {
+            date: dateFromYYYYMMDD(security.latestMarketData?.date),
             dateStyle: "medium",
           })
         : undefined;
@@ -166,11 +168,11 @@ export const getBlockSizeErrorTooltip = (
 
     const securityPriceDate =
       security.latestMarketData?.date !== undefined
-        ? new Date(security.latestMarketData?.date).toLocaleDateString(locale, {
+        ? t("dateCustom", {
+            date: dateFromYYYYMMDD(security.latestMarketData?.date),
             dateStyle: "medium",
           })
         : undefined;
-
     if (
       securityPriceInPfCurrency &&
       sellPrice &&

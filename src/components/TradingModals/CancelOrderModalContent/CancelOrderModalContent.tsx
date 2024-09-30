@@ -7,6 +7,7 @@ import { Button, LabeledDiv } from "components/index";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { getBackendTranslation } from "utils/backTranslations";
+import { dateFromYYYYMMDD } from "utils/date";
 import {
   getOrderTypeName,
   getSwitchDetails,
@@ -137,7 +138,7 @@ export const CancelOrderModalContent = ({
               label={t("cancelOrderModal.date")}
               className="w-1/2 font-semibold text-gray-700 text-md"
             >
-              {order.transactionDate}
+              {t("date", { date: dateFromYYYYMMDD(order?.transactionDate) })}
             </LabeledDiv>
           </>
         )}
