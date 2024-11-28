@@ -36,3 +36,28 @@ export enum TransactionTypeAmountEffect {
   Increasing = 1,
   None = 0,
 }
+
+
+/**
+ * Category of the account. This is an optional account field. The interpretation of this field depends on the application.
+ * In Client Portal, we interpret this field as follows:
+ * Internal accounts are the FA accounts (transaction against these affect cash balances in FA).
+ * External accounts are the client's private accounts.
+ */
+export enum AccountCategory {
+  Internal = "Internal",
+  External = "External",
+}
+
+/**
+ * Type of the account.
+ * Cash flow transactions are made against cash accounts.
+ * Credit accounts are used to track credit limits.
+ * Other accounts are miscellaneous accounts that don't affect cash balances, 
+ * e.g. the client's private bank accounts.
+ */
+export enum AccountType {
+  Cash = "CASH",
+  Credit = "CREDIT",
+  Other = "OTHER",
+}

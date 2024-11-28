@@ -170,7 +170,7 @@ export const ComboBox = <TOption extends Option>({
           className={classNames(
             "flex gap-2 items-center py-2.5 pr-4 w-full h-10 bg-gray-50 rounded-lg border focus-within:border-2 border-gray-300 focus-within:border-primary-400",
             {
-              "border-2 border-red-500 focus-within:border-red-500": error,
+              "border-2 border-red-500 focus-within:border-red-500 bg-red-50": error,
             }
           )}
         >

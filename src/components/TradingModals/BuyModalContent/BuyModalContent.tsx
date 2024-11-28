@@ -1,6 +1,6 @@
 import { MutableRefObject, useState, useEffect, useMemo } from "react";
 import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
-import { ExecutionMethod } from "api/enums";
+import { AccountCategory, AccountType, ExecutionMethod } from "api/enums";
 import { SecurityTypeCode } from "api/holdings/types";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
 import { useGetBuyData } from "api/trading/useGetBuyData";
@@ -12,8 +12,10 @@ import {
   Button,
   Input,
   LabeledDiv,
+  ComboBox,
 } from "components/index";
 import { LabeledDivFlex } from "components/LabeledDiv/LabeledDivFlex";
+import { Option } from "components/Select/Select";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
@@ -57,11 +59,12 @@ export const BuyModalContent = ({
   id: securityId,
   name,
 }: BuyModalProps) => {
+  
   const [submitting, setSubmitting] = useState(false);
   const { t, i18n } = useModifiedTranslation();
 
   const { data: security, loading: loadingSecurity } = useGetSecurityDetails(
-    securityId.toString()
+    securityId.toString(),
   );
   const {
     setPortfolioId,
@@ -81,24 +84,56 @@ export const BuyModalContent = ({
   const selectedPortfolio = useMemo(() => {
     return portfolios.find((p) => p.id === portfolioId);
   }, [portfolios, portfolioId]);
-  const { data: securityFxData, loading: securityFxLoading } = useGetSecurityFx(
-    security?.securityCode,
-    selectedPortfolio?.currency?.securityCode
-  );
 
-  const securityFx = securityFxData?.[0].fxRate || 1;
 
   const { loading: loadingCash, data: portfolioData } = useGetBuyData(
     selectedPortfolioId,
     security?.currency?.securityCode
   );
 
+  //filter out accounts that are not cash accounts
+  const selectableAccounts = useMemo(() => {
+    return  portfolioData?.accounts?.filter(a => a.category !== AccountCategory.External && a.type === AccountType.Cash ) || []
+  }, [portfolioData?.accounts])
+
+  //convert to options compatible with ComboBox
+  const accountOptions: Option[] = useMemo(() => {
+    return selectableAccounts?.map((a) => ({
+      id: a.id,
+      label: `${a.name} | ${a.currency.securityCode}`,
+    })) ?? [] 
+  },[ selectableAccounts])
+
+  const portfolioHasAccounts = !!accountOptions.length;
+
+  //set this by default if it exists
   const defaultAccount =
     portfolioData?.accounts?.find(
-      (a) => a?.currency?.securityCode === portfolioData?.currency?.securityCode
-    ) || portfolioData?.accounts?.[0];
+      //first with same currency as security
+      (a) => a?.currency?.securityCode === security?.currency?.securityCode
+    ) ?? selectableAccounts?.[0] //default to first account if no match
 
-  const securityToAccountFxRate = 1 / (defaultAccount?.currency?.fxRate || 1);
+  const [selectedAccountId, setSelectedAccountId] = useState<number | undefined>(defaultAccount?.id);
+  
+  const selectedAccount = selectableAccounts?.find((a) => a.id === selectedAccountId);
+  const selectedAccountOption = accountOptions.find((a) => a.id === selectedAccountId);
+  const isSelectedAccountInOptions = accountOptions.some((a) => a.id === selectedAccountId);
+  //auto populate an account if there is none selected
+  useEffect(() => {
+    if((!selectedAccountId || !isSelectedAccountInOptions)) {
+      setSelectedAccountId(defaultAccount?.id)
+    }
+  },[defaultAccount, selectedAccountId, isSelectedAccountInOptions])
+
+  const { data: securityToPfFxRateData, loading: securityFxLoading } = useGetSecurityFx(
+    security?.securityCode,
+    selectedPortfolio?.currency?.securityCode
+  );
+
+  
+
+  const securityToPfFxRate =  securityToPfFxRateData?.[0]?.fxRate ?? 1; //SEC/PF
+  const securityToAccountFxRate = 1 / (selectedAccount?.currency?.fxRate ?? 1); //inverse of ACC/SEC -> SEC/ACC
 
   const { isTradeInUnits, canToggleTradeType, setIsTradeInUnits } =
     useGetBuyTradeType(security?.tagsAsSet, security?.type?.code);
@@ -119,13 +154,13 @@ export const BuyModalContent = ({
       ? portfolioData?.currency.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
   const accountCurrencyAmountDecimalCount =
-    defaultAccount?.currency.amountDecimalCount !== undefined
-      ? defaultAccount?.currency.amountDecimalCount
+    selectedAccount?.currency.amountDecimalCount !== undefined
+      ? selectedAccount?.currency.amountDecimalCount
       : FALLBACK_DECIMAL_COUNT;
   const inputBlockSize = isTradeInUnits
     ? securityAmountDecimalCount
-    : portfolioCurrencyAmountDecimalCount;
-
+    : accountCurrencyAmountDecimalCount;
+    
   const securityNameTranslated =
     security !== undefined
       ? getBackendTranslation(
@@ -136,28 +171,27 @@ export const BuyModalContent = ({
         )
       : undefined;
 
-  const securityToPortfolioFxRate = securityFx || 1;
-  const securityPrice = security?.latestMarketData?.price;
 
-  const securityPriceInPfCurrency =
-    securityPrice !== undefined
-      ? round(
-          securityPrice * securityToPortfolioFxRate,
-          portfolioCurrencyAmountDecimalCount
-        )
-      : undefined;
+  const securityPrice = security?.latestMarketData?.price;
 
   const securityPriceInAccCurrency =
     securityPrice !== undefined
       ? round(
           securityPrice * securityToAccountFxRate,
-          portfolioCurrencyAmountDecimalCount
+          accountCurrencyAmountDecimalCount
         )
       : undefined;
 
+  const securityPriceInPfCurrency = securityPrice !== undefined
+    ? round(
+        securityPrice * securityToPfFxRate,
+        portfolioCurrencyAmountDecimalCount
+      )
+    : undefined;
+
   const unitsToBuyFromTradeAmount =
-    securityPriceInPfCurrency !== undefined
-      ? inputAsNr / (securityPriceInPfCurrency || 1)
+    securityPriceInAccCurrency !== undefined
+      ? inputAsNr / (securityPriceInAccCurrency || 1)
       : undefined;
 
   const unitsToBuy = isTradeInUnits
@@ -166,12 +200,9 @@ export const BuyModalContent = ({
     ? roundDown(unitsToBuyFromTradeAmount, securityAmountDecimalCount)
     : undefined;
 
-  const estimatedTradeAmountInPfCurrency =
+  const estimatedTradeAmountInPfCurrency = 
     unitsToBuy !== undefined && securityPriceInPfCurrency !== undefined
-      ? round(
-          unitsToBuy * securityPriceInPfCurrency,
-          portfolioCurrencyAmountDecimalCount
-        )
+      ? round(unitsToBuy * securityPriceInPfCurrency, portfolioCurrencyAmountDecimalCount)
       : undefined;
 
   const estimatedTradeAmountInAccountCurrency =
@@ -209,27 +240,32 @@ export const BuyModalContent = ({
       : ExecutionMethod.NET_TRADE_AMOUNT,
     accountFxRate: calculatedAccountFxRate,
     reportFxRate: calculatedReportFxRate,
+    account: selectedAccount?.number,
   });
 
-  const availableCash =
-    portfolioData?.portfolioReport.accountBalanceAdjustedWithOpenTradeOrders;
-  const portfolioCurrency = selectedPortfolio?.currency?.securityCode;
-  const securityCurrency = security?.currency.securityCode;
+  const selectedAccountItem = portfolioData?.portfolioReport?.accountItems?.find(
+    (a) => a.accountId === selectedAccountId
+  );
 
+  const availableCashInAccountCurrency = selectedAccountItem?.balanceAccCurr;
+
+  const securityCurrency = security?.currency.securityCode;
+  const accountCurrency = selectedAccount?.currency.securityCode;
+  
   const insufficientCash =
-    (availableCash || 0) < (estimatedTradeAmountInPfCurrency || 0); // less than trying to buy for
+    (availableCashInAccountCurrency ?? 0) < (estimatedTradeAmountInAccountCurrency ?? 0); // less than trying to buy for
 
   const { access } = useKeycloak();
 
   const tradeAmountTooltip =
     unitsToBuy !== undefined &&
     security !== undefined &&
-    portfolioCurrency !== undefined
+    accountCurrency !== undefined
       ? getTradeAmountTooltip(
           unitsToBuy,
           security,
-          securityFx,
-          portfolioCurrency,
+          securityToAccountFxRate,
+          accountCurrency,
           i18n.language,
           i18n.resolvedLanguage,
           t
@@ -238,14 +274,14 @@ export const BuyModalContent = ({
 
   //min trade amount allowed to trade in this security
   //based on its block size only
-  const blockSizeMinTradeAmountInPfCurrency =
+  const blockSizeMinTradeAmountInAccCurrency =
     securityPrice !== undefined
       ? round(
           getBlockSizeMinTradeAmount(
             securityAmountDecimalCount,
             securityPrice
-          ) * securityToPortfolioFxRate,
-          portfolioCurrencyAmountDecimalCount
+          ) * securityToAccountFxRate,
+          accountCurrencyAmountDecimalCount
         )
       : undefined;
 
@@ -253,15 +289,15 @@ export const BuyModalContent = ({
     !isTradeInUnits &&
     inputAsNr > 0 &&
     security !== undefined &&
-    blockSizeMinTradeAmountInPfCurrency !== undefined &&
-    portfolioCurrency !== undefined &&
-    estimatedTradeAmountInPfCurrency !== undefined &&
-    blockSizeMinTradeAmountInPfCurrency > estimatedTradeAmountInPfCurrency //input is lower than min allowed trade amount
+    blockSizeMinTradeAmountInAccCurrency !== undefined &&
+    accountCurrency !== undefined &&
+    estimatedTradeAmountInAccountCurrency !== undefined &&
+    blockSizeMinTradeAmountInAccCurrency > estimatedTradeAmountInAccountCurrency //input is lower than min allowed trade amount
       ? getBlockSizeErrorTooltip(
-          blockSizeMinTradeAmountInPfCurrency,
+          blockSizeMinTradeAmountInAccCurrency,
           security,
-          securityFx,
-          portfolioCurrency,
+          securityToAccountFxRate,
+          accountCurrency,
           i18n.language,
           i18n.resolvedLanguage,
           t,
@@ -288,13 +324,16 @@ export const BuyModalContent = ({
       !!blockSizeTradeAmountError ||
       !access.buy ||
       !selectedPortfolio ||
-      submitting
+      submitting ||
+      (portfolioHasAccounts && !selectedAccountItem)
     );
   };
 
   const areSomePortfoliosProhibitedToTradeTheSecurity =
     getNumberOfOptions(portfolioOptionsThatCanTrade) !==
     getNumberOfOptions(portfolioOptionsThatCantTradeTheSecurity);
+
+  
 
   return (
     <div className="grid gap-2 max-w-md min-w-[min(84vw,_375px)]">
@@ -323,16 +362,30 @@ export const BuyModalContent = ({
         error={!portfolioId ? t("tradingModal.selectPortfolioError") : ""}
       />
 
+
+        <ComboBox 
+        label={t("tradingModal.account")}
+        value={selectedAccountOption}
+        onChange={(newAccount) => {
+          if(newAccount.id !== undefined) {
+            setSelectedAccountId(newAccount?.id as number);
+          }
+        }}
+        options={accountOptions}
+        error={!selectedAccountId && !loading ? t("tradingModal.buyModalAccountError") : ""}
+      />
+
+
       {areSomePortfoliosProhibitedToTradeTheSecurity && <PortfolioLock />}
       <div className="h-14 ">
         <LabeledDiv
           label={t("tradingModal.availableCash")}
           className="text-xl font-semibold text-gray-700"
         >
-          {availableCash !== undefined && portfolioCurrency !== undefined
+          {availableCashInAccountCurrency !== undefined && accountCurrency !== undefined
             ? t("numberWithCurrency", {
-                value: availableCash,
-                currency: portfolioCurrency,
+                value: availableCashInAccountCurrency,
+                currency: accountCurrency,
               })
             : "-"}
         </LabeledDiv>
@@ -383,16 +436,16 @@ export const BuyModalContent = ({
               label={t("tradingModal.approximateTradeAmount")}
               className="text-2xl font-semibold"
             >
-              {portfolioCurrency !== undefined &&
-              estimatedTradeAmountInPfCurrency !== undefined
+              {accountCurrency !== undefined &&
+              estimatedTradeAmountInAccountCurrency !== undefined
                 ? `${t("number", {
-                    value: estimatedTradeAmountInPfCurrency,
-                  })} ${portfolioCurrency} `
+                    value: estimatedTradeAmountInAccountCurrency,
+                  })} ${accountCurrency} `
                 : "-"}
             </LabeledDivFlex>
             {securityCurrency &&
-              portfolioCurrency &&
-              portfolioCurrency !== securityCurrency && (
+              accountCurrency &&
+              accountCurrency !== securityCurrency && (
                 <LabeledDivFlex
                   alignText="center"
                   id="buyOrderModal-tradeAmount"

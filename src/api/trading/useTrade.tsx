@@ -27,6 +27,7 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
     $accountFxRate: Float
     $reportFxRate: Float
     $tags: String
+    $account: String
   ) {
     importLimitedTradeOrder(
       limitedTradeOrder: {
@@ -38,7 +39,7 @@ const IMPORT_TRADE_ORDER_MUTATION = gql`
         amount: $units
         autoUnitPrice: $autoUnitPrice
         tradeAmount: $tradeAmount
-        account: "AUTO"
+        account: $account
         unitPrice: $unitPrice
         reportFxRate: $reportFxRate
         accountFxRate: $accountFxRate
@@ -64,6 +65,7 @@ interface importLimitedTradeOrderQueryVariables {
   autoUnitPrice?: boolean;
   unitPrice?: number;
   tags?: string;
+  account?: string; //account number
 }
 
 const errorStatus = "ERROR" as const;
@@ -120,6 +122,7 @@ export const useTrade = (
           reference: transactionReference,
           portfolioShortName: portfolio.shortName,
           tags: access.advisor ? ADVISOR_TAG : undefined,
+          account: newTradeOrder.account ?? "AUTO",
         },
       });
 
