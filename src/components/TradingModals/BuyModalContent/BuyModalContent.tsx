@@ -53,18 +53,28 @@ const getTradeType = (securityType: SecurityTypeCode | undefined) =>
 
 const FALLBACK_DECIMAL_COUNT = 2;
 
+const isSelectableAccount = <
+  T extends { category: AccountCategory; type: AccountType }
+>(
+  account: T
+) => {
+  return (
+    account.category === AccountCategory.Internal &&
+    account.type === AccountType.Cash
+  );
+};
+
 export const BuyModalContent = ({
   modalInitialFocusRef,
   onClose,
   id: securityId,
   name,
 }: BuyModalProps) => {
-  
   const [submitting, setSubmitting] = useState(false);
   const { t, i18n } = useModifiedTranslation();
 
   const { data: security, loading: loadingSecurity } = useGetSecurityDetails(
-    securityId.toString(),
+    securityId.toString()
   );
   const {
     setPortfolioId,
@@ -85,7 +95,6 @@ export const BuyModalContent = ({
     return portfolios.find((p) => p.id === portfolioId);
   }, [portfolios, portfolioId]);
 
-
   const { loading: loadingCash, data: portfolioData } = useGetBuyData(
     selectedPortfolioId,
     security?.currency?.securityCode
@@ -93,46 +102,57 @@ export const BuyModalContent = ({
 
   //filter out accounts that are not cash accounts
   const selectableAccounts = useMemo(() => {
-    return  portfolioData?.accounts?.filter(a => a.category !== AccountCategory.External && a.type === AccountType.Cash ) || []
-  }, [portfolioData?.accounts])
+    return portfolioData?.accounts?.filter((a) => isSelectableAccount(a)) || [];
+  }, [portfolioData?.accounts]);
 
   //convert to options compatible with ComboBox
   const accountOptions: Option[] = useMemo(() => {
-    return selectableAccounts?.map((a) => ({
-      id: a.id,
-      label: `${a.name} | ${a.currency.securityCode}`,
-    })) ?? [] 
-  },[ selectableAccounts])
+    return (
+      selectableAccounts?.map((a) => ({
+        id: a.id,
+        label: `${a.name} | ${a.currency.securityCode}`,
+      })) ?? []
+    );
+  }, [selectableAccounts]);
 
   const portfolioHasAccounts = !!accountOptions.length;
 
   //set this by default if it exists
   const defaultAccount =
     portfolioData?.accounts?.find(
-      //first with same currency as security
-      (a) => a?.currency?.securityCode === security?.currency?.securityCode
-    ) ?? selectableAccounts?.[0] //default to first account if no match
+      (a) =>
+        a?.currency?.securityCode === security?.currency?.securityCode &&
+        isSelectableAccount(a)
+    ) ?? selectableAccounts?.[0]; //fallback to first account if no match
 
-  const [selectedAccountId, setSelectedAccountId] = useState<number | undefined>(defaultAccount?.id);
-  
-  const selectedAccount = selectableAccounts?.find((a) => a.id === selectedAccountId);
-  const selectedAccountOption = accountOptions.find((a) => a.id === selectedAccountId);
-  const isSelectedAccountInOptions = accountOptions.some((a) => a.id === selectedAccountId);
-  //auto populate an account if there is none selected
-  useEffect(() => {
-    if((!selectedAccountId || !isSelectedAccountInOptions)) {
-      setSelectedAccountId(defaultAccount?.id)
-    }
-  },[defaultAccount, selectedAccountId, isSelectedAccountInOptions])
+  const [selectedAccountId, setSelectedAccountId] = useState<
+    number | undefined
+  >(defaultAccount?.id);
 
-  const { data: securityToPfFxRateData, loading: securityFxLoading } = useGetSecurityFx(
-    security?.securityCode,
-    selectedPortfolio?.currency?.securityCode
+  const selectedAccount = selectableAccounts?.find(
+    (a) => a.id === selectedAccountId
+  );
+  const selectedAccountOption = accountOptions.find(
+    (a) => a.id === selectedAccountId
+  );
+  const isSelectedAccountInOptions = accountOptions.some(
+    (a) => a.id === selectedAccountId
   );
 
-  
+  //auto populate an account if there is none selected
+  useEffect(() => {
+    if (!selectedAccountId || !isSelectedAccountInOptions) {
+      setSelectedAccountId(defaultAccount?.id);
+    }
+  }, [defaultAccount, selectedAccountId, isSelectedAccountInOptions]);
 
-  const securityToPfFxRate =  securityToPfFxRateData?.[0]?.fxRate ?? 1; //SEC/PF
+  const { data: securityToPfFxRateData, loading: securityFxLoading } =
+    useGetSecurityFx(
+      security?.securityCode,
+      selectedPortfolio?.currency?.securityCode
+    );
+
+  const securityToPfFxRate = securityToPfFxRateData?.[0]?.fxRate ?? 1; //SEC/PF
   const securityToAccountFxRate = 1 / (selectedAccount?.currency?.fxRate ?? 1); //inverse of ACC/SEC -> SEC/ACC
 
   const { isTradeInUnits, canToggleTradeType, setIsTradeInUnits } =
@@ -160,7 +180,7 @@ export const BuyModalContent = ({
   const inputBlockSize = isTradeInUnits
     ? securityAmountDecimalCount
     : accountCurrencyAmountDecimalCount;
-    
+
   const securityNameTranslated =
     security !== undefined
       ? getBackendTranslation(
@@ -170,7 +190,6 @@ export const BuyModalContent = ({
           i18n.resolvedLanguage
         )
       : undefined;
-
 
   const securityPrice = security?.latestMarketData?.price;
 
@@ -182,12 +201,13 @@ export const BuyModalContent = ({
         )
       : undefined;
 
-  const securityPriceInPfCurrency = securityPrice !== undefined
-    ? round(
-        securityPrice * securityToPfFxRate,
-        portfolioCurrencyAmountDecimalCount
-      )
-    : undefined;
+  const securityPriceInPfCurrency =
+    securityPrice !== undefined
+      ? round(
+          securityPrice * securityToPfFxRate,
+          portfolioCurrencyAmountDecimalCount
+        )
+      : undefined;
 
   const unitsToBuyFromTradeAmount =
     securityPriceInAccCurrency !== undefined
@@ -200,9 +220,12 @@ export const BuyModalContent = ({
     ? roundDown(unitsToBuyFromTradeAmount, securityAmountDecimalCount)
     : undefined;
 
-  const estimatedTradeAmountInPfCurrency = 
+  const estimatedTradeAmountInPfCurrency =
     unitsToBuy !== undefined && securityPriceInPfCurrency !== undefined
-      ? round(unitsToBuy * securityPriceInPfCurrency, portfolioCurrencyAmountDecimalCount)
+      ? round(
+          unitsToBuy * securityPriceInPfCurrency,
+          portfolioCurrencyAmountDecimalCount
+        )
       : undefined;
 
   const estimatedTradeAmountInAccountCurrency =
@@ -243,17 +266,19 @@ export const BuyModalContent = ({
     account: selectedAccount?.number,
   });
 
-  const selectedAccountItem = portfolioData?.portfolioReport?.accountItems?.find(
-    (a) => a.accountId === selectedAccountId
-  );
+  const selectedAccountItem =
+    portfolioData?.portfolioReport?.accountItems?.find(
+      (a) => a.accountId === selectedAccountId
+    );
 
   const availableCashInAccountCurrency = selectedAccountItem?.balanceAccCurr;
 
   const securityCurrency = security?.currency.securityCode;
   const accountCurrency = selectedAccount?.currency.securityCode;
-  
+
   const insufficientCash =
-    (availableCashInAccountCurrency ?? 0) < (estimatedTradeAmountInAccountCurrency ?? 0); // less than trying to buy for
+    (availableCashInAccountCurrency ?? 0) <
+    (estimatedTradeAmountInAccountCurrency ?? 0); // less than trying to buy for
 
   const { access } = useKeycloak();
 
@@ -333,8 +358,6 @@ export const BuyModalContent = ({
     getNumberOfOptions(portfolioOptionsThatCanTrade) !==
     getNumberOfOptions(portfolioOptionsThatCantTradeTheSecurity);
 
-  
-
   return (
     <div className="grid gap-2 max-w-md min-w-[min(84vw,_375px)]">
       <div className="h-20">
@@ -362,19 +385,22 @@ export const BuyModalContent = ({
         error={!portfolioId ? t("tradingModal.selectPortfolioError") : ""}
       />
 
-
-        <ComboBox 
+      <ComboBox
+        loading={loadingCash}
         label={t("tradingModal.account")}
         value={selectedAccountOption}
         onChange={(newAccount) => {
-          if(newAccount.id !== undefined) {
+          if (newAccount.id !== undefined) {
             setSelectedAccountId(newAccount?.id as number);
           }
         }}
         options={accountOptions}
-        error={!selectedAccountId && !loading ? t("tradingModal.buyModalAccountError") : ""}
+        error={
+          !selectedAccountId && !loading
+            ? t("tradingModal.buyModalAccountError")
+            : ""
+        }
       />
-
 
       {areSomePortfoliosProhibitedToTradeTheSecurity && <PortfolioLock />}
       <div className="h-14 ">
@@ -382,7 +408,8 @@ export const BuyModalContent = ({
           label={t("tradingModal.availableCash")}
           className="text-xl font-semibold text-gray-700"
         >
-          {availableCashInAccountCurrency !== undefined && accountCurrency !== undefined
+          {availableCashInAccountCurrency !== undefined &&
+          accountCurrency !== undefined
             ? t("numberWithCurrency", {
                 value: availableCashInAccountCurrency,
                 currency: accountCurrency,

@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { AccountType } from "api/enums";
+import { AccountCategory, AccountType } from "api/enums";
 import { getFetchPolicyOptions } from "api/utils";
 
 const BUY_DATA_QUERY = gql`
@@ -50,7 +50,7 @@ interface BuyData {
       id: number;
       number: string;
       name: string;
-      category: string;
+      category: AccountCategory;
       type: AccountType;
       currency: {
         id: number;
