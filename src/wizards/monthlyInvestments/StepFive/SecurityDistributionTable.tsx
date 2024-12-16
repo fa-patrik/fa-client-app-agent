@@ -2,6 +2,7 @@ import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { CountryFlag } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { getBackendTranslation } from "utils/backTranslations";
 
 const SECURITY_NAME_MAX_LENGTH = 25;
 
@@ -83,7 +84,14 @@ const SecurityDistributionTable = ({
                     }
                     className="text-xs font-bold whitespace-nowrap"
                   >
-                    {truncateName(security.name)}
+                    {truncateName(
+                      getBackendTranslation(
+                        security.name,
+                        security.namesAsMap,
+                        i18n.language,
+                        i18n.resolvedLanguage
+                      )
+                    )}
                   </div>
                 </div>
               </td>
@@ -95,8 +103,8 @@ const SecurityDistributionTable = ({
                 }
                 className="p-1 text-sm text-right"
               >
-                {securityPercentageDistribution.toLocaleString(i18n.language, {
-                  style: "decimal",
+                {t("number", {
+                  value: securityPercentageDistribution,
                   maximumFractionDigits: 2,
                   minimumFractionDigits: 2,
                 })}
@@ -105,13 +113,10 @@ const SecurityDistributionTable = ({
                 id={id ? `${id}-row-${index}-amount` : `row-${index}-amount`}
                 className="p-1 text-sm text-right"
               >
-                {(amountDistribution?.[security.id] || 0).toLocaleString(
-                  i18n.language,
-                  {
-                    style: "currency",
-                    currency: portfolioCurrencyCode,
-                  }
-                )}
+                {t("numberWithCurrency", {
+                  value: securityAmountDistribution ?? 0,
+                  currency: portfolioCurrencyCode,
+                })}
               </td>
             </tr>
           );

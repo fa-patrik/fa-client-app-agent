@@ -77,13 +77,6 @@ export const CONTACT_INFO_QUERY = gql`
         id
         name
         contactId
-        portfolios {
-          ...PortfolioBasicFields
-        }
-        representees {
-          name
-          contactId
-        }
       }
       portfolios {
         ...PortfolioBasicFields
@@ -142,15 +135,6 @@ export interface Representee {
   id: number;
   name: string;
   contactId: string;
-  portfolios: Portfolio[];
-  representees: [];
-}
-
-export interface AssetManagerPortfolios {
-  primaryContact: {
-    contactId: string;
-    name: string;
-  };
 }
 
 export interface Portfolio {

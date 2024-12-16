@@ -7,7 +7,7 @@ import { useModal } from "components/Modal/useModal";
 import { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { getBackendTranslation } from "utils/backTranslations"
+import { getBackendTranslation } from "utils/backTranslations";
 import { TradableSecuritiesListBase } from "./TradableSecuritiesListBase";
 import { TradableSecuritiesListMd } from "./TradableSecuritiesListMd";
 import { TradableSecuritiesListXl } from "./TradableSecuritiesListXl";
@@ -28,10 +28,8 @@ export interface TradableSecuritySized extends TradableSecurityInterface {
 export const TradableSecuritiesList = ({
   data: securities,
 }: TradableSecuritiesListProps) => {
-
   const { t } = useModifiedTranslation();
   const { i18n } = useModifiedTranslation();
-  const locale = i18n.language
 
   const isSmVersion = useMatchesBreakpoint("md");
   const isXlVersion = useMatchesBreakpoint("xl");
@@ -59,7 +57,11 @@ export const TradableSecuritiesList = ({
 
   return (
     <>
-      {groupSecuritiesByType(securities, locale).map(([groupName, groupSecurities]) => (
+      {groupSecuritiesByType(
+        securities,
+        i18n.language,
+        i18n.resolvedLanguage
+      ).map(([groupName, groupSecurities]) => (
         <Card header={groupName} key={groupName}>
           <TradableSecuritiesListSized
             data={groupSecurities}
@@ -74,10 +76,19 @@ export const TradableSecuritiesList = ({
   );
 };
 
-const groupSecuritiesByType = (securities: TradableSecurityInterface[], locale: string) => {
+const groupSecuritiesByType = (
+  securities: TradableSecurityInterface[],
+  language: string,
+  resolvedLanguage: string
+) => {
   return Object.entries(
     securities.reduce((result: Record<string, TradableSecurity[]>, current) => {
-      const currentType = getBackendTranslation(current.type?.name ?? "", current.type?.namesAsMap, locale)
+      const currentType = getBackendTranslation(
+        current.type?.name,
+        current.type?.namesAsMap,
+        language,
+        resolvedLanguage
+      );
       if (!result[currentType]) {
         result[currentType] = [];
       }

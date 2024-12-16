@@ -18,6 +18,7 @@ import {
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
 import { PermissionMode, useFeature } from "services/permissions/usePermission";
+import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getOrderTypeName,
@@ -103,14 +104,24 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
               isPartOfSwitch
             )}
           >
-            {getOrderTypeName(order, t, i18n.language)}
+            {getOrderTypeName(order, t, i18n.language, i18n.resolvedLanguage)}
           </Badge>
         </div>
 
         <div className="text-sm font-semibold">
           {isPartOfSwitch
-            ? switchDetails?.fromOrder?.securityName
-            : order.securityName}
+            ? getBackendTranslation(
+                switchDetails?.fromOrder?.securityName,
+                switchDetails?.fromOrder?.security?.namesAsMap,
+                i18n.language,
+                i18n.resolvedLanguage
+              )
+            : getBackendTranslation(
+                order.securityName,
+                order?.security?.namesAsMap,
+                i18n.language,
+                i18n.resolvedLanguage
+              )}
         </div>
       </div>
       {/** Card content  */}
@@ -120,7 +131,12 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
             <li className="flex flex-row justify-between">
               <div className="w-1/2 text-sm">{t("ordersPage.switchBuy")}</div>
               <div className="text-sm text-right">
-                {switchDetails?.toOrder?.securityName}
+                {getBackendTranslation(
+                  switchDetails?.toOrder?.securityName,
+                  switchDetails?.toOrder?.security?.namesAsMap,
+                  i18n.language,
+                  i18n.resolvedLanguage
+                )}
               </div>
             </li>
           )}

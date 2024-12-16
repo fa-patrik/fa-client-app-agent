@@ -226,7 +226,8 @@ export const SellModalContent = ({
       ? getBackendTranslation(
           security?.name,
           security?.namesAsMap,
-          i18n.language
+          i18n.language,
+          i18n.resolvedLanguage
         )
       : undefined;
 
@@ -260,6 +261,7 @@ export const SellModalContent = ({
           securityToPortfolioFxRate,
           portfolioCurrency,
           i18n.language,
+          i18n.resolvedLanguage,
           t
         )
       : undefined;
@@ -289,6 +291,7 @@ export const SellModalContent = ({
           securityFx,
           portfolioCurrency,
           i18n.language,
+          i18n.resolvedLanguage,
           t,
           false
         )

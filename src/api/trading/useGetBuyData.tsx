@@ -1,4 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
+import { AccountCategory, AccountType } from "api/enums";
 import { getFetchPolicyOptions } from "api/utils";
 
 const BUY_DATA_QUERY = gql`
@@ -12,6 +13,10 @@ const BUY_DATA_QUERY = gql`
       defaultAccount
       accounts {
         id
+        number
+        name
+        category
+        type
         currency {
           id
           securityCode
@@ -24,7 +29,11 @@ const BUY_DATA_QUERY = gql`
         calculateExpectedAmountBasedOpenTradeOrders: true
       ) {
         portfolioId
-        accountBalanceAdjustedWithOpenTradeOrders: accountBalance
+        accountItems{
+          id
+          accountId
+          balanceAccCurr
+        }
       }
     }
   }
@@ -39,6 +48,10 @@ interface BuyData {
     defaultAccount: string;
     accounts: {
       id: number;
+      number: string;
+      name: string;
+      category: AccountCategory;
+      type: AccountType;
       currency: {
         id: number;
         amountDecimalCount: number;
@@ -47,7 +60,11 @@ interface BuyData {
       };
     }[];
     portfolioReport: {
-      accountBalanceAdjustedWithOpenTradeOrders: number;
+      accountItems: {
+        id: number;
+        accountId: number;
+        balanceAccCurr: number;
+      }[];
     };
   };
 }

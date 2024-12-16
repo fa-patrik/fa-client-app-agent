@@ -9,7 +9,7 @@ import { Button } from "components";
 import useExcelDownloader from "hooks/useExcelDownloader";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
-import { getNameFromBackendTranslations } from "utils/transactions";
+import { getBackendTranslation } from "utils/backTranslations";
 
 type ExportRow = (string | number | undefined)[][];
 type ExportHeader = string[];
@@ -36,11 +36,15 @@ const TransactionsExcelExportButton = ({
   const { data: selectedPortfolio } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
   const selectedPortfolioName = selectedPortfolio?.name;
+  const startDateFormatted = t("date", {
+    date: startDate,
+  });
+  const endDateFormatted = t("date", {
+    date: endDate,
+  });
   const excelFileName = `${t(
     "transactionsPage.excelFileName"
-  )}_${startDate.toLocaleDateString(
-    i18n.language
-  )}_${endDate.toLocaleDateString(i18n.language)}.xlsx`;
+  )}_${startDateFormatted}_${endDateFormatted}.xlsx`;
   const excelSheetName = t("transactionsPage.excelSheetName");
   const { downloadExcel, loading: excelLoading } = useExcelDownloader(
     selectedPortfolioName
@@ -65,17 +69,23 @@ const TransactionsExcelExportButton = ({
       const rows: ExportRow = [];
       if (transactions?.length) {
         for (const transaction of transactions) {
-          const typeTranslated = getNameFromBackendTranslations(
-            transaction.type.typeName,
+          const typeTranslated = getBackendTranslation(
+            transaction?.type?.typeName,
+            transaction?.type?.typeNamesAsMap,
             i18n.language,
-            transaction.type.typeNamesAsMap
+            i18n.resolvedLanguage
           );
           //get portfolio data from cache or otherwise FA Back
           const portfolio = await getPortfolioBasicFields(
             transaction.parentPortfolio.id
           );
           rows.push([
-            transaction.securityName,
+            getBackendTranslation(
+              transaction.securityName,
+              transaction.security?.namesAsMap,
+              i18n.language,
+              i18n.resolvedLanguage
+            ),
             portfolio?.name,
             transaction.transactionDate,
             transaction.amount,

@@ -2,6 +2,7 @@ import { SecurityDetailsPosition, SecurityTradeType } from "api/holdings/types";
 import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { TOptions, StringMap } from "i18next";
 import { getBackendTranslation } from "./backTranslations";
+import { dateFromYYYYMMDD } from "./date";
 
 /**
  * Distributes a trade amount with arbitrary decimals precision.
@@ -72,13 +73,17 @@ export const getTradeAmountTooltip = (
   fxRate: number,
   portfolioCurrency: string,
   locale: string,
+  resolvedLanguage: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: (key: string, options?: TOptions<StringMap> | undefined) => any
 ): string | undefined => {
   try {
-    const securityName = security
-      ? getBackendTranslation(security.name, security.namesAsMap, locale)
-      : "";
+    const securityName = getBackendTranslation(
+      security.name,
+      security.namesAsMap,
+      locale,
+      resolvedLanguage
+    );
 
     const unitsFormatted =
       units !== undefined
@@ -94,7 +99,8 @@ export const getTradeAmountTooltip = (
 
     const securityPriceDate =
       security.latestMarketData?.date !== undefined
-        ? new Date(security.latestMarketData?.date).toLocaleDateString(locale, {
+        ? t("dateCustom", {
+            date: dateFromYYYYMMDD(security.latestMarketData?.date),
             dateStyle: "medium",
           })
         : undefined;
@@ -142,15 +148,18 @@ export const getBlockSizeErrorTooltip = (
   fxRate: number,
   portfolioCurrency: string,
   locale: string,
+  resolvedLanguage: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: (key: string, options?: TOptions<StringMap> | undefined) => any,
   buy: boolean
 ): string | undefined => {
   try {
-    const sellSecurityName = security
-      ? getBackendTranslation(security.name, security.namesAsMap, locale)
-      : "";
-
+    const sellSecurityName = getBackendTranslation(
+      security.name,
+      security.namesAsMap,
+      locale,
+      resolvedLanguage
+    );
     const sellPrice = `${security?.latestMarketData?.price} ${security.currency.securityCode}`;
 
     const sellSecurityToPortfoliofxRate = fxRate
@@ -159,11 +168,11 @@ export const getBlockSizeErrorTooltip = (
 
     const securityPriceDate =
       security.latestMarketData?.date !== undefined
-        ? new Date(security.latestMarketData?.date).toLocaleDateString(locale, {
+        ? t("dateCustom", {
+            date: dateFromYYYYMMDD(security.latestMarketData?.date),
             dateStyle: "medium",
           })
         : undefined;
-
     if (
       securityPriceInPfCurrency &&
       sellPrice &&

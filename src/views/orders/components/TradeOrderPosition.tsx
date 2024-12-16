@@ -2,16 +2,15 @@ import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicF
 import { TradeOrder } from "api/orders/types";
 import { Badge } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
-import {
-  getTransactionColor,
-  getNameFromBackendTranslations,
-} from "utils/transactions";
+import { getTransactionColor } from "utils/transactions";
 
 type TradeOrderPositionProps = TradeOrder;
 
 export const TradeOrderPosition = ({
   securityName,
+  security,
   tradeAmountInPortfolioCurrency,
   transactionDate,
   parentPortfolio,
@@ -26,7 +25,14 @@ export const TradeOrderPosition = ({
   return (
     <div className="py-2">
       <div className="flex justify-between">
-        <div className="text-base font-semibold">{securityName}</div>
+        <div className="text-base font-semibold">
+          {getBackendTranslation(
+            securityName,
+            security?.namesAsMap,
+            i18n.language,
+            i18n.resolvedLanguage
+          )}
+        </div>
         <div className="text-base font-medium">
           {t("numberWithCurrency", {
             value: tradeAmountInPortfolioCurrency,
@@ -40,10 +46,11 @@ export const TradeOrderPosition = ({
           transactionParentPortfolio?.name
         }`}</div>
         <Badge severity={getTransactionColor(amountEffect, cashFlowEffect)}>
-          {getNameFromBackendTranslations(
+          {getBackendTranslation(
             typeName,
+            typeNamesAsMap,
             i18n.language,
-            typeNamesAsMap
+            i18n.resolvedLanguage
           )}
         </Badge>
       </div>

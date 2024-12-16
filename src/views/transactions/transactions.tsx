@@ -55,7 +55,7 @@ export const Transactions = ({
             />
           </div>
           <TransactionsFilter
-            transactionsData={transactionsData || []}
+            transactionsData={transactionsData}
             filterHeader={t("transactionsPage.transactionsFilterTitle")}
             onFilter={(filteredTransactionData) =>
               setFilteredTransactionData(

@@ -17,6 +17,22 @@ export enum PermissionMode {
   SELECTED_ANY,
 }
 
+export interface PortfolioFilterFunction {
+  (
+    contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+    portfolio: Portfolio,
+    linkedContact: string | undefined
+  ): boolean;
+}
+
+export interface PortfolioOptionFilterFunction {
+  (
+    contactRepresentativeTags: Record<string, RepresentativeTag> | undefined,
+    portfolioOption: PortfolioOption,
+    linkedContact: string | undefined
+  ): boolean;
+}
+
 const doesAnyPortfolioHavePermission = (
   portfolios: Portfolio[],
   filterFunction: (portfolio: Portfolio) => boolean

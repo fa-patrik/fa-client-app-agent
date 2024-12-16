@@ -113,6 +113,10 @@ const PieChartLazy = ({
 }: PieChartProps) => {
   const portfolioIds = useGetSubPortfolioIds(portfolioId);
   const { i18n } = useModifiedTranslation();
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - PERIOD_IN_DAYS);
   const endDate = new Date();
@@ -122,7 +126,7 @@ const PieChartLazy = ({
     {
       variables: {
         portfolioIds,
-        locale: i18n.language,
+        locale: locale,
         startDate: startDate.toLocaleDateString("sv-SE"),
         endDate: endDate.toLocaleDateString("sv-SE"),
         groupCode: groupCode,
@@ -143,14 +147,12 @@ const PieChartLazy = ({
   };
 
   return (
-    <>
-      <QueryLoadingWrapper
-        data={data}
-        loading={loading}
-        error={error}
-        SuccessComponent={Pie}
-      />
-    </>
+    <QueryLoadingWrapper
+      data={data}
+      loading={loading}
+      error={error}
+      SuccessComponent={Pie}
+    />
   );
 };
 

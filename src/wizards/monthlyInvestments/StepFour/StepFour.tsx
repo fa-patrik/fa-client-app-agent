@@ -16,7 +16,7 @@ const StepFour = () => {
   const { wizardData, setWizardData } =
     useWizard<MonthlyInvestmentsWizardState>();
   const monthlyInvestmentsWizardState = wizardData.data;
-  const { t, i18n } = useModifiedTranslation();
+  const { t } = useModifiedTranslation();
 
   const [selectedDate, setSelectedDate] = useState<string>(
     monthlyInvestmentsWizardState.selectedDate || "1"
@@ -109,8 +109,8 @@ const StepFour = () => {
               "wizards.monthlyInvestments.stepFour.totalInvestmentsPerYear"
             )}
           >
-            {yearlyInvestmentAmount.toLocaleString(i18n.language, {
-              style: "currency",
+            {t("numberWithCurrency", {
+              value: yearlyInvestmentAmount,
               currency:
                 monthlyInvestmentsWizardState.selectedPortfolioOption?.details
                   ?.currency?.securityCode,

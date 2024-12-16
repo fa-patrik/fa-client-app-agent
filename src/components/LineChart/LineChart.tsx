@@ -1,5 +1,6 @@
 import { ApexOptions } from "apexcharts";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { StringMap, TOptions } from "i18next";
 import Chart from "react-apexcharts";
 import theme from "tailwindTheme";
 
@@ -81,18 +82,18 @@ export const LineChart = ({
 
   const isLongPeriod = series[0].data.length >= 365;
   const isVeryLongPeriod = series[0].data.length >= 365 * 4;
-  const performanceChartToolTipFormatting = {
+  const performanceChartToolTipFormatting: TOptions<StringMap> = {
     month: "short",
     year: "numeric",
     day: "numeric",
   };
 
-  const performanceChartShortPeriodDateFormatting = {
+  const performanceChartShortPeriodDateFormatting: TOptions<StringMap> = {
     month: "short",
     day: "numeric",
   };
 
-  const performanceChartLongPeriodDateFormatting = {
+  const performanceChartLongPeriodDateFormatting: TOptions<StringMap> = {
     month: isVeryLongPeriod ? undefined : "short",
     year: isVeryLongPeriod ? "numeric" : "2-digit",
   };

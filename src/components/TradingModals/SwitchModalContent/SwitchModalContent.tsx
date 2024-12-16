@@ -125,7 +125,8 @@ export const SwitchModalContent = ({
           label: `${getBackendTranslation(
             currSec.name,
             currSec.namesAsMap,
-            i18n.language
+            i18n.language,
+            i18n.resolvedLanguage
           )} (${currSec.isinCode}) | ${t("numberWithCurrency", {
             value: holding?.marketValue,
             currency: selectedPortfolioCurrency,
@@ -137,7 +138,7 @@ export const SwitchModalContent = ({
   }, [
     portfolioAllowedSwitchableSecurities,
     portfolioHoldingsMap,
-    i18n.language,
+    i18n,
     t,
     selectedPortfolioCurrency,
   ]);
@@ -169,11 +170,12 @@ export const SwitchModalContent = ({
         label: `${getBackendTranslation(
           s.name,
           s.namesAsMap,
-          i18n.language
+          i18n.language,
+          i18n.resolvedLanguage
         )} (${s.isinCode})`,
       }));
   }, [
-    i18n.language,
+    i18n,
     selectedSellSecurityId,
     switchablePositionsAsOptions?.length,
     portfolioAllowedSwitchableSecurities,
@@ -279,6 +281,7 @@ export const SwitchModalContent = ({
           selectedSellSecurity?.fxRate,
           portfolioCurrency,
           i18n.language,
+          i18n.resolvedLanguage,
           t
         )
       : undefined;
@@ -344,7 +347,12 @@ export const SwitchModalContent = ({
           tooltipContent={
             selectedSellSecurity?.name
               ? t("switchOrderModal.shareInputTooltip", {
-                  securityName: selectedSellSecurity?.name,
+                  securityName: getBackendTranslation(
+                    selectedSellSecurity?.name,
+                    selectedSellSecurity?.namesAsMap,
+                    i18n.language,
+                    i18n.resolvedLanguage
+                  ),
                 })
               : ""
           }

@@ -3,6 +3,7 @@ import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import { Button, Card, Input } from "components";
 
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { getBackendTranslation } from "utils/backTranslations";
 import {
   SetValueFunc,
   handleNumberInputEvent,
@@ -61,10 +62,18 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
               id={id ?? undefined}
               securityId={security.id}
               countryCode={security.country?.code}
-              name={security.name}
-              typeName={
-                security.type?.namesAsMap?.[i18n.language] ?? security.type.name
-              }
+              name={getBackendTranslation(
+                security.name,
+                security.namesAsMap,
+                i18n.language,
+                i18n.resolvedLanguage
+              )}
+              typeName={getBackendTranslation(
+                security.type.name,
+                security.type?.namesAsMap,
+                i18n.language,
+                i18n.resolvedLanguage
+              )}
               isinCode={security.isinCode}
             />
 
@@ -172,14 +181,11 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
               className="text-sm font-thin"
             >
               {t("wizards.monthlyInvestments.stepThree.minDisclaimer", {
-                amount: minTradeAmountInPfCurrency.toLocaleString(
-                  i18n.language,
-                  {
-                    style: "currency",
-                    currency: currency?.securityCode,
-                    maximumFractionDigits: currency?.amountDecimalCount,
-                  }
-                ),
+                amount: t("numberWithCurrency", {
+                  value: minTradeAmountInPfCurrency,
+                  currency: currency?.securityCode,
+                  maximumFractionDigits: currency?.amountDecimalCount,
+                }),
               })}
             </p>
           </div>

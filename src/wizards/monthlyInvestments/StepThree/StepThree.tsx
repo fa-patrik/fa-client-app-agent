@@ -51,8 +51,6 @@ const StepThree = () => {
       : 2;
   const PERCENTAGE_BLOCK_SIZE = 2;
 
-  const { i18n } = useModifiedTranslation();
-
   const [securityToRemove, setSecurityToRemove] = useState<
     TradableSecurity | undefined
   >(undefined);
@@ -394,13 +392,10 @@ const StepThree = () => {
                 id="monthlyInvestmentsWizard-investmentAmount"
                 label="Investment amount"
               >
-                {wizardData?.data?.amountToInvest?.toLocaleString(
-                  i18n.language,
-                  {
-                    style: "currency",
-                    currency: portfolioCurrencyCode,
-                  }
-                )}
+                {t("numberWithCurrency", {
+                  value: wizardData?.data?.amountToInvest,
+                  currency: portfolioCurrencyCode,
+                })}
               </LabeledDiv>
               <Button
                 id="monthlyInvestmentsWizard-distributeEvenlyButton"

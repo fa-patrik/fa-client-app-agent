@@ -57,6 +57,10 @@ const CONTACT_HOLDING_QUERY = gql`
 export const useGetContactHoldingsFromAnalytics = (cacheOnly = false) => {
   const { selectedContactId } = useGetContractIdData();
   const { i18n } = useModifiedTranslation();
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
   const defaultPolicies = getFetchPolicyOptions(
     `useGetContactHoldingsFromAnalytics.${selectedContactId}`
   );
@@ -68,7 +72,7 @@ export const useGetContactHoldingsFromAnalytics = (cacheOnly = false) => {
     {
       variables: {
         contactId: selectedContactId,
-        locale: i18n.language,
+        locale: locale,
         startDate: startDate.toLocaleDateString("sv-SE"),
         endDate: endDate.toLocaleDateString("sv-SE"),
       },

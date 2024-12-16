@@ -76,7 +76,7 @@ const StepZero = () => {
     (PortfolioWithProfileAndFigures & MonthlyInvestments)[] | undefined
   >(undefined);
 
-  const { t, i18n } = useModifiedTranslation();
+  const { t } = useModifiedTranslation();
   const { setMonthlyInvestments } = useSetMonthlyInvestments();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
@@ -310,8 +310,8 @@ const StepZero = () => {
                         className="font-bold"
                         id={`monthlyInvestmentsWizard-amountToInvest-${index}`}
                       >
-                        {totalAmount.toLocaleString(i18n.language, {
-                          style: "currency",
+                        {t("numberWithCurrency", {
+                          value: totalAmount,
                           currency: portfolio.currency.securityCode,
                         })}
                       </span>
