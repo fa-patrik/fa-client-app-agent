@@ -2,7 +2,7 @@ import { TransactionTypeAmountEffect, OrderStatus } from "api/enums";
 import { StringMap, TOptions } from "i18next";
 import { isOrderStatusToDisplayType } from "views/orders/components/useGroupedTradeOrdersByStatus";
 import { TradeOrder } from "../api/orders/types";
-import { getNameFromBackendTranslations } from "./transactions";
+import { getBackendTranslation } from "./backTranslations";
 
 export enum PartOfSwitch {
   BUY = "buy",
@@ -97,14 +97,16 @@ export const getPartOfSwitch = (order: TradeOrder): PartOfSwitch => {
 export const getOrderTypeName = (
   order: TradeOrder,
   t: (key: string, options?: TOptions<StringMap> | undefined) => string,
-  locale: string
+  locale: string,
+  resolvedLanguage: string
 ): string => {
   const typeName = isOrderPartOfSwitch(order)
     ? t("utils.switchOrder.typeName")
-    : getNameFromBackendTranslations(
-        order.type.typeName,
+    : getBackendTranslation(
+        order?.type?.typeName,
+        order?.type?.typeNamesAsMap,
         locale,
-        order.type.typeNamesAsMap
+        resolvedLanguage
       );
   return typeName;
 };

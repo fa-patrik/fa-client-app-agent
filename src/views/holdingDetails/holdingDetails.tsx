@@ -23,7 +23,7 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { PageLayout } from "layouts/PageLayout/PageLayout";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCanTradeSecurities } from "services/permissions/trading";
-import { getNameFromBackendTranslations } from "utils/transactions";
+import { getBackendTranslation } from "utils/backTranslations";
 import { addProtocolToUrl } from "utils/url";
 import { DataRow } from "./components/DataRow";
 import { DocumentRow } from "./components/DocumentRow";
@@ -112,10 +112,11 @@ export const HoldingDetails = ({
                 <div className="flex flex-col px-2 my-1 divide-y">
                   <DataRow
                     label={t("holdingsPage.type")}
-                    value={getNameFromBackendTranslations(
+                    value={getBackendTranslation(
                       typeName,
+                      namesAsMap,
                       i18n.language,
-                      namesAsMap
+                      i18n.resolvedLanguage
                     )}
                   />
                   <DataRow
@@ -158,15 +159,13 @@ export const HoldingDetails = ({
                       {t("holdingsPage.buy")}
                     </Button>
                     {userInvestedInThisHolding && (
-                      <>
-                        <Button
-                          LeftIcon={MinusCircle}
-                          variant="Red"
-                          onClick={() => onSellModalOpen(security)}
-                        >
-                          {t("holdingsPage.sell")}
-                        </Button>
-                      </>
+                      <Button
+                        LeftIcon={MinusCircle}
+                        variant="Red"
+                        onClick={() => onSellModalOpen(security)}
+                      >
+                        {t("holdingsPage.sell")}
+                      </Button>
                     )}
                   </div>
                   {userInvestedInThisHolding && canSwitchAnyHolding && (

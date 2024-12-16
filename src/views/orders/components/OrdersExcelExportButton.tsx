@@ -9,7 +9,8 @@ import { Button } from "components";
 import useExcelDownloader from "hooks/useExcelDownloader";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
-import { getNameFromBackendTranslations } from "utils/transactions";
+import { getBackendTranslation } from "utils/backTranslations";
+import { getOrderTypeName } from "utils/switchOrders";
 
 type ExportRow = (string | number | undefined)[][];
 type ExportHeader = string[];
@@ -36,11 +37,15 @@ const OrdersExcelExportButton = ({
   const { data: selectedPortfolio } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
   const selectedPortfolioName = selectedPortfolio?.name;
+  const startDateFormatted = t("date", {
+    date: startDate,
+  });
+  const endDateFormatted = t("date", {
+    date: endDate,
+  });
   const excelFileName = `${t(
     "ordersPage.excelFileName"
-  )}_${startDate.toLocaleDateString(
-    i18n.language
-  )}_${endDate.toLocaleDateString(i18n.language)}.xlsx`;
+  )}_${startDateFormatted}_${endDateFormatted}.xlsx`;
   const excelSheetName = t("ordersPage.excelSheetName");
   const { downloadExcel, loading: excelLoading } = useExcelDownloader(
     selectedPortfolioName
@@ -66,17 +71,23 @@ const OrdersExcelExportButton = ({
       const rows: ExportRow = [];
       if (orders?.length) {
         for (const order of orders) {
-          const typeTranslated = getNameFromBackendTranslations(
-            order.type.typeName,
+          const typeTranslated = getOrderTypeName(
+            order,
+            t,
             i18n.language,
-            order.type.typeNamesAsMap
+            i18n.resolvedLanguage
           );
           //get portfolio data from cache or otherwise FA Back
           const portfolio = await getPortfolioBasicFields(
             order.parentPortfolio.id
           );
           rows.push([
-            order.securityName,
+            getBackendTranslation(
+              order.securityName,
+              order.security?.namesAsMap,
+              i18n.language,
+              i18n.resolvedLanguage
+            ),
             portfolio?.name,
             order.transactionDate,
             order.amount,

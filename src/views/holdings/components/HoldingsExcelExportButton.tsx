@@ -15,15 +15,15 @@ const HoldingsExcelExportButton = ({
   holdingsByType,
   currencyCode,
 }: HoldingsExcelExportButtonProps) => {
-  const { t, i18n } = useModifiedTranslation();
+  const { t } = useModifiedTranslation();
   const { portfolioId } = useParams();
   const portfolioIdAsNr = portfolioId ? parseInt(portfolioId, 10) : undefined;
   const { data: selectedPortfolio } =
     useGetPortfolioBasicFieldsById(portfolioIdAsNr);
   const selectedPortfolioName = selectedPortfolio?.name;
-  const excelFileName = `${t(
-    "holdingsPage.excelFileName"
-  )}_${new Date().toLocaleDateString(i18n.language)}.xlsx`;
+  const excelFileName = `${t("holdingsPage.excelFileName")}_${t("date", {
+    date: new Date(),
+  })}.xlsx`;
   const excelSheetName = t("holdingsPage.excelSheetName");
   const { downloadExcel, loading: excelLoading } = useExcelDownloader(
     selectedPortfolioName

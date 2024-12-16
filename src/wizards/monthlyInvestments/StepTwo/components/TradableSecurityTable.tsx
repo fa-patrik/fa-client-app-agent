@@ -21,6 +21,7 @@ import Pagination from "components/Pagination/Pagination";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { Link, useLocation } from "react-router-dom";
+import { getBackendTranslation } from "utils/backTranslations";
 import SecurityInfoCell from "./SecurityInfoCell";
 
 interface Row {
@@ -495,11 +496,18 @@ const TradableSecurityTable = ({
                   id={!id ? undefined : `${id}-info-${security.id}`}
                   securityId={security.id}
                   countryCode={security.country?.code}
-                  name={security.name}
-                  typeName={
-                    security.type?.namesAsMap?.[i18n.language] ??
-                    security.type.name
-                  }
+                  name={getBackendTranslation(
+                    security.name,
+                    security.namesAsMap,
+                    i18n.language,
+                    i18n.resolvedLanguage
+                  )}
+                  typeName={getBackendTranslation(
+                    security.type.name,
+                    security.type?.namesAsMap,
+                    i18n.language,
+                    i18n.resolvedLanguage
+                  )}
                   isinCode={security.isinCode}
                 />
               </td>
@@ -523,10 +531,10 @@ const TradableSecurityTable = ({
                       })}
                     >
                       {performanceOneYear !== undefined
-                        ? performanceOneYear.toLocaleString(i18n.language, {
-                            style: "percent",
-                            minimumFractionDigits: 2,
+                        ? t("numberWithPercent", {
+                            value: performanceOneYear,
                             maximumFractionDigits: 2,
+                            minimumFractionDigits: 2,
                           })
                         : "-"}
                     </span>
@@ -543,8 +551,9 @@ const TradableSecurityTable = ({
                       "text-green-400": security.managementFee > 0,
                     })}
                   >
-                    {security.managementFee.toLocaleString(i18n.language, {
-                      style: "percent",
+                    {t("numberWithCurrency", {
+                      value: security.managementFee,
+                      currency: security.currency.securityCode,
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
@@ -565,8 +574,8 @@ const TradableSecurityTable = ({
                             : `${id}-minTradeAmount-${security.id}`
                         }
                       >
-                        {security.minTradeAmount.toLocaleString(i18n.language, {
-                          style: "currency",
+                        {t("numberWithCurrency", {
+                          value: security.minTradeAmount,
                           currency: security.currency.securityCode,
                         })}
                       </span>

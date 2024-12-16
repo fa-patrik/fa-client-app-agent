@@ -37,7 +37,7 @@ const AccountBadge = ({ accountNr }: { accountNr: string }) => {
  */
 const MsStepOne = () => {
   const { wizardData, setWizardData } = useWizard<MonthlySavingsWizardState>();
-  const { t, i18n } = useModifiedTranslation();
+  const { t } = useModifiedTranslation();
   const {
     loading: loadingPortfolioData,
     data: portfolioData,
@@ -245,8 +245,8 @@ const MsStepOne = () => {
               id="monthlySavingsWizard-minAmountDisclaimer"
             >
               {t("wizards.monthlySavings.stepOne.minAmountDisclaimer") + " "}
-              {minAmount.toLocaleString(i18n.language, {
-                style: "currency",
+              {t("numberWithCurrency", {
+                value: minAmount,
                 currency: portfolioCurrencyCode,
               })}
             </p>

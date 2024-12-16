@@ -4,6 +4,7 @@ export const TRANSACTION_FIELDS = gql`
   fragment TransactionsFields on Transaction {
     id
     amount
+    securityName
     transactionDate
     type {
       typeCode
@@ -13,7 +14,11 @@ export const TRANSACTION_FIELDS = gql`
       amountEffect
     }
     tradeAmountInPortfolioCurrency
-    securityName
+    security {
+      id
+      name
+      namesAsMap
+    }
     parentPortfolio {
       id
     }
@@ -27,6 +32,7 @@ export const TRANSACTION_DETAILS_FIELDS = gql`
   fragment TransactionDetailsFields on Transaction {
     id
     amount
+    securityName
     security {
       id
       isinCode

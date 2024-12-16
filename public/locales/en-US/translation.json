@@ -179,7 +179,6 @@
     "excelCol8Header": "Status",
     "excelExportButtonLabel": "Export as XLSX",
     "orderStatuses": {
-      "-1": "Pending",
       "1": "Executable",
       "2": "Executed",
       "3": "Cancelled",
@@ -191,7 +190,8 @@
       "9": "Expired",
       "10": "Sent to execution",
       "11": "Settled in market",
-      "12": "Partially executed in the market"
+      "12": "Partially executed in the market",
+      "-1": "Pending"
     }
   },
   "transactionsPage": {
@@ -321,7 +321,9 @@
     "tradeAmountButtonLabel": "Trade amount",
     "unitsButtonLabel": "Units",
     "createTradeSuccess": "Order created",
-    "createTradeError": "Failed to create order"
+    "createTradeError": "Failed to create order",
+    "account": "Cash account",
+    "buyModalAccountError": "Selected portfolio doesn't have cash accounts"
   },
   "cancelOrderModal": {
     "header": "Cancelling order",

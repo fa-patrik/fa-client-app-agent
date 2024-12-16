@@ -136,8 +136,8 @@ const MsStepThree = () => {
                 className="text-sm font-semibold"
                 id="monthlySavingsWizard-amountToSave"
               >
-                {amountToSave?.toLocaleString(i18n.language, {
-                  style: "currency",
+                {t("numberWithCurrency", {
+                  value: amountToSave,
                   currency:
                     wizardData.data.selectedPortfolioOption?.details?.currency
                       ?.securityCode,
@@ -150,8 +150,8 @@ const MsStepThree = () => {
                 className="text-sm font-semibold"
                 id="monthlySavingsWizard-yearlyAmountToSave"
               >
-                {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
-                  style: "currency",
+                {t("numberWithCurrency", {
+                  value: yearlyInvestmentAmount,
                   currency:
                     wizardData.data.selectedPortfolioOption?.details?.currency
                       ?.securityCode,

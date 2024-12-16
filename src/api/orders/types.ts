@@ -13,6 +13,12 @@ export interface TradeOrder {
   id: number;
   amount?: number;
   securityName: string;
+  security?: {
+    // not returned for cash
+    id: number;
+    name: string;
+    namesAsMap: Record<string, string>;
+  };
   type: TradeOrderType;
   transactionDate: string;
   tradeAmountInPortfolioCurrency?: number;
@@ -28,6 +34,8 @@ export interface TradeOrder {
 export interface TradeOrderDetails extends TradeOrder {
   security?: {
     id: number;
+    name: string;
+    namesAsMap: Record<string, string>;
     isinCode: string;
     country?: {
       id: number;

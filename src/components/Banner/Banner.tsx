@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { ALLOWED_HTML_ATTRIBUTES } from "api/constants";
 import classNames from "classnames";
 import { Severity, getIconBySeverity } from "components/Alert/Alert";
 import Icon from "components/Icon/Icon";
+import DOMPurify from "dompurify";
 
 export interface BannerProps {
   id: string;
@@ -65,12 +67,24 @@ const Banner = ({
                   "text-error-text": severity === "Error",
                   "text-warning-text": severity === "Warning",
                 })}
-              >
-                {title}
-              </p>
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(title, {
+                    ALLOWED_ATTR: ALLOWED_HTML_ATTRIBUTES,
+                  }),
+                }}
+              />
             </div>
           )}
-          {description && <p className="text-xs">{description}</p>}
+          {description && (
+            <p
+              className="text-xs"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(description, {
+                  ALLOWED_ATTR: ALLOWED_HTML_ATTRIBUTES,
+                }),
+              }}
+            />
+          )}
           {content}
         </div>
         <div className="flex items-center">

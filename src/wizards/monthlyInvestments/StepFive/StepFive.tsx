@@ -26,7 +26,11 @@ const StepFive = () => {
     useWizard<MonthlyInvestmentsWizardState>();
   const monthlyInvestmentsWizardState = wizardData.data;
   const { t, i18n } = useModifiedTranslation();
-  numbro.setLanguage(i18n.language);
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
+  numbro.setLanguage(locale);
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { setMonthlyInvestments } = useSetMonthlyInvestments();
@@ -138,8 +142,8 @@ const StepFive = () => {
                   id="monthlyInvestmentsWizard-amountToInvest"
                   className="font-semibold"
                 >
-                  {amountToInvest?.toLocaleString(i18n.language, {
-                    style: "currency",
+                  {t("numberWithCurrency", {
+                    value: amountToInvest,
                     currency:
                       monthlyInvestmentsWizardState.selectedPortfolioOption
                         ?.details?.currency?.securityCode,
@@ -152,8 +156,8 @@ const StepFive = () => {
                   id="monthlyInvestmentsWizard-yearlyAmountToInvest"
                   className="font-semibold"
                 >
-                  {yearlyInvestmentAmount?.toLocaleString(i18n.language, {
-                    style: "currency",
+                  {t("numberWithCurrency", {
+                    value: yearlyInvestmentAmount,
                     currency:
                       monthlyInvestmentsWizardState.selectedPortfolioOption
                         ?.details?.currency?.securityCode,

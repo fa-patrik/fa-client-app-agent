@@ -16,6 +16,7 @@ import {
   isTransactionTypeCancellable,
 } from "services/permissions/cancelOrder";
 import { PermissionMode, useFeature } from "services/permissions/usePermission";
+import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import {
   getOrderTypeName,
@@ -130,107 +131,126 @@ const Order = ({
           isPartOfSwitch
         )}
       >
-        {getOrderTypeName(order, t, i18n.language)}
+        {getOrderTypeName(order, t, i18n.language, i18n.resolvedLanguage)}
       </Badge>
     );
   };
 
   return (
-    <>
-      <tr
-        onClick={!isLocalOrder(order) ? onClick : undefined}
-        className={classNames(
-          "h-12 hover:bg-primary-50 border-t transition-colors",
-          {
-            "cursor-pointer": !isLocalOrder(order),
-          }
-        )}
-      >
-        <td className="px-1">
-          <div className="flex justify-center">
-            <TypeBadge />
-          </div>
-        </td>
-        <td className="px-2 font-semibold text-left" colSpan={2}>
-          <div>
-            {isPartOfSwitch ? (
-              <>
-                <div className="flex flex-row gap-x-1">
-                  <div className="flex flex-col gap-y-1 font-normal text-gray-500">
-                    <span>{t("ordersPage.switchSell")}</span>
-                    <span>{t("ordersPage.switchBuy")}</span>
-                  </div>
-                  <div className="flex flex-col gap-y-1 font-semibold text-black">
-                    <span>{switchDetails?.fromOrder?.securityName}</span>
-                    <span>{switchDetails?.toOrder?.securityName}</span>
-                  </div>
+    <tr
+      onClick={!isLocalOrder(order) ? onClick : undefined}
+      className={classNames(
+        "h-12 hover:bg-primary-50 border-t transition-colors",
+        {
+          "cursor-pointer": !isLocalOrder(order),
+        }
+      )}
+    >
+      <td className="px-1">
+        <div className="flex justify-center">
+          <TypeBadge />
+        </div>
+      </td>
+      <td className="px-2 font-semibold text-left" colSpan={2}>
+        <div>
+          {isPartOfSwitch ? (
+            <>
+              <div className="flex flex-row gap-x-1">
+                <div className="flex flex-col gap-y-1 font-normal text-gray-500">
+                  <span>{t("ordersPage.switchSell")}</span>
+                  <span>{t("ordersPage.switchBuy")}</span>
                 </div>
-              </>
-            ) : (
-              <span>{order.securityName}</span>
-            )}
+                <div className="flex flex-col gap-y-1 font-semibold text-black">
+                  <span>
+                    {getBackendTranslation(
+                      switchDetails?.fromOrder?.securityName,
+                      switchDetails?.fromOrder?.security?.namesAsMap,
+                      i18n.language,
+                      i18n.resolvedLanguage
+                    )}
+                  </span>
+                  <span>
+                    {getBackendTranslation(
+                      switchDetails?.toOrder?.securityName,
+                      switchDetails?.toOrder?.security?.namesAsMap,
+                      i18n.language,
+                      i18n.resolvedLanguage
+                    )}
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <span>
+              {getBackendTranslation(
+                order.securityName,
+                order.security?.namesAsMap,
+                i18n.language,
+                i18n.resolvedLanguage
+              )}
+            </span>
+          )}
+        </div>
+      </td>
+      {showPortfolioLabel && (
+        <td className="px-1 text-left text-gray-500">
+          {orderParentPortfolio?.name}
+        </td>
+      )}
+      <td className="px-2 font-medium text-right">
+        {order.tradeAmountInPortfolioCurrency !== undefined
+          ? t("numberWithCurrency", {
+              value: order.tradeAmountInPortfolioCurrency,
+              currency: orderParentPortfolio?.currency.securityCode,
+            })
+          : "-"}
+      </td>
+      {isLgVersion && (
+        <>
+          <td className="px-1 font-medium text-right">
+            {order.amount != null && !isPartOfSwitch
+              ? t("number", { value: order.amount })
+              : "-"}
+          </td>
+          <td className="px-1 font-medium text-right text-gray-500">
+            <span>
+              {t("date", { date: dateFromYYYYMMDD(order.transactionDate) })}
+            </span>
+          </td>
+        </>
+      )}
+      <td className="px-1 font-medium text-center">
+        {t(
+          `ordersPage.orderStatuses.${
+            switchDetails?.switchOrderStatus ?? order.orderStatus
+          }`
+        )}
+      </td>
+      {orderCanBeCancelled && portfolioAllowedToCancel ? (
+        <td className="pr-4 h-full">
+          <div
+            id={`cancelOrder-${order.id}`}
+            className="ml-auto w-fit"
+            data-tooltip-content={t("ordersPage.cancelOrder")}
+            data-tooltip-id="cancelOrderTooltip"
+          >
+            <CancelIcon
+              className="w-6 h-6 text-primary-600 transition-transform hover:scale-110 hover:cursor-pointer stroke-primary-600"
+              onClick={(event: React.MouseEvent) => {
+                event.stopPropagation(); //hinders the parent onClick
+                if (onCancelOrderModalOpen) {
+                  onCancelOrderModalOpen({
+                    portfolio: orderParentPortfolio,
+                    order: order,
+                  });
+                }
+              }}
+            />
           </div>
         </td>
-        {showPortfolioLabel && (
-          <td className="px-1 text-left text-gray-500">
-            {orderParentPortfolio?.name}
-          </td>
-        )}
-        <td className="px-2 font-medium text-right">
-          {order.tradeAmountInPortfolioCurrency !== undefined
-            ? t("numberWithCurrency", {
-                value: order.tradeAmountInPortfolioCurrency,
-                currency: orderParentPortfolio?.currency.securityCode,
-              })
-            : "-"}
-        </td>
-        {isLgVersion && (
-          <>
-            <td className="px-1 font-medium text-right">
-              {order.amount != null && !isPartOfSwitch
-                ? t("number", { value: order.amount })
-                : "-"}
-            </td>
-            <td className="px-1 font-medium text-right text-gray-500">
-              <span>
-                {t("date", { date: dateFromYYYYMMDD(order.transactionDate) })}
-              </span>
-            </td>
-          </>
-        )}
-        <td className="px-1 font-medium text-center">
-          {t(
-            `ordersPage.orderStatuses.${
-              switchDetails?.switchOrderStatus ?? order.orderStatus
-            }`
-          )}
-        </td>
-        {orderCanBeCancelled && portfolioAllowedToCancel ? (
-          <td className="pr-4 h-full">
-            <div
-              id={`cancelOrder-${order.id}`}
-              className="ml-auto w-fit"
-              data-tooltip-content={t("ordersPage.cancelOrder")}
-              data-tooltip-id="cancelOrderTooltip"
-            >
-              <CancelIcon
-                className="w-6 h-6 text-primary-600 transition-transform hover:scale-110 hover:cursor-pointer stroke-primary-600"
-                onClick={(event: React.MouseEvent) => {
-                  event.stopPropagation(); //hinders the parent onClick
-                  if (onCancelOrderModalOpen) {
-                    onCancelOrderModalOpen({
-                      portfolio: orderParentPortfolio,
-                      order: order,
-                    });
-                  }
-                }}
-              />
-            </div>
-          </td>
-        ) : (
-          isAnyOrderCancellable && <td></td>
-        )}
-      </tr>
-    </>
+      ) : (
+        isAnyOrderCancellable && <td></td>
+      )}
+    </tr>
   );
 };

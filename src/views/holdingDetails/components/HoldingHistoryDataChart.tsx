@@ -8,11 +8,6 @@ import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import { dateFromYYYYMMDD } from "utils/date";
 
-const defaultDateFormatting = {
-  day: "numeric",
-  month: "short",
-};
-
 // apex charts freezes when must draw too many data points chart, we decimate them to prevent this
 const safeDPNumber = 300;
 const limitDataPoints = (data: MarketHistoryDataPoint[]) => {
@@ -26,9 +21,12 @@ const limitDataPoints = (data: MarketHistoryDataPoint[]) => {
 
 export const HoldingHistoryDataChart = () => {
   const { holdingId } = useParams();
-  const { t } = useModifiedTranslation();
+  const { t, i18n } = useModifiedTranslation();
   const isChartDetailed = useMatchesBreakpoint("lg");
-
+  const locale =
+    i18n.language === i18n.resolvedLanguage
+      ? i18n.language
+      : i18n.resolvedLanguage;
   const chartRangeOptions = [
     {
       id: "DAYS-6",
@@ -53,9 +51,16 @@ export const HoldingHistoryDataChart = () => {
         day: "numeric",
         month: "numeric",
         year: "2-digit",
+        lng: locale,
       },
     },
   ];
+
+  const defaultDateFormatting = {
+    day: "numeric",
+    month: "short",
+    lng: locale,
+  };
 
   const [range, setRange] = useState(chartRangeOptions[0]);
   const { loading: securityLoading, data: securityData } =

@@ -165,7 +165,6 @@ export const useGetTradebleSecurities = (
   const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
     useGetContactInfo(false, selectedContactId);
   const { i18n } = useModifiedTranslation();
-  const locale = i18n.language;
   const [filters, setFilters] = useReducer(filtersReducer, initialFilters);
 
   const { loading, error, data } = useQuery<TradableSecuritiesQuery>(
@@ -197,9 +196,10 @@ export const useGetTradebleSecurities = (
         prev.country.push({
           id: securityCountry.code,
           label: getBackendTranslation(
-            securityCountry.name ?? "",
+            securityCountry.name,
             securityCountry.namesAsMap,
-            locale
+            i18n.language,
+            i18n.resolvedLanguage
           ),
         });
       }
@@ -212,9 +212,10 @@ export const useGetTradebleSecurities = (
         prev.type.push({
           id: securityType.code,
           label: getBackendTranslation(
-            securityType.name ?? "",
+            securityType.name,
             securityType.namesAsMap,
-            locale
+            i18n.language,
+            i18n.resolvedLanguage
           ),
         });
       }
