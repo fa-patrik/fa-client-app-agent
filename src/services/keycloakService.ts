@@ -1,9 +1,7 @@
 import { API_URL } from "config";
 import Keycloak, {
   KeycloakError,
-  KeycloakInstance,
   KeycloakProfile,
-  KeycloakPromise,
 } from "keycloak-js";
 import { persistor } from "./apolloClient";
 import {
@@ -46,11 +44,11 @@ type FAKeycloakProfile = KeycloakProfile & {
 };
 
 type FAKeycloakInstance = Omit<
-  KeycloakInstance,
+  Keycloak,
   "profile" | "loadUserProfile"
 > & {
   profile?: FAKeycloakProfile;
-  loadUserProfile(): KeycloakPromise<FAKeycloakProfile, void>;
+  loadUserProfile(): Promise<FAKeycloakProfile>;
 };
 
 type SubscribeFunctionType = (state: KeycloakServiceStateType) => void;
@@ -130,17 +128,17 @@ class KeycloakService {
       this.initOffline();
       return;
     }
-    this.keycloak.init(keycloakInitConfig).catch((error) => {
-      console.error(error);
-      this.initOffline();
-    });
-
     this.keycloak.onReady = this.onReady;
     this.keycloak.onAuthError = this.onError;
     this.keycloak.onAuthRefreshSuccess = this.onAuthRefreshSuccess;
     this.keycloak.onAuthRefreshError = this.onError;
     this.keycloak.onAuthLogout = this.onAuthLogout;
     this.keycloak.onTokenExpired = this.onTokenExpired;
+
+    this.keycloak.init(keycloakInitConfig).catch((error) => {
+      console.error(error);
+      this.initOffline();
+    });
   }
 
   subscribe(subscribeFunction: SubscribeFunctionType) {
@@ -178,7 +176,7 @@ class KeycloakService {
   onReady = async (authenticated: boolean) => {
     if (!authenticated) {
       //redirect to login page
-      this.keycloak.login();
+      await this.keycloak.login();
     } else {
       try {
         this.state = {
