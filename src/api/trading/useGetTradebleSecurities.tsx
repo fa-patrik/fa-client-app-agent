@@ -20,13 +20,10 @@ const TRADABLE_SECURITIES_QUERY = gql`
     $tradableTag: [String]
     $securityCode: String
   ) {
-    securities(
-      tags: $tradableTag
-      countryCode: $countryCode
-      securityType: $securityType
-      name: $name
-      securityCode: $securityCode
-    ) {
+    securities: securitiesByParameters(
+    parameters: {tags: $tradableTag, countryCode: $countryCode, securityType: $securityType, name: $name, securityCode: $securityCode},
+    batchLoadLatestPrices: true
+  ) {
       id
       name
       namesAsMap
