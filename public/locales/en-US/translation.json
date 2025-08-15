@@ -63,7 +63,8 @@
       "orders": "Orders",
       "trading": "Trading",
       "documents": "Documents",
-      "contact": "Contact us"
+      "contact": "Contact us",
+      "taxes": "Taxes"
     }
   },
   "banners": {
@@ -265,6 +266,14 @@
       "name": "Security name"
     }
   },
+  "taxesPage": {
+    "isaGroupHeader": "ISA allowance",
+    "perWrapperHeader": "By ISA type / portfolio",
+    "totalAllowance": "Total allowance",
+    "used": "Used",
+    "remaining": "Remaining",
+    "bannerTitle": "You have {{days}} days remaining to use your allowance for the tax year {{taxYearLabel}}."
+  },
   "moneyModal": {
     "depositModalHeader": "Deposit",
     "withdrawModalHeader": "Withdrawal",
@@ -284,7 +293,8 @@
     "withdrawalSuccess": "Your withdrawal request was created successfully",
     "portfolio": "Portfolio",
     "noPortfolioAvailable": "No portfolio available",
-    "invalidAccountSelection": "Invalid account selection"
+    "invalidAccountSelection": "Invalid account selection",
+    "isaAllowanceExceededError": "You only have {{remaining, number(minimumFractionDigits: 2; maximumFractionDigits: 2)}} {{currency}} remaining in your ISA allowance for this tax year."
   },
   "tradingModal": {
     "securityName": "Security name",

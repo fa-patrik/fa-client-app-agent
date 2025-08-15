@@ -1,9 +1,11 @@
-import { MutableRefObject, useState } from "react";
+/* eslint-disable import/order */
+import { MutableRefObject, useState, useMemo } from "react";
 import {
   PortfolioGroups,
   RepresentativeTag,
   useGetContactInfo,
 } from "api/common/useGetContactInfo";
+import { useGetCalculatedTaxWrapperAllowances, isIsaWrapper } from "api/taxWrappers/useGetCalculatedTaxWrapperAllowances";
 import { useDeposit } from "api/money/useDeposit";
 import { Input, Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
@@ -56,10 +58,28 @@ export const DepositModalContent = ({
 
   const isAmountCorrect = !isNaN(availableBalance) && amountAsNr >= 0;
 
+  const selectedPortfolio = useMemo(
+    () => portfolios.find((p) => p.id === portfolioId) || portfolios[0],
+    [portfolios, portfolioId]
+  );
+
+  const taxWrapperCode = selectedPortfolio?.shortName;
+  const { data: wrapperAllowances = [] } = useGetCalculatedTaxWrapperAllowances({
+    taxWrapperCodes: taxWrapperCode ? [taxWrapperCode] : [],
+  });
+  const isaWrapperAllowance = useMemo(
+    () => wrapperAllowances.find((a) => isIsaWrapper(a)),
+    [wrapperAllowances]
+  );
+  const remainingIsaAllowance = isaWrapperAllowance?.remainingAllowance ?? undefined;
+
+  const exceedsIsaAllowance = useMemo(() => {
+    if (remainingIsaAllowance === undefined) return false;
+    return amountAsNr > remainingIsaAllowance;
+  }, [amountAsNr, remainingIsaAllowance]);
+
   const { handleTrade: handleDeposit, submitting } = useDeposit({
-    portfolio:
-      portfolios.find((portfolio) => portfolio.id === portfolioId) ||
-      portfolios[0],
+    portfolio: selectedPortfolio,
     tradeAmount: amountAsNr,
     securityName: label,
     account: number,
@@ -103,6 +123,11 @@ export const DepositModalContent = ({
               ? t("moneyModal.amountInputError")
               : !accountsLoading && invalidAccountSelection
               ? t("moneyModal.invalidAccountSelection")
+              : exceedsIsaAllowance
+              ? t("moneyModal.isaAllowanceExceededError", {
+                  remaining: remainingIsaAllowance ?? 0,
+                  currency,
+                })
               : ""
           }
           step="any"
@@ -113,7 +138,8 @@ export const DepositModalContent = ({
             amountAsNr === 0 ||
             accountsLoading ||
             !isAmountCorrect ||
-            invalidAccountSelection
+            invalidAccountSelection ||
+            exceedsIsaAllowance
           }
           isLoading={submitting}
           onClick={async () => {
