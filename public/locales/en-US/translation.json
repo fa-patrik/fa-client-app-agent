@@ -63,7 +63,8 @@
       "orders": "Orders",
       "trading": "Trading",
       "documents": "Documents",
-      "contact": "Contact us"
+      "contact": "Contact us",
+      "tax": "Tax"
     }
   },
   "banners": {
@@ -159,6 +160,11 @@
     "sellStatus": "Sell",
     "switchBuy": "To",
     "switchSell": "From",
+    "marketplace": "Marketplace",
+    "isin": "ISIN code",
+    "securityName": "Security name",
+    "accountName": "Account name",
+    "portfolioName": "Portfolio name",
     "status": "Status",
     "subscriptionStatus": "Subscription",
     "redemptionStatus": "Redemption",
@@ -574,6 +580,22 @@
         "confirmDialogConfirmButtonLabel": "Save"
       }
     }
+  },
+  "tax": {
+    "title": "Tax",
+    "subheading": "ISA allowance (current tax year)",
+    "taxYear": "Tax year: {{start}} – {{end}}",
+    "overall": {
+      "total": "Total",
+      "used": "Used",
+      "remaining": "Remaining"
+    },
+    "wrapper": {
+      "depositCta": "Deposit to this ISA",
+      "remainingHelper": "Remaining ISA allowance: {{amount}}"
+    },
+    "empty": "No ISA wrappers associated with your account.",
+    "error": "We couldn't load your allowance right now."
   },
   "utils": {
     "months": {
