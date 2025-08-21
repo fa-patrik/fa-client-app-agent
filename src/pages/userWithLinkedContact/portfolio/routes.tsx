@@ -43,6 +43,9 @@ const Contact = lazy(() =>
 const Trading = lazy(() =>
   import("./trading").then((module) => ({ default: module.TradingPage }))
 );
+const Taxes = lazy(() =>
+  import("./taxes").then((module) => ({ default: module.TaxesPage }))
+);
 
 export const portfolioTabRoutes: NavTabPath[] = [
   {
@@ -79,6 +82,12 @@ export const portfolioTabRoutes: NavTabPath[] = [
     path: "trading",
     tabLabel: <TranslationText translationKey="navTab.tabs.trading" />,
     tabComponent: <Trading />,
+    element: null,
+  },
+  {
+    path: "taxes",
+    tabLabel: <TranslationText translationKey="navTab.tabs.taxes" />,
+    tabComponent: <Taxes />,
     element: null,
   },
   {

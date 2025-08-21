@@ -63,7 +63,8 @@
       "orders": "Orders",
       "trading": "Trading",
       "documents": "Documents",
-      "contact": "Contact us"
+      "contact": "Contact us",
+      "taxes": "Taxes"
     }
   },
   "banners": {
@@ -87,6 +88,19 @@
     "lineChartLabel": "Performance",
     "lineChartTooltipLabel": "Return",
     "name": "Name"
+  },
+  "taxesPage": {
+    "title": "Your Tax-Free Allowances",
+    "lastUpdated": "Last updated: {{date}}",
+    "investmentWrappers": "Investment Wrappers",
+    "incomeRelated": "Income-Related Allowances",
+    "capitalGains": "Capital Gains",
+    "nearCgtLimit": "Near annual CGT allowance limit",
+    "businessAllowances": "Business Allowances",
+    "allowance": "Allowance",
+    "limit": "Limit",
+    "used": "Used",
+    "remaining": "Remaining"
   },
   "holdingsPage": {
     "name": "Name",

@@ -1,0 +1,1 @@
+export { TaxesView as TaxesPage } from "views/taxes/taxes";

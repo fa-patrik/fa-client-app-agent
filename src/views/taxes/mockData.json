@@ -1,0 +1,20 @@
+{
+	"wrappers": [
+		{ "name": "ISA", "limit": 20000, "used": 8200 },
+		{ "name": "Pension", "limit": 60000, "used": 15000 }
+	],
+	"income": [
+		{ "name": "Personal Allowance", "limit": 12570, "used": 12570 },
+		{ "name": "Marriage Allowance", "limit": 1260, "used": 0 },
+		{ "name": "Savings Allowance", "limit": 1000, "used": 200 },
+		{ "name": "Dividend Allowance", "limit": 500, "used": 420 },
+		{ "name": "Trading Allowance", "limit": 1000, "used": 250 },
+		{ "name": "Property Allowance", "limit": 1000, "used": 100 }
+	],
+	"capitalGains": { "limit": 3000, "used": 2800 },
+	"business": [
+		{ "name": "Capital Allowance", "limit": 1000000, "used": 25000 },
+		{ "name": "R&D Relief", "limit": 0, "used": 0 },
+		{ "name": "Employment Allowance", "limit": 5000, "used": 1200 }
+	]
+}
