@@ -86,46 +86,49 @@ const AllowanceTable = ({
 }: {
 	title: string;
 	rows: Array<{ name: string; limit: number; used: number }>;
-}) => (
-	<Card>
-		<div className="p-3">
-			<SectionHeader title={title} />
-			<div className="overflow-x-auto">
-				<table className="min-w-full text-left text-sm">
-					<thead className="text-gray-600">
-						<tr className="border-b">
-							<th className="py-2 pr-4">{t("taxesPage.allowance")}</th>
-							<th className="py-2 pr-4">{t("taxesPage.limit")}</th>
-							<th className="py-2 pr-4">{t("taxesPage.used")}</th>
-							<th className="py-2 pr-4">{t("taxesPage.remaining")}</th>
-						</tr>
-					</thead>
-					<tbody>
-						{rows.map((r) => {
-							const remaining = Math.max(0, r.limit - r.used);
-							const percent = getPercentUsed(r.used, r.limit);
-							return (
-								<tr key={r.name} className="border-b last:border-0">
-									<td className="py-2 pr-4">
-										<div className="flex items-center gap-2">
-											<span>{r.name}</span>
-											<span className={classNames("text-xs font-semibold", getTextTrafficColor(percent))}>
-												{formatPercent(percent)}
-											</span>
-										</div>
-									</td>
-									<td className="py-2 pr-4">{formatCurrency(r.limit)}</td>
-									<td className="py-2 pr-4">{formatCurrency(r.used)}</td>
-									<td className="py-2 pr-4">{formatCurrency(remaining)}</td>
-								</tr>
-							);
-						})}
-					</tbody>
-				</table>
+}) => {
+	const { t } = useModifiedTranslation();
+	return (
+		<Card>
+			<div className="p-3">
+				<SectionHeader title={title} />
+				<div className="overflow-x-auto">
+					<table className="min-w-full text-left text-sm">
+						<thead className="text-gray-600">
+							<tr className="border-b">
+								<th className="py-2 pr-4">{t("taxesPage.allowance")}</th>
+								<th className="py-2 pr-4">{t("taxesPage.limit")}</th>
+								<th className="py-2 pr-4">{t("taxesPage.used")}</th>
+								<th className="py-2 pr-4">{t("taxesPage.remaining")}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{rows.map((r) => {
+								const remaining = Math.max(0, r.limit - r.used);
+								const percent = getPercentUsed(r.used, r.limit);
+								return (
+									<tr key={r.name} className="border-b last:border-0">
+										<td className="py-2 pr-4">
+											<div className="flex items-center gap-2">
+												<span>{r.name}</span>
+												<span className={classNames("text-xs font-semibold", getTextTrafficColor(percent))}>
+													{formatPercent(percent)}
+												</span>
+											</div>
+										</td>
+										<td className="py-2 pr-4">{formatCurrency(r.limit)}</td>
+										<td className="py-2 pr-4">{formatCurrency(r.used)}</td>
+										<td className="py-2 pr-4">{formatCurrency(remaining)}</td>
+									</tr>
+								);
+							})}
+						</tbody>
+					</table>
+				</div>
 			</div>
-		</div>
-	</Card>
-);
+		</Card>
+	);
+};
 
 const Accordion = ({ title, children }: { title: string; children: React.ReactNode }) => {
 	const id = title.replace(/\s+/g, "-").toLowerCase();
