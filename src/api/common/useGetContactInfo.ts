@@ -11,6 +11,7 @@ export const PORTFOLIO_BASIC_FIELDS = gql`
     name
     status
     shortName
+    typeCode
     currency {
       securityCode
       amountDecimalCount
@@ -142,6 +143,7 @@ export interface Portfolio {
   name: string;
   status: string;
   shortName: string;
+  typeCode: string;
   parentPortfolios: {
     id: number;
   }[];

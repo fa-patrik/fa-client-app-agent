@@ -95,6 +95,7 @@ export const useLocalTradeStorageMutation = () => {
       tradeType,
       reference,
     } = tradeDetails;
+    
     await placeOrder({
       id: LocalTradeOrderId,
       orderStatus: OrderStatus.Pending,

@@ -4,7 +4,8 @@ import { usePortfolioSelect } from "hooks/usePortfolioSelect";
 import { filterPortfolioOptionsByFunction } from "utils/options";
 
 export const useFilteredPortfolioSelect = (
-  filterFunction: (option: PortfolioOption) => boolean
+  filterFunction: (option: PortfolioOption) => boolean,
+  preselectedPortfolioId?: number
 ) => {
   const { portfolioOptions, selectedPortfolioId } = usePortfolioSelect();
   const filteredPortfolioOptions = filterPortfolioOptionsByFunction(
@@ -12,6 +13,16 @@ export const useFilteredPortfolioSelect = (
     filterFunction
   );
   const [portfolioId, setPortfolioId] = useState(() => {
+    // First priority: preselected portfolio (from tax allowance top-up)
+    if (
+      preselectedPortfolioId &&
+      filteredPortfolioOptions.some(
+        (option) => option.id === preselectedPortfolioId
+      )
+    ) {
+      return preselectedPortfolioId;
+    }
+    // Second priority: currently selected portfolio
     if (
       filteredPortfolioOptions.some(
         (option) => option.id === selectedPortfolioId
@@ -19,6 +30,7 @@ export const useFilteredPortfolioSelect = (
     ) {
       return selectedPortfolioId;
     }
+    // Fallback: first available portfolio
     return filteredPortfolioOptions[0]?.id;
   });
 

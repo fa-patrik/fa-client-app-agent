@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import {
   faInfoCircle,
   faCheckCircle,
   faCircleXmark,
   faExclamationTriangle,
+  faTimes,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import classNames from "classnames";
@@ -22,6 +24,9 @@ export interface AlertProps {
   content?: string;
   title: string;
   icon?: IconDefinition;
+  dismissible?: boolean;
+  onDismiss?: () => void;
+  fullWidth?: boolean;
 }
 
 export function getIconBySeverity(severity: string): IconDefinition {
@@ -38,36 +43,80 @@ export function getIconBySeverity(severity: string): IconDefinition {
   }
 }
 
-const Alert = ({ severity, title, content, id, icon }: AlertProps) => {
+const Alert = ({ severity, title, content, id, icon, dismissible = false, onDismiss, fullWidth = false }: AlertProps) => {
+  const [isVisible, setIsVisible] = useState(true);
   const defaultIcon = getIconBySeverity(severity);
+
+  useEffect(() => {
+    if (dismissible && !onDismiss) {
+      // Only use default session storage if no custom onDismiss handler
+      const dismissed = sessionStorage.getItem(`alert-dismissed-${id}`);
+      setIsVisible(dismissed !== "true");
+    }
+  }, [id, dismissible, onDismiss]);
+
+  const dismissAlert = () => {
+    if (onDismiss) {
+      // Use custom dismiss handler
+      onDismiss();
+    } else {
+      // Use default session storage
+      sessionStorage.setItem(`alert-dismissed-${id}`, "true");
+    }
+    setIsVisible(false);
+  };
+
+  if (!isVisible) return null;
 
   return (
     <div
       id={id}
+      data-testid={`alert-${id}`}
       className={classNames(
-        "flex flex-col p-1.5 text-sm rounded-lg flex-1 border-2 max-w-xl",
+        "flex flex-col p-1.5 text-sm rounded-lg flex-1 border-2",
         {
           "bg-info-bg border-info-border": severity === "Info",
           "bg-success-bg border-success-border": severity === "Success",
           "bg-error-bg border-error-border": severity === "Error",
           "bg-warning-bg border-warning-border": severity === "Warning",
+          "max-w-xl": !fullWidth,
         }
       )}
     >
-      <div className="flex flex-row gap-x-2 items-start">
-        <Icon severity={severity} icon={icon ?? defaultIcon} />{" "}
-        <p
-          className={classNames("text-xs font-semibold", {
-            "text-info-text": severity === "Info",
-            "text-success-text": severity === "Success",
-            "text-error-text": severity === "Error",
-            "text-warning-text": severity === "Warning",
-          })}
-        >
-          {title}
-        </p>
+      <div className="flex flex-row gap-x-2 justify-between items-start">
+        <div className="flex flex-row gap-x-2 items-start">
+          <Icon severity={severity} icon={icon ?? defaultIcon} />
+          <div className="flex flex-col">
+            <p
+              className={classNames("text-xs font-semibold", {
+                "text-info-text": severity === "Info",
+                "text-success-text": severity === "Success",
+                "text-error-text": severity === "Error",
+                "text-warning-text": severity === "Warning",
+              })}
+            >
+              {title}
+            </p>
+            {content && <p className="mt-1 text-xs">{content}</p>}
+          </div>
+        </div>
+        {dismissible && (
+          <button
+            onClick={dismissAlert}
+            className={classNames(
+              "flex justify-center items-center w-6 h-6 hover:bg-opacity-20 rounded-full transition-colors duration-200 ease-in-out ml-2",
+              {
+                "hover:bg-info-default-200": severity === "Info",
+                "hover:bg-success-default-200": severity === "Success",
+                "hover:bg-error-default-200": severity === "Error",
+                "hover:bg-warning-default-200": severity === "Warning",
+              }
+            )}
+          >
+            <Icon severity={severity} icon={faTimes} />
+          </button>
+        )}
       </div>
-      <p className="pl-0.5 text-xs">{content}</p>
     </div>
   );
 };

@@ -41,6 +41,18 @@ export const useModifiedTranslation = () => {
         }
       }
 
+      if (key === "numberWithCurrencyNoDecimals") {
+        if (options?.currency) {
+          const { currency, ...optionsWOCurrency } = options;
+          return `${t("number", {
+            ...optionsWOCurrency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+            locale: locale,
+          })}\xa0${currency}`;
+        }
+      }
+
       if (key === "numberWithCurrencyRounded") {
         if (options?.currency) {
           const { currency, ...optionsWOCurrency } = options;

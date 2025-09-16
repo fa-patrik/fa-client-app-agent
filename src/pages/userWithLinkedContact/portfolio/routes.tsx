@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { TranslationText } from "components";
+import { TranslationText, TaxesTabLabel } from "components";
 import { NavTabRoutes } from "layouts/NavTabLayout/NavTab/NavTabRoutes";
 import { NavTabPath } from "layouts/NavTabLayout/NavTab/types";
 import { PortfolioNavigationHeaderLayout } from "layouts/PortfolioNavigationHeaderLayout/PortfolioNavigationHeaderLayout";
@@ -43,6 +43,9 @@ const Contact = lazy(() =>
 const Trading = lazy(() =>
   import("./trading").then((module) => ({ default: module.TradingPage }))
 );
+const Taxes = lazy(() =>
+  import("./taxes").then((module) => ({ default: module.TaxesPage }))
+);
 
 export const portfolioTabRoutes: NavTabPath[] = [
   {
@@ -55,6 +58,12 @@ export const portfolioTabRoutes: NavTabPath[] = [
     path: "holdings",
     tabLabel: <TranslationText translationKey="navTab.tabs.holdings" />,
     tabComponent: <Holdings />,
+    element: null,
+  },
+  {
+    path: "taxes",
+    tabLabel: <TaxesTabLabel />,
+    tabComponent: <Taxes />,
     element: null,
   },
   {

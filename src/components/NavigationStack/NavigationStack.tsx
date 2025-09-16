@@ -6,6 +6,7 @@ import {
 import { DetailProvider } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { PersistedApolloProvider } from "providers/PersistedApolloProvider";
+import { TaxesNotificationProvider } from "providers/TaxesNotificationProvider";
 import { NotFoundView } from "views/notFoundView/notFoundView";
 
 /**
@@ -25,9 +26,11 @@ export const NavigationStack = () => {
   const DefaultStack = () => {
     return (
       <PersistedApolloProvider>
-        <DetailProvider>
-          <UserWithLinkedContactRoutes />
-        </DetailProvider>
+        <TaxesNotificationProvider>
+          <DetailProvider>
+            <UserWithLinkedContactRoutes />
+          </DetailProvider>
+        </TaxesNotificationProvider>
       </PersistedApolloProvider>
     );
   };
@@ -35,9 +38,11 @@ export const NavigationStack = () => {
   const ImpersonationStack = () => {
     return (
       <PersistedApolloProvider>
-        <DetailProvider>
-          <UserWithImpersonationRightsRoutes />
-        </DetailProvider>
+        <TaxesNotificationProvider>
+          <DetailProvider>
+            <UserWithImpersonationRightsRoutes />
+          </DetailProvider>
+        </TaxesNotificationProvider>
       </PersistedApolloProvider>
     );
   };

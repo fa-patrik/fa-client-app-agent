@@ -62,6 +62,7 @@
       "transactions": "Transactions",
       "orders": "Orders",
       "trading": "Trading",
+      "taxes": "Allowances",
       "documents": "Documents",
       "contact": "Contact us"
     }
@@ -244,6 +245,21 @@
     "date": "Date",
     "download": "Download"
   },
+  "taxesPage": {
+    "noTaxAllowanceData": "No tax allowance data available",
+    "daysRemaining": "days remaining",
+    "taxYearDeadlineTitle": "Tax Year Deadline Approaching",
+    "taxYearDeadlineContent": "You have {{daysRemaining}} days remaining to use your allowance for the tax year {{taxYear}}.",
+    "taxYearLabel": "Tax year",
+    "isaAllowanceHeader": "ISA allowance",
+    "totalLabel": "Total",
+    "usedLabel": "Used",
+    "remainingLabel": "Remaining",
+    "topUpButton": "Top up",
+    "noPortfoliosAvailable": "No portfolios available",
+    "remainingAllowance": "Remaining",
+    "constraintTooltip": "Cannot exceed your overall ISA allowance of {{value, numberWithCurrencyNoDecimals}} remaining this tax year."
+  },
   "tradingList": {
     "header": "Trading",
     "buyButton": "Buy",
@@ -284,7 +300,11 @@
     "withdrawalSuccess": "Your withdrawal request was created successfully",
     "portfolio": "Portfolio",
     "noPortfolioAvailable": "No portfolio available",
-    "invalidAccountSelection": "Invalid account selection"
+    "invalidAccountSelection": "Invalid account selection",
+    "totalAllowanceLabel": "Total allowance",
+    "remainingAllowanceLabel": "Remaining allowance",
+    "amountOverAllowanceError": "Amount exceeds remaining allowance",
+    "allowanceLimitReached": "You have reached your allowance limit"
   },
   "tradingModal": {
     "securityName": "Security name",
@@ -602,6 +622,10 @@
       "impersonate": "Impersonation",
       "cancelOrder": "Cancel order",
       "advisor": "Advisor"
+    },
+    "portfolio": {
+      "fallbackCode": "PF-{{id}}",
+      "fallbackName": "Portfolio {{id}}"
     }
   }
 }

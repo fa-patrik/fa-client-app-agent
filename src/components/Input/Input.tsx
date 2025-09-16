@@ -1,4 +1,4 @@
-import { ForwardedRef, forwardRef, HTMLProps, useState } from "react";
+import { ForwardedRef, forwardRef, HTMLProps, ReactNode, useState } from "react";
 import { ReactComponent as InfoIcon } from "assets/information-circle.svg";
 import classNames from "classnames";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
@@ -10,6 +10,7 @@ export interface InputProps extends HTMLProps<HTMLInputElement> {
   error?: string;
   tooltipContent?: string;
   id?: string;
+  endAdornment?: ReactNode;
 }
 
 const InputPlain = (
@@ -19,6 +20,7 @@ const InputPlain = (
     error,
     tooltipContent,
     id,
+    endAdornment,
     ...inputAttributes
   }: InputProps,
   ref: ForwardedRef<HTMLInputElement>
@@ -50,23 +52,31 @@ const InputPlain = (
             </>
           )}
         </div>
-        <input
-          id={id}
-          ref={ref}
-          className={classNames(
-            "block p-2 w-full text-sm bg-gray-50 border border-gray-300 focus:outline-none",
-            className,
-            {
-              "text-red-900 placeholder-red-700 bg-red-50 focus:border-red-500 border-red-500 rounded-lg focus:ring-1 focus:ring-red-500":
-                !!error,
-              "cursor-not-allowed": inputAttributes.disabled,
-              "text-green-400 w-5 h-5 rounded-full":
-                inputAttributes.type === "checkbox",
-              "text-black rounded-lg": inputAttributes.type !== "checkbox",
-            }
+        <div className="relative">
+          <input
+            id={id}
+            ref={ref}
+            className={classNames(
+              "block p-2 w-full text-sm bg-gray-50 border border-gray-300 focus:outline-none",
+              className,
+              {
+                "text-red-900 placeholder-red-700 bg-red-50 focus:border-red-500 border-red-500 rounded-lg focus:ring-1 focus:ring-red-500":
+                  !!error,
+                "cursor-not-allowed": inputAttributes.disabled,
+                "text-green-400 w-5 h-5 rounded-full":
+                  inputAttributes.type === "checkbox",
+                "text-black rounded-lg": inputAttributes.type !== "checkbox",
+                "pr-16": !!endAdornment && inputAttributes.type !== "checkbox",
+              }
+            )}
+            {...inputAttributes}
+          />
+          {endAdornment && (
+            <div className="flex absolute inset-y-0 right-2 items-center">
+              {endAdornment}
+            </div>
           )}
-          {...inputAttributes}
-        />
+        </div>
 
         <Fade>
           {error && (

@@ -61,3 +61,13 @@ export enum AccountType {
   Credit = "CREDIT",
   Other = "OTHER",
 }
+
+/**
+ * Codes for standard solution tax wrappers like ISAs.
+ */
+export enum StandardSolutionTaxWrapper {
+  IndividualSavingsAccount = "ISA",
+  StocksAndSharesISA = "SSISA",
+  AdditionalPermittedSubscription = "APS",
+  CashISA = "CISA",
+}

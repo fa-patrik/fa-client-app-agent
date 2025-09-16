@@ -1,9 +1,4 @@
-import {
-  PortfolioGroups,
-  RepresentativeTag,
-} from "api/common/useGetContactInfo";
 import { Navigate, useRoutes } from "react-router-dom";
-import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { NavTabLayout } from "../NavTabLayout";
 import { NavTabPath } from "./types";
 
@@ -12,21 +7,14 @@ interface NavTabRoutesProps {
 }
 
 export const NavTabRoutes = ({ routes }: NavTabRoutesProps) => {
-  const { canFeature: canTrade } = useFeature(
-    PortfolioGroups.TRADE,
-    RepresentativeTag.TRADE,
-    PermissionMode.SELECTED_ANY
-  );
-
-  const filteredRoutes = routes.filter(
-    (route) => canTrade || route.path !== "trading"
-  );
+  // All filtering logic is now handled at the UI level in NavTabLayout
+  // Routes are always available, but tabs are conditionally visible
 
   return useRoutes([
     {
       path: "",
-      element: <NavTabLayout routes={filteredRoutes} />,
-      children: filteredRoutes,
+      element: <NavTabLayout routes={routes} />,
+      children: routes,
     },
     {
       path: "*",

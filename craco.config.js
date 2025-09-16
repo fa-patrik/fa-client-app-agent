@@ -36,6 +36,11 @@ module.exports = {
       return webpackConfig;
     },
   },
+  devServer: {
+    client: {
+      overlay: true,
+    },
+  },
   jest: {
     configure: {
       reporters: [

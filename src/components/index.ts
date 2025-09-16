@@ -33,3 +33,5 @@ export { ButtonGroup } from "./ButtonGroup/ButtonGroup";
 export { ContactGuard } from "./ContactGuard/ContactGuard";
 export { SelectedContactAvatar } from "./Avatar/SelectedContactAvatar";
 export { TransactionsFilter } from "./TransactionFilter/TransactionsFilter";
+export { NotificationDot } from "./NotificationDot/NotificationDot";
+export { TaxesTabLabel } from "./TaxesTabLabel/TaxesTabLabel";
