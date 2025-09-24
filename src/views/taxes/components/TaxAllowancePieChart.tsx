@@ -1,5 +1,5 @@
 import { ClientTaxAllowance } from "api/taxes/useGetClientTaxAllowances";
-import { PieChart } from "components/PieChart/PieChart";
+import { DonutChart } from "components/DonutChart/DonutChart";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import colors from 'tailwindcss/colors'
 
@@ -60,7 +60,7 @@ export const TaxAllowancePieChart = ({ taxAllowances, summary }: TaxAllowancePie
   return (
     <div className="space-y-4">
       <div className="min-h-[280px] md:min-h-[343px]">
-        <PieChart
+        <DonutChart
           series={series}
           labels={labels}
           options={{

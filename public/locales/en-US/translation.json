@@ -249,7 +249,7 @@
     "noTaxAllowanceData": "No tax allowance data available",
     "daysRemaining": "days remaining",
     "taxYearDeadlineTitle": "Tax Year Deadline Approaching",
-    "taxYearDeadlineContent": "You have {{daysRemaining}} days remaining to use your allowance for the tax year {{taxYear}}.",
+    "taxYearDeadlineContent": "You have {{daysRemaining}} days remaining to use your allowance for the tax year {{taxYear}}",
     "taxYearLabel": "Tax year",
     "isaAllowanceHeader": "ISA allowance",
     "totalLabel": "Total",
@@ -258,7 +258,7 @@
     "topUpButton": "Top up",
     "noPortfoliosAvailable": "No portfolios available",
     "remainingAllowance": "Remaining",
-    "constraintTooltip": "Cannot exceed your overall ISA allowance of {{value, numberWithCurrencyNoDecimals}} remaining this tax year."
+    "constraintTooltip": "Can't exceed your remaining ISA allowance of {{value, numberWithCurrencyNoDecimals}}"
   },
   "tradingList": {
     "header": "Trading",
@@ -304,7 +304,7 @@
     "totalAllowanceLabel": "Total allowance",
     "remainingAllowanceLabel": "Remaining allowance",
     "amountOverAllowanceError": "Amount exceeds remaining allowance",
-    "allowanceLimitReached": "You have reached your allowance limit"
+    "allowanceLimitReached": "You reached your allowance limit"
   },
   "tradingModal": {
     "securityName": "Security name",
