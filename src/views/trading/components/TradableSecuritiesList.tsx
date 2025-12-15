@@ -2,8 +2,9 @@ import type {
   TradableSecurity,
   TradableSecurity as TradableSecurityInterface,
 } from "api/trading/useGetTradebleSecurities";
-import { BuyModalContent, Card, ErrorMessage } from "components";
+import { Card, ErrorMessage } from "components";
 import { useModal } from "components/Modal/useModal";
+import { BuyModalContent } from "components/TradingModals/BuyModalContent/BuyModalContent";
 import type { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";

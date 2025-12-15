@@ -5,9 +5,11 @@ import type {
 import { ReactComponent as MinusCircle } from "assets/minus-circle.svg";
 import { ReactComponent as PlusCircle } from "assets/plus-circle.svg";
 import { ReactComponent as SwitchHorizontalOutlinedIcon } from "assets/switch-horizontal-outlined.svg";
-import { Card, Button, BuyModalContent, SellModalContent } from "components";
+import { Card, Button } from "components";
 import { useModal } from "components/Modal/useModal";
+import { BuyModalContent } from "components/TradingModals/BuyModalContent/BuyModalContent";
 import type { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
+import { SellModalContent } from "components/TradingModals/SellModalContent/SellModalContent";
 import type { SellModalInitialData } from "components/TradingModals/SellModalContent/SellModalContent";
 import type { SwitchModalInitialData } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { SwitchModalContent } from "components/TradingModals/SwitchModalContent/SwitchModalContent";

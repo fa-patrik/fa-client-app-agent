@@ -1,12 +1,8 @@
 import { useMemo, useState } from "react";
 import type { TradeOrder } from "api/orders/types";
 import type { QueryData } from "api/types";
-import {
-  Card,
-  DatePicker,
-  QueryLoadingWrapper,
-  TransactionsFilter,
-} from "components";
+import { Card, DatePicker, QueryLoadingWrapper } from "components";
+import { TransactionsFilter } from "components/TransactionFilter/TransactionsFilter";
 import type { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";

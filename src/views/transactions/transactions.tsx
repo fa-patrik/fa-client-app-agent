@@ -1,12 +1,8 @@
 import { useState } from "react";
 import type { Transaction } from "api/transactions/types";
 import type { QueryData } from "api/types";
-import {
-  Card,
-  DatePicker,
-  QueryLoadingWrapper,
-  TransactionsFilter,
-} from "components";
+import { Card, DatePicker, QueryLoadingWrapper } from "components";
+import { TransactionsFilter } from "components/TransactionFilter/TransactionsFilter";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { TransactionsContainer } from "./components/TransactionsContainer";
