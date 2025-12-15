@@ -1,8 +1,10 @@
-import { FC, useCallback, useEffect, useMemo, useState } from "react";
-import { TradeOrder } from "api/orders/types";
-import { Transaction } from "api/transactions/types";
+import type { FC } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { TradeOrder } from "api/orders/types";
+import type { Transaction } from "api/transactions/types";
 import { Button } from "components";
-import { Option, Select } from "components/Select/Select";
+import type { Option } from "components/Select/Select";
+import { Select } from "components/Select/Select";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { getBackendTranslation } from "utils/backTranslations";
 import { getOrderTypeName } from "utils/switchOrders";
@@ -47,7 +49,7 @@ const columnToOptions = (column: string[] | undefined) =>
   !column
     ? []
     : Array.from(new Set(column))
-        .map((name, i) => ({
+        .map((name) => ({
           id: name,
           label: name,
           value: name,

@@ -1,27 +1,18 @@
-import {
+import type {
   AnalyticsSecurityData,
   SecurityDetailsPosition,
 } from "api/holdings/types";
 import { ReactComponent as MinusCircle } from "assets/minus-circle.svg";
 import { ReactComponent as PlusCircle } from "assets/plus-circle.svg";
 import { ReactComponent as SwitchHorizontalOutlinedIcon } from "assets/switch-horizontal-outlined.svg";
-import {
-  Card,
-  DetailsHeading,
-  Button,
-  BuyModalContent,
-  SellModalContent,
-} from "components";
+import { Card, Button, BuyModalContent, SellModalContent } from "components";
 import { useModal } from "components/Modal/useModal";
-import { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
-import { SellModalInitialData } from "components/TradingModals/SellModalContent/SellModalContent";
-import {
-  SwitchModalContent,
-  SwitchModalInitialData,
-} from "components/TradingModals/SwitchModalContent/SwitchModalContent";
+import type { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
+import type { SellModalInitialData } from "components/TradingModals/SellModalContent/SellModalContent";
+import type { SwitchModalInitialData } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
+import { SwitchModalContent } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { PageLayout } from "layouts/PageLayout/PageLayout";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useCanTradeSecurities } from "services/permissions/trading";
 import { getBackendTranslation } from "utils/backTranslations";
 import { addProtocolToUrl } from "utils/url";
@@ -43,7 +34,6 @@ export const HoldingDetails = ({
   data: { security, holding },
 }: HoldingDetailsProps) => {
   const {
-    name,
     isinCode,
     type: { namesAsMap, code: typeCode, name: typeName },
     latestMarketData,
@@ -52,7 +42,6 @@ export const HoldingDetails = ({
     url2,
     documents,
   } = security;
-  const navigate = useNavigate();
   const { i18n, t } = useModifiedTranslation();
   const { portfolioId } = useParams();
   const portfolioIdNumber = portfolioId ? parseInt(portfolioId, 10) : undefined;
@@ -84,126 +73,105 @@ export const HoldingDetails = ({
   const userInvestedInThisHolding = holding != null;
 
   return (
-    <div className="flex overflow-hidden flex-col h-full">
-      <DetailsHeading onBackButtonClick={() => navigate(-1)}>
-        {name ?? ""}
-      </DetailsHeading>
-      <div className="overflow-y-auto grow-1">
-        <PageLayout>
-          <div className="grid gap-4 md:grid-cols-[300px_auto] lg:grid-cols-[400px_auto] xl:grid-cols-[500px_auto]">
-            <div className="md:col-start-2 md:row-start-1 md:row-end-3 md:min-h-[30rem]">
-              <Card
-                header={
-                  <LineChartHeader
-                    price={latestMarketData?.price}
-                    date={latestMarketData?.date}
-                    currency={currency}
-                  />
-                }
-              >
-                <HoldingHistoryDataChart />
-              </Card>
-            </div>
-            {userInvestedInThisHolding && (
-              <HoldingData {...holding} typeCode={typeCode} />
+    <div className="grid gap-4 md:grid-cols-[300px_auto] lg:grid-cols-[400px_auto] xl:grid-cols-[500px_auto]">
+      <div className="md:col-start-2 md:row-start-1 md:row-end-3 md:min-h-120">
+        <Card
+          header={
+            <LineChartHeader
+              price={latestMarketData?.price}
+              date={latestMarketData?.date}
+              currency={currency}
+            />
+          }
+        >
+          <HoldingHistoryDataChart />
+        </Card>
+      </div>
+      {userInvestedInThisHolding && (
+        <HoldingData {...holding} typeCode={typeCode} />
+      )}
+      <div className="grid gap-4">
+        <Card header={t("holdingsPage.security")}>
+          <div className="flex flex-col px-2 my-1 divide-y">
+            <DataRow
+              label={t("holdingsPage.type")}
+              value={getBackendTranslation(
+                typeName,
+                namesAsMap,
+                i18n.language,
+                i18n.resolvedLanguage
+              )}
+            />
+            <DataRow label={t("holdingsPage.isinCode")} value={isinCode} />
+            <DataRow label={t("holdingsPage.currency")} value={currency} />
+            <PerformanceRows />
+            {url && (
+              <DocumentRow
+                label={t("holdingsPage.prospectus")}
+                url={addProtocolToUrl(url)}
+              />
             )}
-            <div className="grid gap-4">
-              <Card header={t("holdingsPage.security")}>
-                <div className="flex flex-col px-2 my-1 divide-y">
-                  <DataRow
-                    label={t("holdingsPage.type")}
-                    value={getBackendTranslation(
-                      typeName,
-                      namesAsMap,
-                      i18n.language,
-                      i18n.resolvedLanguage
-                    )}
-                  />
-                  <DataRow
-                    label={t("holdingsPage.isinCode")}
-                    value={isinCode}
-                  />
-                  <DataRow
-                    label={t("holdingsPage.currency")}
-                    value={currency}
-                  />
-                  <PerformanceRows />
-                  {url && (
-                    <DocumentRow
-                      label={t("holdingsPage.prospectus")}
-                      url={addProtocolToUrl(url)}
-                    />
-                  )}
-                  {url2 && (
-                    <DocumentRow
-                      label={t("holdingsPage.kiid")}
-                      url={addProtocolToUrl(url2)}
-                    />
-                  )}
-                  {documents?.map(({ fileName, identifier }) => (
-                    <DocumentRow
-                      key={identifier}
-                      label={fileName}
-                      documentIdentifier={identifier}
-                    />
-                  ))}
-                </div>
-              </Card>
-              {hasSelectedPortfolio && canTradeAnyHolding && (
-                <>
-                  <div className="grid grid-flow-col gap-2">
-                    <Button
-                      LeftIcon={PlusCircle}
-                      onClick={() => onBuyModalOpen(security)}
-                    >
-                      {t("holdingsPage.buy")}
-                    </Button>
-                    {userInvestedInThisHolding && (
-                      <Button
-                        LeftIcon={MinusCircle}
-                        variant="Red"
-                        onClick={() => onSellModalOpen(security)}
-                      >
-                        {t("holdingsPage.sell")}
-                      </Button>
-                    )}
-                  </div>
-                  {userInvestedInThisHolding && canSwitchAnyHolding && (
-                    <div className="grid grid-flow-col gap-2">
-                      <Button
-                        LeftIcon={SwitchHorizontalOutlinedIcon}
-                        variant="Dark"
-                        onClick={() =>
-                          onSwitchModalOpen({ sellSecurityId: security.id })
-                        }
-                      >
-                        {t("holdingsPage.switch")}
-                      </Button>
-                    </div>
-                  )}
-                  <Modal
-                    {...buyModalProps}
-                    header={t("tradingModal.buyModalHeader")}
-                  >
-                    <BuyModalContent {...buyModalContentProps} />
-                  </Modal>
-                  <Modal
-                    {...sellModalProps}
-                    header={t("tradingModal.sellModalHeader")}
-                  >
-                    <SellModalContent {...sellModalContentProps} />
-                  </Modal>
-                  <Modal
-                    {...switchModalProps}
-                    header={t("switchOrderModal.header")}
-                  >
-                    <SwitchModalContent {...switchModalContentProps} />
-                  </Modal>
-                </>
+            {url2 && (
+              <DocumentRow
+                label={t("holdingsPage.kiid")}
+                url={addProtocolToUrl(url2)}
+              />
+            )}
+            {documents?.map(({ fileName, identifier }) => (
+              <DocumentRow
+                key={identifier}
+                label={fileName}
+                documentIdentifier={identifier}
+              />
+            ))}
+          </div>
+        </Card>
+        {hasSelectedPortfolio && canTradeAnyHolding && (
+          <>
+            <div className="grid grid-flow-col gap-2">
+              <Button
+                LeftIcon={PlusCircle}
+                onClick={() => onBuyModalOpen(security)}
+              >
+                {t("holdingsPage.buy")}
+              </Button>
+              {userInvestedInThisHolding && (
+                <Button
+                  LeftIcon={MinusCircle}
+                  variant="Red"
+                  onClick={() => onSellModalOpen(security)}
+                >
+                  {t("holdingsPage.sell")}
+                </Button>
               )}
             </div>
-          </div>
-        </PageLayout>
+            {userInvestedInThisHolding && canSwitchAnyHolding && (
+              <div className="grid grid-flow-col gap-2">
+                <Button
+                  LeftIcon={SwitchHorizontalOutlinedIcon}
+                  variant="Dark"
+                  onClick={() =>
+                    onSwitchModalOpen({ sellSecurityId: security.id })
+                  }
+                >
+                  {t("holdingsPage.switch")}
+                </Button>
+              </div>
+            )}
+            <Modal {...buyModalProps} header={t("tradingModal.buyModalHeader")}>
+              <BuyModalContent {...buyModalContentProps} />
+            </Modal>
+            <Modal
+              {...sellModalProps}
+              header={t("tradingModal.sellModalHeader")}
+            >
+              <SellModalContent {...sellModalContentProps} />
+            </Modal>
+            <Modal {...switchModalProps} header={t("switchOrderModal.header")}>
+              <SwitchModalContent {...switchModalContentProps} />
+            </Modal>
+          </>
+        )}
       </div>
     </div>
   );

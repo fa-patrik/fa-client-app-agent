@@ -1,8 +1,6 @@
 import { API_URL } from "config";
-import Keycloak, {
-  KeycloakError,
-  KeycloakProfile,
-} from "keycloak-js";
+import type { KeycloakError, KeycloakProfile } from "keycloak-js";
+import Keycloak from "keycloak-js";
 import { persistor } from "./apolloClient";
 import {
   getLastUsedLinkedContact,
@@ -14,7 +12,7 @@ const FA_USER_REALM_ROLE = "FA_ADMIN";
 
 const getSsoRedirectUri = () => {
   const url = new URL(
-    `${process.env.PUBLIC_URL}/keycloak-silent-check-sso.html`,
+    `${import.meta.env.BASE_URL}keycloak-silent-check-sso.html`,
     window.location.origin
   );
   return url.href;
@@ -43,10 +41,7 @@ type FAKeycloakProfile = KeycloakProfile & {
   };
 };
 
-type FAKeycloakInstance = Omit<
-  Keycloak,
-  "profile" | "loadUserProfile"
-> & {
+type FAKeycloakInstance = Omit<Keycloak, "profile" | "loadUserProfile"> & {
   profile?: FAKeycloakProfile;
   loadUserProfile(): Promise<FAKeycloakProfile>;
 };
@@ -94,10 +89,18 @@ class KeycloakService {
   keycloak;
   state: KeycloakServiceStateType = keycloakServiceInitialState;
   subscribeFunction: SubscribeFunctionType | undefined;
+  private initialized = false;
+  private configFileCache: Record<string, unknown> | undefined;
 
   constructor(instance: FAKeycloakInstance) {
     this.keycloak = instance;
-    this.init();
+  }
+
+  ensureInit() {
+    if (!this.initialized) {
+      this.initialized = true;
+      this.init();
+    }
   }
 
   initOffline() {
@@ -135,13 +138,23 @@ class KeycloakService {
     this.keycloak.onAuthLogout = this.onAuthLogout;
     this.keycloak.onTokenExpired = this.onTokenExpired;
 
-    this.keycloak.init(keycloakInitConfig).catch((error) => {
-      console.error(error);
-      this.initOffline();
-    });
+    const redirectUriOverride = import.meta.env.VITE_AUTH_REDIRECT_URI as
+      | string
+      | undefined;
+
+    this.keycloak
+      .init({
+        ...keycloakInitConfig,
+        ...(redirectUriOverride ? { redirectUri: redirectUriOverride } : {}),
+      })
+      .catch((error) => {
+        console.error(error);
+        this.initOffline();
+      });
   }
 
   subscribe(subscribeFunction: SubscribeFunctionType) {
+    this.ensureInit();
     this.subscribeFunction = subscribeFunction;
   }
 
@@ -237,11 +250,15 @@ class KeycloakService {
    * @returns parsed keycloak.json.
    */
   async getConfigFile() {
+    if (this.configFileCache) {
+      return this.configFileCache;
+    }
     try {
-      const config = await fetch(`${process.env.PUBLIC_URL}/keycloak.json`);
+      const config = await fetch(`${import.meta.env.BASE_URL}keycloak.json`);
       const parsedConfig = await config?.json();
+      this.configFileCache = parsedConfig;
       return parsedConfig;
-    } catch (error) {
+    } catch (_error) {
       console.error("Failed to get keycloak.json.");
     }
   }
@@ -300,7 +317,7 @@ class KeycloakService {
           }
         );
       }
-    } catch (error) {
+    } catch (_error) {
       console.error(
         "Unable to determine write access rights. Check if keycloak.json is properly configured. Defaulting to read-only mode."
       );
@@ -355,5 +372,5 @@ class KeycloakService {
 }
 
 export const keycloakService = new KeycloakService(
-  new Keycloak(`${process.env.PUBLIC_URL}/keycloak.json`)
+  new Keycloak(`${import.meta.env.BASE_URL}keycloak.json`)
 );

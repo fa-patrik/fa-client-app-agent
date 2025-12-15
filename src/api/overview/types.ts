@@ -1,4 +1,4 @@
-import { AnalyticsSecurityTypeDataWithSecurityData } from "api/holdings/types";
+import type { AnalyticsSecurityTypeDataWithSecurityData } from "api/holdings/types";
 
 export interface PortfolioData {
   portfolio: {

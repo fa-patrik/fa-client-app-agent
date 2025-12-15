@@ -1,5 +1,5 @@
-import { ApolloError } from "@apollo/client";
-import { ExecutionMethod, OrderStatus } from "./enums";
+import type { ApolloError } from "@apollo/client";
+import type { ExecutionMethod, OrderStatus } from "./enums";
 
 export interface QueryData<TData> {
   loading: boolean;

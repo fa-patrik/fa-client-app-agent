@@ -3,8 +3,8 @@ import {
   PortfolioGroups,
   RepresentativeTag,
 } from "api/common/useGetContactInfo";
-import { SecurityGroup } from "api/types";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { SecurityGroup } from "api/types";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useKeycloak } from "providers/KeycloakProvider";
 import {
   CLIENT_PORTAL_ADVISOR_SECURITY_GROUP_PREFIX,

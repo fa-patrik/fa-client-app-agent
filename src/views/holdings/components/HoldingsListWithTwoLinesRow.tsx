@@ -1,8 +1,8 @@
 import { SecurityTypeCode } from "api/holdings/types";
 import { GainLoseColoring, Grid } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useNavigate } from "react-router";
-import { GroupedHoldings, HoldingProps } from "./HoldingsGroupedByType";
+import { useNavigate } from "react-router-dom";
+import type { GroupedHoldings, HoldingProps } from "./HoldingsGroupedByType";
 import { NameWithFlag } from "./NameWithFlag";
 
 export const HoldingsListWithTwoLinesRow = ({
@@ -12,7 +12,6 @@ export const HoldingsListWithTwoLinesRow = ({
 }: GroupedHoldings) => {
   const { t } = useModifiedTranslation();
   const navigate = useNavigate();
-
   return (
     <div className="grid grid-cols-2 items-center">
       <Grid.Header>
@@ -22,7 +21,7 @@ export const HoldingsListWithTwoLinesRow = ({
       {securities.map((security) => {
         const onClick =
           groupCode !== SecurityTypeCode.CURRENCY
-            ? () => navigate(`holdings/${security.security.id}`)
+            ? () => navigate(`../holdings/${security.security.id}`)
             : undefined;
         const showFlag = groupCode !== SecurityTypeCode.CURRENCY;
         return (

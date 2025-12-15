@@ -2,24 +2,30 @@ import { useState, useMemo, useEffect } from "react";
 import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { StandardSolutionTaxWrapper } from "api/enums";
 import { useGetAvailableTaxWrappers } from "api/taxes/useGetAvailableTaxWrappers";
-import { ClientTaxAllowancesResult } from "api/taxes/useGetClientTaxAllowances";
+import type { ClientTaxAllowancesResult } from "api/taxes/useGetClientTaxAllowances";
 import { useGetClientTaxAllowancesWithWrappers } from "api/taxes/useGetClientTaxAllowancesWithWrappers";
-import { QueryLoadingWrapper, LoadingIndicator, ErrorMessage } from "components";
+import {
+  QueryLoadingWrapper,
+  LoadingIndicator,
+  ErrorMessage,
+} from "components";
 import Alert, { Severity } from "components/Alert/Alert";
 import { Card } from "components/Card/Card";
 import { useModal } from "components/Modal/useModal";
 import { DepositModalContent } from "components/MoneyModals/DepositModalContent/DepositModalContent";
-import { Select, Option } from "components/Select/Select";
+import type { Option } from "components/Select/Select";
+import { Select } from "components/Select/Select";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useTaxWrapperPortfolioMapping, MappedPortfolio } from "hooks/useTaxWrapperPortfolioMapping";
+import type { MappedPortfolio } from "hooks/useTaxWrapperPortfolioMapping";
+import { useTaxWrapperPortfolioMapping } from "hooks/useTaxWrapperPortfolioMapping";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useTaxesNotification } from "providers/TaxesNotificationProvider";
-import { 
-  getCurrentTaxYear, 
+import {
+  getCurrentTaxYear,
   getCurrentTaxYearEndDate,
-  calculateDaysRemaining, 
-  generateTaxYearOptions, 
-  getCalcDateFromTaxYear
+  calculateDaysRemaining,
+  generateTaxYearOptions,
+  getCalcDateFromTaxYear,
 } from "utils/taxYear";
 import { TaxAllowancePieChart, ISATypeSection } from "./components";
 
@@ -27,48 +33,65 @@ import { TaxAllowancePieChart, ISATypeSection } from "./components";
 export const TaxesView = () => {
   const { selectedContactId } = useGetContractIdData();
   const { data: contactInfo } = useGetContactInfo(false, selectedContactId);
-  
+
   // Get the contact code (string) instead of the numeric ID
   const contactCode = contactInfo?._contactId;
 
   // First, get the available tax wrappers to determine ISA tax year start date
-  const { data: taxWrappersData, loading: taxWrappersLoading } = useGetAvailableTaxWrappers();
+  const { data: taxWrappersData, loading: taxWrappersLoading } =
+    useGetAvailableTaxWrappers();
   const availableTaxWrappers = taxWrappersData?.taxWrappers || [];
 
   // Get ISA wrapper's tax year start date
-  const isaWrapper = availableTaxWrappers.find(wrapper => wrapper.code === StandardSolutionTaxWrapper.IndividualSavingsAccount);
+  const isaWrapper = availableTaxWrappers.find(
+    (wrapper) =>
+      wrapper.code === StandardSolutionTaxWrapper.IndividualSavingsAccount
+  );
   const taxYearStartDate = isaWrapper?.taxYearStartDate;
 
   // Generate tax year options dynamically based on ISA tax year start date
-  const taxYearOptions: Option[] = useMemo(() => 
-    generateTaxYearOptions(taxYearStartDate), 
+  const taxYearOptions: Option[] = useMemo(
+    () => generateTaxYearOptions(taxYearStartDate),
     [taxYearStartDate]
   );
 
-  const [selectedTaxYear, setSelectedTaxYear] = useState<Option>(() => 
-    taxYearOptions[0] || { id: '', label: '' }
+  const [selectedTaxYear, setSelectedTaxYear] = useState<Option>(
+    () => taxYearOptions[0] || { id: "", label: "" }
   );
 
   // Update selected tax year when options become available
   useEffect(() => {
-    if (taxYearOptions.length > 0 && (!selectedTaxYear.id || selectedTaxYear.id === '')) {
+    if (
+      taxYearOptions.length > 0 &&
+      (!selectedTaxYear.id || selectedTaxYear.id === "")
+    ) {
       setSelectedTaxYear(taxYearOptions[0]);
     }
   }, [taxYearOptions, selectedTaxYear.id]);
 
-  const currentTaxYearLabel = useMemo(() => getCurrentTaxYear(new Date(), taxYearStartDate), [taxYearStartDate]);
+  const currentTaxYearLabel = useMemo(
+    () => getCurrentTaxYear(new Date(), taxYearStartDate),
+    [taxYearStartDate]
+  );
   const isCurrentYear = selectedTaxYear.id === currentTaxYearLabel;
 
   // For the current tax year, use today's date for the API call to get the most up-to-date data.
   // For past tax years, use the end date of that tax year to get the final historical data.
   const calcDate = useMemo(() => {
     if (isCurrentYear) {
-      return new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+      return new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
     }
-    return getCalcDateFromTaxYear(selectedTaxYear.id?.toString() || "", taxYearStartDate);
+    return getCalcDateFromTaxYear(
+      selectedTaxYear.id?.toString() || "",
+      taxYearStartDate
+    );
   }, [selectedTaxYear.id, taxYearStartDate, isCurrentYear]);
 
-  const { loading: allowancesLoading, error, data } = useGetClientTaxAllowancesWithWrappers({
+  const {
+    loading: allowancesLoading,
+    error,
+    data,
+  } = useGetClientTaxAllowancesWithWrappers({
     contactId: contactCode || "",
     calcDate,
     skip: !contactCode,
@@ -102,15 +125,29 @@ interface TaxesContentProps {
   selectedTaxYear: Option;
   onTaxYearChange: (option: Option) => void;
   loading: boolean;
-  availableTaxWrappers: Array<{ id: string; code: string; name: string; taxYearStartDate: string; }>;
+  availableTaxWrappers: Array<{
+    id: string;
+    code: string;
+    name: string;
+    taxYearStartDate: string;
+  }>;
   taxYearStartDate?: string;
   taxYearOptions: Option[];
   isCurrentYear: boolean;
 }
 
-const TaxesContent = ({ data, selectedTaxYear, onTaxYearChange, loading, taxYearStartDate, taxYearOptions, isCurrentYear }: TaxesContentProps) => {
+const TaxesContent = ({
+  data,
+  selectedTaxYear,
+  onTaxYearChange,
+  loading,
+  taxYearStartDate,
+  taxYearOptions,
+  isCurrentYear,
+}: TaxesContentProps) => {
   const { t } = useModifiedTranslation();
-  const [selectedPortfolioForTopUp, setSelectedPortfolioForTopUp] = useState<MappedPortfolio | null>(null);
+  const [selectedPortfolioForTopUp, setSelectedPortfolioForTopUp] =
+    useState<MappedPortfolio | null>(null);
 
   const {
     Modal: DepositModal,
@@ -123,7 +160,7 @@ const TaxesContent = ({ data, selectedTaxYear, onTaxYearChange, loading, taxYear
   const now = new Date();
 
   const endDate = getCurrentTaxYearEndDate(now, taxYearStartDate);
-  const daysRemaining = isCurrentYear 
+  const daysRemaining = isCurrentYear
     ? calculateDaysRemaining(now, endDate)
     : 0;
 
@@ -138,7 +175,7 @@ const TaxesContent = ({ data, selectedTaxYear, onTaxYearChange, loading, taxYear
 
   const isaAllowanceTotals = data.summary;
   const childAllowances = data.childAllowances;
-  
+
   // Check if we have tax data - this ensures isaAllowanceTotals is not null when hasData is true
   const hasData = data.isaAllowance && isaAllowanceTotals;
 
@@ -147,24 +184,25 @@ const TaxesContent = ({ data, selectedTaxYear, onTaxYearChange, loading, taxYear
     if (!hasData || !childAllowances || !data.isaAllowance) {
       return [];
     }
-    
+
     const parentRemainingAmount = data.isaAllowance.remainingAllowance;
-    
-    return childAllowances.map(childAllowance => {
+
+    return childAllowances.map((childAllowance) => {
       // If child remaining amount exceeds parent remaining amount, constrain it
       const constrainedRemainingAmount = Math.min(
-        childAllowance.remainingAllowance, 
+        childAllowance.remainingAllowance,
         parentRemainingAmount
       );
-      
-      const isConstrained = childAllowance.remainingAllowance > parentRemainingAmount;
-      
+
+      const isConstrained =
+        childAllowance.remainingAllowance > parentRemainingAmount;
+
       return {
         ...childAllowance,
         remainingAllowance: constrainedRemainingAmount,
         // Add metadata to track if this child was constrained
         isConstrainedByParent: isConstrained,
-        parentRemainingAmount: parentRemainingAmount
+        parentRemainingAmount: parentRemainingAmount,
       };
     });
   }, [hasData, childAllowances, data.isaAllowance]);
@@ -181,7 +219,10 @@ const TaxesContent = ({ data, selectedTaxYear, onTaxYearChange, loading, taxYear
           id="taxes-allowance-reminder"
           severity={Severity.Info}
           title={t("taxesPage.taxYearDeadlineTitle")}
-          content={t("taxesPage.taxYearDeadlineContent", { daysRemaining, taxYear: selectedTaxYear.label })}
+          content={t("taxesPage.taxYearDeadlineContent", {
+            daysRemaining,
+            taxYear: selectedTaxYear.label,
+          })}
           dismissible={true}
           onDismiss={dismissAlert}
           fullWidth={true}
@@ -190,7 +231,7 @@ const TaxesContent = ({ data, selectedTaxYear, onTaxYearChange, loading, taxYear
       <Card>
         {/* Tax Year Selector - Always visible */}
         <div className="flex flex-row gap-4 items-end p-2">
-          <div className="flex-shrink-0 w-40 sm:w-64">
+          <div className="shrink-0 w-40 sm:w-64">
             <Select
               label={t("taxesPage.taxYearLabel")}
               value={selectedTaxYear}
@@ -199,7 +240,7 @@ const TaxesContent = ({ data, selectedTaxYear, onTaxYearChange, loading, taxYear
             />
           </div>
           {hasData && isCurrentYear && (
-            <div className="flex flex-col flex-shrink-0">
+            <div className="flex flex-col shrink-0">
               <label className="mb-2 text-sm font-medium text-gray-700">
                 {daysRemaining} {t("taxesPage.daysRemaining")}
               </label>
@@ -255,7 +296,10 @@ const TaxesContent = ({ data, selectedTaxYear, onTaxYearChange, loading, taxYear
       )}
 
       {/* Deposit Modal */}
-      <DepositModal {...depositModalProps} header={t("moneyModal.depositModalHeader")}>
+      <DepositModal
+        {...depositModalProps}
+        header={t("moneyModal.depositModalHeader")}
+      >
         <DepositModalContent
           {...depositModalContentProps}
           preselectedPortfolioId={selectedPortfolioForTopUp?.id}

@@ -1,5 +1,5 @@
-import { Portfolio } from "api/common/useGetContactInfo";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { Portfolio } from "api/common/useGetContactInfo";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
 export const portfolioOptionsMock = [
   {

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { Button, Card, LabeledDiv } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { round } from "utils/number";
 import { distributeAmount } from "utils/trading";
-import { MonthlyInvestmentsWizardState } from "../types";
+import type { MonthlyInvestmentsWizardState } from "../types";
 import DistributeInfo from "./components/DistributeInfo";
 import SecurityDistributionList from "./components/SecurityDistributionList";
 

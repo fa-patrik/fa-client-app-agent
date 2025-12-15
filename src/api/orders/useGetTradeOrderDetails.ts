@@ -3,7 +3,7 @@ import {
   TRADE_ORDERS_DETAILS,
   TRADE_ORDERS_EXTENDED_DETAILS,
 } from "./fragments";
-import { TradeOrderDetailsQuery } from "./types";
+import type { TradeOrderDetailsQuery } from "./types";
 
 const TRADE_ORDER_QUERY_BY_ID = gql`
   ${TRADE_ORDERS_DETAILS}

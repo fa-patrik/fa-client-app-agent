@@ -1,4 +1,4 @@
-import { HTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 import { DownloadableDocument } from "components";
 
 interface DocumentRowProps extends HTMLAttributes<HTMLAnchorElement> {

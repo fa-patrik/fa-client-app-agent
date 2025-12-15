@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from "react";
 import { ReactSubscriber } from "utils/ReactSubscriber";
-import { LocalOrder } from "./useLocalTradeStorageState";
+import type { LocalOrder } from "./useLocalTradeStorageState";
 
 type StorageState = LocalOrder[];
 
@@ -27,7 +27,7 @@ const localTradingStorage = new LocalTradingStorage();
 
 export const useLocalStorageStore = (): [
   StorageState,
-  (newState: StorageState) => void
+  (newState: StorageState) => void,
 ] => {
   const [, forceRender] = useReducer((previous) => previous + 1, 0);
 

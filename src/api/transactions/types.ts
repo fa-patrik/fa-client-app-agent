@@ -1,5 +1,5 @@
-import { OrderStatus } from "api/enums";
-import { TransactionType } from "./enums";
+import type { OrderStatus } from "api/enums";
+import type { TransactionType } from "./enums";
 
 export interface Transaction {
   id: number;

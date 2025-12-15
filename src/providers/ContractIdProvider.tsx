@@ -1,11 +1,5 @@
-import {
-  createContext,
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  useContext,
-  useState,
-} from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
 export type SelectedContact = {
   id: string | number | undefined;
@@ -16,7 +10,6 @@ export type SelectedContact = {
 type ContextProps = {
   selectedContactId: string | number | undefined;
   selectedContact: SelectedContact | undefined;
-  setSelectedContactId: Dispatch<SetStateAction<string | number | undefined>>;
   setSelectedContact: Dispatch<SetStateAction<SelectedContact | undefined>>;
 };
 
@@ -30,23 +23,27 @@ const ContractIdContext = createContext<ContextProps | undefined>(undefined);
  * (as is done by the ContactGuard component).
  */
 export const DetailProvider = ({ children }: { children: ReactNode }) => {
-  const [selectedContactId, setSelectedContactId] = useState<
-    string | number | undefined
-  >();
-
   const [selectedContact, setSelectedContact] = useState<
     SelectedContact | undefined
   >();
 
+  // Derive selectedContactId from selectedContact to avoid state sync issues
+  const selectedContactId = useMemo(
+    () => selectedContact?.id,
+    [selectedContact?.id]
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      selectedContactId,
+      selectedContact,
+      setSelectedContact,
+    }),
+    [selectedContactId, selectedContact]
+  );
+
   return (
-    <ContractIdContext.Provider
-      value={{
-        selectedContactId,
-        selectedContact,
-        setSelectedContactId,
-        setSelectedContact,
-      }}
-    >
+    <ContractIdContext.Provider value={contextValue}>
       {children}
     </ContractIdContext.Provider>
   );

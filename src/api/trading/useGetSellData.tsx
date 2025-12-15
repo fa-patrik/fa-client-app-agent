@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import { PORTFOLIO_REPORT_HOLDINGS_DETAILS_FIELDS } from "api/holdings/fragments";
-import { HoldingPosition } from "api/holdings/types";
+import type { HoldingPosition } from "api/holdings/types";
 import { getFetchPolicyOptions } from "api/utils";
 
 const SELL_DATA_QUERY = gql`

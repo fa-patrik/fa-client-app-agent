@@ -1,6 +1,6 @@
 import { ErrorMessage } from "components/ErrorMessage/ErrorMessage";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 export const NotFoundView = () => {
   const { t } = useModifiedTranslation();

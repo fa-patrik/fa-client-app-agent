@@ -1,4 +1,4 @@
-import { Transaction } from "api/transactions/types";
+import type { Transaction } from "api/transactions/types";
 import { NoTransactions } from "./NoTransactions";
 import { TransactionsGroups } from "./TransactionsGroups";
 

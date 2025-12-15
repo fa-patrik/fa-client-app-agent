@@ -1,8 +1,8 @@
-import { ReactNode } from "react";
-import { AnalyticsSecurityData } from "api/holdings/types";
+import type { ReactNode } from "react";
+import type { AnalyticsSecurityData } from "api/holdings/types";
 import { Card, GainLoseColoring } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 interface ListedSecuritiesCardProps {
   securities: AnalyticsSecurityData[];
@@ -36,7 +36,7 @@ export const ListedSecuritiesCard = ({
             <div
               key={security.security.id}
               className="flex justify-between items-center py-2 cursor-pointer"
-              onClick={() => navigate(`holdings/${security.security.id}`)}
+              onClick={() => navigate(`../holdings/${security.security.id}`)}
             >
               <div className="text-base font-normal">{security.name}</div>
               <div className="whitespace-nowrap">

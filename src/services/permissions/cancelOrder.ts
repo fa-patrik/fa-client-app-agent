@@ -1,5 +1,5 @@
 import { OrderStatus } from "api/enums";
-import { TradeOrder } from "api/orders/types";
+import type { TradeOrder } from "api/orders/types";
 import { TransactionType } from "api/transactions/enums";
 
 const CANCELLABLE_TRANSACTION_TYPES = [

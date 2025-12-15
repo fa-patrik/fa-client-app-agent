@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { ReactComponent as TimesCircle } from "assets/times-circle.svg";
 import { Card } from "../Card/Card";
 

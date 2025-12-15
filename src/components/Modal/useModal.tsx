@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { Modal } from "./Modal";
 
 export const useModal = <TInitialData,>() => {
-  const modalInitialDataRef = useRef<TInitialData>();
+  const modalInitialDataRef = useRef<TInitialData | undefined>(undefined);
   const modalInitialFocusRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 

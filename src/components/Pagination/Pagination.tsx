@@ -21,7 +21,6 @@ const Pagination = ({
   onNext,
   backLabel,
   nextLabel,
-  setPage,
   pageCount,
   currentPageindex,
   id,

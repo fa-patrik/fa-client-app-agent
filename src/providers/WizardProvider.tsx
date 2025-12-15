@@ -1,4 +1,9 @@
-import React, { createContext, useState, useContext } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  type ReactNode,
+} from "react";
 
 interface WizardData<T = unknown> {
   step: number;
@@ -36,7 +41,7 @@ const WizardContext = createContext<WizardContextProps<unknown> | undefined>(
   undefined
 );
 
-export const WizardProvider: React.FC = ({ children }) => {
+export const WizardProvider = ({ children }: { children: ReactNode }) => {
   const [wizardData, setWizardData] = useState<WizardData<unknown>>({
     step: 0,
     data: {},

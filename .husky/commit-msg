@@ -1,4 +1,22 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
 
-npx commitlint --edit $1
+# Get the commit message file
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Get current branch name
+BRANCH_NAME=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+# Extract ticket pattern: [A-Z]+-[0-9]+ (e.g., FACF-246, JIRA-123, PROJ-456)
+# Matches: UPPERCASE-NUMBER at the start of the branch name
+if echo "$BRANCH_NAME" | grep -qE "^[A-Z]+-[0-9]+"; then
+  TICKET=$(echo "$BRANCH_NAME" | grep -oE "^[A-Z]+-[0-9]+")
+  
+  # Check if commit message already contains the ticket
+  if ! echo "$COMMIT_MSG" | grep -q "$TICKET"; then
+    # Prepend ticket to commit message
+    echo "$TICKET: $COMMIT_MSG" > "$COMMIT_MSG_FILE"
+  fi
+fi
+
+# If no ticket found or extraction fails, commit proceeds normally without modification

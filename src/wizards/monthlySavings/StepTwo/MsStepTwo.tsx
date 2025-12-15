@@ -1,9 +1,10 @@
-import { FormEvent, useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { Card, Input, LabeledDiv } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { SelectMonthsGrid } from "../components/SelectedMonthsGrid";
-import { MonthlySavingsWizardState } from "../types";
+import type { MonthlySavingsWizardState } from "../types";
 
 const months = Array(12)
   .fill(undefined)
@@ -43,10 +44,13 @@ const MsStepTwo = () => {
 
   const [selectedMonths, setSelectedMonths] = useState<Record<number, boolean>>(
     wizardData.data.selectedMonths ||
-      months.reduce((prev, curr) => {
-        prev[curr] = true;
-        return prev;
-      }, {} as Record<number, boolean>)
+      months.reduce(
+        (prev, curr) => {
+          prev[curr] = true;
+          return prev;
+        },
+        {} as Record<number, boolean>
+      )
   );
 
   useEffect(() => {

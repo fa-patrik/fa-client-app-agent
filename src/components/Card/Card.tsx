@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import classNames from "classnames";
 
 interface CardProps {
@@ -9,7 +9,7 @@ interface CardProps {
   center?: boolean;
 }
 
-export const Card = ({ children, header, onClick, id, center }: CardProps) => (
+export const Card = ({ children, header, onClick, id }: CardProps) => (
   <div
     id={id}
     className={classNames(

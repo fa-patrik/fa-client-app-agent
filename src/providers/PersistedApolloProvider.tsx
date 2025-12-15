@@ -1,6 +1,7 @@
-import { ReactNode, useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import { useState, useEffect } from "react";
 import { ApolloProvider } from "@apollo/client";
-import { ApolloClient } from "@apollo/client/core/ApolloClient";
+import type { ApolloClient } from "@apollo/client/core/ApolloClient";
 import { getPersistedApolloClient } from "services/apolloClient";
 import { LoadingIndicator } from "../components";
 

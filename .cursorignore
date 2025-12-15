@@ -1,0 +1,67 @@
+# Build outputs
+build/
+dist/
+storybook-static/
+
+# Test and coverage reports
+coverage/
+playwright-report/
+test-results/
+.nyc_output/
+
+# Dependencies
+node_modules/
+
+# Lock files (usually don't need in context)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Generated files and maps
+*.map
+*.log
+*.tsbuildinfo
+
+# Cache directories
+.cache/
+.temp/
+.tmp/
+tmp/
+temp/
+
+# IDE specific
+.vscode/
+.idea/
+*.code-workspace
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Environment files with secrets (keep template files visible)
+.env.local
+.env.*.local
+
+# Binary and media assets that don't need AI context
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# Large data files
+*.csv
+*.xlsx
+*.xls
+*.pdf
+
+# Specific large asset folders
+src/assets/flags/
+src/assets/fonts/
+
+# Minified files
+*.min.js
+*.min.css

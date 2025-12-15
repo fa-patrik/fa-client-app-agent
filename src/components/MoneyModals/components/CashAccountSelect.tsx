@@ -1,8 +1,8 @@
-import { Dispatch, SetStateAction } from "react";
-import { CashAccount } from "api/money/useGetPortfoliosAccounts";
+import type { Dispatch, SetStateAction } from "react";
+import type { CashAccount } from "api/money/useGetPortfoliosAccounts";
 import { ReactComponent as ExclamationIcon } from "assets/exclamation-circle.svg";
 import { PortfolioSelect, ComboBox, LabeledDiv } from "components";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 
 interface CashAccountSelectProps {
@@ -64,29 +64,35 @@ export const CashAccountSelect = ({
         portfolioOptions={portfolioOptions}
         portfolioId={portfolioId}
         onChange={(newPortfolio) => {
-          setPortfolioId(newPortfolio.id);
+          if (newPortfolio) {
+            setPortfolioId(newPortfolio.id);
+          }
         }}
         label={t("moneyModal.portfolio")}
       />
 
       <ComboBox
         value={fromAccount}
-        onChange={
-          isDeposit
-            ? setCurrentExternalCashAccount
-            : setCurrentInternalCashAccount
-        }
+        onChange={(value) => {
+          if (isDeposit) {
+            setCurrentExternalCashAccount(value);
+          } else {
+            setCurrentInternalCashAccount(value);
+          }
+        }}
         options={fromOptions}
         label={t("moneyModal.fromAccount")}
       />
 
       <ComboBox
         value={toAccount}
-        onChange={
-          isDeposit
-            ? setCurrentInternalCashAccount
-            : setCurrentExternalCashAccount
-        }
+        onChange={(value) => {
+          if (isDeposit) {
+            setCurrentInternalCashAccount(value);
+          } else {
+            setCurrentExternalCashAccount(value);
+          }
+        }}
         options={toOptions}
         label={t("moneyModal.toAccount")}
       />

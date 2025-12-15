@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import {
-  CashAccount,
-  useGetPortfoliosAccounts,
-} from "api/money/useGetPortfoliosAccounts";
+import type { CashAccount } from "api/money/useGetPortfoliosAccounts";
+import { useGetPortfoliosAccounts } from "api/money/useGetPortfoliosAccounts";
 
 export const usePortfoliosAccountsState = (portfolioId?: number) => {
   const {

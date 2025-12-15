@@ -8,10 +8,15 @@ interface FadeProps {
 const Fade: React.FC<FadeProps> = ({ children }) => {
   const show = Boolean(children);
 
+  if (!show) {
+    return null;
+  }
+
   return (
     <Transition
       appear={true}
       show={show}
+      as="div"
       enter="transition-opacity duration-300 ease-out"
       enterFrom="opacity-0"
       enterTo="opacity-100"
@@ -19,7 +24,7 @@ const Fade: React.FC<FadeProps> = ({ children }) => {
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >
-      {children !== null ? children : null}
+      <div>{children}</div>
     </Transition>
   );
 };

@@ -1,9 +1,9 @@
-import { Portfolio } from "api/common/useGetContactInfo";
-import {
+import type { Portfolio } from "api/common/useGetContactInfo";
+import type {
   Attribute,
   Profile,
 } from "api/common/useGetPortfoliosWithProfileAndFigures";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { getDefaultValueAsNumber } from "./common";
 
 export enum MonthlySavingsFieldId {

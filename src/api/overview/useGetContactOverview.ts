@@ -7,7 +7,7 @@ import { getFetchPolicyOptions } from "api/utils";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { PORTFOLIO_DATA_FRAGMENT } from "./fragments";
-import { ContactOverviewQuery } from "./types";
+import type { ContactOverviewQuery } from "./types";
 
 /**
  * Fetching yesterday-today will provide us with the latest available snapshot

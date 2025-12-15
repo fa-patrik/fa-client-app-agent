@@ -1,12 +1,14 @@
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useApolloClient } from "@apollo/client";
-import { PerformanceBySecurityQuery, TimePeriod } from "api/performance/types";
+import type { PerformanceBySecurityQuery } from "api/performance/types";
+import { TimePeriod } from "api/performance/types";
 import {
   PERFORMANCE_BY_SECURITY_QUERY,
   transformMap,
   useGetPerformanceBySecurityLazy,
 } from "api/performance/useGetPerformanceGroupedBySecurity";
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { ReactComponent as SortIcon } from "assets/sort.svg";
 import { ReactComponent as SortAscIcon } from "assets/sortAsc.svg";
 import { ReactComponent as SortDescIcon } from "assets/sortDesc.svg";
@@ -52,8 +54,8 @@ const getNextSortingState = (currentState: ColumnSortedState) => {
   return currentState === ColumnSortedState.ASC
     ? ColumnSortedState.DESC
     : currentState === ColumnSortedState.DESC
-    ? ColumnSortedState.RESET
-    : ColumnSortedState.ASC;
+      ? ColumnSortedState.RESET
+      : ColumnSortedState.ASC;
 };
 
 const DEFAULT_PAGE_SIZE = 6; //nr of rows per page
@@ -79,10 +81,13 @@ const TradableSecurityTable = ({
   const { t, i18n } = useModifiedTranslation();
   const [sortedRows, setSortedRows] = useState<TradableSecurity[]>(securities);
   const [securitiesAsMap] = useState<Record<string, TradableSecurity>>(() => {
-    return securities?.reduce((prev, curr) => {
-      prev[curr.id] = curr;
-      return prev;
-    }, {} as Record<string, TradableSecurity>);
+    return securities?.reduce(
+      (prev, curr) => {
+        prev[curr.id] = curr;
+        return prev;
+      },
+      {} as Record<string, TradableSecurity>
+    );
   });
   const getPathToHolding = (holdingId: number) => {
     const currentPath = location.pathname;
@@ -97,28 +102,34 @@ const TradableSecurityTable = ({
     Record<TradableSecurity["id"], Row>
   >(() => {
     if (preSelectedRows?.length) {
-      const preselected = preSelectedRows?.reduce((prev, curr) => {
-        //check if preselected id in fetched securities
-        //there can be a discrepancy if a security was once
-        //allowed to be traded, and is in an investment plan
-        //but has since been removed from tradeable securities
-        if (curr.id in securitiesAsMap) {
-          prev[curr.id] = {
-            selected: true,
-            data: curr,
-          };
-        }
-        return prev;
-      }, {} as Record<TradableSecurity["id"], Row>);
+      const preselected = preSelectedRows?.reduce(
+        (prev, curr) => {
+          //check if preselected id in fetched securities
+          //there can be a discrepancy if a security was once
+          //allowed to be traded, and is in an investment plan
+          //but has since been removed from tradeable securities
+          if (curr.id in securitiesAsMap) {
+            prev[curr.id] = {
+              selected: true,
+              data: curr,
+            };
+          }
+          return prev;
+        },
+        {} as Record<TradableSecurity["id"], Row>
+      );
       return preselected;
     } else {
-      const newState = securities?.reduce((prev, curr) => {
-        prev[curr.id] = {
-          selected: false,
-          data: curr,
-        };
-        return prev;
-      }, {} as Record<TradableSecurity["id"], Row>);
+      const newState = securities?.reduce(
+        (prev, curr) => {
+          prev[curr.id] = {
+            selected: false,
+            data: curr,
+          };
+          return prev;
+        },
+        {} as Record<TradableSecurity["id"], Row>
+      );
       if (newState) return newState;
     }
     return {};
@@ -638,10 +649,10 @@ const TradableSecurityTable = ({
         {rowsToDisplay.length + 1 < DEFAULT_PAGE_SIZE
           ? [...Array(DEFAULT_PAGE_SIZE - rowsToDisplay.length)]
               .map(() => 0)
-              .map((val, index1) => {
+              .map((_val, index1) => {
                 return (
                   <tr key={index1}>
-                    {columnsAdjustedByViewPort.map((val, index2) => {
+                    {columnsAdjustedByViewPort.map((_val, index2) => {
                       return (
                         <td key={`${index1}-${index2}`} className="h-full"></td>
                       );
@@ -661,13 +672,16 @@ const TradableSecurityTable = ({
                 size="xs"
                 onClick={() =>
                   setSelectedRows(() => {
-                    return securities?.reduce((prev, curr) => {
-                      prev[curr.id] = {
-                        selected: false,
-                        data: curr,
-                      };
-                      return prev;
-                    }, {} as Record<TradableSecurity["id"], Row>);
+                    return securities?.reduce(
+                      (prev, curr) => {
+                        prev[curr.id] = {
+                          selected: false,
+                          data: curr,
+                        };
+                        return prev;
+                      },
+                      {} as Record<TradableSecurity["id"], Row>
+                    );
                   })
                 }
               >

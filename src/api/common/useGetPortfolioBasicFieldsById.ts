@@ -1,8 +1,6 @@
 import { gql, useApolloClient, useQuery } from "@apollo/client";
-import {
-  Portfolio,
-  PORTFOLIO_BASIC_FIELDS,
-} from "api/common/useGetContactInfo";
+import type { Portfolio } from "api/common/useGetContactInfo";
+import { PORTFOLIO_BASIC_FIELDS } from "api/common/useGetContactInfo";
 
 export const PORTFOLIO_QUERY = gql`
   ${PORTFOLIO_BASIC_FIELDS}

@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { ALLOWED_HTML_ATTRIBUTES } from "api/constants";
 import classNames from "classnames";
-import { Severity, getIconBySeverity } from "components/Alert/Alert";
+import type { Severity } from "components/Alert/Alert";
+import { getIconBySeverity } from "components/Alert/Alert";
 import Icon from "components/Icon/Icon";
 import DOMPurify from "dompurify";
 

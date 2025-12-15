@@ -1,5 +1,5 @@
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
-import { AnalyticsSecurityTypeDataWithSecurityData } from "api/holdings/types";
+import type { AnalyticsSecurityTypeDataWithSecurityData } from "api/holdings/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/file-excel-regular.svg";
 import { Button } from "components";
 import useExcelDownloader from "hooks/useExcelDownloader";
@@ -47,34 +47,40 @@ const HoldingsExcelExportButton = ({
       currency: currencyCode,
     }),
   ];
-  const excelExportRows = holdingsByType?.reduce((prev, currType) => {
-    const rows = currType.securities.reduce((prev, currHolding) => {
-      //holding
-      //no isin comes back as " "
-      const isinCode = currHolding.security.isinCode;
-      const code = currHolding.code;
-      const codeToDisplay =
-        isinCode && isinCode !== " " ? isinCode : code ?? "-";
-      const valueChange =
-        currHolding.firstAnalysis?.marketValue &&
-        currHolding.firstAnalysis?.tradeAmount
-          ? currHolding.firstAnalysis?.marketValue -
+  const excelExportRows = holdingsByType?.reduce(
+    (prev, currType) => {
+      const rows = currType.securities.reduce(
+        (prev, currHolding) => {
+          //holding
+          //no isin comes back as " "
+          const isinCode = currHolding.security.isinCode;
+          const code = currHolding.code;
+          const codeToDisplay =
+            isinCode && isinCode !== " " ? isinCode : (code ?? "-");
+          const valueChange =
+            currHolding.firstAnalysis?.marketValue &&
             currHolding.firstAnalysis?.tradeAmount
-          : undefined;
-      const row = [
-        currHolding.name,
-        codeToDisplay,
-        currHolding.firstAnalysis?.amount,
-        currHolding.firstAnalysis?.purchaseTradeAmount,
-        currHolding.firstAnalysis?.marketValue,
-        valueChange,
-      ];
-      prev.push(row);
+              ? currHolding.firstAnalysis?.marketValue -
+                currHolding.firstAnalysis?.tradeAmount
+              : undefined;
+          const row = [
+            currHolding.name,
+            codeToDisplay,
+            currHolding.firstAnalysis?.amount,
+            currHolding.firstAnalysis?.purchaseTradeAmount,
+            currHolding.firstAnalysis?.marketValue,
+            valueChange,
+          ];
+          prev.push(row);
+          return prev;
+        },
+        [] as (string | number | undefined)[][]
+      );
+      prev.push(...rows);
       return prev;
-    }, [] as (string | number | undefined)[][]);
-    prev.push(...rows);
-    return prev;
-  }, [] as (string | number | undefined)[][]);
+    },
+    [] as (string | number | undefined)[][]
+  );
 
   return (
     <Button

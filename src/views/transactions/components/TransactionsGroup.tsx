@@ -1,11 +1,11 @@
-import { TradeOrder } from "api/orders/types";
-import { Transaction } from "api/transactions/types";
+import type { TradeOrder } from "api/orders/types";
+import type { Transaction } from "api/transactions/types";
 import { Card } from "components";
-import { LocalOrder } from "hooks/useLocalTradeStorageState";
+import type { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
-import { TransactionType } from "../../transactionDetails/transactionDetailsView";
 import { TransactionsListWithOneLineRow } from "./TransactionsListWithOneLineRow";
 import { TransactionsListWithTwoLinesRow } from "./TransactionsListWithTwoLinesRow";
+import type { TransactionType } from "../../transactionDetails/transactionDetailsView";
 
 export interface TransactionsListProps {
   transactions: (TradeOrder | LocalOrder)[] | Transaction[];

@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { AccountCategory, AccountType } from "api/enums";
+import type { AccountCategory, AccountType } from "api/enums";
 import { getFetchPolicyOptions } from "api/utils";
 
 const BUY_DATA_QUERY = gql`
@@ -29,7 +29,7 @@ const BUY_DATA_QUERY = gql`
         calculateExpectedAmountBasedOpenTradeOrders: true
       ) {
         portfolioId
-        accountItems{
+        accountItems {
           id
           accountId
           balanceAccCurr

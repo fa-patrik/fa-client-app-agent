@@ -1,11 +1,12 @@
+import type { ReactNode } from "react";
 import { useContext } from "react";
-import { createContext, ReactNode, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 import { ErrorMessage, LoadingIndicator } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import type { KeycloakServiceStateType } from "services/keycloakService";
 import {
   keycloakService,
   keycloakServiceInitialState,
-  KeycloakServiceStateType,
 } from "services/keycloakService";
 
 const KeycloakContext = createContext<KeycloakServiceStateType>(

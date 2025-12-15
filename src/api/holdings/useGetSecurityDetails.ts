@@ -1,11 +1,8 @@
 import { gql, useQuery } from "@apollo/client";
-import { SecurityDetailsQuery } from "./types";
+import type { SecurityDetailsQuery } from "./types";
 
 const SECURITY_DETAILS_QUERY = gql`
- query GetSecurityDetails(
-  $securityId: Long, 
-  $documentTags: [String]
-) {
+  query GetSecurityDetails($securityId: Long, $documentTags: [String]) {
     security(id: $securityId) {
       id
       name
@@ -51,8 +48,9 @@ export const useGetSecurityDetails = (securityId: string | undefined) => {
     {
       variables: {
         securityId: securityId,
-        documentTags: ["Online"]
+        documentTags: ["Online"],
       },
+      skip: !securityId,
     }
   );
 

@@ -1,4 +1,5 @@
-import { ReactNode, useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { LoadingIndicator } from "components";
 import { initI18n, fallbackLanguage } from "../i18n";
 

@@ -1,11 +1,11 @@
-import { useEffect, useCallback, Dispatch, useReducer } from "react";
-import { TaskResponse, useCompleteTask } from "api/flowable/useCompleteTask";
-import {
-  StartProcessTaskResponse,
-  useStartProcess,
-} from "api/flowable/useStartProcess";
+import type { Dispatch } from "react";
+import { useEffect, useCallback, useReducer } from "react";
+import type { TaskResponse } from "api/flowable/useCompleteTask";
+import { useCompleteTask } from "api/flowable/useCompleteTask";
+import type { StartProcessTaskResponse } from "api/flowable/useStartProcess";
+import { useStartProcess } from "api/flowable/useStartProcess";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 
 type FormDefinition = Record<string, unknown>;
@@ -73,9 +73,9 @@ const processStateReducer = (
 const attachmentsObjectToList = (
   attachments: Record<string, string> | undefined
 ) =>
-  attachments 
+  attachments
     ? Object.entries(attachments).map(([name, base64]) => ({ name, base64 }))
-    : [] as Attachment[];
+    : ([] as Attachment[]);
 
 export const useProcessExecutor = () => {
   const { userProfile } = useKeycloak();

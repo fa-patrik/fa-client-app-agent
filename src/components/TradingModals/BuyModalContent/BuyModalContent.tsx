@@ -1,5 +1,7 @@
-import { MutableRefObject, useState, useEffect, useMemo } from "react";
-import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
+import type { MutableRefObject } from "react";
+import { useState, useEffect, useMemo } from "react";
+import type { Portfolio } from "api/common/useGetContactInfo";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { AccountCategory, AccountType, ExecutionMethod } from "api/enums";
 import { SecurityTypeCode } from "api/holdings/types";
 import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
@@ -15,7 +17,7 @@ import {
   ComboBox,
 } from "components/index";
 import { LabeledDivFlex } from "components/LabeledDiv/LabeledDivFlex";
-import { Option } from "components/Select/Select";
+import type { Option } from "components/Select/Select";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
@@ -54,7 +56,7 @@ const getTradeType = (securityType: SecurityTypeCode | undefined) =>
 const FALLBACK_DECIMAL_COUNT = 2;
 
 const isSelectableAccount = <
-  T extends { category: AccountCategory; type: AccountType }
+  T extends { category: AccountCategory; type: AccountType },
 >(
   account: T
 ) => {
@@ -217,8 +219,8 @@ export const BuyModalContent = ({
   const unitsToBuy = isTradeInUnits
     ? roundDown(inputAsNr, securityAmountDecimalCount)
     : unitsToBuyFromTradeAmount !== undefined
-    ? roundDown(unitsToBuyFromTradeAmount, securityAmountDecimalCount)
-    : undefined;
+      ? roundDown(unitsToBuyFromTradeAmount, securityAmountDecimalCount)
+      : undefined;
 
   const estimatedTradeAmountInPfCurrency =
     unitsToBuy !== undefined && securityPriceInPfCurrency !== undefined
@@ -359,7 +361,7 @@ export const BuyModalContent = ({
     getNumberOfOptions(portfolioOptionsThatCantTradeTheSecurity);
 
   return (
-    <div className="grid gap-2 max-w-md min-w-[min(84vw,_375px)]">
+    <div className="grid gap-2 max-w-md min-w-[min(84vw,375px)]">
       <div className="h-20">
         <LabeledDiv
           label={t("tradingModal.securityName")}
@@ -380,7 +382,11 @@ export const BuyModalContent = ({
       <PortfolioSelect
         portfolioOptions={portfolioOptionsThatCanTrade}
         portfolioId={portfolioId}
-        onChange={(newPortfolio) => setPortfolioId(newPortfolio.id)}
+        onChange={(newPortfolio) => {
+          if (newPortfolio) {
+            setPortfolioId(newPortfolio.id);
+          }
+        }}
         label={t("tradingModal.portfolio")}
         error={!portfolioId ? t("tradingModal.selectPortfolioError") : ""}
       />
@@ -390,8 +396,8 @@ export const BuyModalContent = ({
         label={t("tradingModal.account")}
         value={selectedAccountOption}
         onChange={(newAccount) => {
-          if (newAccount.id !== undefined) {
-            setSelectedAccountId(newAccount?.id as number);
+          if (newAccount?.id !== undefined) {
+            setSelectedAccountId(newAccount.id as number);
           }
         }}
         options={accountOptions}
@@ -438,10 +444,10 @@ export const BuyModalContent = ({
           portfolioId === undefined
             ? ""
             : !input || inputAsNr === 0
-            ? " "
-            : insufficientCash && !loading
-            ? t("tradingModal.insufficientCashError")
-            : ""
+              ? " "
+              : insufficientCash && !loading
+                ? t("tradingModal.insufficientCashError")
+                : ""
         }
         step="any"
       />

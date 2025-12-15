@@ -1,9 +1,9 @@
-import {
+import type {
   Portfolio,
   PortfolioGroups,
   RepresentativeTag,
 } from "api/common/useGetContactInfo";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
 /**
  * Checks whether the user's linked contact is linked to the portfolio

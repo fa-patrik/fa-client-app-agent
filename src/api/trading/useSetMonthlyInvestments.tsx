@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { FetchResult, gql, useMutation } from "@apollo/client";
+import type { FetchResult } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 
@@ -79,8 +80,8 @@ export const useSetMonthlyInvestments = () => {
           mode === "Delete"
             ? t("messages.monthlyInvestmentsDeletedSuccess")
             : mode === "New"
-            ? t("messages.monthlyInvestmentsNewSuccess")
-            : t("messages.monthlyInvestmentsEditSuccess")
+              ? t("messages.monthlyInvestmentsNewSuccess")
+              : t("messages.monthlyInvestmentsEditSuccess")
         ),
         { autoClose: 3000, closeButton: false, position: "top-center" }
       );

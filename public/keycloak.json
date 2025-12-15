@@ -1,6 +1,6 @@
 {
   "realm": "fa",
-  "auth-server-url": "https://fadev.clientportal.fasolutions.com/auth",
+  "auth-server-url": "https://fatestdev.clientportal.fasolutions.com/auth",
   "ssl-required": "external",
   "resource": "fa-clientportal",
   "enableSell": {

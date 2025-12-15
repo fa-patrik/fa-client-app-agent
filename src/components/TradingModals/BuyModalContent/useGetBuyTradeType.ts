@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { SecurityTradeType, SecurityTypeCode } from "api/holdings/types";
+import type { SecurityTypeCode } from "api/holdings/types";
+import { SecurityTradeType } from "api/holdings/types";
 import { getAllowedTradeTypesForSecurity } from "utils/trading";
 import { isSecurityTypeFund } from "./BuyModalContent";
 

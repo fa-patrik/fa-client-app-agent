@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { OrderStatus } from "api/enums";
-import { TradeOrder } from "api/orders/types";
+import type { TradeOrder } from "api/orders/types";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { assertUnreachable } from "../../../utils/type";
 

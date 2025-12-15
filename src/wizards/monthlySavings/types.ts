@@ -1,5 +1,5 @@
-import { CashAccount } from "api/money/useGetPortfoliosAccounts";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { CashAccount } from "api/money/useGetPortfoliosAccounts";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
 /**
  * This is the data structure that is produced

@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import {
+import type {
   AnalyticsSecurityData,
   AnalyticsSecurityTypeDataWithSecurityData,
-  SecurityTypeCode,
 } from "api/holdings/types";
+import { SecurityTypeCode } from "api/holdings/types";
 
 export const useSecuritiesSummary = (
   securityTypes: AnalyticsSecurityTypeDataWithSecurityData[] | undefined

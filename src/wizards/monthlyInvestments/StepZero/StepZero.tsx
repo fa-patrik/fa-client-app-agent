@@ -1,17 +1,13 @@
 import { useEffect, useState } from "react";
+import type { Portfolio } from "api/common/useGetContactInfo";
 import {
-  Portfolio,
   PortfolioGroups,
   RepresentativeTag,
 } from "api/common/useGetContactInfo";
-import {
-  PortfolioWithProfileAndFigures,
-  useGetPortfoliosWithProfileAndFigures,
-} from "api/common/useGetPortfoliosWithProfileAndFigures";
-import {
-  TradableSecurity,
-  useGetTradebleSecurityLazy,
-} from "api/trading/useGetTradebleSecurities";
+import type { PortfolioWithProfileAndFigures } from "api/common/useGetPortfoliosWithProfileAndFigures";
+import { useGetPortfoliosWithProfileAndFigures } from "api/common/useGetPortfoliosWithProfileAndFigures";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import { useGetTradebleSecurityLazy } from "api/trading/useGetTradebleSecurities";
 import { useSetMonthlyInvestments } from "api/trading/useSetMonthlyInvestments";
 import { ReactComponent as PlusIcon } from "assets/plus-circle.svg";
 import {
@@ -29,10 +25,12 @@ import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
 import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { getNumberOfOptions } from "utils/faBackProfiles/common";
-import {
+import type {
   MonthlyInvestments,
-  MonthlyInvestmentsFieldId,
   PortfolioWithMonthlyInvestments,
+} from "utils/faBackProfiles/monthlyInvestments";
+import {
+  MonthlyInvestmentsFieldId,
   addMonthlyInvestmentsToPortfolios,
   convertMonthlyInvestmentsProfileToWizardState,
   getEmptyApiInput,
@@ -40,7 +38,7 @@ import {
 } from "utils/faBackProfiles/monthlyInvestments";
 import { WizardBottomNavigationReplica } from "wizards/components/WizardBottomNavigationReplica";
 import SecurityDistributionTable from "../StepFive/SecurityDistributionTable";
-import { MonthlyInvestmentsWizardState } from "../types";
+import type { MonthlyInvestmentsWizardState } from "../types";
 
 /**
  * Initial step of the monthly savings wizard.
@@ -48,7 +46,6 @@ import { MonthlyInvestmentsWizardState } from "../types";
  * and a button to add a new one.
  */
 const StepZero = () => {
-  const [isMounted, setIsMounted] = useState(true);
   const { access } = useKeycloak();
   const { wizardData, setWizardData } = useWizard<
     MonthlyInvestmentsWizardState | undefined
@@ -119,28 +116,30 @@ const StepZero = () => {
   };
 
   useEffect(() => {
-    return () => {
-      setIsMounted(false);
-    };
-  }, []);
-
-  useEffect(() => {
     if (portfolios) {
       const modifiedPortfolios = addMonthlyInvestmentsToPortfolios(portfolios);
-      setPortfoliosWithMonthlyInvestments(() => modifiedPortfolios);
+      setPortfoliosWithMonthlyInvestments(modifiedPortfolios);
     }
   }, [portfolios]);
 
   useEffect(() => {
+    if (!portfoliosWithMonthlyInvestments) {
+      return;
+    }
+
+    let cancelled = false;
+
     const fetchData = async () => {
       setLoadingSecurities(true);
       const securityData = {} as Record<string, TradableSecurity>;
-      const uniqueSecurityCodes =
-        portfoliosWithMonthlyInvestments &&
-        getUniqueSecurityCodes(portfoliosWithMonthlyInvestments);
+      const uniqueSecurityCodes = getUniqueSecurityCodes(
+        portfoliosWithMonthlyInvestments
+      );
 
-      if (uniqueSecurityCodes) {
+      if (uniqueSecurityCodes && uniqueSecurityCodes.size > 0) {
         for (const code of Array.from(uniqueSecurityCodes)) {
+          if (cancelled) break;
+
           const variables = {
             securityCode: code,
           };
@@ -150,11 +149,17 @@ const StepZero = () => {
         }
       }
 
-      setSecurities(() => securityData);
-      setLoadingSecurities(false);
+      if (!cancelled) {
+        setSecurities(securityData);
+        setLoadingSecurities(false);
+      }
     };
 
-    if (isMounted) fetchData();
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfoliosWithMonthlyInvestments]);
 
@@ -316,7 +321,7 @@ const StepZero = () => {
                         })}
                       </span>
                     </div>
-                    <hr className="border-1" />
+                    <hr className="border" />
                     <div className="overflow-x-auto w-full">
                       <SecurityDistributionTable
                         id={`monthlyInvestmentsWizard-securityDistributionTable-${index}`}
@@ -326,7 +331,7 @@ const StepZero = () => {
                         portfolioCurrencyCode={portfolio.currency.securityCode}
                       />
                     </div>
-                    <hr className="border-1" />
+                    <hr className="border" />
                     <div className="flex justify-between">
                       <Button
                         id={`monthlyInvestmentsWizard-deletePlanButton-${index}`}

@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { NoPortfolios } from "./components/NoPortfolios";
@@ -9,12 +9,10 @@ interface PortfolioGuardProps {
 
 export const PortfolioGuard = ({ children }: PortfolioGuardProps) => {
   const { selectedContactId } = useGetContractIdData();
-  const { data: { portfolios } = { portfolios: [] } } = useGetContactInfo(
-    false,
-    selectedContactId
-  );
+  const { data: { portfolios } = { portfolios: [] }, loading } =
+    useGetContactInfo(false, selectedContactId);
 
-  if (portfolios.length === 0) {
+  if (!loading && portfolios.length === 0) {
     return <NoPortfolios />;
   }
 

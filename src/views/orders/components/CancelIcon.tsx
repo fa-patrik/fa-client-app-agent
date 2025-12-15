@@ -1,4 +1,4 @@
-import { HTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 import { ReactComponent as FileIcon } from "assets/minus-circle.svg";
 
 export interface CancelIconProps extends HTMLAttributes<HTMLAnchorElement> {

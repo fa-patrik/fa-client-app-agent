@@ -1,24 +1,18 @@
 import { useMemo } from "react";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
-import { PortfolioData } from "api/overview/types";
-import {
-  SwitchModalContent,
-  SwitchModalInitialData,
-} from "components/TradingModals/SwitchModalContent/SwitchModalContent";
+import type { PortfolioData } from "api/overview/types";
+import type { SwitchModalInitialData } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
+import { SwitchModalContent } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
 import { useCanTradeSecurities } from "services/permissions/trading";
 import HoldingsExcelExportButton from "views/holdings/components/HoldingsExcelExportButton";
 import { useModal } from "../../../components/Modal/useModal";
-import {
-  BuyModalContent,
-  BuyModalInitialData,
-} from "../../../components/TradingModals/BuyModalContent/BuyModalContent";
-import {
-  SellModalContent,
-  SellModalInitialData,
-} from "../../../components/TradingModals/SellModalContent/SellModalContent";
+import type { BuyModalInitialData } from "../../../components/TradingModals/BuyModalContent/BuyModalContent";
+import { BuyModalContent } from "../../../components/TradingModals/BuyModalContent/BuyModalContent";
+import type { SellModalInitialData } from "../../../components/TradingModals/SellModalContent/SellModalContent";
+import { SellModalContent } from "../../../components/TradingModals/SellModalContent/SellModalContent";
 import { HoldingsGroupedByType } from "../../holdings/components/HoldingsGroupedByType";
 import { NoHoldings } from "../../holdings/components/NoHoldings";
 

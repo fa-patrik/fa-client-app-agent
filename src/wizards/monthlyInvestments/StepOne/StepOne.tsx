@@ -3,10 +3,8 @@ import {
   PortfolioGroups,
   RepresentativeTag,
 } from "api/common/useGetContactInfo";
-import {
-  PortfolioWithProfileAndFigures,
-  useGetPortfoliosWithProfileAndFigures,
-} from "api/common/useGetPortfoliosWithProfileAndFigures";
+import type { PortfolioWithProfileAndFigures } from "api/common/useGetPortfoliosWithProfileAndFigures";
+import { useGetPortfoliosWithProfileAndFigures } from "api/common/useGetPortfoliosWithProfileAndFigures";
 import {
   Button,
   Card,
@@ -15,7 +13,7 @@ import {
   Input,
   LoadingIndicator,
 } from "components";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
@@ -23,7 +21,7 @@ import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import { addMonthlyInvestmentsToPortfolios } from "utils/faBackProfiles/monthlyInvestments";
 import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import { filterPortfolioOptionsByFunction } from "utils/options";
-import { MonthlyInvestmentsWizardState } from "../types";
+import type { MonthlyInvestmentsWizardState } from "../types";
 
 //min units of money to invest
 const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MI_MINAMOUNT";
@@ -70,14 +68,15 @@ const StepOne = () => {
     portfoliosWithValidMonthlyInvestments,
   ]);
 
-  const [selectedPortfolioOption, setSelectedPortfolioOption] =
-    useState<PortfolioOption>(
-      monthlyInvestmentsWizardState.selectedPortfolioOption ||
-        portfoliosThatCanMonthlyInvestAndHaveNoPlans?.find(
-          (o) => o?.id === portfolioId
-        ) ||
-        portfoliosThatCanMonthlyInvestAndHaveNoPlans[0]
-    );
+  const [selectedPortfolioOption, setSelectedPortfolioOption] = useState<
+    PortfolioOption | undefined
+  >(
+    monthlyInvestmentsWizardState.selectedPortfolioOption ||
+      portfoliosThatCanMonthlyInvestAndHaveNoPlans?.find(
+        (o) => o?.id === portfolioId
+      ) ||
+      portfoliosThatCanMonthlyInvestAndHaveNoPlans[0]
+  );
 
   const [portfolio, setPortfolio] = useState<
     PortfolioWithProfileAndFigures | undefined

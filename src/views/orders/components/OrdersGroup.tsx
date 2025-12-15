@@ -1,11 +1,11 @@
-import { TradeOrder } from "api/orders/types";
+import type { TradeOrder } from "api/orders/types";
 import { Card } from "components";
-import { CancelOrderModalInitialData } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
-import { LocalOrder } from "hooks/useLocalTradeStorageState";
+import type { CancelOrderModalInitialData } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
+import type { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
-import { TransactionType } from "../../transactionDetails/transactionDetailsView";
 import { OrdersListWithOneLineRow } from "./OrdersListWithOneLineRow";
 import { OrdersListWithTwoLinesRow } from "./OrdersListWithTwoLinesRow";
+import type { TransactionType } from "../../transactionDetails/transactionDetailsView";
 
 export interface OrdersListProps {
   orders: (TradeOrder | LocalOrder)[];

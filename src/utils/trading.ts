@@ -1,6 +1,6 @@
-import { SecurityDetailsPosition, SecurityTradeType } from "api/holdings/types";
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
-import { TOptions, StringMap } from "i18next";
+import type { SecurityDetailsPosition } from "api/holdings/types";
+import { SecurityTradeType } from "api/holdings/types";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { getBackendTranslation } from "./backTranslations";
 import { dateFromYYYYMMDD } from "./date";
 
@@ -72,10 +72,9 @@ export const getTradeAmountTooltip = (
   security: TradableSecurity | SecurityDetailsPosition,
   fxRate: number,
   portfolioCurrency: string,
-  locale: string,
-  resolvedLanguage: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  t: (key: string, options?: TOptions<StringMap> | undefined) => any
+  locale: string | undefined,
+  resolvedLanguage: string | undefined,
+  t: (key: string, options?: Record<string, unknown>) => string
 ): string | undefined => {
   try {
     const securityName = getBackendTranslation(
@@ -147,10 +146,9 @@ export const getBlockSizeErrorTooltip = (
   security: TradableSecurity | SecurityDetailsPosition,
   fxRate: number,
   portfolioCurrency: string,
-  locale: string,
-  resolvedLanguage: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  t: (key: string, options?: TOptions<StringMap> | undefined) => any,
+  locale: string | undefined,
+  resolvedLanguage: string | undefined,
+  t: (key: string, options?: Record<string, unknown>) => string,
   buy: boolean
 ): string | undefined => {
   try {

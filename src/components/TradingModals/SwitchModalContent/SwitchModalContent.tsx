@@ -1,15 +1,17 @@
-import { MutableRefObject, useMemo, useState } from "react";
+import type { MutableRefObject } from "react";
+import { useMemo, useState } from "react";
 import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { ADVISOR_TAG } from "api/constants";
 import { ExecutionMethod, OrderStatus } from "api/enums";
-import { HoldingPosition } from "api/holdings/types";
+import type { HoldingPosition } from "api/holdings/types";
 import { useGetContactHoldingsFromPfReport } from "api/holdings/useGetContactHoldingsFromPfReport";
 import { useGetPortfolioHoldingsFromPfReport } from "api/holdings/useGetPortfolioHoldingsFromPfReport";
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { useSwitch } from "api/trading/useSwitch";
 import { TransactionType } from "api/transactions/enums";
-import { LimitedSwitchOrderDTOInput } from "api/types";
-import { ComboBox, Option } from "components/ComboBox/ComboBox";
+import type { LimitedSwitchOrderDTOInput } from "api/types";
+import type { Option } from "components/ComboBox/ComboBox";
+import { ComboBox } from "components/ComboBox/ComboBox";
 import {
   DownloadableDocument,
   Button,
@@ -98,18 +100,24 @@ export const SwitchModalContent = ({
 
   //allows indexing into the specific security quicker
   const switchableSecuritiesMap = useMemo(() => {
-    return portfolioAllowedSwitchableSecurities?.reduce((prev, currSec) => {
-      prev[currSec.id] = currSec;
-      return prev;
-    }, {} as Record<number, TradableSecurity>);
+    return portfolioAllowedSwitchableSecurities?.reduce(
+      (prev, currSec) => {
+        prev[currSec.id] = currSec;
+        return prev;
+      },
+      {} as Record<number, TradableSecurity>
+    );
   }, [portfolioAllowedSwitchableSecurities]);
 
   //allows indexing into the specific portfolio holding quicker
   const portfolioHoldingsMap = useMemo(() => {
-    return portfolioHoldings?.reduce((prev, currHolding) => {
-      prev[currHolding.security.id] = currHolding;
-      return prev;
-    }, {} as Record<number, HoldingPosition>);
+    return portfolioHoldings?.reduce(
+      (prev, currHolding) => {
+        prev[currHolding.security.id] = currHolding;
+        return prev;
+      },
+      {} as Record<number, HoldingPosition>
+    );
   }, [portfolioHoldings]);
 
   //'from' securities
@@ -320,12 +328,16 @@ export const SwitchModalContent = ({
           noSelectedPortfolio
             ? t("switchOrderModal.noPortfolioSelectedError")
             : noSwitchablePositions
-            ? t("switchOrderModal.noSwitchableHoldingsError")
-            : ""
+              ? t("switchOrderModal.noSwitchableHoldingsError")
+              : ""
         }
         portfolioOptions={tradablePortfolioOptions}
         portfolioId={portfolioId}
-        onChange={(newPortfolio) => setPortfolioId(newPortfolio.id)}
+        onChange={(newPortfolio) => {
+          if (newPortfolio) {
+            setPortfolioId(newPortfolio.id);
+          }
+        }}
         label={t("switchOrderModal.portfolioSelectLabel")}
       />
 
@@ -373,8 +385,8 @@ export const SwitchModalContent = ({
             noBuySecurities
               ? t("switchOrderModal.noSwitchableSecuritiesInSystemError")
               : noSecuritySelected
-              ? t("switchOrderModal.selectSecurityError")
-              : ""
+                ? t("switchOrderModal.selectSecurityError")
+                : ""
           }
           id="switchOrderModal-buySecuritySelect"
           label={t("switchOrderModal.toSecuritySelectorLabel")}

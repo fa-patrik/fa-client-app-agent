@@ -1,4 +1,5 @@
-import { FormEvent, useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { Card, Input, LabeledDiv } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
@@ -6,7 +7,7 @@ import {
   SelectMonthsGrid,
   months,
 } from "wizards/monthlySavings/components/SelectedMonthsGrid";
-import { MonthlyInvestmentsWizardState } from "../types";
+import type { MonthlyInvestmentsWizardState } from "../types";
 
 /**
  * Step four of the monthly savings process.
@@ -43,10 +44,13 @@ const StepFour = () => {
 
   const [selectedMonths, setSelectedMonths] = useState<Record<string, boolean>>(
     monthlyInvestmentsWizardState.selectedMonths ||
-      months.reduce((prev, curr) => {
-        prev[curr] = true;
-        return prev;
-      }, {} as Record<string, boolean>)
+      months.reduce(
+        (prev, curr) => {
+          prev[curr] = true;
+          return prev;
+        },
+        {} as Record<string, boolean>
+      )
   );
 
   useEffect(() => {

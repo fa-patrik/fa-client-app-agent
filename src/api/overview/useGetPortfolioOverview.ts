@@ -6,7 +6,7 @@ import {
 } from "api/holdings/fragments";
 import { getFetchPolicyOptions } from "api/utils";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { PortfolioOverviewQuery } from "./types";
+import type { PortfolioOverviewQuery } from "./types";
 
 /**
  * Fetching yesterday-today will provide us with the latest available snapshot

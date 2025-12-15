@@ -1,5 +1,7 @@
+@reference "../../styles/tailwind.css";
+
 .react-calendar {
-  @apply w-[320px] max-w-full bg-white shadow-md rounded-lg overflow-hidden absolute;
+  @apply w-[320px] max-w-[calc(100vw-2rem)] bg-white shadow-md rounded-lg overflow-hidden absolute;
 }
 
 .react-calendar--doubleView {

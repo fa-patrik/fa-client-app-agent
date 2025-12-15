@@ -5,7 +5,7 @@ import {
 } from "api/common/useGetContactInfo";
 import { ReactComponent as ExclamationIcon } from "assets/exclamation-circle.svg";
 import { Card, ComboBox, Input, LoadingIndicator } from "components";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useFilteredPortfolioSelect } from "components/TradingModals/useFilteredPortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
@@ -18,7 +18,7 @@ import {
   getUniqueExternalAccounts,
   useGetPortfoliosProfileAndFiguresAndAccounts,
 } from "../StepZero/api/useGetPortfoliosWithProfileAndAccounts";
-import { MonthlySavingsWizardState } from "../types";
+import type { MonthlySavingsWizardState } from "../types";
 
 //min units of money to invest
 const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MS_MINAMOUNT";
@@ -69,14 +69,15 @@ const MsStepOne = () => {
     return options;
   }, [portfolioOptionsThatCanMonthlySave, portfoliosWithMonthlySavings]);
 
-  const [selectedPortfolioOption, setSelectedPortfolioOption] =
-    useState<PortfolioOption>(
-      wizardData?.data?.selectedPortfolioOption ||
-        portfolioOptionsThatCanMonthlySaveAndHaveNoPlans.find(
-          (o) => o.id === portfolioId
-        ) ||
-        portfolioOptionsThatCanMonthlySaveAndHaveNoPlans[0]
-    );
+  const [selectedPortfolioOption, setSelectedPortfolioOption] = useState<
+    PortfolioOption | undefined
+  >(
+    wizardData?.data?.selectedPortfolioOption ||
+      portfolioOptionsThatCanMonthlySaveAndHaveNoPlans.find(
+        (o) => o.id === portfolioId
+      ) ||
+      portfolioOptionsThatCanMonthlySaveAndHaveNoPlans[0]
+  );
 
   const portfolio = portfolioData?.portfolios?.find(
     (p) => p.id === selectedPortfolioOption?.id

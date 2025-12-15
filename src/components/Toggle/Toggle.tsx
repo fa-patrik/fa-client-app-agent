@@ -1,4 +1,5 @@
-import { Dispatch, Fragment, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { Fragment } from "react";
 import { Switch } from "@headlessui/react";
 
 type ToggleProps = {
@@ -15,7 +16,7 @@ const Toggle = ({ enabled, setEnabled, label }: ToggleProps) => {
           <button
             className={`${
               checked ? "bg-primary-500" : "bg-gray-300"
-            } relative inline-flex h-5 w-9 items-center rounded-full`}
+            } relative inline-flex h-5 w-9 items-center rounded-full cursor-pointer`}
           >
             <span
               className={`${

@@ -4,18 +4,15 @@ import {
 } from "api/common/useGetContactInfo";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { useDownloadDocument } from "api/documents/useDownloadDocument";
-import { TradeOrderDetails } from "api/orders/types";
+import type { TradeOrderDetails } from "api/orders/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/document-download.svg";
 import { Button, Card, CountryFlag } from "components";
 import { useModal } from "components/Modal/useModal";
-import {
-  CancelOrderModalInitialData,
-  CancelOrderModalContent,
-} from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
+import type { CancelOrderModalInitialData } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
+import { CancelOrderModalContent } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { PageLayout } from "layouts/PageLayout/PageLayout";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import {
   isStatusCancellable,
   isTransactionTypeCancellable,
@@ -30,8 +27,8 @@ import {
 } from "utils/switchOrders";
 import { getTransactionColor } from "utils/transactions";
 import { InfoCard } from "views/transactionDetails/components/InfoCard";
-import { DataRow } from "../../holdingDetails/components/DataRow";
 import { ValueInCurrencies } from "./ValueInCurrencies";
+import { DataRow } from "../../holdingDetails/components/DataRow";
 
 interface OrderDetailsProps {
   data: TradeOrderDetails;
@@ -80,10 +77,10 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
     orderParentPortfolio && canPfCancelOrder(orderParentPortfolio);
 
   return (
-    <PageLayout>
+    <>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="md:col-start-1 md:row-start-1 md:row-end-2 lg:row-end-3">
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fill,_minmax(175px,_1fr))]">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fill,minmax(175px,1fr))]">
             <InfoCard
               label={t("transactionsPage.type")}
               value={getOrderTypeName(
@@ -301,13 +298,14 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
                     <ValueInCurrencies
                       valueInSecurityCurrency={
                         isPartOfSwitch
-                          ? switchFromOrder?.tradeAmountInPortfolioCurrency ?? 0
+                          ? (switchFromOrder?.tradeAmountInPortfolioCurrency ??
+                            0)
                           : order.tradeAmountInSecurityCurrency
                       }
                       securityCurrencyCode={order.securityCurrencyCode}
                       valueInAccountCurrency={
                         isPartOfSwitch
-                          ? switchFromOrder?.tradeAmountInAccountCurrency ?? 0
+                          ? (switchFromOrder?.tradeAmountInAccountCurrency ?? 0)
                           : order.tradeAmountInAccountCurrency
                       }
                       accountCurrencyCode={
@@ -493,6 +491,6 @@ export const OrderDetails = ({ data: order }: OrderDetailsProps) => {
       <Modal {...cancelOrderModalProps} header={t("cancelOrderModal.header")}>
         <CancelOrderModalContent {...cancelOrderModalContentProps} />
       </Modal>
-    </PageLayout>
+    </>
   );
 };

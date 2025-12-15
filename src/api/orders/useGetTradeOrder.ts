@@ -1,6 +1,6 @@
 import { gql, useLazyQuery } from "@apollo/client";
 import { TRADE_ORDERS_DETAILS } from "./fragments";
-import { TradeOrderQuery } from "./types";
+import type { TradeOrderQuery } from "./types";
 
 const TRADE_ORDER_QUERY = gql`
   ${TRADE_ORDERS_DETAILS}

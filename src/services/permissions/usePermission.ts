@@ -1,11 +1,11 @@
 import { useCallback } from "react";
-import {
+import type {
   Portfolio,
   PortfolioGroups,
   RepresentativeTag,
-  useGetContactInfo,
 } from "api/common/useGetContactInfo";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetContactRepTagsAndLinkedContact } from "hooks/useGetContactRepTagsAndLinkedContact";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useParams } from "react-router-dom";

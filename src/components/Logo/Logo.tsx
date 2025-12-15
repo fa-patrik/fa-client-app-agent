@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import { useNavigation } from "hooks/useNavigation";
 
 export const Logo = () => {
-  const { portfolioId, contactDbId } = useParams();
-  const navigate = useNavigate();
+  const { navigate } = useNavigation();
   const storedFormat = localStorage.logoFormat;
   const [imgFormat, setImgFormat] = useState(storedFormat || "svg");
 
@@ -24,12 +22,12 @@ export const Logo = () => {
     const testFormats = async (format = "") => {
       const formatCheckPromises = !format
         ? formats.map((format) =>
-            checkImage(`${process.env.PUBLIC_URL}/logo.${format}`).then(
+            checkImage(`${import.meta.env.BASE_URL}logo.${format}`).then(
               (result) => ({ ...result, format })
             )
           )
         : [
-            checkImage(`${process.env.PUBLIC_URL}/logo.${format}`).then(
+            checkImage(`${import.meta.env.BASE_URL}logo.${format}`).then(
               (result) => ({ ...result, format })
             ),
           ];
@@ -59,14 +57,10 @@ export const Logo = () => {
     <div
       className="w-10 h-10 rounded cursor-pointer"
       onClick={() => {
-        let path = portfolioId
-          ? `/portfolio/${portfolioId}/overview`
-          : "/overview";
-        if (contactDbId) path = `/impersonate/${contactDbId}${path}`;
-        navigate(path);
+        navigate("/overview");
       }}
     >
-      <img src={`${process.env.PUBLIC_URL}/logo.${imgFormat}`} alt="logo" />
+      <img src={`${import.meta.env.BASE_URL}logo.${imgFormat}`} alt="logo" />
     </div>
   );
 };

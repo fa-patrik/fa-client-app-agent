@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { FetchResult, gql, useMutation } from "@apollo/client";
+import type { FetchResult } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 

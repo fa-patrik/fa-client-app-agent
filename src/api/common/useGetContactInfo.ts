@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { SecurityGroup } from "api/types";
+import type { SecurityGroup } from "api/types";
 import { fallbackLanguage } from "i18n";
 import { useKeycloak } from "providers/KeycloakProvider";
 

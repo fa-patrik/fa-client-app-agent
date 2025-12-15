@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
+import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import {
   faInfoCircle,
   faCheckCircle,
   faCircleXmark,
   faExclamationTriangle,
   faTimes,
-  IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import classNames from "classnames";
 import Icon from "components/Icon/Icon";
@@ -43,7 +43,16 @@ export function getIconBySeverity(severity: string): IconDefinition {
   }
 }
 
-const Alert = ({ severity, title, content, id, icon, dismissible = false, onDismiss, fullWidth = false }: AlertProps) => {
+const Alert = ({
+  severity,
+  title,
+  content,
+  id,
+  icon,
+  dismissible = false,
+  onDismiss,
+  fullWidth = false,
+}: AlertProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const defaultIcon = getIconBySeverity(severity);
 

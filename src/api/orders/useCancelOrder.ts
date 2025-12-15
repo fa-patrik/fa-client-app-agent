@@ -5,7 +5,7 @@ import {
 } from "api/common/useGetContactInfo";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { OrderStatus } from "api/enums";
-import { OrderMutationResponse } from "api/orders/types";
+import type { OrderMutationResponse } from "api/orders/types";
 import { TRADE_ORDERS_QUERY } from "api/orders/useGetAllTradeOrders";
 import { useGetTradeOrder } from "api/orders/useGetTradeOrder";
 import { useGetTradeOrderById } from "api/orders/useGetTradeOrderById";
@@ -52,7 +52,7 @@ export const useCancelOrder = (cancelledTradeOrder: CancelOrderQueryProps) => {
       cache.modify({
         id: `Transaction:${orderId}`, //id is not returned from order mutation
         fields: {
-          orderStatus(cachedStatus: OrderStatus) {
+          orderStatus() {
             //find the element with the mutation return data
             const mutationResponseData = data?.importLimitedTradeOrder?.find(
               (element) => element["o.status"]
@@ -129,10 +129,10 @@ export const useCancelOrder = (cancelledTradeOrder: CancelOrderQueryProps) => {
         faVersionOfTradeOrder && !localVersionOfTradeOrder
           ? 1
           : faVersionOfTradeOrder && localVersionOfTradeOrder
-          ? 2
-          : !faVersionOfTradeOrder && localVersionOfTradeOrder
-          ? 3
-          : 4;
+            ? 2
+            : !faVersionOfTradeOrder && localVersionOfTradeOrder
+              ? 3
+              : 4;
 
       switch (scenario) {
         case 1:

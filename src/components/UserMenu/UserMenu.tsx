@@ -1,20 +1,14 @@
-import {
-  ElementType as ReactElementType,
-  Fragment,
-  ReactNode,
-  useState,
-} from "react";
+import type { ElementType as ReactElementType, ReactNode } from "react";
+import { Fragment, useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
+import type { Representee } from "api/common/useGetContactInfo";
 import {
   PortfolioGroups,
   RepresentativeTag,
-  Representee,
   useGetContactInfo,
 } from "api/common/useGetContactInfo";
-import {
-  Process,
-  useGetContactProcesses,
-} from "api/flowable/useGetContactProcesses";
+import type { Process } from "api/flowable/useGetContactProcesses";
+import { useGetContactProcesses } from "api/flowable/useGetContactProcesses";
 import { ReactComponent as CalendarIcon } from "assets/calendar-outlined.svg";
 import { ReactComponent as CheckIcon } from "assets/check.svg";
 import { ReactComponent as DepositIcon } from "assets/deposit.svg";
@@ -27,13 +21,12 @@ import { ReactComponent as WithdrawalIcon } from "assets/withdrawal.svg";
 import classNames from "classnames";
 import Wizard from "components/Wizard/Wizard";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useNavigation } from "hooks/useNavigation";
 import i18n from "i18next";
-import {
-  useGetContractIdData,
-  SelectedContact,
-} from "providers/ContractIdProvider";
+import type { SelectedContact } from "providers/ContractIdProvider";
+import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
-import { useNavigate, To, NavigateOptions } from "react-router";
+import type { To, NavigateOptions } from "react-router-dom";
 import { keycloakService } from "services/keycloakService";
 import { PermissionMode, useFeature } from "services/permissions/usePermission";
 import StepFive from "wizards/monthlyInvestments/StepFive/StepFive";
@@ -95,7 +88,7 @@ const getMenuItems = (
     },
     "separator",
     ...(Array.isArray(representees)
-      ? representees.map((representee, index) => ({
+      ? representees.map((representee) => ({
           label: representee?.name,
           action: () => {
             menuActions.setSelectedContact({
@@ -175,11 +168,10 @@ const getMenuItems = (
 };
 
 export const UserMenu = () => {
-  const { selectedContactId, setSelectedContactId, setSelectedContact } =
-    useGetContractIdData();
+  const { selectedContactId, setSelectedContact } = useGetContractIdData();
   const { t } = useModifiedTranslation();
   const { linkedContact } = useKeycloak();
-  const navigate = useNavigate();
+  const { navigate } = useNavigation();
   const { data: processes = [] } = useGetContactProcesses();
 
   const { canFeature: canMonthlyInvest } = useFeature(
@@ -228,10 +220,11 @@ export const UserMenu = () => {
     withdraw: () => onWithdrawModalOpen(),
     monthlyInvestments: () => setMonthlyInvestmentsWizardOpen(true),
     monthlySavings: () => setMonthlySavingsWizardOpen(true),
-    process: (to: To, options?: NavigateOptions) => navigate(to, options),
+    process: (to: To, options?: NavigateOptions) => {
+      navigate(to, options);
+    },
     setSelectedContact: (contact: SelectedContact) => {
       setSelectedContact(contact);
-      setSelectedContactId(contact.id);
     },
   };
 
@@ -254,7 +247,7 @@ export const UserMenu = () => {
           leaveTo="transform scale-95 opacity-0"
           as={Fragment}
         >
-          <Menu.Items className="absolute top-full right-0 z-10 py-1 whitespace-nowrap bg-white rounded-md ring-1 ring-black ring-opacity-5 shadow-lg origin-top-right focus:outline-none min-w-[120px]">
+          <Menu.Items className="absolute top-full right-0 z-10 py-1 whitespace-nowrap bg-white rounded-md ring-1 ring-black/5 shadow-lg origin-top-right focus:outline-none min-w-[120px]">
             {getMenuItems(
               menuActions,
               !!linkedContact,
@@ -382,7 +375,7 @@ const MenuItem = ({
         <button
           data-testid={id}
           className={classNames(
-            `p-2 pr-4 flex gap-2 items-center w-full text-base font-medium text-gray-900`,
+            `p-2 pr-4 flex gap-2 items-center w-full text-base font-medium text-gray-900 cursor-pointer`,
             {
               "bg-primary-50": active,
             }

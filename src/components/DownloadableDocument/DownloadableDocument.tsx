@@ -1,4 +1,5 @@
-import { HTMLAttributes, useMemo } from "react";
+import type { ComponentProps, HTMLAttributes } from "react";
+import { useMemo } from "react";
 import { useDownloadDocument } from "api/documents/useDownloadDocument";
 import { ReactComponent as FileIcon } from "assets/document-text.svg";
 import { isValidUrl } from "utils/url";
@@ -27,7 +28,7 @@ export const DownloadableDocument = ({
   // remove .link file extension from label if present
   const labelCleaned = label.endsWith(".link") ? label.slice(0, -5) : label;
 
-  const linkAttributes: JSX.IntrinsicElements["a"] = !documentIdentifier
+  const linkAttributes: ComponentProps<"a"> = !documentIdentifier
     ? {
         target: "_blank",
         rel: "noopener noreferrer",

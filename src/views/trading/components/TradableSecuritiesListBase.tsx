@@ -5,15 +5,15 @@ import { ReactComponent as ChevronUp } from "assets/chevron-up.svg";
 import classNames from "classnames";
 import { Button, DownloadableDocument, Grid } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { addProtocolToUrl } from "utils/url";
-import { dateFromYYYYMMDD } from "../../../utils/date";
-import { NameWithFlag } from "../../holdings/components/NameWithFlag";
 import { DelayRenderingTillVisible } from "./DelayRenderingTillVisible";
-import {
+import type {
   TradableSecuritiesListSized,
   TradableSecuritySized,
 } from "./TradableSecuritiesList";
+import { dateFromYYYYMMDD } from "../../../utils/date";
+import { NameWithFlag } from "../../holdings/components/NameWithFlag";
 
 export const TradableSecuritiesListBase = ({
   data: securities,
@@ -85,65 +85,58 @@ const TradableSecurityBase = (security: TradableSecuritySized) => {
         <div className="col-span-2 text-base font-light">{isinCode}</div>
         <div className="col-span-2">
           <div className="text-base font-semibold leading-none">
-            {latestMarketData &&
+            {latestMarketData?.price !== undefined &&
               t("number", {
                 value: latestMarketData?.price,
                 currency,
               })}
           </div>
           <div className="text-xs font-medium text-gray-500">
-            {latestMarketData &&
+            {latestMarketData?.date &&
               t("date", { date: dateFromYYYYMMDD(latestMarketData.date) })}
           </div>
         </div>
       </Grid.Row>
-      <Transition
-        enter="transition duration-100 ease-out"
-        enterFrom="transform scale-95 opacity-0"
-        enterTo="transform scale-100 opacity-100"
-        leave="transition duration-75 ease-out"
-        leaveFrom="transform scale-100 opacity-100"
-        leaveTo="transform scale-95 opacity-0"
-        className="grid col-span-4 grid-flow-col auto-cols-fr gap-2 items-center px-2 pt-1 pb-2 border-t-transparent"
-        show={expanded}
-      >
-        <div className="sm:flex col-span-2 justify-around">
-          <div className="w-fit">
-            {url2 && (
-              <DownloadableDocument
-                url={addProtocolToUrl(url2)}
-                label={t("tradingList.kiid")}
-              />
-            )}
+      <Transition show={expanded}>
+        <div className="grid col-span-4 grid-flow-col auto-cols-fr gap-2 items-center px-2 pt-1 pb-2 border-t-transparent transition duration-100 ease-out data-closed:transform data-closed:scale-95 data-closed:opacity-0 data-enter:transform data-enter:scale-100 data-enter:opacity-100">
+          <div className="sm:flex col-span-2 justify-around">
+            <div className="w-fit">
+              {url2 && (
+                <DownloadableDocument
+                  url={addProtocolToUrl(url2)}
+                  label={t("tradingList.kiid")}
+                />
+              )}
+            </div>
+            <div className="w-fit">
+              {url && (
+                <DownloadableDocument
+                  url={addProtocolToUrl(url)}
+                  label={t("tradingList.prospectus")}
+                />
+              )}
+            </div>
           </div>
-          <div className="w-fit">
-            {url && (
-              <DownloadableDocument
-                url={addProtocolToUrl(url)}
-                label={t("tradingList.prospectus")}
-              />
-            )}
-          </div>
-        </div>
-        <div className="flex gap-2 justify-end">
-          <div className="text-right">
-            <Button
-              isFullWidth
-              size="md"
-              variant="Secondary"
-              onClick={() => navigate(`holdings/${id}`)}
-            >
-              {t("tradingList.detailsButton")}
-            </Button>
-          </div>
-          <div className="text-right">
-            <Button
-              isFullWidth
-              size="md"
-              onClick={() => onBuyModalOpen(security)}
-            >
-              {t("tradingList.buyButton")}
-            </Button>
+          <div className="flex gap-2 justify-end">
+            <div className="text-right">
+              <Button
+                isFullWidth
+                size="md"
+                variant="Secondary"
+                onClick={() => navigate(`../holdings/${id}`)}
+              >
+                {t("tradingList.detailsButton")}
+              </Button>
+            </div>
+            <div className="text-right">
+              <Button
+                isFullWidth
+                size="md"
+                onClick={() => onBuyModalOpen(security)}
+              >
+                {t("tradingList.buyButton")}
+              </Button>
+            </div>
           </div>
         </div>
       </Transition>

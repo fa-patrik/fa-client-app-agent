@@ -1,5 +1,7 @@
-import { MutableRefObject, useEffect, useMemo, useState } from "react";
-import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
+import type { MutableRefObject } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { Portfolio } from "api/common/useGetContactInfo";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { ExecutionMethod } from "api/enums";
 import { SecurityTypeCode } from "api/holdings/types";
 import { useGetSecurityFx } from "api/trading/useGetSecurityFx";
@@ -306,8 +308,8 @@ export const SellModalContent = ({
   const INPUT_BLOCK_SIZE = isPercentageMode
     ? percentagDecimalCount
     : isTradeInUnits
-    ? securityAmountDecimalCount
-    : portfolioCurrencyAmountDecimalCount;
+      ? securityAmountDecimalCount
+      : portfolioCurrencyAmountDecimalCount;
 
   useEffect(() => {
     //when switching between amount and trade amount
@@ -337,7 +339,7 @@ export const SellModalContent = ({
     getNumberOfOptions(portfolioOptionsThatCanTrade);
 
   return (
-    <div className="grid gap-2 max-w-md min-w-[min(84vw,_375px)]">
+    <div className="grid gap-2 max-w-md min-w-[min(84vw,375px)]">
       <div className="h-20">
         <LabeledDiv
           label={t("tradingModal.securityName")}
@@ -360,7 +362,11 @@ export const SellModalContent = ({
         <PortfolioSelect
           portfolioOptions={portfolioOptionsThatCanTradeTheSecurity}
           portfolioId={portfolioId}
-          onChange={(newPortfolio) => setPortfolioId(newPortfolio.id)}
+          onChange={(newPortfolio) => {
+            if (newPortfolio) {
+              setPortfolioId(newPortfolio.id);
+            }
+          }}
           label={t("tradingModal.portfolio")}
           error={!portfolioId ? t("tradingModal.selectPortfolioError") : ""}
         />
@@ -408,22 +414,22 @@ export const SellModalContent = ({
           isPercentageMode && isTradeInUnits
             ? t("tradingModal.shareOfUnitsInputLabel")
             : isPercentageMode && !isTradeInUnits
-            ? t("tradingModal.shareOfTradeAmountInputLabel")
-            : isTradeInUnits
-            ? t("tradingModal.unitsInputLabel")
-            : t("tradingModal.tradeAmountSimpleInputLabel")
+              ? t("tradingModal.shareOfTradeAmountInputLabel")
+              : isTradeInUnits
+                ? t("tradingModal.unitsInputLabel")
+                : t("tradingModal.tradeAmountSimpleInputLabel")
         }
         type="number"
         error={
           portfolioId === undefined
             ? ""
             : !input || inputAsNr === 0
-            ? " "
-            : insufficientFunds && isTradeInUnits
-            ? t("tradingModal.insufficientUnitsError")
-            : insufficientFunds && !isTradeInUnits
-            ? t("tradingModal.insufficientMarketValueError")
-            : ""
+              ? " "
+              : insufficientFunds && isTradeInUnits
+                ? t("tradingModal.insufficientUnitsError")
+                : insufficientFunds && !isTradeInUnits
+                  ? t("tradingModal.insufficientMarketValueError")
+                  : ""
         }
         step="any"
       />

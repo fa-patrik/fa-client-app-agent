@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Transaction as TransactionType } from "api/transactions/types";
+import type { Transaction as TransactionType } from "api/transactions/types";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { dateFromYYYYMMDD } from "utils/date";
 

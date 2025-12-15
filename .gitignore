@@ -77,3 +77,6 @@ yarn-error.log*
 
 # Jest-junit reports
 test-reports
+
+*storybook.log
+storybook-static

@@ -1,11 +1,11 @@
-import { ReactNode } from "react";
-import { Document } from "api/documents/types";
+import type { ReactNode } from "react";
+import type { Document } from "api/documents/types";
 import classNames from "classnames";
 import { Card } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useMatchesBreakpoint } from "../../hooks/useMatchesBreakpoint";
 import { DocumentRow } from "./components/DocumentRow";
 import { NoDocuments } from "./components/NoDocuments";
+import { useMatchesBreakpoint } from "../../hooks/useMatchesBreakpoint";
 
 const DocumentTypeSingleSelectTagName = "Document type-";
 const DefaultTypeTranslationKey = "documents";
@@ -67,13 +67,16 @@ export const Documents = ({ data: documents }: DocumentsProps) => {
    * Documents grouped by the document's
    * Document Type- tag value.
    */
-  const groupedDocuments = sortedDocuments?.reduce((prev, curr) => {
-    const typeName = getDocumentTypeName(curr.tags);
-    const docsOfType = prev[typeName] || [];
-    docsOfType.push(curr);
-    prev[typeName] = docsOfType;
-    return prev;
-  }, {} as Record<string, Document[]>);
+  const groupedDocuments = sortedDocuments?.reduce(
+    (prev, curr) => {
+      const typeName = getDocumentTypeName(curr.tags);
+      const docsOfType = prev[typeName] || [];
+      docsOfType.push(curr);
+      prev[typeName] = docsOfType;
+      return prev;
+    },
+    {} as Record<string, Document[]>
+  );
 
   //TODO: Replace the impromptu grid approach to a proper table
   return (

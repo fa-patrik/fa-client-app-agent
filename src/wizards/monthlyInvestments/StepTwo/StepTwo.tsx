@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { SUPPORTED_ROWS_MONTHLY_INVESTMENTS } from "api/trading/useSetMonthlyInvestments";
 import { Card, ComboBox, Input, QueryLoadingWrapper } from "components";
-import { Option } from "components/ComboBox/ComboBox";
+import type { Option } from "components/ComboBox/ComboBox";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useWizard } from "providers/WizardProvider";
 import { toast } from "react-toastify";
 import { useGetPermittedSecurities } from "services/permissions/trading";
 import { getBackendTranslation } from "utils/backTranslations";
 import TradableSecurityTable from "wizards/monthlyInvestments/StepTwo/components/TradableSecurityTable";
-import { MonthlyInvestmentsWizardState } from "../types";
+import type { MonthlyInvestmentsWizardState } from "../types";
 
 /**
  * Step two of the monthly investments process.
@@ -37,7 +37,7 @@ const StepTwo = () => {
       },
       monthlyInvestmentsWizardState.selectedPortfolioOption?.id
     );
-  const [selectedCountry, setSelectedCountry] = useState<Option>(
+  const [selectedCountry, setSelectedCountry] = useState<Option | undefined>(
     filters.country
   );
   const [selectedType, setSelectedType] = useState<Option | undefined>(
@@ -109,9 +109,9 @@ const StepTwo = () => {
   const [displayCategoryFilter, setDisplayCategoryFilter] = useState(false);
 
   let nrOfFiltersApplied = 0;
-  if (selectedCountry.id && selectedType?.id) {
+  if (selectedCountry?.id && selectedType?.id) {
     nrOfFiltersApplied = 2;
-  } else if (selectedCountry.id || selectedType?.id) {
+  } else if (selectedCountry?.id || selectedType?.id) {
     nrOfFiltersApplied = 1;
   }
 
@@ -220,7 +220,7 @@ const StepTwo = () => {
                   <ComboBox
                     id="monthlyInvestmentsWizard-countrySelector"
                     value={selectedCountry}
-                    onChange={(country) => setSelectedCountry(country)}
+                    onChange={setSelectedCountry}
                     options={filterOptions.country}
                     label={t(
                       "wizards.monthlyInvestments.stepTwo.countryFilterInputLabel"
@@ -231,7 +231,7 @@ const StepTwo = () => {
                   <ComboBox
                     id="monthlyInvestmentsWizard-typeSelector"
                     value={selectedType}
-                    onChange={(type) => setSelectedType(type)}
+                    onChange={setSelectedType}
                     options={filterOptions.type}
                     label={t(
                       "wizards.monthlyInvestments.stepTwo.typeFilterInputLabel"

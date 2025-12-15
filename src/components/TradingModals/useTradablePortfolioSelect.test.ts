@@ -1,18 +1,19 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react";
 import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { useGetPortfolioOptions } from "hooks/useGetPortfolioOptions";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useParams } from "react-router-dom";
 import { portfolioOptionsMock } from "test/mockData/portfolioOptions";
+import { vi } from "vitest";
 import { useTradablePortfolioSelect } from "./useTradablePortfolioSelect";
 
-jest.mock("providers/KeycloakProvider", () => ({
-  useKeycloak: jest.fn(),
+vi.mock("providers/KeycloakProvider", () => ({
+  useKeycloak: vi.fn(),
 }));
 
-jest.mock("api/common/useGetContactInfo", () => ({
-  useGetContactInfo: jest.fn(),
+vi.mock("api/common/useGetContactInfo", () => ({
+  useGetContactInfo: vi.fn(),
   PortfolioGroups: {
     CANCEL_ORDER: "CP_CANCEL",
     DEPOSIT: "CP_DEPOSIT",
@@ -33,53 +34,53 @@ jest.mock("api/common/useGetContactInfo", () => ({
   },
 }));
 
-jest.mock("providers/ContractIdProvider", () => ({
-  useGetContractIdData: jest.fn(),
+vi.mock("providers/ContractIdProvider", () => ({
+  useGetContractIdData: vi.fn(),
 }));
 
-jest.mock("hooks/useGetPortfolioOptions");
-jest.mock("react-router-dom", () => ({
-  useParams: jest.fn(),
+vi.mock("hooks/useGetPortfolioOptions");
+vi.mock("react-router-dom", () => ({
+  useParams: vi.fn(),
 }));
 
 describe("useTradablePortfolioSelect", () => {
   beforeEach(() => {
-    (useGetPortfolioOptions as jest.Mock).mockReturnValue(portfolioOptionsMock);
-    (useKeycloak as jest.Mock).mockReturnValue({ access: { advisor: false } });
-    (useGetContractIdData as jest.Mock).mockReturnValue({
+    (useGetPortfolioOptions as ReturnType<typeof vi.fn>).mockReturnValue(portfolioOptionsMock);
+    (useKeycloak as ReturnType<typeof vi.fn>).mockReturnValue({ access: { advisor: false } });
+    (useGetContractIdData as ReturnType<typeof vi.fn>).mockReturnValue({
       selectedContactId: 1,
     });
-    (useGetContactInfo as jest.Mock).mockReturnValue({
+    (useGetContactInfo as ReturnType<typeof vi.fn>).mockReturnValue({
       data: { portfolios: [] },
     });
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should pre-select the parent portfolio chosen in main portfolio selector if it is tradable", () => {
-    (useParams as jest.Mock).mockReturnValue({ portfolioId: 1 });
+    (useParams as ReturnType<typeof vi.fn>).mockReturnValue({ portfolioId: 1 });
 
     const { result } = renderHook(() => useTradablePortfolioSelect());
     expect(result.current.portfolioId).toBe(1);
   });
 
   it("should pre-select the sub portfolio chosen in main portfolio selector if it is tradable", () => {
-    (useParams as jest.Mock).mockReturnValue({ portfolioId: 4 });
+    (useParams as ReturnType<typeof vi.fn>).mockReturnValue({ portfolioId: 4 });
     const { result } = renderHook(() => useTradablePortfolioSelect());
     expect(result.current.portfolioId).toBe(4);
   });
 
   it("should not pre-select a portfolio if there are multiple tradable portfolios (incl subs) and no tradable portfolio chosen in main portfolio selector", () => {
-    (useParams as jest.Mock).mockReturnValue({ portfolioId: undefined });
+    (useParams as ReturnType<typeof vi.fn>).mockReturnValue({ portfolioId: undefined });
     const { result } = renderHook(() => useTradablePortfolioSelect());
     expect(result.current.portfolioId).toBe(undefined);
   });
 
   it("should pre-select the only tradable parent portfolio when no tradable portfolio chosen in main portfolio selector", () => {
-    (useParams as jest.Mock).mockReturnValue({ portfolioId: undefined });
-    (useGetPortfolioOptions as jest.Mock).mockReturnValue([
+    (useParams as ReturnType<typeof vi.fn>).mockReturnValue({ portfolioId: undefined });
+    (useGetPortfolioOptions as ReturnType<typeof vi.fn>).mockReturnValue([
       portfolioOptionsMock[0],
     ]);
     const { result } = renderHook(() => useTradablePortfolioSelect());
@@ -87,8 +88,8 @@ describe("useTradablePortfolioSelect", () => {
   });
 
   it("should pre-select the only tradable sub portfolio when no tradable portfolio chosen in main portfolio selector", () => {
-    (useParams as jest.Mock).mockReturnValue({ portfolioId: undefined });
-    (useGetPortfolioOptions as jest.Mock).mockReturnValue([
+    (useParams as ReturnType<typeof vi.fn>).mockReturnValue({ portfolioId: undefined });
+    (useGetPortfolioOptions as ReturnType<typeof vi.fn>).mockReturnValue([
       portfolioOptionsMock[2],
     ]);
     const { result } = renderHook(() => useTradablePortfolioSelect());
@@ -96,8 +97,8 @@ describe("useTradablePortfolioSelect", () => {
   });
 
   it("should pre-select the only tradable parent portfolio even though another portfolio is chosen in main portfolio selector", () => {
-    (useParams as jest.Mock).mockReturnValue({ portfolioId: 1 });
-    (useGetPortfolioOptions as jest.Mock).mockReturnValue([
+    (useParams as ReturnType<typeof vi.fn>).mockReturnValue({ portfolioId: 1 });
+    (useGetPortfolioOptions as ReturnType<typeof vi.fn>).mockReturnValue([
       portfolioOptionsMock[1],
     ]);
     const { result } = renderHook(() => useTradablePortfolioSelect());
@@ -105,8 +106,8 @@ describe("useTradablePortfolioSelect", () => {
   });
 
   it("should pre-select the only tradable sub portfolio even though another portfolio is chosen in main portfolio selector", () => {
-    (useParams as jest.Mock).mockReturnValue({ portfolioId: 3 });
-    (useGetPortfolioOptions as jest.Mock).mockReturnValue([
+    (useParams as ReturnType<typeof vi.fn>).mockReturnValue({ portfolioId: 3 });
+    (useGetPortfolioOptions as ReturnType<typeof vi.fn>).mockReturnValue([
       portfolioOptionsMock[2],
     ]);
     const { result } = renderHook(() => useTradablePortfolioSelect());

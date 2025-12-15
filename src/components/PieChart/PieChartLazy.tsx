@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { ApexOptions } from "apexcharts";
+import type { ApexOptions } from "apexcharts";
 import { useGetSubPortfolioIds } from "api/common/useGetSubPortfolioIds";
 import { AnalyticsGroupBy } from "api/types";
 import { getFetchPolicyOptions } from "api/utils";
@@ -10,11 +10,13 @@ import { PieChart } from "./PieChart";
 
 const generateSeriesAndLabels = (groupData: Group[] | undefined) => {
   return {
-    series: groupData?.map((data) =>
-      data?.firstAnalysis?.shareOfTotal !== undefined
-        ? data?.firstAnalysis?.shareOfTotal * 100
-        : undefined
-    ),
+    series: groupData
+      ?.map((data) =>
+        data?.firstAnalysis?.shareOfTotal !== undefined
+          ? data?.firstAnalysis?.shareOfTotal * 100
+          : undefined
+      )
+      .filter((value) => value !== undefined),
     labels: groupData?.map((data) => data.name),
   };
 };
@@ -98,19 +100,52 @@ const ALLOCATIONS_QUERY = gql`
   }
 `;
 
-interface PieChartProps {
+interface PieChartLazyProps {
   groupBy: AnalyticsGroupBy | undefined;
   groupCode: string | undefined;
   options?: ApexOptions;
   portfolioId: number | undefined;
 }
 
+interface PieProps {
+  data: AllocationsQuery | undefined;
+  options?: ApexOptions;
+}
+
+// Defined outside PieChartLazy to maintain stable component identity
+// and prevent unnecessary remounts on parent re-renders
+const Pie = ({ data, options }: PieProps) => {
+  const [isReady, setIsReady] = useState(false);
+
+  const { series: chartSeries, labels: chartLabels } = useMemo(() => {
+    return generateSeriesAndLabels(data?.analytics.grouppedAnalytics.group);
+  }, [data]);
+
+  useEffect(() => {
+    // Delay mounting to ensure container layout has stabilized
+    // This prevents ApexCharts from calculating wrong dimensions
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isReady) {
+    return <></>;
+  }
+
+  return (
+    <PieChart series={chartSeries} labels={chartLabels} options={options} />
+  );
+};
+
 const PieChartLazy = ({
   groupBy = AnalyticsGroupBy.TYPE,
   groupCode,
   options,
   portfolioId,
-}: PieChartProps) => {
+}: PieChartLazyProps) => {
   const portfolioIds = useGetSubPortfolioIds(portfolioId);
   const { i18n } = useModifiedTranslation();
   const locale =
@@ -136,22 +171,13 @@ const PieChartLazy = ({
     }
   );
 
-  const Pie = ({ data }: { data: AllocationsQuery | undefined }) => {
-    const { series: chartSeries, labels: chartLabels } = useMemo(() => {
-      return generateSeriesAndLabels(data?.analytics.grouppedAnalytics.group);
-    }, [data]);
-
-    return (
-      <PieChart series={chartSeries} labels={chartLabels} options={options} />
-    );
-  };
-
   return (
     <QueryLoadingWrapper
       data={data}
       loading={loading}
       error={error}
       SuccessComponent={Pie}
+      successComponentProps={{ options }}
     />
   );
 };

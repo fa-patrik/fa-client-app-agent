@@ -36,7 +36,7 @@ Note that FA does not, in any capacity, offer support with customized versions o
 In order to customize FA Client Portal, you need the following:
 
 * FA test environment.
-* Development tools installed including git, nodejs, yarn.
+* Development tools installed including git, nodejs, pnpm.
 
 ### Steps
 
@@ -99,10 +99,8 @@ Finally, to be able to login and use FA Client Portal, assign your user the belo
 
 For local development run:
 
-  	yarn install
-  	yarn start
-
-If you need develop PWA run _`yarn run withSW`_
+  	pnpm install
+  	pnpm dev
 
 #### Translations
 
@@ -145,7 +143,7 @@ can choose from predefined color palettes. List of available palettes can be
 found [here](https://tailwindcss.com/docs/customizing-colors). You can also use custom palette - more information can be
 found [here](https://tailwindcss.com/docs/customizing-colors#generating-colors).
 
-To apply color changes you must build the project (yarn build) and deploy it.
+To apply color changes you must build the project (pnpm build) and deploy it.
 
 #### Contact info
 
@@ -164,7 +162,7 @@ Contact FA Customer Services to set up separate test and production urls (for ex
 * (Optional) Update the *homepage* variable in the *package.json* to the appropriate context root. The default value is "", assuming that the FA Client Portal will run at root ("/"). If you have a separate url as described above, you can leave the homepage value as is. However, it might be interesting to know that subdirectories to /public in FA Platform can be accessed directly from https://myenv.fasolutions.com/public/someSubdirectory, meaning that you hypothetically can host your client portal under the context of, for example, /public/portal. If so, you can change the homepage value to /public/portal, and after following the below steps, be able to access the app from https://myenv.fasolutions.com/public/portal. 
 * Update the relevant values of the *keycloak.json* in the *public* directory. 
     * Point "auth-server-url" to the relevant FA Platform environment.
-* Run  _`yarn build`_ to build the deployable version.
+* Run  _`pnpm build`_ to build the deployable version.
 * Prepare the build .zip required for the next step by zipping the **content** of (not the entire) *build* directory.
 * Upload the build files.
     * In the FA Platform, go to Tools → Administer → Install optional packages.

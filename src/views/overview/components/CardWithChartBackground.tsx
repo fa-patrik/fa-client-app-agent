@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { ReactComponent as ChartBackground } from "assets/chartVector.svg";
 import classNames from "classnames";
 import { Card } from "components";
@@ -19,7 +19,7 @@ export const CardWithChartBackground = ({
   <Card>
     <div
       className={classNames("relative overflow-hidden h-full", {
-        "bg-gradient-to-br from-gray-500 to-black text-gray-100":
+        "bg-linear-to-br from-gray-500 to-black text-gray-100":
           colorScheme === "black",
         "bg-gray-200": colorScheme === "gray",
         "bg-primary-100": colorScheme === "blue",

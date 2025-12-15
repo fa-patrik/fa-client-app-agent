@@ -4,7 +4,7 @@ import { getFetchPolicyOptions } from "api/utils";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { DOCUMENT_FIELDS } from "./fragments";
-import { Document } from "./types";
+import type { Document } from "./types";
 
 const ALL_DOCUMENTS_QUERY = gql`
   ${DOCUMENT_FIELDS}

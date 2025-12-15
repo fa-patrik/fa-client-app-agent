@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router";
-import { SwipeDirection } from "../PagesCarousel/PagesCarousel";
-import { NavTabPath } from "./types";
+import { useNavigate, useLocation } from "react-router-dom";
+import type { NavTabPath } from "./types";
+import type { SwipeDirection } from "../PagesCarousel/PagesCarousel";
 
 interface useNavTabProps {
   navTabPaths: NavTabPath[];
@@ -19,7 +19,12 @@ export const useNavTab = ({ navTabPaths }: useNavTabProps) => {
   }, [currentTabIndex]);
 
   const navigateToTab = (newIndex: number) => {
-    navigate(`../${navTabPaths[newIndex].path}`);
+    const target = navTabPaths[newIndex]?.path;
+    if (!target) return;
+    const nextPath = location.pathname.replace(/[^/]+$/, target);
+    if (nextPath !== location.pathname) {
+      navigate(nextPath);
+    }
   };
 
   return {

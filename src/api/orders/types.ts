@@ -1,5 +1,5 @@
-import { OrderStatus, TransactionTypeAmountEffect } from "api/enums";
-import { TransactionType } from "api/transactions/enums";
+import type { OrderStatus, TransactionTypeAmountEffect } from "api/enums";
+import type { TransactionType } from "api/transactions/enums";
 
 export interface TradeOrderType {
   typeCode: TransactionType;

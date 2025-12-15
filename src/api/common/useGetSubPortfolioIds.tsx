@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { Portfolio, useGetContactInfo } from "api/common/useGetContactInfo";
+import type { Portfolio } from "api/common/useGetContactInfo";
+import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 
 export const getSubPortfolioIds = (portfolio: Portfolio | undefined) => {

@@ -1,0 +1,1 @@
+echo "enable once verification passes -> pnpm run pre-push"

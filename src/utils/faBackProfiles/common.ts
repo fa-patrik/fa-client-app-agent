@@ -1,6 +1,6 @@
-import { Portfolio } from "api/common/useGetContactInfo";
-import { Attribute } from "api/common/useGetPortfoliosWithProfileAndFigures";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { Portfolio } from "api/common/useGetContactInfo";
+import type { Attribute } from "api/common/useGetPortfoliosWithProfileAndFigures";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
 /**
  * Profile values can be stored as strings

@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import "./styles/tailwind.css";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
@@ -7,13 +7,14 @@ import reportWebVitals from "./reportWebVitals";
 import { bootstrapPwa } from "./services/pwa";
 import "react-tooltip/dist/react-tooltip.css"; //needed for react-tooltip
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
+
+root.render(
   <React.StrictMode>
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <App />
     </BrowserRouter>
-  </React.StrictMode>,
-  document.getElementById("root")
+  </React.StrictMode>
 );
 
 bootstrapPwa();

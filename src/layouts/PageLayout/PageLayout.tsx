@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -6,8 +6,8 @@ interface PageLayoutProps {
 
 export const PageLayout = ({ children }: PageLayoutProps) => {
   return (
-    <div className="container py-4 mx-auto">
-      <div className="px-2">{children}</div>
+    <div className="container py-4 overflow-y-auto px-2 mx-auto">
+      {children}
     </div>
   );
 };

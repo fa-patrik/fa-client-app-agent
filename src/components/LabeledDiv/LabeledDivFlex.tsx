@@ -1,4 +1,5 @@
-import { HTMLAttributes, ReactNode, useState } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
+import { useState } from "react";
 import { ReactComponent as InfoIcon } from "assets/information-circle.svg";
 import classNames from "classnames";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";

@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
-import { Option } from "components/ComboBox/ComboBox";
+import type { Option } from "components/ComboBox/ComboBox";
 
 const useBuySecuritySelector = (
   selectedSellSecurityId: number | undefined,
   selectableBuySecuritiesAsOptions: Option[] | undefined,
   emptyOption: Option
 ) => {
-  const [selectedBuySecurityOption, setSelectedBuySecurityOption] =
-    useState<Option>(emptyOption);
+  const [selectedBuySecurityOption, setSelectedBuySecurityOption] = useState<
+    Option | undefined
+  >(emptyOption);
 
   const isSellAndBuyEqual =
     selectedSellSecurityId === selectedBuySecurityOption?.id;
   const isValidSelectable = selectableBuySecuritiesAsOptions?.find(
     (selectableSecurity) =>
-      selectableSecurity.id === selectedBuySecurityOption.id
+      selectableSecurity.id === selectedBuySecurityOption?.id
   );
-  const isOptionEmpty = selectedBuySecurityOption.id === emptyOption.id;
+  const isOptionEmpty = selectedBuySecurityOption?.id === emptyOption.id;
 
   useEffect(() => {
     if (isSellAndBuyEqual && !isOptionEmpty) {

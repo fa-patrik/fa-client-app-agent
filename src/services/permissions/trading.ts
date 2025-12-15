@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
+import type { Portfolio } from "api/common/useGetContactInfo";
 import {
-  Portfolio,
   PortfolioGroups,
   RepresentativeTag,
   useGetContactInfo,
 } from "api/common/useGetContactInfo";
 import { useGetTradebleSecurities } from "api/trading/useGetTradebleSecurities";
-import { SecurityGroup } from "api/types";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { SecurityGroup } from "api/types";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { PermissionMode, useFeature } from "./usePermission";
@@ -166,6 +166,43 @@ export const useGetPermittedSecurities = (
     loading: loadingContactData,
     error: contactError,
   } = useGetContactInfo(false, selectedContactId);
+
+  // Calculate security group IDs for server-side filtering optimization
+  const securityGroupIds = useMemo(() => {
+    if (!contactData?.portfolios) {
+      return []; // No data → fetch all, apply client-side filtering
+    }
+
+    if (portfolioId) {
+      // Single portfolio selected
+      const portfolio = contactData.portfolios.find(
+        (p) => p.id === portfolioId
+      );
+      if (!portfolio?.securityGroups || portfolio.securityGroups.length === 0) {
+        return []; // No groups → fetch all, apply client-side filtering
+      }
+      // Portfolio has groups → use server-side filtering
+      return portfolio.securityGroups.map((sg) => sg.id);
+    } else {
+      // No specific portfolio selected - check ALL portfolios
+      const allPortfolios = contactData.portfolios;
+      const hasAnyPortfolioWithoutGroups = allPortfolios.some(
+        (p) => !p.securityGroups || p.securityGroups.length === 0
+      );
+
+      if (hasAnyPortfolioWithoutGroups) {
+        return []; // Some portfolios have no restrictions → fetch all, apply client-side filtering
+      }
+
+      // ALL portfolios have group IDs → use server-side filtering
+      const allGroupIds = new Set<number>();
+      allPortfolios.forEach((p) => {
+        p.securityGroups?.forEach((sg) => allGroupIds.add(sg.id));
+      });
+      return Array.from(allGroupIds);
+    }
+  }, [portfolioId, contactData?.portfolios]);
+
   const {
     filters,
     setFilters,
@@ -173,11 +210,16 @@ export const useGetPermittedSecurities = (
     data: securities,
     loading: loadingSecurities,
     error: securitiesError,
-  } = useGetTradebleSecurities(options?.currencyCode, options?.tags);
+  } = useGetTradebleSecurities(
+    options?.currencyCode,
+    options?.tags,
+    securityGroupIds
+  );
 
   const portfolio = portfolioId
     ? contactData?.portfolios.find((p) => p.id === portfolioId)
     : undefined;
+
   const tradable = useMemo(() => {
     setLoading(true);
     try {
@@ -206,6 +248,7 @@ export const useGetPermittedSecurities = (
       return undefined;
     }
   }, [securities, portfolio, canPfTrade, groupPrefix, contactData?.portfolios]);
+
   return {
     filterOptions,
     filters,

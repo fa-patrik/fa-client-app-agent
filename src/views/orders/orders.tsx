@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
-import { TradeOrder } from "api/orders/types";
-import { QueryData } from "api/types";
+import type { TradeOrder } from "api/orders/types";
+import type { QueryData } from "api/types";
 import {
   Card,
   DatePicker,
   QueryLoadingWrapper,
   TransactionsFilter,
 } from "components";
-import { LocalOrder } from "hooks/useLocalTradeStorageState";
+import type { LocalOrder } from "hooks/useLocalTradeStorageState";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import {
@@ -85,7 +85,7 @@ export const Orders = ({
             <DatePicker
               label={t("transactionsPage.datePickerFromLabel")}
               value={startDate}
-              onChange={setStartDate}
+              onChange={(value) => setStartDate(value as Date)}
               maxDate={endDate}
             />
           </div>
@@ -93,7 +93,7 @@ export const Orders = ({
             <DatePicker
               label={t("transactionsPage.datePickerFromTo")}
               value={endDate}
-              onChange={setEndDate}
+              onChange={(value) => setEndDate(value as Date)}
               minDate={startDate}
             />
           </div>

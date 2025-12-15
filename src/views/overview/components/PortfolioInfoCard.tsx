@@ -1,15 +1,13 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import classNames from "classnames";
 import { GainLoseColoring } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigation } from "hooks/useNavigation";
 import { Tooltip } from "react-tooltip";
-import {
-  ColorScheme,
-  CardWithChartBackground,
-} from "./CardWithChartBackground";
+import type { ColorScheme } from "./CardWithChartBackground";
+import { CardWithChartBackground } from "./CardWithChartBackground";
 
 interface PortfolioInfoCardProps {
   name?: string;
@@ -50,8 +48,7 @@ export const PortfolioInfoCard = ({
   portfolioId,
 }: PortfolioInfoCardProps) => {
   const { t } = useModifiedTranslation();
-  const navigate = useNavigate();
-  const { contactDbId } = useParams();
+  const { navigate } = useNavigation();
   const { data: portfolioData } = useGetPortfolioBasicFieldsById(portfolioId);
   const isMd = useMatchesBreakpoint("md");
   const isLg = useMatchesBreakpoint("lg");
@@ -62,8 +59,7 @@ export const PortfolioInfoCard = ({
     if (!portfolioId) {
       return;
     }
-    let path = `/portfolio/${portfolioId}/`;
-    if (contactDbId) path = `/impersonate/${contactDbId}${path}`;
+    let path = `/portfolio/${portfolioId}/overview`;
     navigate(path);
   };
   const valueChange =

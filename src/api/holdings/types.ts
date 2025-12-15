@@ -1,4 +1,4 @@
-import { SecurityGroup } from "api/types";
+import type { SecurityGroup } from "api/types";
 
 export interface MarketHistoryDataPoint {
   price: number;

@@ -1,26 +1,14 @@
-import { ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { LineChart } from "./LineChart";
 
-export default {
+const meta = {
   title: "UX/LineChart",
   component: LineChart,
-} as ComponentMeta<typeof LineChart>;
+} satisfies Meta<typeof LineChart>;
 
-export const Example = () => (
-  <div className="w-64">
-    <LineChart
-      series={[
-        {
-          name: "Price",
-          data: marketData.map((data) => ({
-            x: data.date,
-            y: data.price,
-          })),
-        },
-      ]}
-    />
-  </div>
-);
+export default meta;
+type Story = StoryObj<typeof meta>;
+
 const marketData = [
   {
     price: 7360,
@@ -139,3 +127,22 @@ const marketData = [
     date: "2010-02-12",
   },
 ];
+
+export const Example: Story = {
+  args: {
+    series: [
+      {
+        name: "Price",
+        data: marketData.map((data) => ({
+          x: data.date,
+          y: data.price,
+        })),
+      },
+    ],
+  },
+  render: (args) => (
+    <div className="w-64">
+      <LineChart {...args} />
+    </div>
+  ),
+};

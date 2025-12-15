@@ -1,40 +1,18 @@
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { ReactComponent as RefreshIcon } from "assets/refresh.svg";
 import { Button, Center } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { toast } from "react-toastify";
 import { persistor } from "services/apolloClient";
-import * as serviceWorkerRegistration from "../serviceWorkerRegistration";
+import { useRegisterSW } from "virtual:pwa-register/react";
 
 interface ServiceWorkerRegistrationProviderProps {
   children: ReactNode;
 }
 
-export const ServiceWorkerRegistrationProvider = ({
-  children,
-}: ServiceWorkerRegistrationProviderProps) => {
-  const onServiceWorkerUpdate = useCallback(
-    (registration: ServiceWorkerRegistration) => {
-      toast.info(<RefreshToast registration={registration} />, {
-        toastId: "newVersionToast",
-        theme: "light",
-        icon: false,
-      });
-    },
-    []
-  );
-
-  useEffect(() => {
-    serviceWorkerRegistration.register({
-      onUpdate: onServiceWorkerUpdate,
-    });
-  }, [onServiceWorkerUpdate]);
-
-  return <>{children}</>;
-};
-
-interface RefreshToastProps {
-  registration: ServiceWorkerRegistration;
+interface UpdateAppToastProps {
+  updateServiceWorker: (reloadPage?: boolean) => Promise<void>;
 }
 
 const cachesToClearOnUpdate = [
@@ -44,33 +22,83 @@ const cachesToClearOnUpdate = [
   "custom-html",
 ];
 
-const RefreshToast = ({ registration }: RefreshToastProps) => {
+const UpdateAppToast = ({ updateServiceWorker }: UpdateAppToastProps) => {
   const { t } = useModifiedTranslation();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const onPageRefresh = async () => {
+  const refreshPage = async () => {
     setLoading(true);
-    registration.waiting?.postMessage({ type: "SKIP_WAITING" });
     // clear caches
     (await caches.keys()).forEach((cacheName) => {
       if (cachesToClearOnUpdate.includes(cacheName)) caches.delete(cacheName);
     });
     // clear apollo's local storage cache
     await persistor.purge();
-    window.location.reload();
+    // Update service worker and reload
+    await updateServiceWorker(true);
     setLoading(false);
   };
 
   return (
     <Center>
       <div className="flex flex-col gap-2 items-center text-center whitespace-pre-line">
-        <p>{t("messages.newVersion")}</p>
+        <p>{String(t("messages.newVersion"))}</p>
         <Button
-          onClick={onPageRefresh}
+          onClick={refreshPage}
           LeftIcon={RefreshIcon}
           isLoading={loading}
         />
       </div>
     </Center>
   );
+};
+
+export const ServiceWorkerRegistrationProvider = ({
+  children,
+}: ServiceWorkerRegistrationProviderProps) => {
+  const updateIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const {
+    needRefresh: [needRefresh],
+    updateServiceWorker,
+  } = useRegisterSW({
+    onRegisteredSW(_swUrl, registration) {
+      // Service worker registered successfully
+      if (registration) {
+        // Clear any existing interval to prevent duplicates
+        if (updateIntervalRef.current) {
+          clearInterval(updateIntervalRef.current);
+        }
+
+        // Check for updates periodically
+        updateIntervalRef.current = setInterval(
+          () => {
+            registration.update();
+          },
+          60 * 60 * 1000
+        ); // Check every hour
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (needRefresh) {
+      toast.info(<UpdateAppToast updateServiceWorker={updateServiceWorker} />, {
+        toastId: "newVersionToast",
+        theme: "light",
+        icon: false,
+      });
+    }
+  }, [needRefresh, updateServiceWorker]);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (updateIntervalRef.current) {
+        clearInterval(updateIntervalRef.current);
+      }
+    };
+  }, []);
+
+  return <>{children}</>;
 };

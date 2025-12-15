@@ -1,5 +1,5 @@
 import { useMutation, gql } from "@apollo/client";
-import { TaskResponse } from "./useCompleteTask";
+import type { TaskResponse } from "./useCompleteTask";
 
 const START_PROCESS = gql`
   mutation ($key: String) {

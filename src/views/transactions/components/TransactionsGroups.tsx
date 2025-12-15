@@ -1,4 +1,4 @@
-import { Transaction } from "api/transactions/types";
+import type { Transaction } from "api/transactions/types";
 import { TransactionsGroup } from "./TransactionsGroup";
 import { useSplitByMonth } from "./useSplitByMonth";
 

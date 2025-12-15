@@ -24,7 +24,7 @@ import {
   isOrderPartOfSwitch,
 } from "utils/switchOrders";
 import { getTransactionColor } from "utils/transactions";
-import { OrderProps, OrdersListProps } from "./OrdersGroup";
+import type { OrderProps, OrdersListProps } from "./OrdersGroup";
 
 export const OrdersListWithOneLineRow = ({
   orders,
@@ -235,7 +235,7 @@ const Order = ({
             data-tooltip-id="cancelOrderTooltip"
           >
             <CancelIcon
-              className="w-6 h-6 text-primary-600 transition-transform hover:scale-110 hover:cursor-pointer stroke-primary-600"
+              className="w-6 h-6 text-primary-600 transition-transform hover:scale-110 cursor-pointer stroke-primary-600"
               onClick={(event: React.MouseEvent) => {
                 event.stopPropagation(); //hinders the parent onClick
                 if (onCancelOrderModalOpen) {

@@ -1,4 +1,5 @@
-import { Fragment, MutableRefObject, ReactNode } from "react";
+import type { MutableRefObject, ReactNode } from "react";
+import { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { ReactComponent as CloseIcon } from "assets/close.svg";
 

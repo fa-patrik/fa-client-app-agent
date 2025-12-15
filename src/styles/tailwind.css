@@ -1,8 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@config "../../tailwind.config.js";
 
 @layer base {
+  *,
+  ::before,
+  ::after {
+    @apply border-gray-200;
+  }
+
   html {
     -webkit-tap-highlight-color: transparent;
   }
@@ -12,32 +18,32 @@
   }
 }
 
-/* chart styles from flowbite */
+/* Custom ApexCharts tooltip styles */
 .apexcharts-tooltip {
-  @apply bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 border-0 rounded-lg shadow-lg !important;
+  @apply bg-white! dark:bg-gray-700! text-gray-500! dark:text-gray-400! border-0! rounded-lg! shadow-lg!;
 }
 
 .apexcharts-tooltip .apexcharts-tooltip-title {
-  @apply py-2 px-4 bg-gray-100 dark:bg-gray-600 border-b border-gray-200 dark:border-gray-500 !important;
+  @apply py-2! px-4! bg-gray-100! dark:bg-gray-600! border-b! border-gray-200! dark:border-gray-500!;
 }
 
 .apexcharts-xaxistooltip {
-  @apply text-gray-500 border-0 bg-white dark:bg-gray-700 dark:text-gray-300 rounded-lg shadow-lg !important;
+  @apply text-gray-500! border-0! bg-white! dark:bg-gray-700! dark:text-gray-300! rounded-lg! shadow-lg!;
 }
 
 .apexcharts-tooltip .apexcharts-tooltip-text-y-value {
-  @apply dark:text-white;
+  @apply dark:text-white!;
 }
 
 .apexcharts-xaxistooltip-text {
-  @apply font-medium text-sm !important;
+  @apply font-medium! text-sm!;
 }
 
 .apexcharts-xaxistooltip:before,
 .apexcharts-xaxistooltip:after {
-  @apply border-0 !important;
+  @apply border-0!;
 }
 
 .Toastify__toast-theme--colored.Toastify__toast--success {
-  @apply bg-green-500 !important;
+  @apply bg-green-500!;
 }

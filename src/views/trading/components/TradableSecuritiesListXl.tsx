@@ -1,14 +1,14 @@
 import { Button, DownloadableDocument, Grid } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { dateFromYYYYMMDD } from "utils/date";
 import { addProtocolToUrl } from "utils/url";
-import { NameWithFlag } from "../../holdings/components/NameWithFlag";
 import { DelayRenderingTillVisible } from "./DelayRenderingTillVisible";
-import {
+import type {
   TradableSecuritiesListSized,
   TradableSecuritySized,
 } from "./TradableSecuritiesList";
+import { NameWithFlag } from "../../holdings/components/NameWithFlag";
 
 export const TradableSecuritiesListXl = ({
   data: securities,
@@ -66,14 +66,14 @@ const TradableSecurityMd = (security: TradableSecuritySized) => {
         <div className="text-xs md:text-base font-light">{isinCode ?? "-"}</div>
         <div className="pl-2 text-base text-gray-700">{currency}</div>
         <div className="text-base font-semibold">
-          {latestMarketData &&
+          {latestMarketData?.price !== undefined &&
             t("number", {
               value: latestMarketData?.price,
               currency,
             })}
         </div>
         <div className="text-base font-medium text-gray-500">
-          {latestMarketData &&
+          {latestMarketData?.date &&
             t("date", { date: dateFromYYYYMMDD(latestMarketData.date) })}
         </div>
         <div>
@@ -95,7 +95,7 @@ const TradableSecurityMd = (security: TradableSecuritySized) => {
             isFullWidth
             size="xs"
             variant="Secondary"
-            onClick={() => navigate(`holdings/${id}`)}
+            onClick={() => navigate(`../holdings/${id}`)}
           >
             {t("tradingList.detailsButton")}
           </Button>

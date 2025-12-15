@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import {
   calculateDaysRemaining,
   getCurrentTaxYear,
@@ -9,7 +10,7 @@ import {
 } from './taxYear';
 
 describe('taxYear utilities', () => {
-  
+
   // A mock storage object to use in tests instead of localStorage
   const createMockStorage = () => {
     let store: { [key: string]: string } = {};
@@ -32,7 +33,7 @@ describe('taxYear utilities', () => {
 
   describe('calculateDaysRemaining', () => {
     const endDate = "2026-04-05T23:59:59Z";
-    
+
     it('should return 91 days for the 91-days milestone date', () => {
       const currentDate = new Date('2026-01-04'); // This is 91 days before
       expect(calculateDaysRemaining(currentDate, endDate)).toBe(91);
@@ -83,8 +84,11 @@ describe('taxYear utilities', () => {
 
     describe('with malformed tax year start date', () => {
       it('should fallback to UK tax year for invalid dates', () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
         const currentDate = new Date('2024-03-15');
         expect(getCurrentTaxYear(currentDate, 'invalid-date')).toBe('2023/2024');
+        expect(consoleSpy).toHaveBeenCalled();
+        consoleSpy.mockRestore();
       });
 
       it('should handle empty string gracefully', () => {
@@ -106,7 +110,7 @@ describe('taxYear utilities', () => {
     it('should return "month" for 14 days remaining', () => {
       expect(getCurrentMilestone(14)).toBe('month');
     });
-    
+
     it('should return null for more than 91 days', () => {
       expect(getCurrentMilestone(200)).toBe(null);
     });
@@ -168,8 +172,11 @@ describe('taxYear utilities', () => {
 
     describe('with malformed tax year start date', () => {
       it('should fallback to UK tax year behavior', () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
         const currentDate = new Date('2026-01-05'); // Would be milestone for UK tax year (91 days)
         expect(shouldShowTaxBadge(currentDate, mockStorage, 'invalid-date')).toBe(true);
+        expect(consoleSpy).toHaveBeenCalled();
+        consoleSpy.mockRestore();
       });
     });
   });
@@ -197,7 +204,7 @@ describe('taxYear utilities', () => {
       const testDate = new Date('2024-05-01'); // After April 6th
       const taxYear = getCurrentTaxYear(testDate);
       const taxYearWithDefault = getCurrentTaxYear(testDate, undefined);
-      
+
       expect(taxYear).toBe('2024/2025');
       expect(taxYearWithDefault).toBe('2024/2025');
     });
@@ -205,11 +212,11 @@ describe('taxYear utilities', () => {
     it('should use custom tax year start date when provided', () => {
       const testDate = new Date('2024-02-01'); // February 1st
       const customTaxYearStart = '2024-01-01'; // January 1st start
-      
+
       // With default April 6th start, Feb 1st should be in 2023/2024 tax year
       const defaultTaxYear = getCurrentTaxYear(testDate);
       expect(defaultTaxYear).toBe('2023/2024');
-      
+
       // With January 1st start, Feb 1st should be in 2024/2025 tax year
       const customTaxYear = getCurrentTaxYear(testDate, customTaxYearStart);
       expect(customTaxYear).toBe('2024/2025');
@@ -218,7 +225,7 @@ describe('taxYear utilities', () => {
     it('should calculate correct tax year end date with custom start date', () => {
       const testDate = new Date('2024-02-01');
       const customTaxYearStart = '2024-01-01'; // January 1st start
-      
+
       // Tax year should end on December 31st (day before January 1st)
       const endDate = getCurrentTaxYearEndDate(testDate, customTaxYearStart);
       expect(endDate).toBe('2024-12-31T23:59:59.000Z');
@@ -227,11 +234,11 @@ describe('taxYear utilities', () => {
     it('should calculate correct calc date with custom start date', () => {
       const taxYearId = '2024/2025';
       const customTaxYearStart = '2024-01-01'; // January 1st start
-      
+
       // With default April 6th start, calc date should be April 5th
       const defaultCalcDate = getCalcDateFromTaxYear(taxYearId);
       expect(defaultCalcDate).toBe('2025-04-05');
-      
+
       // With January 1st start, the tax year 2024/2025 should end on December 31st, 2024
       // (the day before January 1st, 2025)
       const customCalcDate = getCalcDateFromTaxYear(taxYearId, customTaxYearStart);
@@ -241,10 +248,10 @@ describe('taxYear utilities', () => {
     it('should handle edge case where tax year starts on leap year February 29th', () => {
       const testDate = new Date('2024-03-01'); // March 1st in leap year
       const leapYearStart = '2024-02-29'; // February 29th start (leap year)
-      
+
       const taxYear = getCurrentTaxYear(testDate, leapYearStart);
       expect(taxYear).toBe('2024/2025');
-      
+
       const endDate = getCurrentTaxYearEndDate(testDate, leapYearStart);
       // Should end on February 28th (day before Feb 29th in next year, which is not a leap year)
       expect(endDate).toBe('2025-02-28T23:59:59.000Z');
@@ -253,7 +260,7 @@ describe('taxYear utilities', () => {
     it('should use custom tax year start date in shouldShowTaxBadge function', () => {
       const testDate = new Date('2024-12-15'); // December 15th
       const customTaxYearStart = '2024-01-01'; // January 1st start
-      
+
       // With custom start date, tax year ends Dec 31st, so 16 days remaining
       // This should trigger the 'month' milestone
       const shouldShow = shouldShowTaxBadge(testDate, mockStorage, customTaxYearStart);
@@ -279,27 +286,27 @@ describe('taxYear utilities', () => {
       const endDate = getCurrentTaxYearEndDate(testDate, customTaxYearStart);
       expect(endDate).toBe('2025-09-06T23:59:59.000Z');
     });
-    
+
     it('should show tax badge correctly with --MM-DD format', () => {
-        const customTaxYearStart = '--09-07'; // September 7th
-        // set date to be 3 days before end of tax year
-        const testDate = new Date('2025-09-04'); 
-        
-        const shouldShow = shouldShowTaxBadge(testDate, mockStorage, customTaxYearStart);
-        expect(shouldShow).toBe(true);
+      const customTaxYearStart = '--09-07'; // September 7th
+      // set date to be 3 days before end of tax year
+      const testDate = new Date('2025-09-04');
+
+      const shouldShow = shouldShowTaxBadge(testDate, mockStorage, customTaxYearStart);
+      expect(shouldShow).toBe(true);
     });
 
     it('should handle case where current date is before the --MM-DD start date in the same year', () => {
-        const testDate = new Date('2025-08-01'); // August 1st
-        const customTaxYearStart = '--09-07'; // September 7th
+      const testDate = new Date('2025-08-01'); // August 1st
+      const customTaxYearStart = '--09-07'; // September 7th
 
-        // August 1st 2025 is before Sep 7th 2025, so it's in the 2024/2025 tax year.
-        const taxYear = getCurrentTaxYear(testDate, customTaxYearStart);
-        expect(taxYear).toBe('2024/2025');
+      // August 1st 2025 is before Sep 7th 2025, so it's in the 2024/2025 tax year.
+      const taxYear = getCurrentTaxYear(testDate, customTaxYearStart);
+      expect(taxYear).toBe('2024/2025');
 
-        // The end date for 2024/2025 tax year is Sep 6th, 2025.
-        const endDate = getCurrentTaxYearEndDate(testDate, customTaxYearStart);
-        expect(endDate).toBe('2025-09-06T23:59:59.000Z');
+      // The end date for 2024/2025 tax year is Sep 6th, 2025.
+      const endDate = getCurrentTaxYearEndDate(testDate, customTaxYearStart);
+      expect(endDate).toBe('2025-09-06T23:59:59.000Z');
     });
   });
 });

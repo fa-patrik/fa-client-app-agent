@@ -1,4 +1,4 @@
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { CountryFlag } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";

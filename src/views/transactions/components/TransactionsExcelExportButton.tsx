@@ -3,7 +3,7 @@ import {
   useGetPortfolioBasicFieldsById,
   useGetPortfolioBasicFieldsByIdLazy,
 } from "api/common/useGetPortfolioBasicFieldsById";
-import { Transaction } from "api/transactions/types";
+import type { Transaction } from "api/transactions/types";
 import { ReactComponent as DocumentDownloadIcon } from "assets/file-excel-regular.svg";
 import { Button } from "components";
 import useExcelDownloader from "hooks/useExcelDownloader";

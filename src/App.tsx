@@ -1,10 +1,10 @@
 import { ErrorBoundary } from "components/ErrorBoundary/ErrorBoundary";
-import { NavigationStack } from "components/NavigationStack/NavigationStack";
+import { Router } from "pages/routes";
 import { ConfigProvider } from "providers/ConfigProvider";
 import { InitialLanguageProvider } from "providers/InitialLanguageProvider";
 import { KeycloakProvider } from "providers/KeycloakProvider";
+import { PersistedApolloProvider } from "providers/PersistedApolloProvider";
 import { ServiceWorkerRegistrationProvider } from "providers/ServiceWorkerRegistrationProvider";
-import { WizardProvider } from "providers/WizardProvider";
 import { Toast } from "./components";
 import "react-toastify/dist/ReactToastify.css";
 import "styles/fonts.css";
@@ -16,10 +16,10 @@ function App() {
         <ErrorBoundary>
           <ConfigProvider>
             <KeycloakProvider>
-              <WizardProvider>
-                <NavigationStack />
-                <Toast />
-              </WizardProvider>
+              <PersistedApolloProvider>
+                <Router />
+              </PersistedApolloProvider>
+              <Toast />
             </KeycloakProvider>
           </ConfigProvider>
         </ErrorBoundary>

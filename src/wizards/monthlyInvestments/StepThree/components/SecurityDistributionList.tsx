@@ -1,4 +1,4 @@
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import RenderWhenInView from "components/RenderWhenInView/RenderWhenInView";
 import SecurityDistributionCard from "./SecurityDistributionCard";
 

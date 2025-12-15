@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useGetPortfolioBasicFieldsById } from "api/common/useGetPortfolioBasicFieldsById";
 import { SecurityTypeCode } from "api/holdings/types";
-import { PortfolioData } from "api/overview/types";
+import type { PortfolioData } from "api/overview/types";
 import { useGetPortfolioOverviewSmart } from "api/overview/useGetPortfolioOverviewSmart";
 import { TimePeriodForGraph } from "api/performance/types";
 import { useGetPerformance } from "api/performance/useGetPerformance";
@@ -14,16 +14,16 @@ import {
   LineChart,
   QueryLoadingWrapper,
 } from "components";
-import { Option } from "components/ButtonRadio/ButtonRadio";
+import type { Option } from "components/ButtonRadio/ButtonRadio";
 import PieChartLazy from "components/PieChart/PieChartLazy";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useConfig } from "providers/ConfigProvider";
 import { useParams } from "react-router-dom";
-import { PortfolioInfoCard } from "../../overview/components/PortfolioInfoCard";
 import { ListedSecuritiesCard } from "./components/ListedSecuritiesCard";
 import { PortfolioSummary } from "./components/PortfolioSummary";
 import { useSecuritiesSummary } from "./hooks/useSecuritiesSummary";
+import { PortfolioInfoCard } from "../../overview/components/PortfolioInfoCard";
 
 export const OverviewView = () => {
   const { portfolioId } = useParams();

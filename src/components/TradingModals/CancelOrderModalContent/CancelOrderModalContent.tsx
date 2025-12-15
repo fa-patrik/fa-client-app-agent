@@ -1,6 +1,7 @@
-import { useState, MutableRefObject } from "react";
-import { Portfolio } from "api/common/useGetContactInfo";
-import { TradeOrder } from "api/orders/types";
+import type { MutableRefObject } from "react";
+import { useState } from "react";
+import type { Portfolio } from "api/common/useGetContactInfo";
+import type { TradeOrder } from "api/orders/types";
 import { useCancelOrder } from "api/orders/useCancelOrder";
 import { Badge } from "components";
 import { Button, LabeledDiv } from "components/index";

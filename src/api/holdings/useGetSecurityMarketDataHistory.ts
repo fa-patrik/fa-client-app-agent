@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { SecurityMarketDataHistoryQuery } from "./types";
+import type { SecurityMarketDataHistoryQuery } from "./types";
 
 const SECURITY_DETAILS_QUERY = gql`
   query GetSecurityMarketDataHistory(

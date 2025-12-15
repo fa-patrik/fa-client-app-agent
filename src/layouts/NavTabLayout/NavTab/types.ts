@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 /**
  path - URL path pattern, when matches tabComponent will be rendered

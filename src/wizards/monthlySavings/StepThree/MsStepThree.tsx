@@ -1,18 +1,16 @@
 import { useEffect, useState } from "react";
-import { CashAccount } from "api/money/useGetPortfoliosAccounts";
-import {
-  PortfolioMonthlySavingsDTOInput,
-  useSetMonthlySavings,
-} from "api/money/useSetMonthlySavings";
+import type { CashAccount } from "api/money/useGetPortfoliosAccounts";
+import type { PortfolioMonthlySavingsDTOInput } from "api/money/useSetMonthlySavings";
+import { useSetMonthlySavings } from "api/money/useSetMonthlySavings";
 import { Card } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import numbro from "numbro";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { useWizard } from "providers/WizardProvider";
 import { SelectMonthsGrid, months } from "../components/SelectedMonthsGrid";
-import { MonthlySavingsWizardState } from "../types";
+import type { MonthlySavingsWizardState } from "../types";
 
 /**
  * Final step of the monthly savings process.
@@ -37,10 +35,13 @@ const MsStepThree = () => {
   const selectedDate: string | undefined = wizardData.data.selectedDate;
   const [selectedMonths] = useState<Record<string, boolean>>(
     wizardData.data.selectedMonths ||
-      months.reduce((prev, curr) => {
-        prev[curr] = true;
-        return prev;
-      }, {} as Record<string, boolean>)
+      months.reduce(
+        (prev, curr) => {
+          prev[curr] = true;
+          return prev;
+        },
+        {} as Record<string, boolean>
+      )
   );
 
   const nrOfMonthsToInvest = Object.values(selectedMonths).reduce(
@@ -129,7 +130,7 @@ const MsStepThree = () => {
                 {selectedAccount?.number}
               </p>
             </li>
-            <hr className="w-full border-1" />
+            <hr className="w-full border" />
             <li className="flex justify-between">
               <p>{t("wizards.monthlySavings.stepThree.amount")}</p>
               <p
@@ -160,7 +161,7 @@ const MsStepThree = () => {
             </li>
           </ul>
 
-          <hr className="w-full border-1" />
+          <hr className="w-full border" />
           <ul className="flex flex-col gap-y-2 w-full text-sm">
             <li className="flex">
               <p className="w-1/2">

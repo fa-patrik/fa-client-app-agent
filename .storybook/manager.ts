@@ -1,5 +1,5 @@
-import { addons } from "@storybook/addons";
-import { faTheme } from "./FATheme";
+import { addons } from 'storybook/manager-api';
+import { faTheme } from './FATheme';
 
 addons.setConfig({
   theme: faTheme,

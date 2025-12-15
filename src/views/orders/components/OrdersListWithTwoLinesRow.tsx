@@ -7,7 +7,7 @@ import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import { getSwitchDetails, isOrderPartOfSwitch } from "utils/switchOrders";
 import { getTransactionColor } from "utils/transactions";
-import { OrderProps, OrdersListProps } from "./OrdersGroup";
+import type { OrderProps, OrdersListProps } from "./OrdersGroup";
 
 export const OrdersListWithTwoLinesRow = ({ orders }: OrdersListProps) => {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ export const OrdersListWithTwoLinesRow = ({ orders }: OrdersListProps) => {
         <Order
           order={order}
           key={isLocalOrder(order) ? order.reference : order.id}
-          onClick={() => navigate(`/..holdings/${order.id}`)}
+          onClick={() => navigate(`../orders/${order.id}`)}
         />
       ))}
     </div>

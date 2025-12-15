@@ -5,8 +5,10 @@
  * @param url url to add protocol to
  * @returns url with protocol
  */
-export const addProtocolToUrl = (url: string) =>
-  url.match(/^[a-z]+:\/\//i) ? url : "https://" + url;
+export const addProtocolToUrl = (url: string) => {
+  const trimmedUrl = url.trim();
+  return trimmedUrl.match(/^[a-z]+:\/\//i) ? trimmedUrl : "https://" + trimmedUrl;
+};
 
 export const isValidUrl = (url: string) =>
   /([a-z]+):\/\/(([a-z\d]([a-z\d-]*[a-z\d])*\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\/[-a-z\d%_.~+]*)*(\?[^\s]*)?(#[-a-z\d_]*)?/i.test(

@@ -12,7 +12,7 @@ import classNames from "classnames";
 import { Badge, Button } from "components";
 import { isLocalOrder } from "hooks/useLocalTradeStorageState";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   isStatusCancellable,
   isTransactionTypeCancellable,
@@ -26,13 +26,12 @@ import {
   isOrderPartOfSwitch,
 } from "utils/switchOrders";
 import { getTransactionColor } from "utils/transactions";
-import { OrderProps, OrdersListProps } from "./OrdersGroup";
+import type { OrderProps, OrdersListProps } from "./OrdersGroup";
 
 export const OrderCardList = ({
   orders,
   onCancelOrderModalOpen,
 }: OrdersListProps) => {
-  const navigate = useNavigate();
   return (
     <div className="flex flex-col gap-y-4 items-center">
       {orders.map((order) => (
@@ -40,7 +39,6 @@ export const OrderCardList = ({
           order={order}
           onCancelOrderModalOpen={onCancelOrderModalOpen}
           key={isLocalOrder(order) ? order.reference : order.id}
-          onClick={() => navigate(`/..holdings/${order.id}`)}
         />
       ))}
     </div>
@@ -49,6 +47,7 @@ export const OrderCardList = ({
 
 const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
   const { t, i18n } = useModifiedTranslation();
+  const navigate = useNavigate();
   const { data: orderParentPortfolio } = useGetPortfolioBasicFieldsById(
     order.parentPortfolio.id
   );
@@ -231,17 +230,15 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
                   <Disclosure.Panel className="flex flex-row gap-y-2 justify-between items-end py-1 w-full text-gray-500">
                     {!isLocalOrder(order) && (
                       <div>
-                        <Button size="xs" variant="Outlined">
-                          <Link
-                            onClick={(e) => e.stopPropagation()}
-                            id={`linkToOrderDetails-${order.id}`}
-                            //target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs"
-                            to={`../orders/${order.id}`}
-                          >
-                            {t("ordersPage.details")}
-                          </Link>
+                        <Button
+                          size="xs"
+                          variant="Outlined"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`../orders/${order.id}`);
+                          }}
+                        >
+                          {t("ordersPage.details")}
                         </Button>
                       </div>
                     )}
@@ -259,7 +256,7 @@ const OrderCard = ({ order, onCancelOrderModalOpen }: OrderProps) => {
                               });
                             }
                           }}
-                          className="flex flex-row gap-x-1 items-center py-0.5 px-2 text-xs text-red-600 rounded-full border border-red-500 shadow-sm w-fit h-fit"
+                          className="flex flex-row gap-x-1 items-center py-0.5 px-2 text-xs text-red-600 rounded-full border border-red-500 shadow-sm w-fit h-fit cursor-pointer"
                           data-tooltip-content={t("ordersPage.cancelOrder")}
                           data-tooltip-id="cancelOrderTooltip"
                         >

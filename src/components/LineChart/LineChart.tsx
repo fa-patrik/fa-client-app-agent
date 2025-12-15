@@ -1,8 +1,9 @@
-import { ApexOptions } from "apexcharts";
+import { useMemo } from "react";
+import type { ApexOptions } from "apexcharts";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { StringMap, TOptions } from "i18next";
 import Chart from "react-apexcharts";
 import theme from "tailwindTheme";
+import { decimateData, DECIMATION_THRESHOLD } from "./decimateData";
 
 export interface LineData {
   name: string;
@@ -80,20 +81,34 @@ export const LineChart = ({
 }: LineChartProps) => {
   const { t } = useModifiedTranslation();
 
-  const isLongPeriod = series[0].data.length >= 365;
-  const isVeryLongPeriod = series[0].data.length >= 365 * 4;
-  const performanceChartToolTipFormatting: TOptions<StringMap> = {
+  // Decimate data if it exceeds the threshold to prevent performance issues
+  const decimatedSeries = useMemo(() => {
+    return series.map((s) => ({
+      ...s,
+      data:
+        s.data.length > DECIMATION_THRESHOLD
+          ? decimateData(s.data, DECIMATION_THRESHOLD)
+          : s.data,
+    }));
+  }, [series]);
+
+  const originalDataLength = series[0].data.length;
+  const isLargeDataset = originalDataLength > DECIMATION_THRESHOLD;
+  const isLongPeriod = originalDataLength >= 365;
+  const isVeryLongPeriod = originalDataLength >= 365 * 4;
+  const performanceChartToolTipFormatting: Intl.DateTimeFormatOptions = {
     month: "short",
     year: "numeric",
     day: "numeric",
   };
 
-  const performanceChartShortPeriodDateFormatting: TOptions<StringMap> = {
-    month: "short",
-    day: "numeric",
-  };
+  const performanceChartShortPeriodDateFormatting: Intl.DateTimeFormatOptions =
+    {
+      month: "short",
+      day: "numeric",
+    };
 
-  const performanceChartLongPeriodDateFormatting: TOptions<StringMap> = {
+  const performanceChartLongPeriodDateFormatting: Intl.DateTimeFormatOptions = {
     month: isVeryLongPeriod ? undefined : "short",
     year: isVeryLongPeriod ? "numeric" : "2-digit",
   };
@@ -107,10 +122,25 @@ export const LineChart = ({
       <Chart
         options={{
           ...lineChartDefaultOptions,
+          // Disable animations for large datasets to improve performance
+          ...(isLargeDataset && {
+            chart: {
+              ...lineChartDefaultOptions.chart,
+              animations: {
+                enabled: false,
+              },
+            },
+          }),
           ...(detailed && {
             chart: {
               ...lineChartDefaultOptions.chart,
               sparkline: { enabled: false },
+              // Disable animations for large datasets
+              ...(isLargeDataset && {
+                animations: {
+                  enabled: false,
+                },
+              }),
             },
             xaxis: {
               type: isPerformanceChart
@@ -187,11 +217,13 @@ export const LineChart = ({
           },
           ...options,
         }}
-        series={series}
+        series={decimatedSeries}
         type="area"
         height="100%"
       />
-      {!detailed && <XLabels labels={series[0].data.map((datum) => datum.x)} />}
+      {!detailed && (
+        <XLabels labels={decimatedSeries[0].data.map((datum) => datum.x)} />
+      )}
     </div>
   );
 };

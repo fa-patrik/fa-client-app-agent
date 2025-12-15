@@ -1,14 +1,15 @@
 import { useReducer, useState } from "react";
-import { ApolloError, gql, OperationVariables, useQuery } from "@apollo/client";
+import type { OperationVariables } from "@apollo/client";
+import { ApolloError, gql, useQuery } from "@apollo/client";
 import { useApolloClient } from "@apollo/client";
 import { useGetContactInfo } from "api/common/useGetContactInfo";
-import { SecurityGroup } from "api/types";
-import { Option } from "components/Select/Select";
+import type { SecurityGroup } from "api/types";
+import type { Option } from "components/Select/Select";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { tradableTag } from "services/permissions/trading";
 import { getBackendTranslation } from "utils/backTranslations";
-import { SecurityTypeCode } from "../holdings/types";
+import type { SecurityTypeCode } from "../holdings/types";
 import { getFetchPolicyOptions } from "../utils";
 
 const TRADABLE_SECURITIES_QUERY = gql`
@@ -19,11 +20,19 @@ const TRADABLE_SECURITIES_QUERY = gql`
     $name: String
     $tradableTag: [String]
     $securityCode: String
+    $securityGroupIds: [Long]
   ) {
     securities: securitiesByParameters(
-    parameters: {tags: $tradableTag, countryCode: $countryCode, securityType: $securityType, name: $name, securityCode: $securityCode},
-    batchLoadLatestPrices: true
-  ) {
+      parameters: {
+        tags: $tradableTag
+        countryCode: $countryCode
+        securityType: $securityType
+        name: $name
+        securityCode: $securityCode
+        securityGroupIds: $securityGroupIds
+      }
+      batchLoadLatestPrices: true
+    ) {
       id
       name
       namesAsMap
@@ -152,11 +161,13 @@ const filterOptionsInitial = {
 export type GetTradableSecuritiesProps = {
   currencyCode?: string;
   tags?: string[];
+  securityGroupIds?: number[];
 };
 
 export const useGetTradebleSecurities = (
   currencyCode?: string,
-  tags?: string[]
+  tags?: string[],
+  securityGroupIds?: number[]
 ) => {
   const { selectedContactId } = useGetContractIdData();
   const { data: { portfoliosCurrency } = { portfoliosCurrency: "EUR" } } =
@@ -173,11 +184,13 @@ export const useGetTradebleSecurities = (
         name: filters.name,
         currency: currencyCode ?? portfoliosCurrency,
         tradableTag: tags ? [...tags, tradableTag] : [tradableTag],
+        securityGroupIds,
       },
+      returnPartialData: true,
       ...getFetchPolicyOptions(
         `useGetTradebleSecurities.${filters.country.id}.${filters.type.id}.${
           filters.name
-        }.${currencyCode ?? portfoliosCurrency}.${tags}`
+        }.${currencyCode ?? portfoliosCurrency}.${tags}.${securityGroupIds}`
       ),
     }
   );

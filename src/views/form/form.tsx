@@ -1,14 +1,13 @@
 import { Form } from "@formio/react";
-import { LoadingIndicator, Logo, UserMenu } from "components";
-import "./styles.css";
-import { useKeycloak } from "providers/KeycloakProvider";
+import { LoadingIndicator } from "components";
+import { useDetailsHeader } from "layouts/DetailsLayout/DetailsHeaderContext";
 import { useLocation } from "react-router-dom";
 import { ApiError } from "./components/ApiError";
 import { Attachments } from "./components/Attachments";
 import { FormNotFound } from "./components/FormNotFound";
 import { ProcessNotFound } from "./components/ProcessNotFound";
+import { useFormioStyles } from "./useFormioStyles";
 import { useProcessExecutor } from "./useProcessExecutor";
-
 
 interface FormViewProps {
   header?: string;
@@ -22,54 +21,49 @@ interface LocationProps {
 }
 
 export const FormView = ({
-  header,
   initialData: propsInitialData = {},
 }: FormViewProps) => {
   const processState = useProcessExecutor();
-
   const { state: locationState } = useLocation() as unknown as LocationProps;
-  const { linkedContact } = useKeycloak();
+  useDetailsHeader(locationState?.header ?? "");
+
+  /**
+   * IMPORTANT
+   * Apply Formio (Bootstrap) styles
+   * This is required to make the form look correct
+   * as Formio uses Bootstrap for styling
+   * However, this also affects the styling overall
+   * which is why we hide certain elements in the DetailsLayout
+   * when rendering the FormView
+   */
+  useFormioStyles();
 
   return (
     <>
-      {processState.executorState === "READY" && processState.formDefinition && (
-        <div className="flex overflow-hidden flex-col h-full">
-          <div className="pt-2 bg-white border-b border-gray-200 shadow-md">
-            <div className="md:container flex gap-2 items-center p-2 md:mx-auto text-2xl font-bold">
-              <div className="mr-2">
-                <Logo />
-              </div>
-              <div className="grow">{header || locationState?.header}</div>
-              <div className="px-2">
-                {linkedContact && <UserMenu />}
-              </div>
-            </div>
-          </div>
-          <div className="overflow-y-auto grow-1">
-            <div className="container py-3 mx-auto h-full">
-              <div className="grid grid-cols-1 gap-4 px-2">
-                {processState.attachments.length > 0 && (
-                  <Attachments attachments={processState.attachments} />
-                )}
-                <div className="formio-form">
-                  <Form
-                    key={processState.taskId}
-                    form={processState.formDefinition}
-                    onSubmit={processState.submitData}
-                    submission={{
-                      data: {
-                        ...locationState?.initialData,
-                        ...propsInitialData,
-                        ...processState.initialData,
-                      },
-                    }}
-                  />
-                </div>
+      {processState.executorState === "READY" &&
+        processState.formDefinition && (
+          <div className="container py-3 mx-auto h-full">
+            <div className="grid grid-cols-1 gap-4 px-2">
+              {processState.attachments.length > 0 && (
+                <Attachments attachments={processState.attachments} />
+              )}
+              <div className="formio-form">
+                <Form
+                  key={processState.taskId}
+                  form={processState.formDefinition}
+                  onSubmit={processState.submitData}
+                  submission={{
+                    data: {
+                      ...locationState?.initialData,
+                      ...propsInitialData,
+                      ...processState.initialData,
+                    },
+                  }}
+                />
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       {processState.executorState === "READY" &&
         !processState.formDefinition && <FormNotFound />}
       {processState.executorState === "LOADING" && (

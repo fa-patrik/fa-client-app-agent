@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Option } from "components/ComboBox/ComboBox";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { Option } from "components/ComboBox/ComboBox";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useGetPortfolioOptions } from "hooks/useGetPortfolioOptions";
 import { useParams } from "react-router-dom";
 import { filterPortfolioOptionsByFunction } from "utils/options";

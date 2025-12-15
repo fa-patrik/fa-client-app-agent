@@ -1,10 +1,5 @@
-import {
-  Children,
-  cloneElement,
-  HTMLAttributes,
-  isValidElement,
-  ReactNode,
-} from "react";
+import type { HTMLAttributes, ReactNode } from "react";
+import { Children, cloneElement, isValidElement } from "react";
 
 interface GridProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
@@ -25,7 +20,7 @@ export const Grid = ({
   return (
     <>
       {ChildrenArray.map((child, index) => {
-        if (isValidElement(child)) {
+        if (isValidElement<{ className?: string }>(child)) {
           return cloneElement(child, {
             ...rest,
             className: `${child.props.className ?? ""} ${className} ${
@@ -36,7 +31,7 @@ export const Grid = ({
                 : ""
             }
             `,
-          });
+          } as Partial<unknown>);
         }
         return child;
       })}

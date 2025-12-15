@@ -13,7 +13,7 @@ const mainLink = new HttpLink({
   },
 });
 
-const authMiddleware = setContext(async (operation, { headers }) => {
+const authMiddleware = setContext(async (_operation, { headers }) => {
   const token = await keycloakService.getToken();
   return {
     headers: {
@@ -45,7 +45,7 @@ const cache = new InMemoryCache({
           },
         },
         portfolioGroups: {
-          merge: (existing, incoming) => {
+          merge: (_existing, incoming) => {
             return incoming;
           },
         },

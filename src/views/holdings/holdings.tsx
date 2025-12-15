@@ -1,28 +1,22 @@
 import { useMemo } from "react";
 import { useGetContactInfo } from "api/common/useGetContactInfo";
-import { ContactHoldingsFromAnalyticsQuery } from "api/holdings/types";
-import {
-  SwitchModalContent,
-  SwitchModalInitialData,
-} from "components/TradingModals/SwitchModalContent/SwitchModalContent";
+import type { ContactHoldingsFromAnalyticsQuery } from "api/holdings/types";
+import type { SwitchModalInitialData } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
+import { SwitchModalContent } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useParams } from "react-router-dom";
 import { useCanTradeSecurities } from "services/permissions/trading";
 
-import { useModal } from "../../components/Modal/useModal";
-import {
-  BuyModalContent,
-  BuyModalInitialData,
-} from "../../components/TradingModals/BuyModalContent/BuyModalContent";
-import {
-  SellModalContent,
-  SellModalInitialData,
-} from "../../components/TradingModals/SellModalContent/SellModalContent";
-import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 import HoldingsExcelExportButton from "./components/HoldingsExcelExportButton";
 import { HoldingsGroupedByType } from "./components/HoldingsGroupedByType";
 import { NoHoldings } from "./components/NoHoldings";
+import { useModal } from "../../components/Modal/useModal";
+import type { BuyModalInitialData } from "../../components/TradingModals/BuyModalContent/BuyModalContent";
+import { BuyModalContent } from "../../components/TradingModals/BuyModalContent/BuyModalContent";
+import type { SellModalInitialData } from "../../components/TradingModals/SellModalContent/SellModalContent";
+import { SellModalContent } from "../../components/TradingModals/SellModalContent/SellModalContent";
+import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 
 interface ContactHoldingsProps {
   data: ContactHoldingsFromAnalyticsQuery | undefined;
@@ -62,12 +56,14 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
   } = useModal<BuyModalInitialData>();
 
   const {
+    Modal: SellModal,
     onOpen: onSellModalOpen,
     modalProps: sellModalProps,
     contentProps: sellModalContentProps,
   } = useModal<SellModalInitialData>();
 
   const {
+    Modal: SwitchModal,
     onOpen: onSwitchModalOpen,
     modalProps: switchModalProps,
     contentProps: switchModalContentProps,
@@ -109,15 +105,21 @@ export const Holdings = ({ data }: ContactHoldingsProps) => {
           <Modal {...buyModalProps} header={t("tradingModal.buyModalHeader")}>
             <BuyModalContent {...buyModalContentProps} />
           </Modal>
-          <Modal {...sellModalProps} header={t("tradingModal.sellModalHeader")}>
+          <SellModal
+            {...sellModalProps}
+            header={t("tradingModal.sellModalHeader")}
+          >
             <SellModalContent {...sellModalContentProps} />
-          </Modal>
+          </SellModal>
         </>
       )}
       {hasSelectedPortfolio && canSwitchAnyHolding && (
-        <Modal {...switchModalProps} header={t("switchOrderModal.header")}>
+        <SwitchModal
+          {...switchModalProps}
+          header={t("switchOrderModal.header")}
+        >
           <SwitchModalContent {...switchModalContentProps} />
-        </Modal>
+        </SwitchModal>
       )}
     </>
   );

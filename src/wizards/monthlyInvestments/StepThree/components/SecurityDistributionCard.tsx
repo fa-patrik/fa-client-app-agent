@@ -1,14 +1,11 @@
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { ReactComponent as CancelIcon } from "assets/cancel-circle.svg";
 import { Button, Card, Input } from "components";
 
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { getBackendTranslation } from "utils/backTranslations";
-import {
-  SetValueFunc,
-  handleNumberInputEvent,
-  handleNumberPasteEvent,
-} from "utils/input";
+import type { SetValueFunc } from "utils/input";
+import { handleNumberInputEvent, handleNumberPasteEvent } from "utils/input";
 import SecurityInfoCell from "wizards/monthlyInvestments/StepTwo/components/SecurityInfoCell";
 
 const wrapSetValue = (
@@ -88,7 +85,7 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
               </Button>
             </div>
           </div>
-          <hr className="border-1" />
+          <hr className="border" />
           <div className="flex flex-col gap-y-1 items-end">
             <div className="flex flex-row gap-x-2">
               <Input
@@ -124,10 +121,10 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                   (parseFloat(percentage) || 0) <= 0
                     ? " "
                     : (parseFloat(percentage) || 0) > 100
-                    ? t(
-                        "wizards.monthlyInvestments.stepThree.percentageInputOverError"
-                      )
-                    : ""
+                      ? t(
+                          "wizards.monthlyInvestments.stepThree.percentageInputOverError"
+                        )
+                      : ""
                 }
                 step="any"
               />
@@ -167,11 +164,11 @@ const SecurityDistributionCard: React.FC<SecurityDistributionCardProps> = ({
                   (parseFloat(amount) || 0) <= 0
                     ? " "
                     : minTradeAmountInPfCurrency &&
-                      (parseFloat(amount) || 0) < minTradeAmountInPfCurrency
-                    ? t(
-                        "wizards.monthlyInvestments.stepThree.amountInputBelowMinError"
-                      )
-                    : ""
+                        (parseFloat(amount) || 0) < minTradeAmountInPfCurrency
+                      ? t(
+                          "wizards.monthlyInvestments.stepThree.amountInputBelowMinError"
+                        )
+                      : ""
                 }
                 step="any"
               />

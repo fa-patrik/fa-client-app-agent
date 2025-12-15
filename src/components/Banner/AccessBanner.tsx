@@ -6,8 +6,8 @@ import Icon from "components/Icon/Icon";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { Tooltip } from "react-tooltip";
-import { ReactComponent as AdvisorIcon } from "../../assets/fa-advisor.svg";
 import Banner from "./Banner";
+import { ReactComponent as AdvisorIcon } from "../../assets/fa-advisor.svg";
 
 const AccessBadge = ({
   access,

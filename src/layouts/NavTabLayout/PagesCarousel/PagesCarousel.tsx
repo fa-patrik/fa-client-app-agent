@@ -1,4 +1,5 @@
-import { ReactNode, Children } from "react";
+import type { ReactNode } from "react";
+import { Children } from "react";
 import { useSwipeable } from "react-swipeable";
 
 export type SwipeDirection = "left" | "right";
@@ -17,7 +18,6 @@ export const PagesCarousel = ({
   const handlers = useSwipeable({
     onSwipedLeft: () => onPageSwipe("left"),
     onSwipedRight: () => onPageSwipe("right"),
-    preventDefaultTouchmoveEvent: true,
     delta: 50,
   });
 

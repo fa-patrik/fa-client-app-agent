@@ -1,4 +1,5 @@
-import { MutableRefObject, useState } from "react";
+import type { MutableRefObject } from "react";
+import { useState } from "react";
 import {
   PortfolioGroups,
   RepresentativeTag,
@@ -78,7 +79,7 @@ export const WithdrawModalContent = ({
     cashAccountSelectProps.currentExternalCashAccount === undefined;
 
   return (
-    <div className="grid gap-2 min-w-[min(84vw,_375px)]">
+    <div className="grid gap-2 min-w-[min(84vw,375px)]">
       <CashAccountSelect
         {...cashAccountSelectProps}
         {...portfolioSelectProps}
@@ -106,8 +107,8 @@ export const WithdrawModalContent = ({
             !isAmountCorrect && !accountsLoading
               ? t("moneyModal.amountInputError")
               : !accountsLoading && invalidAccountSelection
-              ? t("moneyModal.invalidAccountSelection")
-              : ""
+                ? t("moneyModal.invalidAccountSelection")
+                : ""
           }
           step="any"
         />

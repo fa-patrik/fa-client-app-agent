@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { StringMap, TOptions } from "i18next";
 import { useTranslation } from "react-i18next";
 
 export const useModifiedTranslation = () => {
@@ -10,7 +9,7 @@ export const useModifiedTranslation = () => {
       : i18n.resolvedLanguage;
   // for all languages currencies are displayed as ISO code at the end of value - business decision
   const modifiedT = useCallback(
-    (key: string, options?: TOptions<StringMap>) => {
+    (key: string, options?: Record<string, unknown>): string => {
       if (key === "number") {
         return `${t("number", {
           ...options,
@@ -65,7 +64,7 @@ export const useModifiedTranslation = () => {
         }
       }
 
-      return t(key, { ...options, locale });
+      return t(key, { ...options, locale }) as string;
     },
     [t, locale]
   );

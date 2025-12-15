@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { PORTFOLIO_REPORT_HOLDINGS_DETAILS_FIELDS } from "./fragments";
-import { ContactHoldingDetailsQuery } from "./types";
+import type { ContactHoldingDetailsQuery } from "./types";
 
 const CONTACT_HOLDING_DETAILS_QUERY = gql`
   ${PORTFOLIO_REPORT_HOLDINGS_DETAILS_FIELDS}

@@ -5,12 +5,10 @@ import {
   RepresentativeTag,
 } from "api/common/useGetContactInfo";
 import { PORTFOLIO_QUERY } from "api/common/useGetPortfolioBasicFieldsById";
-import { TradeOrder } from "api/orders/types";
+import type { TradeOrder } from "api/orders/types";
 import { useModal } from "components/Modal/useModal";
-import {
-  CancelOrderModalInitialData,
-  CancelOrderModalContent,
-} from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
+import type { CancelOrderModalInitialData } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
+import { CancelOrderModalContent } from "components/TradingModals/CancelOrderModalContent/CancelOrderModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { isTradeOrderCancellable } from "services/permissions/cancelOrder";

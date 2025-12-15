@@ -1,10 +1,6 @@
-import { ReactNode } from "react";
-import {
-  Slide,
-  toast,
-  ToastContainer,
-  ToastContainerProps,
-} from "react-toastify";
+import type { ReactNode } from "react";
+import type { ToastContainerProps } from "react-toastify";
+import { Slide, ToastContainer } from "react-toastify";
 
 interface ToastProps extends ToastContainerProps {
   children?: ReactNode;
@@ -12,7 +8,7 @@ interface ToastProps extends ToastContainerProps {
 
 export const Toast = (props: ToastProps) => (
   <ToastContainer
-    position={toast.POSITION.BOTTOM_CENTER}
+    position="bottom-center"
     hideProgressBar
     theme="colored"
     transition={Slide}

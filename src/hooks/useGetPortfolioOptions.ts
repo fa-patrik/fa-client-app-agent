@@ -1,10 +1,10 @@
 import { useMemo } from "react";
+import type { Portfolio } from "api/common/useGetContactInfo";
 import {
-  Portfolio,
   PortfolioGroups,
   useGetContactInfo,
 } from "api/common/useGetContactInfo";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 
@@ -43,8 +43,10 @@ export const useGetPortfolioOptions = (includeTotal = true) => {
   );
 
   //Keep only top level portfolios from FA
-  const topLevelPortfolios = portfolios.filter(
-    (portfolio) => !isSubPortfolio(portfolios, portfolio)
+  const topLevelPortfolios = useMemo(
+    () =>
+      portfolios.filter((portfolio) => !isSubPortfolio(portfolios, portfolio)),
+    [portfolios]
   );
 
   const portfolioOptions: PortfolioOption[] = useMemo(() => {
@@ -90,16 +92,19 @@ export const getPortfolioOption = (
     label: portfolio.name,
     details: portfolio,
     //only creates an option for sub portfolios that do not have PortfolioGroup.HIDE
-    subOptions: portfolio?.portfolios?.reduce((prev, currSub) => {
-      const hide = currSub.portfolioGroups?.some(
-        (grp) => grp.code === PortfolioGroups.HIDE
-      );
-      if (!hide) {
-        const subOptionProps = getPortfolioOption(currSub);
-        prev.push(subOptionProps);
-      }
-      return prev;
-    }, [] as (PortfolioOption & { details?: Portfolio })[]),
+    subOptions: portfolio?.portfolios?.reduce(
+      (prev, currSub) => {
+        const hide = currSub.portfolioGroups?.some(
+          (grp) => grp.code === PortfolioGroups.HIDE
+        );
+        if (!hide) {
+          const subOptionProps = getPortfolioOption(currSub);
+          prev.push(subOptionProps);
+        }
+        return prev;
+      },
+      [] as (PortfolioOption & { details?: Portfolio })[]
+    ),
   };
   return portfolioOption;
 };

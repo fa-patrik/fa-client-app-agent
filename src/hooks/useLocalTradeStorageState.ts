@@ -1,19 +1,17 @@
 // when user place order (buy/sell security/cash) we keep that order in local storage until backend handle it
 
 import { useEffect, useMemo } from "react";
-import { TradeOrder } from "api/orders/types";
+import type { TradeOrder } from "api/orders/types";
 import { dateFromYYYYMMDD, isDateInRange } from "utils/date";
+import { useLocalStorageStore } from "./useLocalStorageStore";
 import { useGetAllTradeOrders } from "../api/orders/useGetAllTradeOrders";
 import { useGetPortfolioTradeOrders } from "../api/orders/useGetPortfolioTradeOrders";
 import { useGetAllPortfoliosTransactions } from "../api/transactions/useGetAllPortfoliosTransactions";
 import { useGetPortfolioTransactions } from "../api/transactions/useGetPortfolioTransactions";
-import { useLocalStorageStore } from "./useLocalStorageStore";
 
 export type LocalOrder = TradeOrder;
 
-export const isLocalOrder = (
-  order: TradeOrder
-) => {
+export const isLocalOrder = (order: TradeOrder) => {
   return order.id === LocalTradeOrderId;
 };
 

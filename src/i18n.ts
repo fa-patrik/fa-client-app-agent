@@ -17,7 +17,7 @@ export const initI18n = async (language: string, callback: () => void) => {
       load: "currentOnly",
       defaultNS: "translation",
       backend: {
-        loadPath: `${process.env.PUBLIC_URL}/locales/{{lng}}/{{ns}}.json`,
+        loadPath: `${import.meta.env.BASE_URL}locales/{{lng}}/{{ns}}.json`,
       },
     });
   callback();

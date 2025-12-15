@@ -1,0 +1,12 @@
+import { useModifiedTranslation } from "hooks/useModifiedTranslation";
+import { useDetailsHeader } from "layouts/DetailsLayout/DetailsHeaderContext";
+import { useParams } from "react-router-dom";
+import { OrderDetailsView } from "views/orderDetails/orderDetailsView";
+
+export const OrderDetailsPage = () => {
+  const { t } = useModifiedTranslation();
+  const { orderId } = useParams();
+  //Set details header
+  useDetailsHeader(t("ordersPage.header").toString());
+  return <OrderDetailsView id={orderId} />;
+};

@@ -3,11 +3,11 @@ import classNames from "classnames";
 import { Button, GainLoseColoring, Grid } from "components";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useCanTradeSecurities } from "services/permissions/trading";
 import { getGridColsClass } from "utils/tailwindClasses";
-import { GroupedHoldings, HoldingProps } from "./HoldingsGroupedByType";
+import type { GroupedHoldings, HoldingProps } from "./HoldingsGroupedByType";
 import { NameWithFlag } from "./NameWithFlag";
 
 export const HoldingsListWithOneLineRow = ({
@@ -53,7 +53,7 @@ export const HoldingsListWithOneLineRow = ({
       {securities.map((security) => {
         const onClick =
           groupCode !== SecurityTypeCode.CURRENCY
-            ? () => navigate(`holdings/${security.security.id}`)
+            ? () => navigate(`../holdings/${security.security.id}`)
             : undefined;
         const showFlag = groupCode !== SecurityTypeCode.CURRENCY;
         return (
@@ -91,7 +91,7 @@ const HoldingLg = ({
   } = tradeProps;
   const { t } = useModifiedTranslation();
   //no isin comes back as " "
-  const codeToDisplay = isinCode && isinCode !== " " ? isinCode : code ?? "-";
+  const codeToDisplay = isinCode && isinCode !== " " ? isinCode : (code ?? "-");
   const isLgVersion = useMatchesBreakpoint("lg");
   const isXlVersion = useMatchesBreakpoint("xl");
   const { portfolioId } = useParams();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { AnalyticsGroupBy } from "api/types";
+import type { AnalyticsGroupBy } from "api/types";
 
 interface Config {
   pages:
@@ -32,7 +32,9 @@ interface Config {
 
 export const ConfigContext = React.createContext<Config | null>(null);
 
-export const ConfigProvider: React.FC = ({ children }) => {
+export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [config, setConfig] = useState<Config | null>(null);
 
   useEffect(() => {

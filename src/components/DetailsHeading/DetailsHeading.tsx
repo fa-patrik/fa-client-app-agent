@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { UserMenu, BackNavigationButton, Logo } from "components";
 import { SelectedContactAvatar } from "components/Avatar/SelectedContactAvatar";
 import { AccessBanner } from "components/Banner/AccessBanner";
@@ -21,7 +21,7 @@ export const DetailsHeading = ({
       <ConfiguredBanner />
       <div className="container flex gap-2 justify-between items-center py-2 px-2 mx-auto">
         {showLogoAndUserMenu && <Logo />}
-        <div className="flex flex-shrink justify-start items-center w-3/4 sm:w-5/6 text-2xl font-bold">
+        <div className="flex shrink justify-start items-center w-3/4 sm:w-5/6 text-2xl font-bold">
           <BackNavigationButton onClick={onBackButtonClick} />
           <div className="overflow-hidden whitespace-nowrap text-ellipsis">
             {children}

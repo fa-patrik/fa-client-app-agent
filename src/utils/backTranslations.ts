@@ -11,13 +11,14 @@ export const getBackendTranslation = (
   /**
    * The language the user wants
    */
-  language: string,
+  language: string | undefined,
   /**
    * The language the app found translations for (hopefully the same as the user wants)
    */
-  resolvedLanguage: string
+  resolvedLanguage: string | undefined
 ) => {
   if (!fallbackTranslation) return "";
+  if (!language || !resolvedLanguage) return fallbackTranslation;
   if (language !== resolvedLanguage) return fallbackTranslation;
   return (
     backendTranslationsMap[language.replace("-", "_")] || fallbackTranslation

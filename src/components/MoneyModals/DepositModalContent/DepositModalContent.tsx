@@ -1,4 +1,5 @@
-import { MutableRefObject, useState } from "react";
+import type { MutableRefObject } from "react";
+import { useState } from "react";
 import {
   PortfolioGroups,
   RepresentativeTag,
@@ -40,7 +41,10 @@ export const DepositModalContent = ({
     RepresentativeTag.DEPOSIT,
     PermissionMode.ANY
   );
-  const portfolioSelectProps = useFilteredPortfolioSelect(canPfOption, preselectedPortfolioId);
+  const portfolioSelectProps = useFilteredPortfolioSelect(
+    canPfOption,
+    preselectedPortfolioId
+  );
   const { portfolioId } = portfolioSelectProps;
 
   const currentTaxYear = getCurrentTaxYear(new Date());
@@ -53,7 +57,10 @@ export const DepositModalContent = ({
       skip: !contactCode,
     });
 
-  const selectedPortfolio = contactInfo?.portfolios?.find((portfolio) => portfolio.id === portfolioId) || contactInfo?.portfolios?.[0];
+  const selectedPortfolio =
+    contactInfo?.portfolios?.find(
+      (portfolio) => portfolio.id === portfolioId
+    ) || contactInfo?.portfolios?.[0];
 
   const { accountsLoading, ...cashAccountSelectProps } =
     usePortfoliosAccountsState(portfolioId);
@@ -88,9 +95,8 @@ export const DepositModalContent = ({
 
   const isAmountCorrect = !isNaN(availableBalance) && amountAsNr >= 0;
 
-
   const { handleTrade: handleDeposit, submitting } = useDeposit({
-    portfolio: selectedPortfolio,
+    portfolio: selectedPortfolio!,
     tradeAmount: amountAsNr,
     securityName: label,
     account: number,
@@ -105,7 +111,7 @@ export const DepositModalContent = ({
     !cashAccountSelectProps.currentExternalCashAccount;
 
   return (
-    <div className="grid gap-2 min-w-[min(84vw,_375px)]">
+    <div className="grid gap-2 min-w-[min(84vw,375px)]">
       <CashAccountSelect
         {...cashAccountSelectProps}
         {...portfolioSelectProps}

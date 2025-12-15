@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { FetchResult, gql, useMutation } from "@apollo/client";
+import type { FetchResult } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { ADVISOR_TAG } from "api/constants";
-import { ExecutionMethod } from "api/enums";
+import type { ExecutionMethod } from "api/enums";
 import { TransactionType } from "api/transactions/enums";
-import {
-  LocalTradeOrderDetails,
-  useLocalTradeStorageMutation,
-} from "hooks/useLocalTradeStorageMutation";
+import type { LocalTradeOrderDetails } from "hooks/useLocalTradeStorageMutation";
+import { useLocalTradeStorageMutation } from "hooks/useLocalTradeStorageMutation";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { toast } from "react-toastify";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";

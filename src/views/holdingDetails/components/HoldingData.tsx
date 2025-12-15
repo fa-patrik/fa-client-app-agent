@@ -1,5 +1,6 @@
 import { useGetContactInfo } from "api/common/useGetContactInfo";
-import { AnalyticsSecurityData, SecurityTypeCode } from "api/holdings/types";
+import type { AnalyticsSecurityData } from "api/holdings/types";
+import { SecurityTypeCode } from "api/holdings/types";
 import { Card, GainLoseColoring } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";

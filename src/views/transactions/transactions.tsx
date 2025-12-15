@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Transaction } from "api/transactions/types";
-import { QueryData } from "api/types";
+import type { Transaction } from "api/transactions/types";
+import type { QueryData } from "api/types";
 import {
   Card,
   DatePicker,
@@ -42,7 +42,7 @@ export const Transactions = ({
             <DatePicker
               label={t("transactionsPage.datePickerFromLabel")}
               value={startDate}
-              onChange={setStartDate}
+              onChange={(value) => setStartDate(value as Date)}
               maxDate={endDate}
             />
           </div>
@@ -50,7 +50,7 @@ export const Transactions = ({
             <DatePicker
               label={t("transactionsPage.datePickerFromTo")}
               value={endDate}
-              onChange={setEndDate}
+              onChange={(value) => setEndDate(value as Date)}
               minDate={startDate}
             />
           </div>

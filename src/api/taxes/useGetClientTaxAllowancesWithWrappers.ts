@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { StandardSolutionTaxWrapper } from "api/enums";
 import { useGetAvailableTaxWrappers } from "./useGetAvailableTaxWrappers";
-import { useGetClientTaxAllowances, TaxWrapperCalculationDetail } from "./useGetClientTaxAllowances";
+import type { TaxWrapperCalculationDetail } from "./useGetClientTaxAllowances";
+import { useGetClientTaxAllowances } from "./useGetClientTaxAllowances";
 
 export interface UseGetClientTaxAllowancesWithWrappersParams {
   contactId: string;
@@ -15,13 +16,13 @@ export interface UseGetClientTaxAllowancesWithWrappersParams {
  */
 export const useGetClientTaxAllowancesWithWrappers = ({
   contactId,
-  calcDate = new Date().toISOString().split('T')[0], // Default to current date
+  calcDate = new Date().toISOString().split("T")[0], // Default to current date
   skip = false,
 }: UseGetClientTaxAllowancesWithWrappersParams) => {
   const {
     data: taxWrappersData,
     loading: taxWrappersLoading,
-    error: taxWrappersError
+    error: taxWrappersError,
   } = useGetAvailableTaxWrappers();
 
   // Build calculation details - we want ISA and its children (CISA, SSISA), not APS
@@ -30,14 +31,15 @@ export const useGetClientTaxAllowancesWithWrappers = ({
 
     // The "main" ISA wrapper
     const isaWrapper = taxWrappersData.taxWrappers.find(
-      wrapper => wrapper.code === StandardSolutionTaxWrapper.IndividualSavingsAccount
+      (wrapper) =>
+        wrapper.code === StandardSolutionTaxWrapper.IndividualSavingsAccount
     );
     if (!isaWrapper) return [];
 
     const details: TaxWrapperCalculationDetail[] = [];
 
     // Map all tax wrappers
-    taxWrappersData.taxWrappers.forEach(wrapper => {
+    taxWrappersData.taxWrappers.forEach((wrapper) => {
       details.push({ taxWrapperCode: wrapper.code, calcDate });
     });
 
@@ -47,7 +49,7 @@ export const useGetClientTaxAllowancesWithWrappers = ({
   const {
     loading: allowancesLoading,
     error: allowancesError,
-    data: allowancesData
+    data: allowancesData,
   } = useGetClientTaxAllowances({
     contactId,
     calculationDetails,

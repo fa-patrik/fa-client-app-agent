@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { ApolloError, FetchResult, gql, useMutation } from "@apollo/client";
+import type { ApolloError, FetchResult } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { ADVISOR_TAG } from "api/constants";
 import { OrderStatus } from "api/enums";
-import { OrderMutationResponse } from "api/orders/types";
+import type { OrderMutationResponse } from "api/orders/types";
 import { TransactionType } from "api/transactions/enums";
-import {
-  LocalTradeOrderDetails,
-  useLocalTradeStorageMutation,
-} from "hooks/useLocalTradeStorageMutation";
+import type { LocalTradeOrderDetails } from "hooks/useLocalTradeStorageMutation";
+import { useLocalTradeStorageMutation } from "hooks/useLocalTradeStorageMutation";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useUniqueReference } from "hooks/useUniqueReference";
 import { useKeycloak } from "providers/KeycloakProvider";

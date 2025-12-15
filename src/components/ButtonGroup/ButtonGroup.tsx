@@ -1,4 +1,5 @@
-import { ComponentPropsWithoutRef, useState } from "react";
+import type { ComponentPropsWithoutRef } from "react";
+import { useState } from "react";
 import { ReactComponent as Spinner } from "assets/spinner.svg";
 import classNames from "classnames";
 

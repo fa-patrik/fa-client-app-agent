@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import classNames from "classnames";
 import { Severity } from "components/Alert/Alert";
 

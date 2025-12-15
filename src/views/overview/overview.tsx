@@ -1,14 +1,14 @@
 import { useGetContactInfo } from "api/common/useGetContactInfo";
 import { SecurityTypeCode } from "api/holdings/types";
-import { ContactOverviewQuery } from "api/overview/types";
+import type { ContactOverviewQuery } from "api/overview/types";
 import { useGetContactCashFromPfReport } from "api/overview/useGetContactCashFromPfReport";
 import { useGetContactOverview } from "api/overview/useGetContactOverview";
 import { QueryLoadingWrapper } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useGetContractIdData } from "providers/ContractIdProvider";
-import { useMatchesBreakpoint } from "../../hooks/useMatchesBreakpoint";
 import { PortfolioInfoCard } from "./components/PortfolioInfoCard";
 import { TotalSummary } from "./components/TotalSummary";
+import { useMatchesBreakpoint } from "../../hooks/useMatchesBreakpoint";
 
 export const OverviewView = () => {
   useGetContactCashFromPfReport();

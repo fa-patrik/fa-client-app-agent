@@ -1,5 +1,5 @@
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
 /**
  * This is the data structure that is produced

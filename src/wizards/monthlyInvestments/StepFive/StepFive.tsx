@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
 import { useSetMonthlyInvestments } from "api/trading/useSetMonthlyInvestments";
 import { Card } from "components";
 import { ConfirmDialog } from "components/Dialog/ConfirmDialog";
@@ -12,7 +12,7 @@ import {
   SelectMonthsGrid,
   months,
 } from "wizards/monthlySavings/components/SelectedMonthsGrid";
-import { MonthlyInvestmentsWizardState } from "../types";
+import type { MonthlyInvestmentsWizardState } from "../types";
 import SecurityDistributionTable from "./SecurityDistributionTable";
 
 /**
@@ -30,7 +30,9 @@ const StepFive = () => {
     i18n.language === i18n.resolvedLanguage
       ? i18n.language
       : i18n.resolvedLanguage;
-  numbro.setLanguage(locale);
+  if (locale) {
+    numbro.setLanguage(locale);
+  }
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const { setMonthlyInvestments } = useSetMonthlyInvestments();
@@ -44,10 +46,13 @@ const StepFive = () => {
   const selectedDate = monthlyInvestmentsWizardState.selectedDate;
   const [selectedMonths] = useState<Record<string, boolean>>(
     monthlyInvestmentsWizardState.selectedMonths ||
-      months.reduce((prev, curr) => {
-        prev[curr] = true;
-        return prev;
-      }, {} as Record<string, boolean>)
+      months.reduce(
+        (prev, curr) => {
+          prev[curr] = true;
+          return prev;
+        },
+        {} as Record<string, boolean>
+      )
   );
 
   const nrOfMonthsToInvest = Object.values(selectedMonths).reduce(
@@ -165,7 +170,7 @@ const StepFive = () => {
                 </p>
               </li>
             </ul>
-            <hr className="w-full border-1" />
+            <hr className="w-full border" />
             <div className="overflow-x-auto w-full">
               <SecurityDistributionTable
                 id="monthlyInvestmentsWizard-securityDistributionTable"
@@ -178,7 +183,7 @@ const StepFive = () => {
                 }
               />
             </div>
-            <hr className="w-full border-1" />
+            <hr className="w-full border" />
             <ul className="flex flex-col gap-y-2 w-full text-sm">
               <li className="flex">
                 <p className="w-1/2">

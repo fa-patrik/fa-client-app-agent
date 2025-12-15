@@ -1,10 +1,10 @@
-import {
+import type {
   TradableSecurity,
   TradableSecurity as TradableSecurityInterface,
 } from "api/trading/useGetTradebleSecurities";
 import { BuyModalContent, Card, ErrorMessage } from "components";
 import { useModal } from "components/Modal/useModal";
-import { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
+import type { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { getBackendTranslation } from "utils/backTranslations";
@@ -52,8 +52,8 @@ export const TradableSecuritiesList = ({
   const TradableSecuritiesListSized = isXlVersion
     ? TradableSecuritiesListXl
     : isSmVersion
-    ? TradableSecuritiesListMd
-    : TradableSecuritiesListBase;
+      ? TradableSecuritiesListMd
+      : TradableSecuritiesListBase;
 
   return (
     <>
@@ -78,8 +78,8 @@ export const TradableSecuritiesList = ({
 
 const groupSecuritiesByType = (
   securities: TradableSecurityInterface[],
-  language: string,
-  resolvedLanguage: string
+  language: string | undefined,
+  resolvedLanguage: string | undefined
 ) => {
   return Object.entries(
     securities.reduce((result: Record<string, TradableSecurity[]>, current) => {

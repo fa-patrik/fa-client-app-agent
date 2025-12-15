@@ -1,8 +1,8 @@
-import { IconDefinition, faCoffee } from "@fortawesome/free-solid-svg-icons";
-import { Story, Meta } from "@storybook/react/types-6-0";
-import Icon, { Size } from "./Icon";
+import { faCoffee } from "@fortawesome/free-solid-svg-icons";
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import Icon from "./Icon";
 
-export default {
+const meta: Meta<typeof Icon> = {
   title: "UX/Icon",
   component: Icon,
   argTypes: {
@@ -19,31 +19,31 @@ export default {
       },
     },
   },
-} as Meta;
-
-const Template: Story<{
-  severity: string;
-  icon: IconDefinition;
-  size?: Size;
-}> = (args) => <Icon {...args} />;
-
-export const Small = Template.bind({});
-Small.args = {
-  severity: "Info",
-  icon: faCoffee,
-  size: "small",
 };
 
-export const Medium = Template.bind({});
-Medium.args = {
-  severity: "Success",
-  icon: faCoffee,
-  size: "medium",
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Small: Story = {
+  args: {
+    severity: "Info",
+    icon: faCoffee,
+    size: "small",
+  },
 };
 
-export const Large = Template.bind({});
-Large.args = {
-  severity: "Error",
-  icon: faCoffee,
-  size: "large",
+export const Medium: Story = {
+  args: {
+    severity: "Success",
+    icon: faCoffee,
+    size: "medium",
+  },
+};
+
+export const Large: Story = {
+  args: {
+    severity: "Error",
+    icon: faCoffee,
+    size: "large",
+  },
 };

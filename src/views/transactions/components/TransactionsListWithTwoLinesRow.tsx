@@ -6,7 +6,10 @@ import { getBackendTranslation } from "utils/backTranslations";
 import { dateFromYYYYMMDD } from "utils/date";
 import { getTransactionColor } from "utils/transactions";
 import { useNavigateToDetails } from "../useNavigateToDetails";
-import { TransactionProps, TransactionsListProps } from "./TransactionsGroup";
+import type {
+  TransactionProps,
+  TransactionsListProps,
+} from "./TransactionsGroup";
 
 export const TransactionsListWithTwoLinesRow = ({
   transactions,

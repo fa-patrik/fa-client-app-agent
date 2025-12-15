@@ -1,10 +1,11 @@
-import { gql, QueryHookOptions, useQuery } from "@apollo/client";
+import type { QueryHookOptions } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { useGlobalDateRange } from "hooks/useGlobalDateRange";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
 import { toShortISOString } from "utils/date";
 import { TRADE_ORDERS_DETAILS } from "./fragments";
-import { AllTradeOrdersQuery } from "./types";
+import type { AllTradeOrdersQuery } from "./types";
 
 export const TRADE_ORDERS_QUERY = gql`
   ${TRADE_ORDERS_DETAILS}

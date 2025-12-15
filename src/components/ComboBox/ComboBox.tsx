@@ -1,5 +1,6 @@
-import React, { ReactNode, Fragment, useState, useEffect } from "react";
-import { Combobox, Transition } from "@headlessui/react";
+import type { ReactNode } from "react";
+import React, { Fragment, useState, useEffect } from "react";
+import { Combobox } from "@headlessui/react";
 import { ReactComponent as ChevronDown } from "assets/chevron-down.svg";
 import { ReactComponent as InfoIcon } from "assets/information-circle.svg";
 import classNames from "classnames";
@@ -8,7 +9,6 @@ import { LoadingIndicator } from "components/LoadingIndicator/LoadingIndicator";
 import Fade from "components/Transition/Fade";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { filterOptionsByQuery, getHeightClass } from "utils/options";
-import { usePopper } from "../../hooks/usePopper";
 
 export interface Option {
   id: number | string | null;
@@ -20,7 +20,7 @@ export interface Option {
 interface ComboBoxProps<T> {
   id?: string;
   value: T | undefined;
-  onChange: (option: T) => void;
+  onChange: (option: T | undefined) => void;
   options: T[] | undefined;
   label?: string;
   disabled?: boolean;
@@ -49,9 +49,12 @@ const renderOptions = (
             <li
               data-testid={id ? `${id}-${option.id}` : undefined}
               className={classNames(
-                "block py-2 pl-4 pr-4 text-sm text-gray-700 dark:text-gray-200 cursor-pointer select-none bg-white",
+                "block py-2 pl-4 pr-4 text-sm cursor-pointer select-none",
                 {
-                  "dark:text-white bg-primary-50 dark:bg-gray-600": active,
+                  "text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800":
+                    !active,
+                  "text-gray-900 dark:text-white bg-primary-50 dark:bg-gray-600":
+                    active,
                   "font-bold": isSelected,
                 }
               )}
@@ -80,32 +83,9 @@ export const ComboBox = <TOption extends Option>({
   loading,
   height,
 }: ComboBoxProps<TOption>) => {
-  const [defaultHeight, setDefaultHeight] = useState("h-48");
+  const [defaultHeight, setDefaultHeight] = useState("max-h-48!");
   const [query, setQuery] = useState("");
   const { t } = useModifiedTranslation();
-  const [trigger, container] = usePopper({
-    placement: "bottom-start",
-    modifiers: [
-      {
-        name: "sameWidth",
-        enabled: true,
-        phase: "beforeWrite",
-        fn({ state }) {
-          state.styles.popper.width = `${state.rects.reference.width}px`;
-        },
-        requires: ["computeStyles"],
-        effect: ({ state }) => {
-          if (state.elements.reference instanceof Element) {
-            // fake scroll event to recalculate popper position in case there is animation
-            setTimeout(() => {
-              dispatchEvent(new CustomEvent("scroll"));
-            }, 500);
-            state.elements.popper.style.width = `${state.elements.reference.clientWidth}px`;
-          }
-        },
-      },
-    ],
-  });
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const filteredOptions = filterOptionsByQuery(options, query);
   const isDisabled = disabled || options?.length === 0 || loading;
@@ -143,7 +123,7 @@ export const ComboBox = <TOption extends Option>({
         id={id}
         as="div"
         value={value}
-        onChange={onChange}
+        onChange={(option) => onChange(option ?? undefined)}
         disabled={isDisabled}
       >
         {label && (
@@ -166,17 +146,29 @@ export const ComboBox = <TOption extends Option>({
           </div>
         )}
         <div
-          ref={trigger}
           className={classNames(
-            "flex gap-2 items-center py-2.5 pr-4 w-full h-10 bg-gray-50 rounded-lg border focus-within:border-2 border-gray-300 focus-within:border-primary-400",
+            "flex gap-2 items-center py-2.5 pr-4 w-full h-10 bg-gray-50 rounded-lg border border-gray-300",
             {
-              "border-2 border-red-500 focus-within:border-red-500 bg-red-50": error,
+              // Error state
+              "border-2 border-red-500 bg-red-50": error && !isDisabled,
+              "focus-within:border-red-500": error && !isDisabled,
+              // Interactive state (only when NOT disabled and no error)
+              "focus-within:border-2 focus-within:border-primary-400":
+                !isDisabled && !error,
+              // Disabled state
+              "bg-gray-100 border-gray-200": isDisabled,
             }
           )}
         >
           <Combobox.Input
             id={!id ? undefined : `${id}-input`}
-            className="p-2.5 w-full h-10 text-sm text-gray-900 truncate bg-transparent rounded-lg border-0 focus:border-0 focus:ring-0 focus:-m-[1px]"
+            className={classNames(
+              "p-2.5 w-full h-10 text-sm truncate bg-transparent rounded-lg border-0 focus:border-0 focus:ring-0 focus:-m-px",
+              {
+                "text-gray-900": !isDisabled,
+                "text-gray-400 cursor-not-allowed": isDisabled,
+              }
+            )}
             displayValue={(option: TOption) =>
               option?.label ?? t("component.select.placeholder")
             }
@@ -185,34 +177,34 @@ export const ComboBox = <TOption extends Option>({
           <Combobox.Button
             id={!id ? undefined : `${id}-button`}
             className={classNames("", {
-              "border-gray-200 text-gray-300 cursor-not-allowed": isDisabled,
+              "cursor-pointer": !isDisabled,
+              "cursor-not-allowed": isDisabled,
             })}
           >
             {loading ? (
               <LoadingIndicator size="xs" />
             ) : (
-              <ChevronDown className="stroke-gray-500 w-[20px] h-[20px]" />
+              <ChevronDown
+                className={classNames("w-[20px] h-[20px]", {
+                  "stroke-gray-500": !isDisabled,
+                  "stroke-gray-300": isDisabled,
+                })}
+              />
             )}
           </Combobox.Button>
         </div>
-        <div ref={container}>
-          <Transition
-            enter="transition duration-100 ease-out"
-            enterFrom="transform scale-95 opacity-0"
-            enterTo="transform scale-100 opacity-100"
-            leave="transition duration-75 ease-out"
-            leaveFrom="transform scale-100 opacity-100"
-            leaveTo="transform scale-95 opacity-0"
-          >
-            <Combobox.Options
-              className={`overflow-y-auto py-1 text-base list-none bg-white rounded divide-y divide-gray-100 shadow ${
-                height ?? defaultHeight
-              }`}
-            >
-              {renderOptions(filteredOptions, value, id)}
-            </Combobox.Options>
-          </Transition>
-        </div>
+        <Combobox.Options
+          anchor="bottom start"
+          transition
+          className={classNames(
+            "w-(--input-width) overflow-y-auto py-1 text-base list-none bg-white dark:bg-gray-800 rounded divide-y divide-gray-100 shadow z-50",
+            "[--anchor-gap:0.25rem] [--anchor-padding:1rem]",
+            "transition duration-100 ease-out data-closed:scale-95 data-closed:opacity-0",
+            height ?? defaultHeight
+          )}
+        >
+          {renderOptions(filteredOptions, value, id)}
+        </Combobox.Options>
       </Combobox>
       {error && (
         <Fade>

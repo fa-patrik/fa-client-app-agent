@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { usePortfolioSelect } from "hooks/usePortfolioSelect";
 import { filterPortfolioOptionsByFunction } from "utils/options";
 

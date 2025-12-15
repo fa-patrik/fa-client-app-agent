@@ -8,7 +8,7 @@ export const useGetContactHTML = () => {
   useEffect(() => {
     let unmounted = false;
     const fetchContactHTML = async () => {
-      const response = await fetch(`${process.env.PUBLIC_URL}/contact.html`);
+      const response = await fetch(`${import.meta.env.BASE_URL}contact.html`);
       externalContactHTML = await response.text();
 
       setContactHTML(externalContactHTML);

@@ -1,11 +1,11 @@
-import {
+import type {
   AnalyticsSecurityData,
   AnalyticsSecurityTypeDataWithSecurityData,
 } from "api/holdings/types";
 import { Card, GainLoseColoring } from "components";
-import { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
-import { SellModalInitialData } from "components/TradingModals/SellModalContent/SellModalContent";
-import { SwitchModalInitialData } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
+import type { BuyModalInitialData } from "components/TradingModals/BuyModalContent/BuyModalContent";
+import type { SellModalInitialData } from "components/TradingModals/SellModalContent/SellModalContent";
+import type { SwitchModalInitialData } from "components/TradingModals/SwitchModalContent/SwitchModalContent";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { HoldingsListWithOneLineRow } from "./HoldingsListWithOneLineRow";

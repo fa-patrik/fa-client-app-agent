@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import { TRANSACTION_DETAILS_FIELDS, TRANSACTION_FIELDS } from "./fragments";
-import { TransactionDetailsQuery } from "./types";
+import type { TransactionDetailsQuery } from "./types";
 
 export const TRANSACTION_DETAILS_QUERY = gql`
   ${TRANSACTION_FIELDS}

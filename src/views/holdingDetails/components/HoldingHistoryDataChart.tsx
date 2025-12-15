@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { MarketHistoryDataPoint } from "api/holdings/types";
+import type { MarketHistoryDataPoint } from "api/holdings/types";
 import { useGetSecurityMarketDataHistory } from "api/holdings/useGetSecurityMarketDataHistory";
 import { LineChart, ButtonRadio, LoadingIndicator, Center } from "components";
-import { LineData } from "components/LineChart/LineChart";
+import type { LineData } from "components/LineChart/LineChart";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { useParams } from "react-router-dom";
@@ -16,7 +16,7 @@ const limitDataPoints = (data: MarketHistoryDataPoint[]) => {
   }
   const decimateRatio = Math.floor(data.length / safeDPNumber);
 
-  return data.filter((dataPoint, index) => index % decimateRatio === 0);
+  return data.filter((_dataPoint, index) => index % decimateRatio === 0);
 };
 
 export const HoldingHistoryDataChart = () => {

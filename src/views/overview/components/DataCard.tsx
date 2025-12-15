@@ -1,11 +1,9 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import classNames from "classnames";
 import { useMatchesBreakpoint } from "hooks/useMatchesBreakpoint";
 import { Tooltip } from "react-tooltip";
-import {
-  CardWithChartBackground,
-  ColorScheme,
-} from "./CardWithChartBackground";
+import type { ColorScheme } from "./CardWithChartBackground";
+import { CardWithChartBackground } from "./CardWithChartBackground";
 import { QuestionmarkIcon } from "./PortfolioInfoCard";
 
 interface DataCardProps {
@@ -30,10 +28,10 @@ export const DataCard = ({
       <CardWithChartBackground colorScheme={colorScheme}>
         <div className="relative p-4">
           <div
-            className={classNames("text-sm font-normal flex flex-row gap-2", {
-              "text-gray-600": colorScheme !== "black",
-              "text-gray-300": colorScheme === "black",
-            })}
+            className={classNames(
+              "text-sm font-normal flex flex-row gap-2",
+              colorScheme === "black" ? "text-gray-300" : "text-gray-600"
+            )}
           >
             {label}
             {showTooltip && toolTipContent && (
@@ -43,9 +41,10 @@ export const DataCard = ({
             )}
           </div>
           <div
-            className={classNames("text-3xl font-medium text-gray-900", {
-              "text-gray-200": colorScheme === "black",
-            })}
+            className={classNames(
+              "text-3xl font-medium",
+              colorScheme === "black" ? "text-gray-200" : "text-gray-900"
+            )}
           >
             {value}
           </div>

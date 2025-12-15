@@ -1,7 +1,12 @@
 import React, { Fragment } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+} from "@headlessui/react";
 import { Button } from "components";
-import { Variant } from "components/Button/Button";
+import type { Variant } from "components/Button/Button";
 
 interface ConfirmDialogProps {
   id?: string;
@@ -36,50 +41,39 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog
-        id={id ?? "confirmDialog"}
-        as="div"
-        className="overflow-y-auto fixed inset-0 z-40"
-        onClose={() => setIsOpen(false)}
-      >
-        <div className="px-4 min-h-screen text-center">
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
-          </Transition.Child>
-          <span
-            className="inline-block h-screen align-middle"
-            aria-hidden="true"
-          >
-            &#8203;
-          </span>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0 scale-95"
-            enterTo="opacity-100 scale-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
-          >
-            <div
+      <Dialog onClose={() => setIsOpen(false)}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 z-40 bg-black/30" aria-hidden="true" />
+        </Transition.Child>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0 scale-95"
+          enterTo="opacity-100 scale-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100 scale-100"
+          leaveTo="opacity-0 scale-95"
+        >
+          <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
+            <DialogPanel
               id={!id ? "confirmDialogContent" : `${id}-content`}
-              className="inline-block overflow-hidden p-4 my-8 w-full max-w-md text-left align-middle bg-white rounded-2xl shadow-xl transition-all transform"
+              className="w-full max-w-md p-4 bg-white rounded-2xl shadow-xl"
             >
-              <Dialog.Title
+              <DialogTitle
                 id={!id ? "confirmDialogTitle" : `${id}-title`}
                 as="h3"
                 className="text-lg font-medium leading-6 text-gray-900"
               >
                 {title}
-              </Dialog.Title>
+              </DialogTitle>
               <div className="mt-2">
                 <p
                   id={!id ? "confirmDialogDescription" : `${id}-description`}
@@ -116,9 +110,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                   </Button>
                 )}
               </div>
-            </div>
-          </Transition.Child>
-        </div>
+            </DialogPanel>
+          </div>
+        </Transition.Child>
       </Dialog>
     </Transition>
   );

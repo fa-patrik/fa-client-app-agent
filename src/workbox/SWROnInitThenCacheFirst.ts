@@ -1,4 +1,5 @@
-import { Strategy, StrategyHandler } from "workbox-strategies";
+import type { StrategyHandler } from "workbox-strategies";
+import { Strategy } from "workbox-strategies";
 import { initTimestamp, calledChachesInThisInit } from "./init";
 
 const addInitTimestampParam = (url: string) =>

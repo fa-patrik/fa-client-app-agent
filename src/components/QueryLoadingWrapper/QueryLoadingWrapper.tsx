@@ -1,4 +1,4 @@
-import { QueryData } from "api/types";
+import type { QueryData } from "api/types";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { toast } from "react-toastify";
 import { Card } from "../Card/Card";
@@ -7,7 +7,7 @@ import { LoadingIndicator } from "../LoadingIndicator/LoadingIndicator";
 
 export interface QueryLoadingWrapperProps<T> extends QueryData<T> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  SuccessComponent: (props: any) => JSX.Element; // Let SuccessComponent accept any props
+  SuccessComponent: (props: any) => React.ReactElement; // Let SuccessComponent accept any props
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   successComponentProps?: any; // New prop for SuccessComponent's props
 }
@@ -15,7 +15,7 @@ export interface QueryLoadingWrapperProps<T> extends QueryData<T> {
 const QUERY_ERROR_TOAST_ID = "QUERY_ERROR_TOAST_ID";
 
 export const QueryLoadingWrapper = <TData,>({
-  loading,
+  loading: _loading,
   error,
   data,
   SuccessComponent,

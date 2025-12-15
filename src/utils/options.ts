@@ -1,5 +1,5 @@
-import { Option } from "components/ComboBox/ComboBox";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { Option } from "components/ComboBox/ComboBox";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 
 /**
  * Helper function to check whether an option exists in a list of options.
@@ -144,15 +144,15 @@ export const findPortfolioOptionById = (
 export const getHeightClass = (screenHeight: number) => {
   if (screenHeight <= 400) {
     // xs
-    return "max-h-24";
+    return "max-h-24!";
   } else if (screenHeight <= 768) {
     // sm
-    return "max-h-40";
+    return "max-h-40!";
   } else if (screenHeight <= 1024) {
     // md
-    return "max-h-52";
+    return "max-h-52!";
   } else {
     // lg
-    return "max-h-64";
+    return "max-h-64!";
   }
 };

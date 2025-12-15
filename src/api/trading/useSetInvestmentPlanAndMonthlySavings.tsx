@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { FetchResult, gql, useMutation } from "@apollo/client";
+import type { FetchResult } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
 import { useModifiedTranslation } from "../../hooks/useModifiedTranslation";
 
@@ -28,10 +29,13 @@ export const investmentPlanToImportString = (
 ) => {
   const date = investmentPlan.date;
   const securities = investmentPlan.securities;
-  return securities.reduce((prev: string, curr) => {
-    prev = `${prev},${curr.securityCode}=${curr.share}`;
-    return prev;
-  }, `${date.toLocaleDateString("sv-SE")}`);
+  return securities.reduce(
+    (prev: string, curr) => {
+      prev = `${prev},${curr.securityCode}=${curr.share}`;
+      return prev;
+    },
+    `${date.toLocaleDateString("sv-SE")}`
+  );
 };
 
 /**

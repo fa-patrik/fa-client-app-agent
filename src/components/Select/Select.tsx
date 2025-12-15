@@ -1,10 +1,10 @@
-import React, { ReactNode, Fragment, useMemo } from "react";
-import { Listbox, Transition } from "@headlessui/react";
+import type { ReactNode } from "react";
+import React, { Fragment, useMemo } from "react";
+import { Listbox } from "@headlessui/react";
 import { ReactComponent as CheckIcon } from "assets/check.svg";
 import { ReactComponent as ChevronDown } from "assets/chevron-down.svg";
 import classNames from "classnames";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
-import { usePopper } from "../../hooks/usePopper";
 
 function truncateLabel(label: string) {
   const MAX_LABEL_LENGTH = 18;
@@ -31,6 +31,8 @@ interface SelectProps<T> {
   onChangeMultiple?: (option: T[]) => void;
   options: T[];
   label?: string;
+  /** If true, the select will be disabled */
+  disabled?: boolean;
   /** If true, the user can select multiple options */
   selectMultiple?:
     | boolean
@@ -101,32 +103,10 @@ export const Select = <TOption extends Option>({
   onChange,
   onChangeMultiple,
   label,
+  disabled = false,
   selectMultiple = false,
 }: SelectProps<TOption>) => {
   const { t } = useModifiedTranslation();
-  const [trigger, container] = usePopper({
-    placement: "bottom-start",
-    modifiers: [
-      {
-        name: "sameWidth",
-        enabled: true,
-        phase: "beforeWrite",
-        fn({ state }) {
-          state.styles.popper.width = `${state.rects.reference.width}px`;
-        },
-        requires: ["computeStyles"],
-        effect: ({ state }) => {
-          if (state.elements.reference instanceof Element) {
-            // fake scroll event to recalculate popper position in case there is animation
-            setTimeout(() => {
-              dispatchEvent(new CustomEvent("scroll"));
-            }, 500);
-            state.elements.popper.style.width = `${state.elements.reference.clientWidth}px`;
-          }
-        },
-      },
-    ],
-  });
 
   const { enableMultiselect, listSelectedOptions } = useMemo(() => {
     if (typeof selectMultiple === "object") {
@@ -157,7 +137,7 @@ export const Select = <TOption extends Option>({
     }
   }, [value, label, listSelectedOptions, t]);
 
-  const selectButtonDisabled = options.length === 0;
+  const selectButtonDisabled = disabled || options.length === 0;
 
   return (
     <Listbox
@@ -175,32 +155,37 @@ export const Select = <TOption extends Option>({
       )}
       <Listbox.Button
         className={classNames(
-          "flex gap-2 items-center py-2.5 px-4 w-full h-10 text-base text-gray-900 bg-gray-50 rounded-lg border border-gray-300",
+          "flex gap-2 items-center py-2.5 px-4 w-full h-10 text-base bg-gray-50 rounded-lg border border-gray-300",
           {
-            "border-gray-200 text-gray-300": selectButtonDisabled,
+            // Interactive state (only when NOT disabled)
+            "text-gray-900 cursor-pointer": !selectButtonDisabled,
+            // Disabled state
+            "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-100":
+              selectButtonDisabled,
           }
         )}
-        ref={trigger}
       >
         <div className="box-border flex-1 content-start leading-none text-left truncate">
           {listBoxButtonContent}
         </div>
-        <ChevronDown className="stroke-gray-500 w-[20px] h-[20px]" />
+        <ChevronDown
+          className={classNames("w-[20px] h-[20px]", {
+            "stroke-gray-500": !selectButtonDisabled,
+            "stroke-gray-300": selectButtonDisabled,
+          })}
+        />
       </Listbox.Button>
-      <div ref={container}>
-        <Transition
-          enter="transition duration-100 ease-out"
-          enterFrom="transform scale-95 opacity-0"
-          enterTo="transform scale-100 opacity-100"
-          leave="transition duration-75 ease-out"
-          leaveFrom="transform scale-100 opacity-100"
-          leaveTo="transform scale-95 opacity-0"
-        >
-          <Listbox.Options className="overflow-y-auto py-1 max-h-96 text-base list-none bg-white rounded divide-y divide-gray-100 shadow">
-            {renderOptions({ options, enableMultiselect })}
-          </Listbox.Options>
-        </Transition>
-      </div>
+      <Listbox.Options
+        anchor="bottom start"
+        transition
+        className={classNames(
+          "w-(--button-width) overflow-y-auto py-1 max-h-96 text-base list-none bg-white dark:bg-gray-800 rounded divide-y divide-gray-100 shadow z-50",
+          "[--anchor-gap:0.25rem] [--anchor-padding:1rem]",
+          "transition duration-100 ease-out data-closed:scale-95 data-closed:opacity-0"
+        )}
+      >
+        {renderOptions({ options, enableMultiselect })}
+      </Listbox.Options>
     </Listbox>
   );
 };

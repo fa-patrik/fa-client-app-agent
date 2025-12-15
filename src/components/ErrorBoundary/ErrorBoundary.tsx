@@ -1,4 +1,5 @@
-import { ReactNode, Component, ErrorInfo as ReactErrorInfo } from "react";
+import type { ReactNode, ErrorInfo as ReactErrorInfo } from "react";
+import { Component } from "react";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";
 import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
 
@@ -18,7 +19,7 @@ export class ErrorBoundary extends Component<Props, State> {
     return { error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ReactErrorInfo) {
+  componentDidCatch(_error: Error, errorInfo: ReactErrorInfo) {
     this.setState({ errorInfo });
   }
 
@@ -35,7 +36,10 @@ interface ErrorInfoProps {
   errorInfo: ReactErrorInfo | undefined;
 }
 
-const ErrorInfo = ({ error, errorInfo }: ErrorInfoProps) => {
+const ErrorInfo = ({
+  error: _error,
+  errorInfo: _errorInfo,
+}: ErrorInfoProps) => {
   const { t } = useModifiedTranslation();
 
   return (

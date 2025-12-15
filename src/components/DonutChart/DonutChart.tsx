@@ -1,8 +1,8 @@
-import { ApexOptions } from "apexcharts";
+import type { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 
 interface DonutChartProps {
-  series?: Array<unknown>;
+  series?: number[];
   labels?: Array<string>;
   options?: ApexOptions;
 }

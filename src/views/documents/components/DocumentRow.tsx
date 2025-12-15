@@ -1,4 +1,4 @@
-import { Document } from "api/documents/types";
+import type { Document } from "api/documents/types";
 import { ReactComponent as DownloadIcon } from "assets/download.svg";
 import { Button } from "components";
 import { useModifiedTranslation } from "hooks/useModifiedTranslation";

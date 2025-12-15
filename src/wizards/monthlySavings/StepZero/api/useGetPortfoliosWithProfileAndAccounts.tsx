@@ -3,18 +3,18 @@ import {
   PORTFOLIO_BASIC_FIELDS,
   useGetContactInfo,
 } from "api/common/useGetContactInfo";
-import {
-  PORTFOLIO_EXTENDED_FIELDS,
-  PortfolioWithProfileAndFigures,
-} from "api/common/useGetPortfoliosWithProfileAndFigures";
+import type { PortfolioWithProfileAndFigures } from "api/common/useGetPortfoliosWithProfileAndFigures";
+import { PORTFOLIO_EXTENDED_FIELDS } from "api/common/useGetPortfoliosWithProfileAndFigures";
 import { getSubPortfolioIds } from "api/common/useGetSubPortfolioIds";
-import {
-  ACCOUNT_CAT_EXTERNAL,
+import type {
   CashAccount,
-  PORTFOLIO_ACCOUNTS_FRAGMENT,
-  PORTFOLIO_REPORT_ACCOUNTS_FRAGMENT,
   PortfolioAccount,
   PortfolioReportAccount,
+} from "api/money/useGetPortfoliosAccounts";
+import {
+  ACCOUNT_CAT_EXTERNAL,
+  PORTFOLIO_ACCOUNTS_FRAGMENT,
+  PORTFOLIO_REPORT_ACCOUNTS_FRAGMENT,
   mapCashAccount,
 } from "api/money/useGetPortfoliosAccounts";
 import { useGetContractIdData } from "providers/ContractIdProvider";
@@ -104,12 +104,15 @@ export const getUniqueExternalAccounts = (
     ...externalPortfolioReportAccounts,
   ];
 
-  const externalAccountMap = allExternalAccounts.reduce((prev, currAcc) => {
-    if (currAcc.accountId !== null) {
-      prev[currAcc.accountId] ??= mapCashAccount(currAcc);
-    }
-    return prev;
-  }, {} as Record<number, CashAccount>);
+  const externalAccountMap = allExternalAccounts.reduce(
+    (prev, currAcc) => {
+      if (currAcc.accountId !== null) {
+        prev[currAcc.accountId] ??= mapCashAccount(currAcc);
+      }
+      return prev;
+    },
+    {} as Record<number, CashAccount>
+  );
 
   const uniqueExternalAccounts = Object.values(externalAccountMap);
   return uniqueExternalAccounts;

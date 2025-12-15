@@ -1,14 +1,14 @@
-import { Portfolio } from "api/common/useGetContactInfo";
-import {
+import type { Portfolio } from "api/common/useGetContactInfo";
+import type {
   Attribute,
   Profile,
 } from "api/common/useGetPortfoliosWithProfileAndFigures";
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
-import { PortfolioMonthlyInvestmentsDTOInput } from "api/trading/useSetMonthlyInvestments";
-import { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import type { PortfolioMonthlyInvestmentsDTOInput } from "api/trading/useSetMonthlyInvestments";
+import type { PortfolioOption } from "components/PortfolioSelect/PortfolioSelect";
 import { getPortfolioOption } from "hooks/useGetPortfolioOptions";
 import { round } from "utils/number";
-import { MonthlyInvestmentsWizardState } from "wizards/monthlyInvestments/types";
+import type { MonthlyInvestmentsWizardState } from "wizards/monthlyInvestments/types";
 import { getDefaultValueAsNumber } from "./common";
 
 export enum MonthlyInvestmentsFieldId {
@@ -88,7 +88,7 @@ export const getMonthlyInvestmentsFromProfile = (
  * @param removePfWithIncompleteProfiles the result array will not contain portfolios with invalid profiles (incomplete data)
  */
 export function addMonthlyInvestmentsToPortfolios<
-  T extends PortfolioWithProfile
+  T extends PortfolioWithProfile,
 >(
   portfolios: T[],
   removePfWithIncompleteProfiles = true
@@ -362,17 +362,23 @@ export const convertMonthlyInvestmentsProfileToWizardState = (
 
     const amountDistributionWithStringValues = Object.keys(
       amountDistribution
-    ).reduce((prev, curr) => {
-      prev[curr] = amountDistribution[curr].toString();
-      return prev;
-    }, {} as Record<string, string>);
+    ).reduce(
+      (prev, curr) => {
+        prev[curr] = amountDistribution[curr].toString();
+        return prev;
+      },
+      {} as Record<string, string>
+    );
 
     const percentageDistributionWithStringValues = Object.keys(
       percentageDistribution
-    ).reduce((prev, curr) => {
-      prev[curr] = percentageDistribution[curr].toString();
-      return prev;
-    }, {} as Record<string, string>);
+    ).reduce(
+      (prev, curr) => {
+        prev[curr] = percentageDistribution[curr].toString();
+        return prev;
+      },
+      {} as Record<string, string>
+    );
 
     const securityCodes = getUniqueSecurityCodes([
       portfolioWithMonthlyInvestments,

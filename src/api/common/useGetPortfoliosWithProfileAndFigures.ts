@@ -2,11 +2,8 @@ import { gql, useQuery } from "@apollo/client";
 import { getSubPortfolioIds } from "api/common/useGetSubPortfolioIds";
 import { useGetContractIdData } from "providers/ContractIdProvider";
 import { useKeycloak } from "providers/KeycloakProvider";
-import {
-  PORTFOLIO_BASIC_FIELDS,
-  Portfolio,
-  useGetContactInfo,
-} from "./useGetContactInfo";
+import type { Portfolio } from "./useGetContactInfo";
+import { PORTFOLIO_BASIC_FIELDS, useGetContactInfo } from "./useGetContactInfo";
 
 export const PORTFOLIO_EXTENDED_FIELDS = gql`
   fragment PortfolioWithProfileAndFigures on Portfolio {
@@ -51,13 +48,13 @@ export const PORTFOLIO_EXTENDED_FIELDS = gql`
 
 //maximum of 2 sub portfolio depth
 export const PORTFOLIO_EXTENDED_DATA_QUERY = gql`
-  ${PORTFOLIO_BASIC_FIELDS}
   ${PORTFOLIO_EXTENDED_FIELDS}
   query GetPortfoliosProfileAndFigures($portfolioIds: [String]) {
     portfolios(ids: $portfolioIds) {
       ...PortfolioWithProfileAndFigures
     }
   }
+  ${PORTFOLIO_BASIC_FIELDS}
 `;
 
 export interface Attribute {

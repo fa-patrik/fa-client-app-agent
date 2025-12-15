@@ -1,7 +1,8 @@
-const colors = require("tailwindcss/colors");
-const plugin = require("tailwindcss/plugin");
+import colors from "tailwindcss/colors";
+import plugin from "tailwindcss/plugin";
 
-module.exports = {
+export default {
+  darkMode: 'class',
   content: ["./src/**/*.{js,jsx,ts,tsx}", "./public/contact.html"],
   safelist: [],
   theme: {
@@ -122,6 +123,6 @@ module.exports = {
         },
       });
     }),
-    require("flowbite/plugin"),
   ],
 };
+

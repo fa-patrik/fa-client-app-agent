@@ -1,8 +1,7 @@
 import { TransactionTypeAmountEffect, OrderStatus } from "api/enums";
-import { StringMap, TOptions } from "i18next";
 import { isOrderStatusToDisplayType } from "views/orders/components/useGroupedTradeOrdersByStatus";
-import { TradeOrder } from "../api/orders/types";
 import { getBackendTranslation } from "./backTranslations";
+import type { TradeOrder } from "../api/orders/types";
 
 export enum PartOfSwitch {
   BUY = "buy",
@@ -30,12 +29,12 @@ export const getSwitchDetails = (order: TradeOrder) => {
     const fromOrder =
       order.type.amountEffect === TransactionTypeAmountEffect.Decreasing
         ? order
-        : order.linkedTransaction ?? undefined;
+        : (order.linkedTransaction ?? undefined);
 
     const toOrder =
       order.type.amountEffect === TransactionTypeAmountEffect.Increasing
         ? order
-        : order.linkedTransaction ?? undefined;
+        : (order.linkedTransaction ?? undefined);
 
     const switchOrderStatus = switchStatusToDisplay(fromOrder);
 
@@ -51,10 +50,13 @@ export const linkSwitchBuyLegsToSells = (orders: TradeOrder[] | undefined) => {
   if (!orders) return;
 
   //convert to map for faster indexing
-  const ordersAsMap = orders?.reduce((prev, curr) => {
-    prev[curr.id] = curr;
-    return prev;
-  }, {} as Record<TradeOrder["id"], TradeOrder>);
+  const ordersAsMap = orders?.reduce(
+    (prev, curr) => {
+      prev[curr.id] = curr;
+      return prev;
+    },
+    {} as Record<TradeOrder["id"], TradeOrder>
+  );
 
   //add the linkage
   for (const order of orders) {
@@ -96,9 +98,9 @@ export const getPartOfSwitch = (order: TradeOrder): PartOfSwitch => {
 
 export const getOrderTypeName = (
   order: TradeOrder,
-  t: (key: string, options?: TOptions<StringMap> | undefined) => string,
-  locale: string,
-  resolvedLanguage: string
+  t: (key: string, options?: Record<string, unknown>) => string,
+  locale: string | undefined,
+  resolvedLanguage: string | undefined
 ): string => {
   const typeName = isOrderPartOfSwitch(order)
     ? t("utils.switchOrder.typeName")

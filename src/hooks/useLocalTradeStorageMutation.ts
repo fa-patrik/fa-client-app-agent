@@ -1,9 +1,9 @@
-import { Portfolio } from "api/common/useGetContactInfo";
+import type { Portfolio } from "api/common/useGetContactInfo";
 import { OrderStatus } from "api/enums";
-import { depositType } from "api/money/useDeposit";
-import { withdrawalType } from "api/money/useWithdrawal";
-import { TradeOrder, TradeOrderType } from "api/orders/types";
-import { TradeType as SecurityTradeType } from "api/trading/useTrade";
+import type { depositType } from "api/money/useDeposit";
+import type { withdrawalType } from "api/money/useWithdrawal";
+import type { TradeOrder, TradeOrderType } from "api/orders/types";
+import type { TradeType as SecurityTradeType } from "api/trading/useTrade";
 import { TransactionType } from "api/transactions/enums";
 import { LocalTradeOrderId } from "hooks/useLocalTradeStorageState";
 import i18n from "i18next";
@@ -95,7 +95,7 @@ export const useLocalTradeStorageMutation = () => {
       tradeType,
       reference,
     } = tradeDetails;
-    
+
     await placeOrder({
       id: LocalTradeOrderId,
       orderStatus: OrderStatus.Pending,

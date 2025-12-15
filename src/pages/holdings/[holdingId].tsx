@@ -1,0 +1,68 @@
+import type { AnalyticsSecurityTypeDataWithSecurityData } from "api/holdings/types";
+import { useGetContactHoldingsFromAnalytics } from "api/holdings/useGetContactHoldingsFromAnalytics";
+import { useGetSecurityDetails } from "api/holdings/useGetSecurityDetails";
+import { QueryLoadingWrapper } from "components";
+import { useDetailsHeader } from "layouts/DetailsLayout/DetailsHeaderContext";
+import { useParams } from "react-router-dom";
+import { HoldingDetails } from "views/holdingDetails/holdingDetails";
+import { NotFoundView } from "views/notFoundView/notFoundView";
+
+const findHolding = (
+  holdingsGroupedByType:
+    | AnalyticsSecurityTypeDataWithSecurityData[]
+    | undefined,
+  securityId: string | undefined
+) => {
+  if (!holdingsGroupedByType || !securityId) return;
+  for (const type of holdingsGroupedByType) {
+    const holding = type.securities?.find(
+      (holding) => holding?.security?.id?.toString() === securityId
+    );
+    if (holding) return holding;
+  }
+};
+
+export const HoldingPage = () => {
+  const { holdingId } = useParams();
+  const {
+    loading: securityLoading,
+    error: securityError,
+    data: securityData,
+  } = useGetSecurityDetails(holdingId);
+  const {
+    loading: holdingLoading,
+    error: holdingError,
+    data: holdingData,
+  } = useGetContactHoldingsFromAnalytics();
+
+  const securityTypesData =
+    holdingData?.contact?.analytics?.contact?.securityTypes;
+  const holding = findHolding(securityTypesData, holdingId);
+
+  // marge data are ready when:
+  // 1) there are securityData (cached or fresh) and
+  // 2) holdingData finishes loading or we have cached holdingData
+  const mergedData =
+    (!holdingLoading || holding) && securityData
+      ? {
+          holding: holding,
+          security: securityData,
+        }
+      : undefined;
+  const isLoading = securityLoading || holdingLoading;
+  const securityDoesNotExist = !isLoading && !securityData;
+
+  // Set details header (show loading spinner until name exists)
+  useDetailsHeader(securityData?.name ?? null, { loading: isLoading });
+
+  return securityDoesNotExist ? (
+    <NotFoundView />
+  ) : (
+    <QueryLoadingWrapper
+      loading={isLoading}
+      data={mergedData}
+      error={securityError || holdingError}
+      SuccessComponent={HoldingDetails}
+    />
+  );
+};

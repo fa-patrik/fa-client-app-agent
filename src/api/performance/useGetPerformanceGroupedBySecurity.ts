@@ -1,13 +1,8 @@
 import { useState } from "react";
-import {
-  ApolloError,
-  OperationVariables,
-  gql,
-  useApolloClient,
-  useQuery,
-} from "@apollo/client";
-import { TradableSecurity } from "api/trading/useGetTradebleSecurities";
-import { PerformanceBySecurityQuery, TimePeriod } from "./types";
+import type { OperationVariables } from "@apollo/client";
+import { ApolloError, gql, useApolloClient, useQuery } from "@apollo/client";
+import type { TradableSecurity } from "api/trading/useGetTradebleSecurities";
+import type { PerformanceBySecurityQuery, TimePeriod } from "./types";
 
 const SECURITY_PERFORMANCE_FRAGMENT = gql`
   fragment SecurityPerformance on Security {

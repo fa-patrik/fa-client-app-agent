@@ -2,33 +2,26 @@ image: node:lts
 
 definitions:
   caches:
+    pnpm-store: ~/.local/share/pnpm/store/v3
     node-modules: node_modules
 
 pipelines:
   branches:
     "{develop, release/*}":
       - step:
-          name: Install dependencies
+          name: Build and Test
+          size: 2x
           working_directory: $WORKDIR_PRIVATE
           caches:
+            - pnpm-store
             - node-modules
           script:
-            - yarn install
-      - step:
-          name: Test
-          working_directory: $WORKDIR_PRIVATE
-          caches:
-            - node-modules
-          script:
-            - yarn test:CI
-      - step:
-          name: Build
-          size: 2x # Double the default memory limit
-          working_directory: $WORKDIR_PRIVATE
-          caches:
-            - node-modules
-          script:
-            - yarn build
+            - corepack enable
+            - corepack prepare pnpm@latest --activate
+            - export PNPM_NO_UPDATE_NOTIFIER=true
+            - pnpm install --frozen-lockfile
+            - pnpm test:ci
+            - pnpm build
           artifacts:
             - build/**
       - step:

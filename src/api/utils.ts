@@ -1,4 +1,4 @@
-import { WatchQueryFetchPolicy } from "@apollo/client";
+import type { WatchQueryFetchPolicy } from "@apollo/client";
 
 let apiHookCalledMap: Record<string, Date> = {};
 
@@ -30,7 +30,7 @@ export const getFetchPolicyOptions = (hookKey: string): FetchPolicyOptions => ({
     isStale(hookKey) && window.navigator.onLine
       ? "cache-and-network"
       : "cache-only",
-  onCompleted: (data: unknown) => {
+  onCompleted: () => {
     apiHookCalledMap = {
       ...apiHookCalledMap,
       [hookKey]: new Date(),

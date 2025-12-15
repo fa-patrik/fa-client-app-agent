@@ -12,20 +12,20 @@ export const CountryFlag = ({ code, ...props }: CountryFlagProps) => {
     if (code) {
       const importFlag = async (): Promise<void> => {
         try {
-          // https://github.com/facebook/create-react-app/issues/5276
-          const FlagComponent = (
-            await import(`assets/flags/${code.toLowerCase()}.svg`)
-          ).ReactComponent;
+          const flagModule = await import(`../../assets/flags/${code.toLowerCase()}.svg`);
           if (!unmounted) {
-            setFlagComponent(FlagComponent);
+            setFlagComponent(() => flagModule.ReactComponent);
           }
         } catch (error) {
+          console.warn(`Flag for country code "${code}" not found`);
           if (!unmounted) {
             setFlagComponent(undefined);
           }
         }
       };
       importFlag();
+    } else {
+      setFlagComponent(undefined);
     }
     return () => {
       unmounted = true;

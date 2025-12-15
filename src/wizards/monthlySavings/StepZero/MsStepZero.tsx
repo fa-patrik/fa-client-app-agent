@@ -3,10 +3,8 @@ import {
   PortfolioGroups,
   RepresentativeTag,
 } from "api/common/useGetContactInfo";
-import {
-  PortfolioMonthlySavingsDTOInput,
-  useSetMonthlySavings,
-} from "api/money/useSetMonthlySavings";
+import type { PortfolioMonthlySavingsDTOInput } from "api/money/useSetMonthlySavings";
+import { useSetMonthlySavings } from "api/money/useSetMonthlySavings";
 import { ReactComponent as ExclamationIcon } from "assets/exclamation-circle.svg";
 import { ReactComponent as PlusIcon } from "assets/plus-circle.svg";
 import { Badge, Button, Card, LoadingIndicator } from "components";
@@ -23,10 +21,12 @@ import {
   getDefaultValueAsNumber,
   getNumberOfOptions,
 } from "utils/faBackProfiles/common";
-import {
+import type {
   MonthlySavings,
-  MonthlySavingsFieldId,
   PortfolioWithMonthlySavings,
+} from "utils/faBackProfiles/monthlySavings";
+import {
+  MonthlySavingsFieldId,
   addMonthlySavingsToPortfolios,
   getSelectedMonths,
   getSelectedMonthsAsMap,
@@ -34,8 +34,8 @@ import {
 import { WizardBottomNavigationReplica } from "../../components/WizardBottomNavigationReplica";
 import OnError from "../components/OnError";
 import { SelectMonthsGrid } from "../components/SelectedMonthsGrid";
+import type { PortfolioProfileAndFiguresAndAccounts } from "./api/useGetPortfoliosWithProfileAndAccounts";
 import {
-  PortfolioProfileAndFiguresAndAccounts,
   getUniqueExternalAccounts,
   useGetPortfoliosProfileAndFiguresAndAccounts,
 } from "./api/useGetPortfoliosWithProfileAndAccounts";
@@ -286,7 +286,7 @@ const MsStepZero = () => {
                       </span>
                     )}
                   </div>
-                  <hr className="border-1" />
+                  <hr className="border" />
                   <p>
                     {t(
                       "wizards.monthlySavings.stepThree.monthsSelectedGridTitle"
@@ -298,7 +298,7 @@ const MsStepZero = () => {
                     selected={selectedMonthsAsMap}
                     narrow
                   />
-                  <hr className="border-1" />
+                  <hr className="border" />
                   <div className="flex justify-between">
                     <Button
                       id={`monthlySavingsWizard-deletePlanButton-${portfolio.id}`}

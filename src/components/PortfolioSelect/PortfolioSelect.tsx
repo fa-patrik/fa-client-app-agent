@@ -1,4 +1,5 @@
-import { Portfolio } from "api/common/useGetContactInfo";
+import { useMemo } from "react";
+import { type Portfolio } from "api/common/useGetContactInfo";
 import { ComboBox } from "../ComboBox/ComboBox";
 
 export interface PortfolioOption {
@@ -14,7 +15,7 @@ interface PortfolioSelectProps {
   id?: string;
   portfolioOptions: PortfolioOption[];
   portfolioId?: number;
-  onChange: (option: PortfolioOption) => void;
+  onChange: (option: PortfolioOption | undefined) => void;
   label?: string;
   error?: string;
   height?: string;
@@ -29,9 +30,9 @@ export const PortfolioSelect = ({
   error,
   height,
 }: PortfolioSelectProps) => {
-  const currentPortfolioOption = getCurrentPortfolioOption(
-    portfolioOptions,
-    portfolioId
+  const currentPortfolioOption = useMemo(
+    () => getCurrentPortfolioOption(portfolioOptions, portfolioId),
+    [portfolioOptions, portfolioId]
   );
   return (
     <ComboBox

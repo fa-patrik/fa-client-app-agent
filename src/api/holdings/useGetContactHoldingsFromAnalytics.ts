@@ -6,7 +6,7 @@ import {
   SECURITY_DATA_FRAGMENT,
   SECURITY_TYPE_WITH_SECURITIES_FRAGMENT,
 } from "./fragments";
-import { ContactHoldingsFromAnalyticsQuery } from "./types";
+import type { ContactHoldingsFromAnalyticsQuery } from "./types";
 
 /**
  * Fetching yesterday-today will provide us with the latest available snapshot
