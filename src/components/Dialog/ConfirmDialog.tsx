@@ -65,19 +65,19 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
             <DialogPanel
               id={!id ? "confirmDialogContent" : `${id}-content`}
-              className="w-full max-w-md p-4 bg-white rounded-2xl shadow-xl"
+              className="w-full max-w-md p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-xl"
             >
               <DialogTitle
                 id={!id ? "confirmDialogTitle" : `${id}-title`}
                 as="h3"
-                className="text-lg font-medium leading-6 text-gray-900"
+                className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100"
               >
                 {title}
               </DialogTitle>
               <div className="mt-2">
                 <p
                   id={!id ? "confirmDialogDescription" : `${id}-description`}
-                  className="text-sm text-gray-500"
+                  className="text-sm text-gray-500 dark:text-gray-400"
                 >
                   {description}
                 </p>

@@ -39,14 +39,14 @@ const Order = ({ order, onClick }: OrderProps) => {
   return (
     <Grid.Row className="py-2 border-b" onClick={onClick}>
       <div className="col-span-2">
-        <div className="flex gap-4 justify-between items-center text-left text-gray-800">
+        <div className="flex gap-4 justify-between items-center text-left text-gray-800 dark:text-gray-200">
           {isPartOfSwitch ? (
             <div className="flex flex-row gap-x-1 text-sm">
               <div className="flex flex-col gap-y-1 font-normal text-gray-500">
                 <span>Sell:</span>
                 <span>Buy:</span>
               </div>
-              <div className="flex flex-col gap-y-1 font-semibold text-black ">
+              <div className="flex flex-col gap-y-1 font-semibold text-black dark:text-gray-100 ">
                 <span className="truncate">
                   {switchDetails?.fromOrder?.securityName}
                 </span>

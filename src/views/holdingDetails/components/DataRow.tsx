@@ -8,7 +8,7 @@ interface DataRowProps {
 export const DataRow = ({ label, value }: DataRowProps) => (
   <div className="flex justify-between items-center pt-3 pb-2">
     <div className="text-base font-normal">{label}</div>
-    <div className="text-base font-semibold text-right text-gray-800">
+    <div className="text-base font-semibold text-right text-gray-800 dark:text-gray-200">
       {value}
     </div>
   </div>

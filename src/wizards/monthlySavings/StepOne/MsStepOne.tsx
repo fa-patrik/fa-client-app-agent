@@ -25,7 +25,7 @@ const PF_KEYFIGURE_CODE_MIN_AMOUNT = "CP_MS_MINAMOUNT";
 
 const AccountBadge = ({ accountNr }: { accountNr: string }) => {
   return (
-    <div className="p-2 w-full text-sm text-gray-900">
+    <div className="p-2 w-full text-sm text-gray-900 dark:text-gray-100">
       <span id="monthlySavingsWizard-debitAccountNumber">{accountNr}</span>
     </div>
   );

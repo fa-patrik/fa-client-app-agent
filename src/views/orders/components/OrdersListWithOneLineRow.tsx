@@ -160,7 +160,7 @@ const Order = ({
                   <span>{t("ordersPage.switchSell")}</span>
                   <span>{t("ordersPage.switchBuy")}</span>
                 </div>
-                <div className="flex flex-col gap-y-1 font-semibold text-black">
+                <div className="flex flex-col gap-y-1 font-semibold text-black dark:text-gray-100">
                   <span>
                     {getBackendTranslation(
                       switchDetails?.fromOrder?.securityName,

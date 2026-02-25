@@ -42,7 +42,7 @@ export const DocumentRow = ({
       <div className="pt-2 pb-2.5 ml-2 w-2/4 text-base md:text-lg font-semibold md:leading-8 truncate">
         {fileName}
       </div>
-      <div className="pt-2 pb-2.5 w-1/4 text-sm font-semibold md:leading-8 text-right text-gray-500 md:text-gray-800">
+      <div className="pt-2 pb-2.5 w-1/4 text-sm font-semibold md:leading-8 text-right text-gray-500 md:text-gray-800 dark:text-gray-300">
         {t("date", { date: dateFromYYYYMMDD(created) })}
       </div>
       <div className="pt-2 pb-2.5 mr-2 w-1/4 text-right">

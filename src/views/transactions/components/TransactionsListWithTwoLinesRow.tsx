@@ -49,7 +49,7 @@ const Transaction = ({
   return (
     <Grid.Row className="py-2 border-t" onClick={onClick}>
       <div className="col-span-2">
-        <div className="flex gap-4 justify-between items-center text-left text-gray-800">
+        <div className="flex gap-4 justify-between items-center text-left text-gray-800 dark:text-gray-200">
           <div className="text-base font-semibold">
             {getBackendTranslation(
               securityName,

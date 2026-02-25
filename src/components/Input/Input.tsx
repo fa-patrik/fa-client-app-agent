@@ -64,7 +64,7 @@ const InputPlain = (
             id={id}
             ref={ref}
             className={classNames(
-              "block p-2 w-full text-sm bg-gray-50 border border-gray-300",
+              "block p-2 w-full text-sm bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600",
               className,
               {
                 // Error state
@@ -78,7 +78,8 @@ const InputPlain = (
                 "text-green-400 w-5 h-5 rounded-full":
                   inputAttributes.type === "checkbox",
                 // Default input
-                "text-black rounded-lg": inputAttributes.type !== "checkbox",
+                "text-black dark:text-gray-100 rounded-lg":
+                  inputAttributes.type !== "checkbox",
                 // End adornment spacing
                 "pr-16": !!endAdornment && inputAttributes.type !== "checkbox",
               }

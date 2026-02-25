@@ -101,7 +101,7 @@ export const TaxAllowancePieChart = ({
           <div className="text-sm text-gray-600">
             {t("taxesPage.totalLabel")}
           </div>
-          <div className="text-base font-medium text-gray-900">
+          <div className="text-base font-medium text-gray-900 dark:text-gray-100">
             {t("numberWithCurrencyNoDecimals", {
               value: totalAllowanceAcrossAllWrappers,
               currency,
@@ -112,7 +112,7 @@ export const TaxAllowancePieChart = ({
           <div className="text-sm text-gray-600">
             {t("taxesPage.usedLabel")}
           </div>
-          <div className="text-base font-medium text-gray-900">
+          <div className="text-base font-medium text-gray-900 dark:text-gray-100">
             {t("numberWithCurrencyNoDecimals", {
               value: totalUsedAcrossAllWrappers,
               currency,

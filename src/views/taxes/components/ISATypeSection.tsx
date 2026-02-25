@@ -58,14 +58,16 @@ export const ISATypeSection = ({
   return (
     <>
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          {title}
+        </h3>
 
         {/* Total Amount (Mobile) */}
         <div className="md:hidden">
           <div className="text-sm text-gray-600">
             {t("taxesPage.totalLabel")}
           </div>
-          <div className="text-base font-medium text-gray-900">
+          <div className="text-base font-medium text-gray-900 dark:text-gray-100">
             {t("numberWithCurrencyNoDecimals", {
               value: totalAmount,
               currency,
@@ -83,7 +85,7 @@ export const ISATypeSection = ({
             <div className="text-sm text-gray-600">
               {t("taxesPage.totalLabel")}
             </div>
-            <div className="text-base font-medium text-gray-900">
+            <div className="text-base font-medium text-gray-900 dark:text-gray-100">
               {t("numberWithCurrencyNoDecimals", {
                 value: totalAmount,
                 currency,
@@ -95,7 +97,7 @@ export const ISATypeSection = ({
             <div className="text-sm text-gray-600">
               {t("taxesPage.usedLabel")}
             </div>
-            <div className="text-base font-medium text-gray-900">
+            <div className="text-base font-medium text-gray-900 dark:text-gray-100">
               {t("numberWithCurrencyNoDecimals", {
                 value: usedAmount,
                 currency,
@@ -124,7 +126,7 @@ export const ISATypeSection = ({
         </div>
 
         {/* Portfolio and Top Up section */}
-        <div className="p-3 mt-3 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="p-3 mt-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
           {mappedPortfolios.length > 0 ? (
             mappedPortfolios.map((portfolio, index) => (
               <div

@@ -12,7 +12,7 @@ export const NameWithFlag = ({
   showFlag = true,
 }: NameWithFlagProps) => {
   return (
-    <div className="text-lg md:text-base font-semibold leading-5 text-left text-gray-900">
+    <div className="text-lg md:text-base font-semibold leading-5 text-left text-gray-900 dark:text-gray-100">
       <span>{name}</span>
       {showFlag && (
         <CountryFlag
