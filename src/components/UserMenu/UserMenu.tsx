@@ -235,7 +235,7 @@ export const UserMenu = () => {
       <Menu as="div" className="grid relative items-center">
         <Menu.Button>
           <div className="w-8 h-8 rounded cursor-pointer">
-            <MenuIcon className="h-full text-gray-900" />
+            <MenuIcon className="h-full text-gray-900 dark:text-gray-100" />
           </div>
         </Menu.Button>
         <Transition
@@ -247,7 +247,7 @@ export const UserMenu = () => {
           leaveTo="transform scale-95 opacity-0"
           as={Fragment}
         >
-          <Menu.Items className="absolute top-full right-0 z-10 py-1 whitespace-nowrap bg-white rounded-md ring-1 ring-black/5 shadow-lg origin-top-right focus:outline-none min-w-[120px]">
+          <Menu.Items className="absolute top-full right-0 z-10 py-1 whitespace-nowrap bg-white dark:bg-gray-800 rounded-md ring-1 ring-black/5 dark:ring-gray-600 shadow-lg origin-top-right focus:outline-none min-w-[120px]">
             {getMenuItems(
               menuActions,
               !!linkedContact,
@@ -375,9 +375,9 @@ const MenuItem = ({
         <button
           data-testid={id}
           className={classNames(
-            `p-2 pr-4 flex gap-2 items-center w-full text-base font-medium text-gray-900 cursor-pointer`,
+            `p-2 pr-4 flex gap-2 items-center w-full text-base font-medium text-gray-900 dark:text-gray-100 cursor-pointer`,
             {
-              "bg-primary-50": active,
+              "bg-primary-50 dark:bg-gray-700": active,
             }
           )}
           onClick={action}

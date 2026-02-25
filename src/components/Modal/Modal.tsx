@@ -43,9 +43,9 @@ export const Modal = ({
         >
           <div className="flex overflow-auto fixed inset-0 z-30 justify-center items-baseline p-4">
             <div className="flex justify-center items-center min-h-full">
-              <Dialog.Panel className="grid overflow-auto w-full bg-white rounded-lg border shadow-lg">
+              <Dialog.Panel className="grid overflow-auto w-full bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 shadow-lg">
                 {!!header && (
-                  <div className="flex justify-between items-center p-4 md:px-6 text-2xl font-bold bg-gray-200">
+                  <div className="flex justify-between items-center p-4 md:px-6 text-2xl font-bold bg-gray-200 dark:bg-gray-700 dark:text-gray-100">
                     <div>{header}</div>
                     <button
                       type="button"

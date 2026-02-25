@@ -4,7 +4,7 @@ import { ErrorBoundary } from "components/ErrorBoundary/ErrorBoundary";
 import { Outlet } from "react-router-dom";
 export const MainLayout = () => {
   return (
-    <div className="box-border text-gray-900 bg-gray-50 h-[calc(100vh-0.5rem)]">
+    <div className="box-border text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-900 h-[calc(100vh-0.5rem)]">
       <ErrorBoundary>
         <Suspense fallback={<LoadingIndicator center />}>
           <Outlet />

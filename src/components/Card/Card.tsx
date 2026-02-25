@@ -13,7 +13,7 @@ export const Card = ({ children, header, onClick, id }: CardProps) => (
   <div
     id={id}
     className={classNames(
-      "flex overflow-hidden flex-col w-full h-full bg-white rounded-lg border shadow-md",
+      "flex overflow-hidden flex-col w-full h-full bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 shadow-md",
       {
         "cursor-pointer": !!onClick,
       }
@@ -21,7 +21,9 @@ export const Card = ({ children, header, onClick, id }: CardProps) => (
     onClick={onClick}
   >
     {header && (
-      <div className="p-2 md:px-4 text-2xl font-bold bg-gray-200">{header}</div>
+      <div className="p-2 md:px-4 text-2xl font-bold bg-gray-200 dark:bg-gray-700">
+        {header}
+      </div>
     )}
     {children}
   </div>

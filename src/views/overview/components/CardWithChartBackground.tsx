@@ -21,8 +21,8 @@ export const CardWithChartBackground = ({
       className={classNames("relative overflow-hidden h-full", {
         "bg-linear-to-br from-gray-500 to-black text-gray-100":
           colorScheme === "black",
-        "bg-gray-200": colorScheme === "gray",
-        "bg-primary-100": colorScheme === "blue",
+        "bg-gray-200 dark:bg-gray-700": colorScheme === "gray",
+        "bg-primary-100 dark:bg-primary-900": colorScheme === "blue",
         "cursor-pointer": !!onClick,
       })}
       onClick={onClick}
@@ -31,7 +31,9 @@ export const CardWithChartBackground = ({
         preserveAspectRatio="none"
         className={classNames("absolute bottom-0 w-full md:h-3/4", {
           "fill-black": colorScheme === "black",
-          "fill-white": ["gray", "blue"].includes(colorScheme),
+          "fill-white dark:fill-gray-800": ["gray", "blue"].includes(
+            colorScheme
+          ),
         })}
       />
       {children}

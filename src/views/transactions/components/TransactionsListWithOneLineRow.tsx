@@ -27,7 +27,7 @@ export const TransactionsListWithOneLineRow = ({
   return (
     <div>
       <table className="w-full table-fixed">
-        <thead className="text-sm font-semibold text-gray-500 bg-gray-100 border-t">
+        <thead className="text-sm font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border-t">
           <tr>
             <th className="py-1 px-2 text-left">
               {t("transactionsPage.security")}
@@ -103,7 +103,7 @@ const Transaction = ({
     <>
       <tr
         onClick={onClick}
-        className="h-12 hover:bg-primary-50 border-t transition-colors cursor-pointer"
+        className="h-12 hover:bg-primary-50 dark:hover:bg-gray-700 border-t transition-colors cursor-pointer"
       >
         <td className="px-2 font-semibold text-left">
           {getBackendTranslation(

@@ -30,7 +30,9 @@ export const DataCard = ({
           <div
             className={classNames(
               "text-sm font-normal flex flex-row gap-2",
-              colorScheme === "black" ? "text-gray-300" : "text-gray-600"
+              colorScheme === "black"
+                ? "text-gray-300"
+                : "text-gray-600 dark:text-gray-400"
             )}
           >
             {label}
@@ -43,7 +45,9 @@ export const DataCard = ({
           <div
             className={classNames(
               "text-3xl font-medium",
-              colorScheme === "black" ? "text-gray-200" : "text-gray-900"
+              colorScheme === "black"
+                ? "text-gray-200"
+                : "text-gray-900 dark:text-gray-100"
             )}
           >
             {value}

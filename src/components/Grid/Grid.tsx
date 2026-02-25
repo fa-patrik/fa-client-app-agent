@@ -45,7 +45,7 @@ interface GridHeaderProps {
 
 const GridHeader = ({ children }: GridHeaderProps) => (
   <Grid
-    className="py-1 text-sm font-semibold text-gray-500 bg-gray-100"
+    className="py-1 text-sm font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800"
     firstChildClassName="pl-2 text-left"
     middleChildClassName="text-right "
     lastChildClassName="text-right pr-2"

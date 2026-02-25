@@ -147,7 +147,7 @@ export const ComboBox = <TOption extends Option>({
         )}
         <div
           className={classNames(
-            "flex gap-2 items-center py-2.5 pr-4 w-full h-10 bg-gray-50 rounded-lg border border-gray-300",
+            "flex gap-2 items-center py-2.5 pr-4 w-full h-10 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600",
             {
               // Error state
               "border-2 border-red-500 bg-red-50": error && !isDisabled,
@@ -165,8 +165,9 @@ export const ComboBox = <TOption extends Option>({
             className={classNames(
               "p-2.5 w-full h-10 text-sm truncate bg-transparent rounded-lg border-0 focus:border-0 focus:ring-0 focus:-m-px",
               {
-                "text-gray-900": !isDisabled,
-                "text-gray-400 cursor-not-allowed": isDisabled,
+                "text-gray-900 dark:text-gray-100": !isDisabled,
+                "text-gray-400 dark:text-gray-500 cursor-not-allowed":
+                  isDisabled,
               }
             )}
             displayValue={(option: TOption) =>

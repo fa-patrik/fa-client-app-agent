@@ -24,7 +24,7 @@ export const DetailsHeader = ({
   const { header } = useDetailsHeaderContext();
 
   return (
-    <div className="z-20 bg-white border-b shadow-md p-2">
+    <div className="z-20 bg-white dark:bg-gray-800 border-b dark:border-gray-700 shadow-md p-2">
       <div className="container flex gap-2 justify-between items-center mx-auto">
         {!hideLogo && showLogoAndUserMenu && <Logo />}
         <div className="flex items-center text-lg sm:text-2xl font-bold mr-auto min-w-0">

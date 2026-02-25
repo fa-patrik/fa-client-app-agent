@@ -31,7 +31,8 @@ const NavTab = (
         {
           "border-b-2 border-primary-600 font-semibold text-primary-600":
             selected,
-          "border-b-2 border-transparent text-gray-600 font-normal": !selected,
+          "border-b-2 border-transparent text-gray-600 dark:text-gray-400 font-normal":
+            !selected,
         }
       )
     }
@@ -48,7 +49,7 @@ NavTab.Group = Tab.Group;
 
 type NavTabListType = typeof Tab.List;
 const NavTabList: NavTabListType = (props) => (
-  <nav className="overflow-x-auto overflow-y-visible w-full bg-white border-b border-gray-200 shadow-md scroll-hidden">
+  <nav className="overflow-x-auto overflow-y-visible w-full bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-md scroll-hidden">
     <Tab.List
       className="container flex flex-nowrap items-stretch px-2 mx-auto scroll-hidden"
       {...props}

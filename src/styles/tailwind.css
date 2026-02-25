@@ -6,11 +6,15 @@
   *,
   ::before,
   ::after {
-    @apply border-gray-200;
+    @apply border-gray-200 dark:border-gray-700;
   }
 
   html {
     -webkit-tap-highlight-color: transparent;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   *:focus {

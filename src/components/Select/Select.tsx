@@ -66,7 +66,7 @@ const renderOptions = ({
           {({ active, selected }) => (
             <li
               className={classNames(
-                "relative block py-2 pl-4 pr-4 text-sm text-gray-700 dark:text-gray-200 cursor-pointer select-none bg-white",
+                "relative block py-2 pl-4 pr-4 text-sm text-gray-700 dark:text-gray-200 cursor-pointer select-none bg-white dark:bg-gray-800",
                 {
                   "dark:text-white bg-primary-50 dark:bg-gray-600": active,
                   "font-bold": selected,
@@ -155,12 +155,13 @@ export const Select = <TOption extends Option>({
       )}
       <Listbox.Button
         className={classNames(
-          "flex gap-2 items-center py-2.5 px-4 w-full h-10 text-base bg-gray-50 rounded-lg border border-gray-300",
+          "flex gap-2 items-center py-2.5 px-4 w-full h-10 text-base bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600",
           {
             // Interactive state (only when NOT disabled)
-            "text-gray-900 cursor-pointer": !selectButtonDisabled,
+            "text-gray-900 dark:text-gray-100 cursor-pointer":
+              !selectButtonDisabled,
             // Disabled state
-            "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-100":
+            "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-100 dark:bg-gray-800":
               selectButtonDisabled,
           }
         )}

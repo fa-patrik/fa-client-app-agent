@@ -16,7 +16,7 @@ export const DetailsHeading = ({
 }: HeadingProps) => {
   const showLogoAndUserMenu = useMatchesBreakpoint("md");
   return (
-    <div className="z-20 bg-white border-b border-gray-200 shadow-md">
+    <div className="z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-md">
       <AccessBanner />
       <ConfiguredBanner />
       <div className="container flex gap-2 justify-between items-center py-2 px-2 mx-auto">

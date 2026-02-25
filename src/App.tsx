@@ -5,26 +5,29 @@ import { InitialLanguageProvider } from "providers/InitialLanguageProvider";
 import { KeycloakProvider } from "providers/KeycloakProvider";
 import { PersistedApolloProvider } from "providers/PersistedApolloProvider";
 import { ServiceWorkerRegistrationProvider } from "providers/ServiceWorkerRegistrationProvider";
+import { ThemeProvider } from "providers/ThemeProvider";
 import { Toast } from "./components";
 import "react-toastify/dist/ReactToastify.css";
 import "styles/fonts.css";
 
 function App() {
   return (
-    <InitialLanguageProvider>
-      <ServiceWorkerRegistrationProvider>
-        <ErrorBoundary>
-          <ConfigProvider>
-            <KeycloakProvider>
-              <PersistedApolloProvider>
-                <Router />
-              </PersistedApolloProvider>
-              <Toast />
-            </KeycloakProvider>
-          </ConfigProvider>
-        </ErrorBoundary>
-      </ServiceWorkerRegistrationProvider>
-    </InitialLanguageProvider>
+    <ThemeProvider>
+      <InitialLanguageProvider>
+        <ServiceWorkerRegistrationProvider>
+          <ErrorBoundary>
+            <ConfigProvider>
+              <KeycloakProvider>
+                <PersistedApolloProvider>
+                  <Router />
+                </PersistedApolloProvider>
+                <Toast />
+              </KeycloakProvider>
+            </ConfigProvider>
+          </ErrorBoundary>
+        </ServiceWorkerRegistrationProvider>
+      </InitialLanguageProvider>
+    </ThemeProvider>
   );
 }
 
